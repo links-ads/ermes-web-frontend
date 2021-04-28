@@ -1,0 +1,27 @@
+{
+  "organization": "Organization",
+  "organizations": "Organizations",
+  "adm_manage_organizations_label": "Manage Organizations",
+  "adm_manage_organizations_text": "Create or Edit SHELTER Organizations",
+  "adm_manage_users_label": "Manage Users",
+  "adm_manage_users_text": "Create or Edit SHELTER Users",
+  "org_logo": "Logo",
+  "org_short_name": "Short Name",
+  "org_name": "Name",
+  "org_description": "Description",
+  "org_website": "Web Site",
+  "user": "User",
+  "users": "Users",
+  "user_avatar": "Avatar",
+  "user_username": "Username",
+  "user_email": "Email",
+  "user_first_name": "First Name",
+  "user_last_name": "Last Name",
+  "user_org_name": "Organization",
+  "team_name": "Team",
+  "team_org_name" :  "Organization",
+  "team_people_count" : "# people",
+  "team_select_members" : "Select a team to see its members"
+}
+
+

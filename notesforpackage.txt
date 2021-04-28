@@ -1,0 +1,5 @@
+git+ssh://git@bitbucket.org/mobilesolutionsismb/faster-backoffice-ts-sdk.git#v1.4.0
+file:../faster-sdk/faster-backoffice-ts-sdk-1.4.0.tgz
+
+git+ssh://git@bitbucket.org/mobilesolutionsismb/faster-ts-sdk.git#v1.4.0
+file:../faster-sdk/faster-ts-sdk-1.4.0.tgz

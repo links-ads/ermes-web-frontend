@@ -1,0 +1,7 @@
+{
+  "title": "Device Authentication",
+  "verify_code": "Verify Code",
+  "user_code": "User Code",
+  "valid_code": "The device code is valid!",
+  "authn_complete": "Your device was authenticated successfully. You can close this window."
+}

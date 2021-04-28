@@ -1,0 +1,22 @@
+{
+    "palette": {
+      "type": "light",
+      "primary": {
+        "light": "#35baf6",
+        "main": "#03a9f4",
+        "dark": "#0276aa",
+        "contrastText": "#ffffff"
+      },
+      "secondary": {
+        "light": "#ff5f5c",
+        "main": "#ff1531",
+        "dark": "#c30009",
+        "contrastText": "#000000"
+      },
+      "background": {
+        "default": "#ECF0FD",
+        "paper": "#CAD5F8"
+      }
+    }
+  }
+  

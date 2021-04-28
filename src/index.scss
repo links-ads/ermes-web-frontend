@@ -1,0 +1,146 @@
+$material-design-icons-font-directory-path: '~material-design-icons-iconfont/dist/fonts/';
+@import '~material-design-icons-iconfont/src/material-design-icons.scss';
+/*
+CSS Vars are auto-loaded from Material UI configuration and set when switching theme
+ :root {
+    --mui-text-primary: #fff;
+    --mui-text-secondary: rgba(255, 255, 255, 0.7);
+    --mui-text-disabled: rgba(255, 255, 255, 0.5);
+    --mui-text-hint: rgba(255, 255, 255, 0.5);
+    --mui-text-icon: rgba(255, 255, 255, 0.5);
+    --mui-background-paper: #0E2367;
+    --mui-background-default: #091744;
+    --mui-primary-light: #5c9ff6;
+    --mui-primary-main: #0c71c3;
+    --mui-primary-dark: #004792;
+    --mui-primary-contrastText: #ffffff;
+    --mui-secondary-light: #ff5f5c;
+    --mui-secondary-main: #ff1531;
+    --mui-secondary-dark: #c30009;
+    --mui-secondary-contrastText: #000000;
+} */
+body {
+  background: var(--mui-background-default);
+  color: var(--mui-text-primary);
+  margin: 0;
+  font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+body div#root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+}
+body main {
+  position: fixed;
+  top: 0;
+  display: flex;
+  height: calc(100% - 128px);
+  top: 64px;
+}
+html {
+  scrollbar-width: thin;
+}
+
+html *::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: var(--mui-background-paper);
+}
+
+html *::-webkit-scrollbar {
+  width: 6px;
+  background-color: var(--mui-background-paper);
+}
+
+html *::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.44, var(--mui-primary-light)),
+    color-stop(0.72, var(--mui-primary-main)),
+    color-stop(0.86, var(--mui-primary-dark))
+  );
+  /* background-color: var(--bg-color); */
+}
+
+.full-screen {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  position: fixed;
+}
+
+.full {
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+}
+
+.flex {
+  display: flex;
+}
+
+.centered,
+.row.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.column.centered {
+  flex-direction: column;
+}
+.justified-scrollable-text-box{
+  position: relative;
+  height: 100%;
+  width: 100%;
+  text-align: justify;
+  text-justify: inter-word;
+  position: relative;
+}
+
+.insideTable{
+  thead{
+    display: none;
+  }
+  td {
+    border-bottom: none !important;
+  }
+}
+.table-wrap-style{
+  padding: 15px
+}
+.teams-select-team-centered{
+  width: 100%;
+  height: 100%;
+  display: inline-block;
+  span {
+    display: block;
+    width: 100%;
+    text-align: center;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+}
+// .MuiTab-root{
+//   min-width: 130px !important;
+// }
+
+.map-scrollable-container{
+  div {
+    height: 100%;
+  }
+}

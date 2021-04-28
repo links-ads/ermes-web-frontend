@@ -1,0 +1,7 @@
+{
+  "title": "Autenticazione Dispositivo",
+  "verify_code": "Verifica Codice",
+  "user_code": "Codice Utente",
+  "valid_code": "Il codice utente è valido!",
+  "authn_complete": "L'autenticazione del dispositivo è avvenuta con successo. Puoi chiudere questa finestra."
+}
