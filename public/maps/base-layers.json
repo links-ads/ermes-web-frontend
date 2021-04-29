@@ -1,41 +1,40 @@
 {
-    "baseLayers": [
-      {
-        "name": "esri-satellite-raster",
-        "label": "Satellite",
-        "preview": "esri-satellite.png",
-        "style": "esri-satellite-raster.json"
-      },
-      {
-        "name": "basic-gl",
-        "label": "Basic",
-        "preview": "basic.png",
-        "style": "basic-gl.json"
-      },
-      {
-        "name": "dark-matter",
-        "label": "Dark Matter",
-        "preview": "dark-matter.png",
-        "style": "dark-matter-gl.json"
-      },
-      {
-        "name": "fiord-color",
-        "label": "Fiord Color",
-        "preview": "fiord-color.png",
-        "style": "fiord-color-gl.json"
-      },
-      {
-        "name": "positron",
-        "label": "Positron",
-        "preview": "positron.png",
-        "style": "positron-gl.json"
-      },
-      {
-        "name": "osm-bright",
-        "label": "OSM Bright",
-        "preview": "osm-bright.png",
-        "style": "osm-bright-gl.json"
-      }
-    ]
-  }
-  
+  "baseLayers": [
+    {
+      "name": "esri-satellite-raster",
+      "label": "Satellite",
+      "preview": "esri-satellite.png",
+      "style": "esri-satellite-raster.json"
+    },
+    {
+      "name": "basic-gl",
+      "label": "Basic",
+      "preview": "basic.png",
+      "style": "basic-gl.json"
+    },
+    {
+      "name": "dark-matter",
+      "label": "Dark Matter",
+      "preview": "dark-matter.png",
+      "style": "dark-matter-gl.json"
+    },
+    {
+      "name": "fiord-color",
+      "label": "Fiord Color",
+      "preview": "fiord-color.png",
+      "style": "fiord-color-gl.json"
+    },
+    {
+      "name": "positron",
+      "label": "Positron",
+      "preview": "positron.png",
+      "style": "positron-gl.json"
+    },
+    {
+      "name": "osm-bright",
+      "label": "OSM Bright",
+      "preview": "osm-bright.png",
+      "style": "osm-bright-gl.json"
+    }
+  ]
+}

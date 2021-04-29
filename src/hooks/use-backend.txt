@@ -1,0 +1,48 @@
+import { useState, useEffect, useCallback } from 'react'
+
+import { PersonsApi } from 'faster-sdk'
+
+const API = new PersonsApi()
+// window['personsApi'] = personsApi
+// personsApi.personsGetMyProfile()
+
+export function useBackend(apiName: string, apiParams: any) {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [hasError, setHasError] = useState(false)
+  const resetErrorAndRetry = () => {
+    if (error) {
+      setError(null)
+    }
+  }
+  useEffect(() => {
+    if (error !== null) {
+      setHasError(true)
+    } else {
+      setHasError(false)
+    }
+  }, [error])
+
+  const apiParamsStr = JSON.stringify(apiParams)
+
+  const loadData = useCallback(async () => {
+    if (!loading) {
+      await API[apiName](JSON.parse(apiParamsStr), setData, setError, setLoading)
+    }
+  }, [apiName, apiParamsStr, loading])
+
+  useEffect(() => {
+    if (API[apiName] && hasError === false) {
+      loadData()
+    }
+  }, [apiName, hasError, loadData])
+
+  return {
+    data,
+    error,
+    loading,
+    resetErrorAndRetry,
+    loadData
+  }
+}

@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2019",
     "lib": [
+      "ES2019",
       "dom",
       "dom.iterable",
       "esnext"
@@ -12,7 +13,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
@@ -29,9 +29,15 @@
     "noLib": false,
     "noEmitHelpers": true,
     "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src"
-  ]
+  ],
+  "exclude": [
+    "src/out",
+    "src/old"
+  ],
+  "extends": "@tsconfig/create-react-app/tsconfig.json"
 }
