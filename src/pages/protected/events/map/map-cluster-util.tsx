@@ -1,4 +1,4 @@
-import { updateMarkers } from '../../decision-making/map/api-data/emergency.layers';
+import { updateMarkers } from '../../map/api-data/emergency.layers';
 
 type HazardType =
     | '10'

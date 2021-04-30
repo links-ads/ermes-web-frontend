@@ -1,22 +1,22 @@
 import { CircularProgress, Grid, Paper, Typography } from '@material-ui/core';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook'
 
 import SocialFilter from '../common/filters/filters';
 
-import { checkEqualArgs } from '../common/utils/utils.common';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { LanguageCard, SocialPieChart, VolumeCard } from '../social/social.cards.components';
+import { LanguageCard, SocialPieChart, VolumeCard } from '../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
-import EventsList from './events-list.component';
+// import EventsList from './events-list.component';
 import EventMap from './map/map-layout.component';
-import InteractiveMap from 'react-map-gl';
 import { FiltersType } from '../common/filters/reducer';
+import {CardsList} from '../common/cards-list.components';
+import {EventCard} from './card/event-card.component';
 
 const EventsComponent = (props) => {
 
@@ -133,17 +133,23 @@ const EventsComponent = (props) => {
                         </Grid>
                     </Grid>
                     <Grid className={classes.tweetsListContainer} item >
-                        <EventsList
+                        <CardsList
                             data={shownData.data}
                             isLoading={eventAnnotations.isLoading}
                             hasMore={shownData.size < eventAnnotations.data.length}
                             isError={eventAnnotations.error}
                             moreData={() => showMoreData()}
-                            mapIdsToHazards={filtersState.mapIdsToHazards}
-                            mapIdsToInfos={filtersState.mapIdsToInfos}
-                            mapRef={mapRef}
-                            leftClickState={mapLeftClickState}
-                            setLeftClickState={setMapLeftClickState}
+                            renderItem={(item) => (
+                                    <EventCard
+                                        item={item}
+                                        key={item.id}
+                                        mapIdsToHazards={filtersState.mapIdsToHazards}
+                                        mapIdsToInfos={filtersState.mapIdsToInfos}
+                                        mapRef={mapRef}
+                                        leftClickState={mapLeftClickState}
+                                        setLeftClickState={setMapLeftClickState}
+                                    />
+                                )}
                         />
                     </Grid>
                 </Grid>

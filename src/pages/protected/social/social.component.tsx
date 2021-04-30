@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import SocialFilter from '../common/filters/filters'
-import SocialList from './tweets-list.component'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
@@ -11,18 +10,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { useTranslation } from 'react-i18next'
 
-import { VolumeCard, InformativeCard, LanguageCard, SocialPieChart } from './social.cards.components'
+import { VolumeCard, InformativeCard, LanguageCard, SocialPieChart } from '../common/stats-cards.components'
 import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
-import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook';
 import useTweetsAnnotations from '../../../hooks/use-tweet-annotation.hook';
 
 import { FiltersType } from '../common/filters/reducer';
+import { CardsList } from '../common/cards-list.components';
+
+import {TweetCard} from './card/tweet-card-component';
 
 const SocialComponent = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -139,18 +140,24 @@ const SocialComponent = (props) => {
                         </Grid>
                     </Grid>
                     <Grid className={classes.tweetsListContainer} item >
-                        <SocialList
+                            <CardsList
                             data={shownData.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
                             hasMore={shownData.size < tweetAnnotations.data.length}
-                            // moreData={() => fetchTweetAnnotations(filterArgs, PAGE_SIZE, true, (data) => { return data }, [], (data) => { return data })}
                             moreData={() => showMoreData()}
-                            mapIdsToHazards={filtersState.mapIdsToHazards}
-                            mapIdsToInfos={filtersState.mapIdsToInfos}
-                            mapRef={mapRef}
-                            mapLeftClickState={mapLeftClickState}
-                            setMapLeftClickState={setMapLeftClickState} />
+                            renderItem={(item) => (
+                                    <TweetCard
+                                        item={item}
+                                        key={item.id}
+                                        mapIdsToHazards={filtersState.mapIdsToHazards}
+                                        mapIdsToInfos={filtersState.mapIdsToInfos}
+                                        mapRef={mapRef}
+                                        leftClickState={mapLeftClickState}
+                                        setLeftClickState={setMapLeftClickState}
+                                    />
+                                )}
+                        />
                     </Grid>
                 </Grid>
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>

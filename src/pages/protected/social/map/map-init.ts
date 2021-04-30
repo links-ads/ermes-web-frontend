@@ -1,4 +1,4 @@
-const tweetImage = new Image(60, 60);
+const tweetImage = new Image(40,40);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
 
 export const SOURCE_ID = "tweets-source"
@@ -30,8 +30,10 @@ export const initializeMap = (map, geoData) => {
     if (map === undefined || map === null) return
     try {
         if (!map.hasImage('twitterIcon'))
-        map.addImage('twitterIcon', tweetImage);
-
+        {
+            map.addImage('twitterIcon', tweetImage);
+        }
+        
         let s = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource
         if (s === undefined) {
             map.addSource(SOURCE_ID, {
@@ -92,7 +94,8 @@ export const initializeMap = (map, geoData) => {
             });
         }
     }
-    catch {
+    catch(err) {
+        console.log(err)
 
     }
 }

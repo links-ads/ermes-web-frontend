@@ -22,6 +22,7 @@ import { NavLink } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
 import { UserRole } from 'ermes-ts-sdk'
 import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
+import { controlAccess } from '../../pages/protected/control-access'
 
 
 interface INavContentLinkConfig {
@@ -112,22 +113,35 @@ const admin: NavContentLinkConfig[] = [
 
 function getLinks(role: UserRole, oid: string = 'unkn'): NavContentLinkConfig[] {
   let linksConfig: NavContentLinkConfig[] = []
-  switch (role) {
-    case 'administrator':
-      linksConfig = [...admin, null, ...decisionMaking, null, ...personal]
-      break
-    case 'organization_manager':
-      linksConfig = [...decisionMaking, null, ...orgManagement(oid), null, ...personal]
-      break
-    case 'decision_maker':
-      linksConfig = [...decisionMaking, null, ...personal]
-      break
-    case 'first_responder':
-      linksConfig = personal
-      break
-    default:
-      break
+  // switch (role) {
+  //   case 'administrator':
+  //     linksConfig = [...admin, null, ...decisionMaking, null, ...personal]
+  //     break
+  //   case 'organization_manager':
+  //     linksConfig = [...decisionMaking, null, ...orgManagement(oid), null, ...personal]
+  //     break
+  //   case 'decision_maker':
+  //     linksConfig = [...decisionMaking, null, ...personal]
+  //     break
+  //   case 'first_responder':
+  //     linksConfig = personal
+  //     break
+  //   default:
+  //     break
+  // }
+
+  //check which admin content can see
+  linksConfig = linksConfig.concat(admin.filter(i=>controlAccess(i?.to,role)),[null])
+  //check which decision making content can see
+  linksConfig = linksConfig.concat(decisionMaking.filter(i=>controlAccess(i?.to,role)),[null])
+  //check whether user can see organizations content
+  if(controlAccess('/organizations/',role))
+  {
+    linksConfig = linksConfig.concat(orgManagement(oid),[null])
+
   }
+  //personal content always visible
+  linksConfig = linksConfig.concat(personal)
   return [
     ...linksConfig,
     null,

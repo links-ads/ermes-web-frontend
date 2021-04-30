@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { InteractiveMap } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
-import { MapStyleToggle } from '../../decision-making/map/map-style-toggle.component';
-import MapSlide from './map-popup-card';
+import { MapStyleToggle } from '../../map/map-style-toggle.component';
+import MapSlide from '../../common/map/map-popup-card';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next'
 
 
 import { parseDataToGeoJson } from '../../common/map/map-common';
-import { TweetContent } from '../tweet-card-content.component';
+import { TweetContent } from '../card/tweet-card-content';
 import { CLUSTER_LAYER_ID, DEFAULT_MAP_VIEWPORT, TWEETS_LAYER_ID } from './map-init';
 import { initializeMap } from './map-init';
 import { mapClickHandler } from './map-click-handler';

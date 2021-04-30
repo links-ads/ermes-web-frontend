@@ -4,15 +4,36 @@ import qs from 'querystring'
 import { Switch, Route, Redirect, RouteChildrenProps } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NotFoundPage } from '../open/not-found.page'
+import { UnAuthorizedPage } from '../open/unauthorized.page'
 import { Container } from '@material-ui/core'
 
-// LAZY LOADING
-const DecisionMakingRoutes = React.lazy(() => import('./decision-making/decision-making.routes'))
-// const PersonalRoutes = React.lazy(() => import('./personal/personal.routes'))
-// const AdministrationRoutes = React.lazy(() => import('./administration/administration.routes'))
-const SocialRoutes = React.lazy( () => import('./social/social.routes'))
-const EventsRoutes = React.lazy( () => import('./events/events.routes'))
+import { controlAccess } from './control-access';
 
+// LAZY LOADING
+const Dashboard = React.lazy(async () => {
+  const module = await import('./dashboard/dashboard.component')
+  return { default: module.Dashboard }
+})
+
+const Map = React.lazy(async () => {
+  const module = await import('./map/map.component')
+  return { default: module.Map }
+})
+
+const Details = React.lazy(async () => {
+  const module = await import('./details/details.component')
+  return { default: module.Details }
+})
+
+const Social = React.lazy(async () => {
+  const module = await import('./social/social.route')
+  return { default: module.SocialRoute }
+})
+
+const Events = React.lazy(async () => {
+  const module = await import('./events/events.route')
+  return { default: module.EventsRoute }
+})
 export function ProtectedPages({ match, location, history }: RouteChildrenProps) {
   const { profile } = useUser()
   const originalURL =
@@ -27,6 +48,12 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
     match ? match.url : '',
     originalURL,
     profile?.defaultLandingPage
+  )
+
+  const unAuthorizedContent = (props) => (
+    <Container className="full flex container" maxWidth="sm">
+      <UnAuthorizedPage {...props} />
+    </Container>
   )
 
   return profile ? (
@@ -50,23 +77,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
           )
         }}
       ></Route> */}
-      <Route
-        path={['/dashboard', '/map', '/details']}
-        render={({ location }) => {
-          return (
-            <Suspense
-              fallback={
-                <div className="full-screen centered">
-                  <CircularProgress color="secondary" size={120} />
-                </div>
-              }
-            >
-              <DecisionMakingRoutes location={location} match={match} history={history} />
-            </Suspense>
-          )
-        }}
-      ></Route>
-     {/* <Route
+      {/* <Route
         path={['/administration', '/organizations', '/users', '/test']}
         render={({ location }) => {
           return (
@@ -82,10 +93,10 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
           )
         }}
       ></Route> */}
-      <Route 
-        path={'/social'}
+      <Route
+        path={'/dashboard'}
         render={({ location }) => {
-          return (
+          return controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -93,15 +104,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <SocialRoutes location={location} match={match} history={history} />
+              <Dashboard />
             </Suspense>
-          )
+          ) : (unAuthorizedContent(location))
         }}
       ></Route>
-      <Route 
-        path={'/events'}
+      <Route
+        path={'/map'}
         render={({ location }) => {
-          return (
+          return controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -109,9 +120,59 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <EventsRoutes location={location} match={match} history={history} />
+              <Map />
+            </Suspense>
+          ) : unAuthorizedContent(location)
+        }}
+      ></Route>)
+      <Route
+        path={'/details'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Details />
             </Suspense>
           )
+            : unAuthorizedContent(location)
+        }}
+      ></Route>
+
+      <Route
+        path={'/social'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Social location={location} match={match} history={history} />
+            </Suspense>
+          ) : unAuthorizedContent(location)
+        }}
+      ></Route>
+      <Route
+        path={'/events'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Events location={location} match={match} history={history} />
+            </Suspense>
+          ) : unAuthorizedContent(location)
         }}
       ></Route>
       <Route

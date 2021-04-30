@@ -1,0 +1,6 @@
+export const ROLE_ADMIN = "administrator"
+export const ROLE_ORGANIZATION_MANAGER = "organization_manager"
+export const ROLE_DECISION_MAKER = "decision_maker"
+export const ROLE_TEAM_LEADER = "team_leader"
+export const ROLE_FIRST_RESPONDER = "first_responder"
+export const ROLE_CITIZEN = "citizen"
