@@ -1,3 +1,4 @@
+import React from 'react'
 import { Card, CardContent, CircularProgress, Grid, Typography } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 

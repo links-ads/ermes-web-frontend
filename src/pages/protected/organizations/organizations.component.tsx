@@ -16,7 +16,7 @@ import {
 } from 'ermes-backoffice-ts-sdk'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const options: Options<any> = {
+const options: Options = {
   sorting: true,
   pageSize: 10,
   pageSizeOptions: [10, 20, 30],

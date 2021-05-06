@@ -12,11 +12,12 @@ import { LanguageCard, SocialPieChart, VolumeCard } from '../common/stats-cards.
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
-// import EventsList from './events-list.component';
 import EventMap from './map/map-layout.component';
 import { FiltersType } from '../common/filters/reducer';
 import {CardsList} from '../common/cards-list.components';
 import {EventCard} from './card/event-card.component';
+import InteractiveMap from 'react-map-gl';
+import React from 'react';
 
 const EventsComponent = (props) => {
 

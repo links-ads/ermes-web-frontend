@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import SocialFilter from '../common/filters/filters'
@@ -15,6 +15,7 @@ import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
+import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook';

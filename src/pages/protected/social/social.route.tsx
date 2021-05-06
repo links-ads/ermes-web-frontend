@@ -1,9 +1,7 @@
+import React from 'react'
 import { RouteChildrenProps } from 'react-router-dom'
-
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
-
 import { useUser } from '../../../state/auth/auth.hooks'
-
 import SocialComponent from './social.component'
 
 export function SocialRoute({ location }: RouteChildrenProps) {

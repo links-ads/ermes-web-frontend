@@ -1,3 +1,4 @@
+import React from 'react'
 import { RouteChildrenProps } from 'react-router-dom'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
 
