@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": [
-      "ES2019",
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["ES2019", "dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -18,7 +13,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "incremental": false,
     "sourceMap": true,
     "declaration": true,
@@ -29,15 +24,8 @@
     "noLib": false,
     "noEmitHelpers": true,
     "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "noFallthroughCasesInSwitch": true
+    "suppressImplicitAnyIndexErrors": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "src/out",
-    "src/old"
-  ],
-  "extends": "@tsconfig/create-react-app/tsconfig.json"
+  "include": ["src"],
+  "exclude": ["src/out", "src/old"]
 }

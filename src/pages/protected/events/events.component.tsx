@@ -54,7 +54,7 @@ const EventsComponent = (props) => {
     const [eventStats, fetchEventsStat] = useSocialStat('EVENTS')
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
     const { t } = useTranslation(['social'])
-    const mapRef = useRef<any>(null)
+    const mapRef = useRef<InteractiveMap>(null)
     const [shownData,setShownData] = useState({size:0,data:[] as any[]})
     
     const [filterArgs, setFilterArgs] = useState<FiltersType>({

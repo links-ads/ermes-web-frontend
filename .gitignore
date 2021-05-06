@@ -24,3 +24,11 @@ yarn-error.log*
 
 .env
 config.json
+debug.log
+.eslintcache
+launch.json
+
+Docker.dev
+docker-compose
+
+.vscode/*

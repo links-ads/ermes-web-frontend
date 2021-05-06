@@ -5,7 +5,7 @@ import { SVGPinPointStyle, getPinImages, ColorMap } from '../pin-svg-factories'
 import { Spiderifier } from '../../../../../utils/map-spiderifier.utils'
 
 export async function onMapLoadHandler<T extends object>(
-  mapViewRef: React.RefObject<any>,
+  mapViewRef: React.RefObject<InteractiveMap>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
   setSpiderLayerNames: (layerIds: string[]) => void,
   updateMarkers: (map: mapboxgl.Map) => void,

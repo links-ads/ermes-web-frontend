@@ -34,7 +34,7 @@ const MapStyleToggleContainer = styled.div.attrs({
 `
 
 interface RefProps {
-  mapViewRef: React.RefObject<any>
+  mapViewRef: React.RefObject<InteractiveMap>
   spiderifierRef: React.MutableRefObject<Spiderifier | null>
 }
 

@@ -85,7 +85,7 @@ export function Map() {
             <Grid container justify="space-around">
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 {/* Date pickers */}
-                {/* <KeyboardDatePicker
+                <KeyboardDatePicker
                   
                   style={{ paddingTop: 0, marginTop: 0 }}
                   disableToolbar
@@ -119,7 +119,7 @@ export function Map() {
                   KeyboardButtonProps={{
                     'aria-label': 'change date'
                   }}
-                /> */}
+                />
               </MuiPickersUtilsProvider>
             </Grid>
           </Container>
