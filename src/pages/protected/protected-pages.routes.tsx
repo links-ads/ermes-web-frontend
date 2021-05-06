@@ -34,6 +34,35 @@ const Events = React.lazy(async () => {
   const module = await import('./events/events.route')
   return { default: module.EventsRoute }
 })
+
+const Administration = React.lazy(
+  () => import('./administration/administration.component').then(module => ({ default: module.Administration }))
+);
+
+const Organizations = React.lazy(
+  () => import('./organizations/organizations.component').then(module => ({ default: module.Organizations }))
+);
+
+const Users = React.lazy(
+  () => import('./users/users.component').then(module => ({ default: module.Users }))
+);
+
+const Teams = React.lazy(
+  () => import('./teams/teams.component').then(module => ({ default: module.Teams }))
+);
+
+const Profile = React.lazy(
+  () => import('./profile/profile.component').then(module => ({ default: module.Profile }))
+);
+
+const Settings = React.lazy(
+  () => import('./settings/settings.component').then(module => ({ default: module.Settings }))
+);
+
+const DeviceAuth = React.lazy(
+  () => import('./device-auth/device-auth.component').then(module => ({ default: module.DeviceAuth }))
+);
+
 export function ProtectedPages({ match, location, history }: RouteChildrenProps) {
   const { profile } = useUser()
   const originalURL =
@@ -59,28 +88,10 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
   return profile ? (
     <Switch location={location}>
       <Redirect from="/" exact={true} to={profile.defaultLandingPage} />
-      {/* <Route
-        path={['/device-auth', '/profile', '/settings']}
+      <Route
+        path={'/profile'}
         render={({ location }) => {
-          return (
-            <Container className="full flex container" maxWidth="sm">
-              <Suspense
-                fallback={
-                  <div className="full-screen centered">
-                    <CircularProgress color="secondary" size={120} />
-                  </div>
-                }
-              >
-                <PersonalRoutes location={location} match={match} history={history} />
-              </Suspense>
-            </Container>
-          )
-        }}
-      ></Route> */}
-      {/* <Route
-        path={['/administration', '/organizations', '/users', '/test']}
-        render={({ location }) => {
-          return (
+          return controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -88,11 +99,171 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <AdministrationRoutes location={location} match={match} history={history} />
+              <Profile />
             </Suspense>
-          )
+          ) : (unAuthorizedContent(location))
         }}
-      ></Route> */}
+      ></Route>
+      <Route
+        path={'/device-auth'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <DeviceAuth searchString={location.search} />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/settings'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Settings />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/users/:uid'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Users />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/organizations/:oid/users/:uid'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Users />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/organizations/:oid/users'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Users />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/organizations/:oid/teams'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Teams />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/organizations/:oid'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role)  ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Organizations />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/administration'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Administration />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/organizations'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Organizations />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/users'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <Users />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
       <Route
         path={'/dashboard'}
         render={({ location }) => {

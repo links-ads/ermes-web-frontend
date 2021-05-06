@@ -1,0 +1,76 @@
+import { useState, useEffect, useMemo } from 'react'
+
+import {
+  OrganizationsApiAxiosParamCreator,
+  UsersApiAxiosParamCreator,
+  DTResultOfOrganizationDto,
+  CreateOrUpdateOrganizationInput,
+  CreateOrUpdateOrganizationOutput
+} from 'faster-backoffice-ts-sdk'
+import { useAxiosWithParamCreator, APIAxiosHookOpts } from '../../../hooks/api-hooks'
+type OrgApiPC = typeof OrganizationsApiAxiosParamCreator
+type KROrgApiPC = keyof ReturnType<OrgApiPC>
+
+type UsrApiPC = typeof UsersApiAxiosParamCreator
+type KRUsrApiPC = keyof ReturnType<UsrApiPC>
+
+const BaseOrgOpts: Pick<APIAxiosHookOpts<OrgApiPC>, 'type' | 'paramCreator'> = {
+  type: 'backoffice',
+  paramCreator: OrganizationsApiAxiosParamCreator
+}
+
+export function useOrganizations(loadOnMount: boolean = true, pagingArgs: any[]) {
+  const [
+    organizationInput,
+    setOrganizationInput
+  ] = useState<CreateOrUpdateOrganizationInput | null>(null)
+
+  // Get List
+  const getOrganizations: KROrgApiPC = 'organizationsGetOrganizations'
+  const createOrUpdateOrganization: KROrgApiPC = 'organizationsCreateOrUpdateOrganization'
+
+  const getOrganizationsOptions: APIAxiosHookOpts<OrgApiPC> = {
+    ...BaseOrgOpts,
+    args: pagingArgs, // TODO ADD DEFAULT PAGING PARAMS AND FILTERS
+    methodName: getOrganizations
+  }
+  const [
+    { data: organizationsData, loading: organizationsLoading, error: organizationsError }.
+    loadOrganizations
+  ] = useAxiosWithParamCreator<OrgApiPC, DTResultOfOrganizationDto | undefined>(
+    getOrganizationsOptions,
+    !loadOnMount
+  )
+
+  // Create Or Update
+  const createOrUpdateOrganizationOptions: APIAxiosHookOpts<OrgApiPC> = {
+    ...BaseOrgOpts,
+    args: organizationInput ? [organizationInput] : undefined,
+    methodName: createOrUpdateOrganization
+  }
+  const [
+    {  data: createOrEditOrgResponse, loading: createOrEditOrgLoading, error: createOrEditOrgError },
+    postOrganizationUpdate
+  ] = useAxiosWithParamCreator<OrgApiPC, CreateOrUpdateOrganizationOutput>(
+    createOrUpdateOrganizationOptions,
+    true
+  )
+
+  useEffect(() => {
+    if (organizationInput && createOrEditOrgLoading===false) {
+      postOrganizationUpdate() // args set in createOrUpdateOrganizationOptions
+    }
+  }, [organizationInput, createOrEditOrgLoading])
+
+  useEffect(()=>{
+    if()
+  },[createOrEditOrgResponse])
+
+  return {
+    loading: organizationsLoading || createOrEditOrgLoading,
+    error: organizationsError || createOrEditOrgError,
+    organizationsList: organizationsData, // list params
+    loadOrganizations, // load manually
+    createOrEditOrganization: setOrganizationInput
+  }
+}
