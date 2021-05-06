@@ -34,7 +34,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ### Available Scripts
 
-Required node version for this project: 14.x
+Required node version for this project: 12.x
 
 In the project directory, you can run:
 

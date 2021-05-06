@@ -55,7 +55,7 @@ const SocialComponent = (props) => {
     const { t } = useTranslation(['social'])
     const PAGE_SIZE = 1000
     const MINI_PAGE_SIZE = 20
-    const mapRef = useRef<any>(null)
+    const mapRef = useRef<InteractiveMap>(null)
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()

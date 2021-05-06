@@ -1,4 +1,4 @@
-import InteractiveMap, { MapEvent } from 'react-map-gl'
+import InteractiveMap, { PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 
@@ -12,13 +12,13 @@ import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
  * @param evt
  */
 export function onMapLeftClickHandler<T extends object>(
-  mapViewRef: React.RefObject<any>,
+  mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   setLeftClickedFeature: PointUpdater<T>,
   setRightClickedFeature: PointUpdater<T>,
   setHoveredFeature: PointUpdater<T>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
-  evt: MapEvent
+  evt: PointerEvent
 ) {
   if (mapMode !== 'browse') {
     return
@@ -79,12 +79,12 @@ export function onMapLeftClickHandler<T extends object>(
  * @param evt
  */
 export function onMapRightClickHandler<T extends object>(
-  mapViewRef: React.RefObject<any>,
+  mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   isMobileDevice: boolean,
   layerIds: string[],
   setRightClickedFeature: PointUpdater<T>,
-  evt: MapEvent
+  evt: PointerEvent
 ) {
   if (mapMode !== 'browse') {
     return

@@ -1,4 +1,4 @@
-import { InteractiveMap, MapEvent } from 'react-map-gl'
+import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, MapMode } from '../map.contest'
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
@@ -12,13 +12,13 @@ import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
  * @param evt
  */
 export function onMouseEnterHandler<T extends object>(
-  mapViewRef: React.RefObject<any>,
+  mapViewRef: React.RefObject<InteractiveMap>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
   mapMode: MapMode,
   isMobileDevice: boolean,
   setHoveredFeature: PointUpdater<T>,
   interactiveLayers: string[],
-  evt: MapEvent
+  evt: PointerEvent
 ) {
   if (mapMode !== 'browse') {
     return
@@ -68,7 +68,7 @@ export function onMouseEnterHandler<T extends object>(
  * @param setHoveredFeature
  */
 export function onMouseLeaveHandler<T extends object>(
-  mapViewRef: React.RefObject<any>,
+  mapViewRef: React.RefObject<InteractiveMap>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
   isMobileDevice: boolean,
   setHoveredFeature: PointUpdater<T>

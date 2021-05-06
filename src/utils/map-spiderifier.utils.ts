@@ -3,7 +3,7 @@
  */
 import { nanoid } from 'nanoid'
 import { Marker as MapboxGLMarker } from 'mapbox-gl'
-import { MapEvent } from 'react-map-gl'
+import { PointerEvent } from 'react-map-gl'
 import { updatePointFeatureLayerIdFilter } from './map.utils'
 interface SpiderifiableCluster {
   id: number
@@ -403,7 +403,7 @@ export class Spiderifier {
     }
   }
   
-  public toggleSpiders(map: mapboxgl.Map, e: ClickEvent | MapEvent) {
+  public toggleSpiders(map: mapboxgl.Map, e: ClickEvent | PointerEvent) {
     const features = map.queryRenderedFeatures(e.point, {
       layers: ['clusters']
     })

@@ -6,7 +6,7 @@ import {
   Source,
   Layer,
   InteractiveMap,
-  MapEvent
+  PointerEvent
 } from 'react-map-gl'
 import { useMapPreferences } from '../../../state/preferences/preferences.hooks'
 import { useTranslation } from 'react-i18next'
@@ -83,7 +83,7 @@ export function MapLayout(props) {
   // Preferences
   const { mapTheme, transformRequest } = useMapPreferences()
   // Map view ref
-  const mapViewRef = useRef<any>(null)
+  const mapViewRef = useRef<InteractiveMap>(null)
   // uncomment the following only if we want to get position automatically
   // however this is against most ux guidelines and may be blocked by some browser
   // const geolocationControlsRef = useRef(null)
@@ -243,7 +243,7 @@ export function MapLayout(props) {
 
   // Used when entering on an iteractive layer with the mouse
   const onMouseEnter = useCallback(
-    (evt: MapEvent) => {
+    (evt: PointerEvent) => {
       onMouseEnterHandler<EmergencyProps>(
         mapViewRef,
         spiderifierRef,
@@ -260,7 +260,7 @@ export function MapLayout(props) {
   // Empty array ensures that effect is only run on mount and unmount
 
   // Used when leaving on an iteractive layer with the mouse
-  const onMouseLeave = useCallback((evt: MapEvent) => {
+  const onMouseLeave = useCallback((evt: PointerEvent) => {
     onMouseLeaveHandler<EmergencyProps>(
       mapViewRef,
       spiderifierRef,
@@ -275,7 +275,7 @@ export function MapLayout(props) {
 
   // Called on left click
   const onMapClick = useCallback(
-    (evt: MapEvent) => {
+    (evt: PointerEvent) => {
       evt.preventDefault()
       evt.stopPropagation()
       onMapLeftClickHandler(
@@ -294,7 +294,7 @@ export function MapLayout(props) {
 
   // Called on right click
   const onContextMenu = useCallback(
-    (evt: MapEvent) => {
+    (evt: PointerEvent) => {
       evt.preventDefault()
       evt.stopPropagation()
       onMapRightClickHandler(

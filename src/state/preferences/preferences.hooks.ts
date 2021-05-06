@@ -10,6 +10,7 @@ import {
   MapboxStyleObject
 } from '../../config'
 import { Theme } from '@material-ui/core'
+import { MapRequest } from 'react-map-gl'
 
 type UIThemeSelection = { uiTheme: Theme; uiThemeName: string }
 
@@ -76,7 +77,7 @@ export function useMapPreferences() {
   const transformRequest = useCallback(
     (url: string | undefined, resourceType: string | undefined) => {
       const reqUrl = url || ''
-      const mapRequest = { url: reqUrl }
+      const mapRequest: MapRequest = { url: reqUrl }
 
       if (resourceType === 'Tile' && reqUrl.includes(mapServerURL)) {
         mapRequest['headers'] = { apiKey: apiKey }
