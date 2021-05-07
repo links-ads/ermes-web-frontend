@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { InteractiveMap } from 'react-map-gl';
+import React, { useState, useRef, useEffect} from 'react';
+import { InteractiveMap, Source,Layer } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
@@ -14,12 +14,12 @@ import { useTranslation } from 'react-i18next'
 
 import { parseDataToGeoJson } from '../../common/map/map-common';
 import { TweetContent } from '../card/tweet-card-content';
-import { CLUSTER_LAYER_ID, DEFAULT_MAP_VIEWPORT, TWEETS_LAYER_ID } from './map-init';
-import { initializeMap } from './map-init';
+import { CLUSTER_COUNT_LAYER_PROPS, CLUSTER_LAYER_ID, CLUSTER_LAYER_PROPS, DEFAULT_MAP_VIEWPORT, SOURCE_ID, TWEETS_LAYER_ID, TWEETS_LAYER_PROPS, unclusteredPointsProps } from './map-init';
 import { mapClickHandler } from './map-click-handler';
-import { FeatureCollection } from 'geojson';
-import { MapOnLoad } from './map-on-load';
+import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
 
+const tweetImage = new Image(50, 50);
+tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
 
 const SocialMap = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -48,17 +48,17 @@ const SocialMap = (props) => {
     const [mapViewport, setMapViewport] = useState(DEFAULT_MAP_VIEWPORT)
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-    const dataRef = useRef<FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties> | null>(null)
-
-    const mapInit = useCallback(()=>initializeMap(props.mapRef?.current?.getMap(), dataRef.current),[]);
+    const [geoJsonData,setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
+        type: 'FeatureCollection',
+        features: []
+      })
 
     useEffect(()=>{
         let map = props.mapRef?.current?.getMap()
-        dataRef.current = parseDataToGeoJson(props.data)
         if (props.leftClickState.showPoint)
             props.setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...props.leftClickState.pointFeatures } })
         if(map !== undefined){
-            initializeMap(map, dataRef.current)
+            setGeoJsonData(parseDataToGeoJson(props.data))
         }
     },[props.mapRef,props.data])
 
@@ -106,7 +106,20 @@ const SocialMap = (props) => {
                     if (props.mapRef.current) {
                         try {
                             let map = props.mapRef?.current?.getMap()
-                            MapOnLoad(map,spiderifierRef,setSpiderLayerIds,setMapViewport,mapInit)
+                            if (!map.hasImage('twitterIcon')) {
+                                map.addImage('twitterIcon', tweetImage);
+                            }
+                            map.on('styleimagemissing', function() {
+                                map.addImage('twitterIcon', tweetImage);
+                                });
+                            mapOnLoadHandler(map,
+                                spiderifierRef,
+                                setSpiderLayerIds,
+                                setMapViewport,
+                                SOURCE_ID,
+                                TWEETS_LAYER_ID,
+                                unclusteredPointsProps,
+                                undefined)
                         }
                         catch (err) {
                             console.error('Map Load Error', err)
@@ -115,6 +128,19 @@ const SocialMap = (props) => {
                 }
                 }
             >
+            <Source
+                id={SOURCE_ID}
+                type='geojson'
+                data={ geoJsonData}
+                cluster={ true}
+                generateId={ true}
+                clusterMaxZoom={ 15} 
+                clusterRadius={ 50}
+            >
+            </Source>
+            <Layer {...TWEETS_LAYER_PROPS}/>
+            <Layer {...CLUSTER_LAYER_PROPS}/>
+            <Layer {...CLUSTER_COUNT_LAYER_PROPS}/>
                 <Slide
                     direction='left'
                     in={props.leftClickState.showPoint}

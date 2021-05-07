@@ -5,7 +5,6 @@ export const mapOnLoadHandler = (
     spiderifierRef,
     setSpiderLayerIds,
     setMapViewport,
-    mapInit,
     sourceId,
     pointsLayerId,
     pointsLayerProps,
@@ -54,10 +53,6 @@ export const mapOnLoadHandler = (
     // Change it back to a pointer when it leaves.
     map.on('mouseleave', pointsLayerId, function () {
         map.getCanvas().style.cursor = '';
-    });
-    map.on('style.load', function (evt) {
-        // mapInit()
-        // updateMarkers(map)
     });
 
     map.on('moveend', function (e) {

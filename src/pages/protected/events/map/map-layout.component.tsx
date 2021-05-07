@@ -10,15 +10,14 @@ import InteractiveMap, { Layer, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import { clearEventMap, parseEventDataToGeoJson } from '../../common/map/map-common';
 import debounce from 'lodash.debounce';
-import { updateHazardMarkers } from './map-cluster-util';
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import MapSlide from '../../common/map/map-popup-card';
 import EventContent from '../card/event-card-content';
 import { mapClickHandler } from './map-click-handler';
-import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, DEFAULT_MAP_VIEWPORT, unclusteredPointsProps, SOURCE_PROPS, EVENTS_LAYER_PROPS, CLUSTER_LAYER_PROPS } from './map-init';
+import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, DEFAULT_MAP_VIEWPORT, unclusteredPointsProps, SOURCE_PROPS, EVENTS_LAYER_PROPS, CLUSTER_LAYER_PROPS,updateHazardMarkers } from './map-init';
 import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
 
-const DEBOUNCE_TIME = 350 //ms
+const DEBOUNCE_TIME = 200 //ms
 
 const EventMap = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -49,7 +48,6 @@ const EventMap = (props) => {
     const [mapViewport, setMapViewport] = useState(DEFAULT_MAP_VIEWPORT)
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-    // const dataRef = useRef<FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties>>(parseEventDataToGeoJson([]))
     const [geoJsonData,setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
@@ -63,16 +61,12 @@ const EventMap = (props) => {
         []
     )
 
-    //Compatibility with load handler because it may need this function for social map
-    const mapInit = useCallback(() => {
-        return
-    }, []);
 
     useEffect(() => {
-        // dataRef.current = parseEventDataToGeoJson(props.data)
         let map = props.mapRef?.current?.getMap()
         if (map !== undefined) {
             clearEventMap(map, props.setLeftClickState, props.leftClickState)
+            console.log(props.data)
             setGeoJsonData(parseEventDataToGeoJson(props.data))
             updateMarkers(map)
         }
@@ -127,7 +121,6 @@ const EventMap = (props) => {
                                 spiderifierRef,
                                 setSpiderLayerIds,
                                 setMapViewport,
-                                mapInit,
                                 SOURCE_ID,
                                 EVENTS_LAYER_ID,
                                 unclusteredPointsProps,
@@ -144,7 +137,6 @@ const EventMap = (props) => {
             >
                 <Source
                     id={SOURCE_ID}
-                    // data={dataRef.current}
                     data={geoJsonData}
                     type='geojson'
                     {...SOURCE_PROPS}

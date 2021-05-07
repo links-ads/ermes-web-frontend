@@ -20,7 +20,6 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
             const centroid = JSON.parse(properties?.center)
             //Add source and layer for polygon
             const coordinates = JSON.parse(properties?.polygon)
-            // getPolygonArea(coordinates[0])
             const source_data = {
                 "type": "FeatureCollection",
                 "features": [
@@ -80,8 +79,6 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
                     how: 'fly',
                 }
             )
-            // console.log(properties)
-            // console.log(JSON.parse('null'))
             const newLeftClickState = { showPoint: true, clickedPoint: { long: centroid[0], lat: centroid[1] }, pointFeatures: parseEvent(properties) }
             setLeftClickState(newLeftClickState)
         }

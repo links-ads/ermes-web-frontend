@@ -173,18 +173,17 @@ export const SocialPieChart = (props) => {
         endAngle={-360}
 
         colors={{ "scheme": "nivo" }}
-        // radialLabelsSkipAngle={0}
-        // radialLabelsTextXOffset={1}
-        // // radialLabelsTextColor={{ from: 'color', modifiers: [] }}
-        // radialLabelsLinkOffset={0}
-        // radialLabelsLinkDiagonalLength={8}
-        // radialLabelsLinkHorizontalLength={12}
-        // radialLabelsLinkStrokeWidth={1}
-        // radialLabel={function (d) { return t('social:' + props.prefix + '_' + d.label) } as unknown as undefined}
-        // radialLabelsTextColor={theme['palette']['text']['primary']}
-        // radialLabelsLinkColor={theme['palette']['text']['primary']}
+        radialLabelsSkipAngle={0}
+        radialLabelsTextXOffset={1}
+        radialLabelsLinkOffset={0}
+        radialLabelsLinkDiagonalLength={8}
+        radialLabelsLinkHorizontalLength={12}
+        radialLabelsLinkStrokeWidth={1}
+        radialLabel={function (d) { return t('social:' + props.prefix + '_' + d.label) } as unknown as undefined}
+        radialLabelsTextColor={theme['palette']['text']['primary']}
+        radialLabelsLinkColor={theme['palette']['text']['primary']}
 
-        //theme={{"textColor":"inherit"}}
+        theme={{"textColor":"inherit"}}
         tooltip={(d) => {
             let item = d.datum;
             return (
@@ -198,9 +197,7 @@ export const SocialPieChart = (props) => {
                         <Grid item>
                             <Typography variant='subtitle2' display='inline' >{t('social:' + props.prefix + '_' + item.label)}: </Typography>
                             <Typography variant='subtitle2' display='inline' className={classes.boldText}>
-                                {/* <Box fontWeight={600}> */}
                                 {item.value}
-                                {/* </Box> */}
                             </Typography>
 
                         </Grid>
@@ -208,103 +205,29 @@ export const SocialPieChart = (props) => {
                 </Paper>
             );
         }}
-        //enableSliceLabels={false}
+        enableSliceLabels={false}
         defs={defs}
-    // legends={[
-    //     {
-    //         anchor: 'left',
-    //         direction: 'column',
-    //         translateY: 0,
-    //         itemTextColor: 'red',
-    //         translateX: -210,
-    //         itemWidth: 10,
-    //         itemHeight: 18,
-    //         symbolSize: 18,
-    //         justify: false,
-    //         symbolShape: 'circle',
-    //         effects: [
-    //             {
-    //                 on: 'hover',
-    //                 style: {
-    //                     itemTextColor: '#000'
-    //                 }
-    //             }
-    //         ]
-    //     }
-    // ]}
+    legends={[
+        {
+            anchor: 'left',
+            direction: 'column',
+            translateY: 0,
+            itemTextColor: 'red',
+            translateX: -210,
+            itemWidth: 10,
+            itemHeight: 18,
+            symbolSize: 18,
+            justify: false,
+            symbolShape: 'circle',
+            effects: [
+                {
+                    on: 'hover',
+                    style: {
+                        itemTextColor: '#000'
+                    }
+                }
+            ]
+        }
+    ]}
     />
 }
-
-
-
-// const VolumeCard = (props) => {
-//     let value = props.value === undefined ? <CircularProgress /> : <Typography align="right" variant="h5">{formatNumber(props.value)}</Typography>
-//     return (
-//         <Card raised={true} className={props.classes.card_root}>
-//             <CardHeader title={<Typography align="left" variant="subtitle1">{props.label}</Typography>} className={props.classes.card_content} />
-//             <CardContent className={props.classes.card_content}>
-//                 {value}
-//             </CardContent>
-//         </Card>
-//     );
-// }
-
-
-
-// const InformativeCard = (props) => {
-//     let value = props.value === undefined ? <CircularProgress /> : (
-//         <div>
-//             <Grid container direction='row' justify='space-between'>
-//                 <Typography className={props.classes.informativeText} align="left" variant="caption" display='inline'>{props.t("social:informative_yes").toUpperCase()}</Typography>
-//                 <Typography className={props.classes.notInformativeText} align="right" variant="caption" display='inline'>{props.t("social:informative_no").toUpperCase()}</Typography>
-//             </Grid>
-//             <LinearProgress
-//                 className={props.classes.bar}
-//                 color='primary'
-//                 variant="determinate"
-//                 value={props.value} />
-//             <Grid container direction='row' justify='space-between'>
-//                 <Typography className={props.classes.informativeText} align="left" variant="caption" display='inline'>{props.value.toFixed(2) + '%'}</Typography>
-//                 <Typography className={props.classes.notInformativeText} align="right" variant="caption" display='inline'>{(100 - props.value).toFixed(2) + '%'}</Typography>
-//             </Grid>
-//         </div>)
-//     return (
-//         <Card raised={true} className={props.classes.card_root} >
-//             <CardHeader title={<Typography align="left" variant="subtitle1">{props.label}</Typography>} className={props.classes.card_content} />
-//             <CardContent className={props.classes.card_content}>
-//                 {value}
-//             </CardContent>
-//         </Card>
-//     );
-// }
-
-
-
-// const LanguageCard = (props) => {
-// const useStyles = makeStyles((theme: Theme) =>
-//     createStyles({
-//         card_root: {
-//             margin: '8px 8px 8px 0px',
-//             padding: 1,
-//             height: '100%'
-//         },
-// card_content: {
-//     margin: '4px',
-//         padding: 2,
-//             "&:last-child": {
-//         paddingBottom: 0
-//     }
-// }
-//     }));
-
-// const classes = useStyles();
-//     return (
-//         <Card raised={true} className={props.classes.card_root}>
-//             <CardHeader title={<Typography align="left" variant="body2">{props.t("social:lang_" + props.label)}</Typography>} className={props.classes.card_content} />
-//             <CardContent className={props.classes.card_content}>
-//                 <Typography align="right" variant="subtitle2">{props.value}</Typography>
-//             </CardContent>
-//         </Card>
-//     );
-
-// }
