@@ -48,6 +48,9 @@ export function Map() {
   // Toggle for the side drawer
   const [toggleSideDrawer, settoggleSideDrawer] = useState<boolean>(false)
 
+  // Coordinates for the fly to
+  const [goToCoord, setGoToCoord] = useState<{latitude: number, longitude: number} | undefined >(undefined)
+
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
     setStartDate(date)
@@ -59,6 +62,8 @@ export function Map() {
   const searchByDates = async function () {
     await filterByDate(selectedStartDate, selectedEndDate)
   }
+
+
 
   // if I close the filter tab, all the filters get reselected
   // useEffect(() => {
@@ -86,7 +91,6 @@ export function Map() {
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 {/* Date pickers */}
                 <KeyboardDatePicker
-                  
                   style={{ paddingTop: 0, marginTop: 0 }}
                   disableToolbar
                   variant="inline"
@@ -138,7 +142,12 @@ export function Map() {
           )}
         </Toolbar>
       </AppBar>
-      <MapDrawer toggleSideDrawer={toggleSideDrawer} />
+      <MapDrawer
+        toggleSideDrawer={toggleSideDrawer}
+        selectedStartDate={selectedStartDate}
+        selectedEndDate={selectedEndDate}
+        setGoToCoord={setGoToCoord}
+      />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
@@ -156,6 +165,8 @@ export function Map() {
             filterList={filterList}
             prepGeoJson={prepGeoData}
             isGeoJsonPrepared={isGeoJsonPrepared}
+            setGoToCoord={setGoToCoord}
+            goToCoord={goToCoord}
           />
         </MapStateContextProvider>
       </MapContainer>

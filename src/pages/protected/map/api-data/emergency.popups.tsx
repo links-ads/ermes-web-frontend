@@ -21,7 +21,6 @@ function compareProperties(prevProps: EmergencyCardProps, nextProps: EmergencyCa
 
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {
-    console.log(point)
     return point ? (
       <Popup
         tipSize={5}

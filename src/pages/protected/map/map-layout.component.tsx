@@ -27,7 +27,7 @@ import {
   hoveredPointPin
 } from './api-data/emergency.layers'
 import debounce from 'lodash.debounce'
-//import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
+import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { EmergencyHoverPopup, EmergencyDetailsCard } from './api-data/emergency.popups'
 import { ContextMenu } from './context-menu.component'
 import { useMapDialog } from './map-dialog.hooks'
@@ -44,6 +44,7 @@ import { SelectionToggle } from './selection-toggle.component'
 import { FilterType } from './filter-type.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
+import mapboxgl from 'mapbox-gl'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -94,7 +95,7 @@ export function MapLayout(props) {
   // Cluster markers
   const clusterMarkersRef = useRef<[object, object]>([{}, {}])
   // Spiderifier
-  const spiderifierRef = useRef(null)// useRef<Spiderifier | null>(null)
+  const spiderifierRef = useRef<Spiderifier | null>(null)
   const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
 
   // MapDraw
@@ -339,6 +340,29 @@ export function MapLayout(props) {
     props.prepGeoJson.features.length,
     updateMarkers
   ])
+
+  useEffect(() => {
+    if (props.goToCoord !== undefined) {
+      // console.log(props.goToCoord)
+
+      mapViewRef.current?.getMap().flyTo(
+        {
+          center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
+          zoom: 15
+        },
+        {
+          how: 'fly',
+          longitude: props.goToCoord.longitude,
+          latitude: props.goToCoord.latitude,
+          zoom: 15
+        }
+      ).once('moveend', ()=>{
+        setViewport({...viewport, latitude: props.goToCoord.latitude, longitude: props.goToCoord.longitude, zoom: 15})
+      })
+     
+      props.setGoToCoord(undefined)
+    }
+  }, [props.goToCoord, props.setGoToCoord])
   return (
     <>
       <InteractiveMap

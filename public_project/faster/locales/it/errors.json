@@ -1,6 +1,5 @@
 {
   "page_not_found": "Questa pagina non esiste: {{page}}",
-  "unauthorized_page": "Non sei autorizzato a visitare questa pagina : {{page}}",
   "error_generic": "😵 Si è verificato un errore",
   "error_detailed": "😵 Si è verificato un errore: {{errorMessage}}",
   "invalid_user_code": "Il codice utente {{userCode}} non è valido!",

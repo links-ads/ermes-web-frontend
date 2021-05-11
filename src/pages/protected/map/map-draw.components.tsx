@@ -182,7 +182,7 @@ export const MapDraw = forwardRef<unknown, MapDrawProps>(
           switchMode('drawPolygon') // TODO use edit if features!==undefined
           break
         case 'select':
-          console.log('SEL MODE')
+          // console.log('SEL MODE')
           switchMode('drawRectangle')
           break
         case 'browse':

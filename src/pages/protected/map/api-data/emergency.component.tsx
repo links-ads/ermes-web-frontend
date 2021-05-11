@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Typography from '@material-ui/core/Typography'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
@@ -11,46 +11,163 @@ import blueGrey from '@material-ui/core/colors/blueGrey'
 // import purple from '@material-ui/core/colors/purple'
 // import orange from '@material-ui/core/colors/orange'
 import { ItemWithLatLng } from '../map.contest'
-import { makeStyles } from '@material-ui/core/styles';
-import CardContent from '@material-ui/core/CardContent';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
+import { makeStyles } from '@material-ui/core/styles'
+import CardContent from '@material-ui/core/CardContent'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
 // import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
+import Card from '@material-ui/core/Card'
+import CardActions from '@material-ui/core/CardActions'
+import CardActionArea from '@material-ui/core/CardActionArea'
+import CardMedia from '@material-ui/core/CardMedia'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
+import useReportById from '../../../../hooks/use-report-by-id.hook'
+import Carousel from 'react-material-ui-carousel'
+import CircularProgress from '@material-ui/core/CircularProgress'
+import Chip from '@material-ui/core/Chip'
+import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common'
+import { useTranslation } from 'react-i18next'
+import { Avatar } from '@material-ui/core'
 
 const useStyles = makeStyles({
   root: {
-    minWidth: 275,
+    minWidth: 275
   },
   bullet: {
     display: 'inline-block',
     margin: '0 2px',
-    transform: 'scale(0.8)',
+    transform: 'scale(0.8)'
   },
   title: {
-    fontSize: 14,
+    fontSize: 14
   },
   pos: {
-    marginBottom: 12,
+    marginBottom: 12
   },
-});
+  cardAction: {
+    justifyContent: 'space-between',
+    padding: 16
+  },
+  media: {
+    height: 240
+  },
+  card: {
+    width: '400px',
+    height: 'auto'
+  }
+})
 
+const reportCard = (data, t, classes) => {
+  const dateOptions = {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    hour12: false
+  } as Intl.DateTimeFormatOptions
+  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+  const details = data?.data?.feature?.properties
+  if (!data.isLoading) {
+    return (
+      <>
+        <Card elevation={0}>
+          {/* <CardMedia
+                        className={classes.media}
+                        image={'https://via.placeholder.com/400x200.png?text=' + t('common:image_not_available')}
+                        // image="https://via.placeholder.com/150C/O"
+                        title="Contemplative Reptile"
+                      /> */}
+          <Carousel
+            animation="slide"
+            autoPlay={false}
+            // timeout={800}
+            fullHeightHover={false}
+          >
+            {details.mediaURIs.map((media, idx) => {
+              return (
+                <CardMedia
+                  key={idx}
+                  className={classes.media}
+                  image={media.mediaURI}
+                  style={{ borderRadius: 6 }}
+                />
+              )
+            })}
+          </Carousel>
+          <CardContent style={{ paddingTop: '0px' }}>
+            <div style={{ marginBottom: 10 }}>
+              <Typography component={'span'} variant="h5">
+                {details.description}
+              </Typography>
+            </div>
+            <Typography gutterBottom variant="h4" component="h2" style={{ wordBreak: 'break-all' }}>
+              <Chip
+                avatar={<Avatar>{HAZARD_SOCIAL_ICONS[details.hazard.toLowerCase()]}</Avatar>}
+                label={details.hazard}
+              />
+            </Typography>
 
+            {['address', 'notes', 'organizationName', 'status', 'username'].map((elem) => {
+              if (details[elem]) {
+                return (
+                  <>
+                    <Typography
+                      component={'span'}
+                      variant="caption"
+                      className={classes.pos}
+                      color="textSecondary"
+                      style={{ textTransform: 'uppercase' }}
+                    >
+                      {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp;
+                    </Typography>
+                    <Typography component={'span'} variant="body1">
+                      {details[elem]}
+                    </Typography>
+                    <br />
+                  </>
+                )
+              }
+              return null
+            })}
+          </CardContent>
+          <CardActions className={classes.cardAction}>
+            <Typography color="textSecondary">
+              {' '}
+              {formatter.format(new Date(details.timestamp as string))}
+            </Typography>
 
+            <Typography color="textSecondary">
+              {(details!.location!.latitude as number).toFixed(4) +
+                ' , ' +
+                (details!.location!.longitude as number).toFixed(4)}
+            </Typography>
+          </CardActions>
+        </Card>
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          component="p"
+          style={{ wordBreak: 'break-all' }}
+        >
+          {/* Latitude: {latitude.toFixed(4)}, Longitude: {longitude.toFixed(4)} */}
+        </Typography>
+      </>
+    )
+  }
+  return (
+    <div>
+      <CircularProgress />
+    </div>
+  )
+}
 /**
 Different types of ["ReportRequest", "Communication", "Mission", "Report", "Person"]
  */
 
-export type EmergencyType =
-  | 'ReportRequest'
-  | 'Communication'
-  | 'Mission'
-  | 'Report'
-  | 'Person'
-
+export type EmergencyType = 'ReportRequest' | 'Communication' | 'Mission' | 'Report' | 'Person'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -95,12 +212,17 @@ const Dot = styled.div<DotProps>`
 `
 
 export function EmergencyHoverCardContent({ creator, details, type }: EmergencyProps) {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     // <Card className={classes.root} variant="outlined">
     <CardContent>
       <div style={{ marginBottom: 10 }}>
-        <Typography component={'span'} variant="caption" color="textSecondary" style={{ textTransform: 'uppercase' }}>
+        <Typography
+          component={'span'}
+          variant="caption"
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
           Categoria:
         </Typography>
         <br />
@@ -109,7 +231,13 @@ export function EmergencyHoverCardContent({ creator, details, type }: EmergencyP
         </Typography>
       </div>
       <div style={{ marginBottom: 10 }}>
-        <Typography component={'span'} variant="caption" className={classes.pos} color="textSecondary" style={{ textTransform: 'uppercase' }}>
+        <Typography
+          component={'span'}
+          variant="caption"
+          className={classes.pos}
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
           Descrizione:
         </Typography>
         <br />
@@ -118,7 +246,13 @@ export function EmergencyHoverCardContent({ creator, details, type }: EmergencyP
         </Typography>
       </div>
       <div>
-        <Typography component={'span'} variant="caption" className={classes.pos} color="textSecondary" style={{ textTransform: 'uppercase' }}>
+        <Typography
+          component={'span'}
+          variant="caption"
+          className={classes.pos}
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
           Autore:
         </Typography>
         <br />
@@ -140,44 +274,51 @@ export function EmergencyContent({
   creator,
   ...rest
 }: EmergencyPropsWithLocation) {
-  return (
-    <>
-      <Typography gutterBottom variant="h4" component="h2" style={{ wordBreak: 'break-all' }}>
-      <Dot type={type} /> &nbsp; {type}
-        
-      </Typography>
-      {/* <Typography
-        variant="body2"
-        color="textSecondary"
-        component="p"
-        style={{ wordBreak: 'break-all' }}
-      > */}
-      <TableContainer component={Paper} className="insideTable">
-        <Table>
-          <TableBody>
-            {Object.entries(rest).map(([key, value]) => (
-              <TableRow key={key} >
-                <TableCell align="right" scope="row" width="30%" style={{ padding: 3, paddingRight: 8 }}>
-                  <b>{key}</b>
-                </TableCell>
-                <TableCell align="left" style={{ padding: 3 }}>{value}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {/* {Object.entries(rest).map(([key, value]) => (
-          <span key={key}>
-            <b>{key}</b>:&nbsp;<span>{value as string}</span>&nbsp; <br />
-          </span>
-        ))} */}
-      {/* </Typography> */}
-    </>
-  )
+  const classes = useStyles()
+  const { t } = useTranslation(['common'])
+  const [repDetails, fetchRepDetails] = useReportById()
+
+  useEffect(() => {
+    switch (type) {
+      case 'Report':
+        fetchRepDetails(
+          rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
+      default:
+        break
+    }
+  }, [rest.id, fetchRepDetails])
+
+  useEffect(() => {
+    console.log(repDetails)
+  }, [repDetails])
+
+  let todisplay = <></>
+  switch (type) {
+    // Report request
+    case 'Report': {
+      todisplay = reportCard(repDetails, t, classes)
+      break
+    }
+    default: {
+      todisplay = <div>Work in progress...</div>
+      break
+    }
+  }
+
+  return todisplay
 }
 
 export function EmergencyInfo(props: EmergencyPropsWithLocation) {
-  const { /*  descrizione,  thumb,  */latitude, longitude } = props
+  const { /*  descrizione,  thumb,  */ latitude, longitude } = props
 
   return (
     <>
@@ -204,14 +345,14 @@ export function EmergencyDrawerDetails({
     <div style={{ padding: 8, display: 'flex', flexDirection: 'column' }}>
       {/* <ImageContainer imageUrl={item?.image || ''} imgWidth={240} imgHeight={240} /> */}
       {item && <EmergencyContent {...item} latitude={latitude} longitude={longitude} />}
-      <Typography
+      {/* <Typography
         variant="body2"
         color="textSecondary"
         component="p"
         style={{ wordBreak: 'break-all', marginTop: 20 }}
       >
         Latitude: {latitude}, Longitude: {longitude}
-      </Typography>
+      </Typography> */}
       {/* Improve styles and add links and controls */}
     </div>
   )
