@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
 
 import Input from '@material-ui/core/Input';
-import { Button, CircularProgress, Grid, InputAdornment, InputLabel, ListItemText, List, ListItem, MenuItem, Select, Typography } from '@material-ui/core';
+import { Button, CircularProgress, Grid, InputLabel, ListItemText, List, ListItem, MenuItem, Select, Typography } from '@material-ui/core';
 
 import FormControl from '@material-ui/core/FormControl';
-import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { useTranslation } from 'react-i18next'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook';
 import PublishIcon from '@material-ui/icons/Publish';
@@ -20,63 +20,7 @@ const getAcceptedFilename = (select) => {
     return 'Import' + select[0].toUpperCase() + select.slice(1)
 }
 
-const activeStyle = {
-    borderColor: '#2196f3'
-}
-const acceptStyle = {
-    borderColor: '#00e676'
-}
-const rejectStyle = {
-    borderColor: '#ff1744'
-}
-
-
-const ImportComponent = (props) => {
-
-    const theme = useTheme()
-
-    const baseDropzoneStyle = useMemo(() => {
-        return {
-            background: `repeating-linear-gradient(-45deg,${theme['palette']['background']['paper']},
-        ${theme['palette']['background']['paper']} 10px,
-        ${theme['palette']['background']['default']} 10px,
-        ${theme['palette']['background']['default']} 20px)`,
-            flexDirection: "column" as "column",
-            justifyContent: 'center',
-            display: 'flex',
-            alignItems: 'center',
-            height: '30vh',
-            minHeight: 200,
-            maxHeight: 400,
-            borderWidth: 2,
-            borderRadius: 2,
-            borderColor: theme['palette']['text']['primary'],
-            borderStyle: 'dashed',
-            transition: 'border .24s ease-in-out',
-            outline: 'none',
-        }
-    }, [theme])
-
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            section: {
-                padding: '8px',
-                margin: '8px'
-            },
-            applyButton: {
-                color: theme['palette']['text']['primary'],
-                backgroundColor: theme['palette']['background']['paper'],
-                margin: '8px'
-            },
-            selectOption: {
-                width: '100%',
-                // minWidth: 180,
-                // maxWidth:180
-
-            }
-        }));
-
-    const classes = useStyles();
+const ImportComponent = (props) => {    
     const { displayErrorSnackbar, displayMessage } = useSnackbars()
     const { importState, sendFile } = useImports()
     const [fileState, setFileState] = useState({
@@ -104,6 +48,39 @@ const ImportComponent = (props) => {
         onDropAccepted: (files, event) => dropHandler(files, event)
     });
 
+    const useStyles = makeStyles((theme: Theme) =>
+        createStyles({
+            section: {
+                padding: '8px',
+                margin: '8px'
+            },
+            selectOption: {
+                width: '100%',
+                // minWidth: 180,
+                // maxWidth:180
+            },
+            button:{
+                marign:16
+            },
+            dropzone: {
+                background: `repeating-linear-gradient(-45deg,${theme['palette']['background']['paper']},
+                ${theme['palette']['background']['paper']} 10px,
+                ${theme['palette']['background']['default']} 10px,
+                ${theme['palette']['background']['default']} 20px)`,
+                height: '30vh',
+                minHeight: 200,
+                maxHeight: 400,
+                borderWidth: 2,
+                borderRadius: 2,
+                borderColor: isDragActive ? '#2196f3' :fileState.currentFile !== null ? '#00e676' : fileState.isError ? '#ff1744' : theme['palette']['text']['primary'],
+                borderStyle: 'dashed',
+                transition: 'border .24s ease-in-out',
+                outline: 'none',
+            }
+        }));
+
+    const classes = useStyles();
+
     const checkFileName = (name: string) => {
         if (name === undefined)
             return [true, '']
@@ -127,17 +104,6 @@ const ImportComponent = (props) => {
         })
     }
 
-    const style = useMemo(() => (
-        {
-            ...baseDropzoneStyle,
-            ...(fileState.isError ? rejectStyle : {}),
-            ...(fileState.currentFile !== null ? acceptStyle : {}),
-            ...(isDragActive ? activeStyle : {})
-        }
-    ), [isDragActive,
-        fileState,
-        theme])
-
     const deleteButtonHandler = () => {
         setFileState({
             ...fileState,
@@ -149,7 +115,6 @@ const ImportComponent = (props) => {
 
     const dropHandler = (files, event) => {
         const file = files[0]
-        console.log("DROP ACCEPTED", file.name)
         const [isCorrect, errorMsg] = checkFileName(file ? file.name : undefined)
         if (!isCorrect) {
             displayErrorSnackbar(errorMsg as string)
@@ -170,8 +135,6 @@ const ImportComponent = (props) => {
             });
         }
     }
-
-    console.log(importState)
 
     return (
         <Grid container direction="row" justify="flex-start" alignContent='space-around'>
@@ -205,7 +168,7 @@ const ImportComponent = (props) => {
                         </FormControl>
                     </Grid>
                     <Grid item className={classes.section}>
-                        <div {...getRootProps({ style })}>
+                        <Grid {...getRootProps({ className:classes.dropzone,container:true,justify:'center',alignContent:'center' })}>
                             <input {...getInputProps()} />
                             {fileState.currentFile === null ?
                                 (
@@ -221,7 +184,7 @@ const ImportComponent = (props) => {
                                 )
 
                             }
-                        </div>
+                        </Grid>
                     </Grid>
                     <Grid container className={classes.section} justify='space-around'>
                         <Button
@@ -231,6 +194,7 @@ const ImportComponent = (props) => {
                             color='secondary'
                             disabled={fileState.currentFile === null}
                             onClick={deleteButtonHandler}
+                            className={classes.button}
                         >
                             {t("import:remove_button")}
                         </Button>
@@ -241,6 +205,7 @@ const ImportComponent = (props) => {
                             color='primary'
                             disabled={fileState.currentFile === null}
                             onClick={() => sendFile(selectState.choice, fileState.currentFile)}
+                            className={classes.button}
                         >
                             {t("import:upload_button")}
                         </Button>
@@ -266,23 +231,23 @@ const ImportComponent = (props) => {
                                     <Grid style={{ marginLeft: 32 }}>
                                         <List>
                                             <ListItem>
-                                                <Typography align='left' variant='h6' style={{fontWeight:800}}>{t("import:translationsAdded") + ' : '}</Typography>&nbsp;
+                                                <Typography align='left' variant='h6' style={{ fontWeight: 800 }}>{t("import:translationsAdded") + ' : '}</Typography>&nbsp;
                                                 <Typography align='left' variant='h6' >{importState.data.translationsAdded}</Typography>
                                             </ListItem>
                                             <ListItem>
-                                                <Typography variant='h6' style={{fontWeight:800}}>{t("import:translationsUpdated") + ' : '}</Typography>&nbsp;
+                                                <Typography variant='h6' style={{ fontWeight: 800 }}>{t("import:translationsUpdated") + ' : '}</Typography>&nbsp;
                                                 <Typography variant='h6' >{importState.data.translationsUpdated}</Typography>
                                             </ListItem>
                                             <ListItem>
-                                                <Typography variant='h6' style={{fontWeight:800}}>{t("import:translationsDetectedEmptyAndSkipped") + ' : '}</Typography>&nbsp;
+                                                <Typography variant='h6' style={{ fontWeight: 800 }}>{t("import:translationsDetectedEmptyAndSkipped") + ' : '}</Typography>&nbsp;
                                                 <Typography variant='h6' >{importState.data.translationsDetectedEmptyAndSkipped}</Typography>
                                             </ListItem>
                                             <ListItem>
-                                                <Typography variant='h6' style={{fontWeight:800}}>{t("import:elementsAdded") + ' : '}</Typography>&nbsp;
+                                                <Typography variant='h6' style={{ fontWeight: 800 }}>{t("import:elementsAdded") + ' : '}</Typography>&nbsp;
                                                 <Typography variant='h6' >{importState.data.elementsAdded}</Typography>
                                             </ListItem>
                                             <ListItem>
-                                                <Typography variant='h6' style={{fontWeight:800}}>{t("import:elementsUpdated") + ' : '}</Typography>&nbsp;
+                                                <Typography variant='h6' style={{ fontWeight: 800 }}>{t("import:elementsUpdated") + ' : '}</Typography>&nbsp;
                                                 <Typography variant='h6' >{importState.data.elementsUpdated}</Typography>
                                             </ListItem>
                                         </List>
@@ -293,7 +258,7 @@ const ImportComponent = (props) => {
                     </Grid>
                 </Grid>
             </Grid>
-                </Grid>
+        </Grid>
     )
 }
 
