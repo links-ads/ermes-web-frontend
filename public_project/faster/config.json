@@ -1,0 +1,28 @@
+{
+  "envTag": "",
+  "ui": {
+    "availableThemes": ["dark", "light"],
+    "defaultTheme": "dark"
+  },
+  "i18n": {
+    "ns": ["common", "errors"],
+    "defaultNS": "common",
+    "fallbackNS": "common",
+    "whitelist": ["en", "it"],
+    "preload": ["en", "it"],
+    "fallbackLng": "en"
+  },
+  "mapboxgl": {
+    "apiKey": "1234567890",
+    "mapServerURL": "https://longisland.polito.it",
+    "mapStylesURL": "https://longisland.polito.it/map-assets/i-react/map-styles/"
+  },
+  "fusionAuth": {
+    "url": "https://auth.faster-project.cloud",
+    "clientId": "1a3f6b36-4917-48c1-9144-e2dd4ed6d642",
+    "tenantId": "ae5f83c9-11cf-4e84-a4cd-404d40bd6c0b"
+  },
+  "backend": {
+    "url": "https://api-dev.faster-project.cloud"
+  }
+}
