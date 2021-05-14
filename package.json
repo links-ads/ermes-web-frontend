@@ -99,8 +99,10 @@
   "scripts": {
     "start": "node ./runWithEnv.js start",
     "build": "node ./runWithEnv.js build",
-    "build-faster": "node ./runWithEnv.js build faster",
-    "build-shelter": "node ./runWithEnv.js build shelter",
+    "build-faster-dev": "node ./runWithEnv.js build faster-dev",
+    "build-faster-test": "node ./runWithEnv.js build faster-test",
+    "build-shelter-dev": "node ./runWithEnv.js build shelter-dev",
+    "build-shelter-test": "node ./runWithEnv.js build shelter-test",
     "test": "node ./runWithEnv.js test",
     "eject": "react-scripts eject"
   },
