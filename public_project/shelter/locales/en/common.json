@@ -34,6 +34,7 @@
   "page_administration": "SHELTER Administration",
   "page_organizations": "SHELTER Organizations",
   "page_users": "SHELTER Users",
+  "page_import": "Import Data",
   "page_about": "About",
   "user_birth_date": "Birth date: {{birthDate}}",
   "user_email": "Email: {{email}}",

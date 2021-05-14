@@ -35,6 +35,11 @@ const Events = React.lazy(async () => {
   return { default: module.EventsRoute }
 })
 
+const ImportComponent = React.lazy(async () => {
+  const module = await import('./import/import.route')
+  return { default: module.ImportRoute }
+})
+
 const Administration = React.lazy(
   () => import('./administration/administration.component').then(module => ({ default: module.Administration }))
 );
@@ -260,6 +265,22 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
               }
             >
               <Users />
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/import'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <ImportComponent location={location} match={match} history={history}/>
             </Suspense>
           ) : (unAuthorizedContent(location))
         }}

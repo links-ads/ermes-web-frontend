@@ -1,0 +1,23 @@
+{
+    "label_title":"Import file",
+    "label_activities":"Activities",
+    "label_categories":"Categories",
+    "label_users":"Users",
+    "select_label":"Import Type",
+    "extension_error":"File extension must be either .xls or .xlsx",
+    "name_error":"File name must be {{filename}}",
+    "zone_label":"Drag and drop here the file you want to upload or click to select file",
+    "zone_sublabel":"( Only *.xls or *.xlsx files will be accepted )",
+    "file_ok":"File {{filename}} is ready for upload",
+    "zone_name_label":"( Filename must be either {{filename}}.xls or {{filename}}.xlsx )",
+    "remove_button":"Delete",
+    "upload_button":"Upload",
+    "loading_label":"Loading...",
+    "result_label":"Result",
+    "translationsAdded": "Translations added", 
+    "translationsUpdated": "Translations updated",
+    "translationsDetectedEmptyAndSkipped": "Translations empty and skipped",
+    "elementsAdded": "Elements added",
+    "elementsUpdated": "Elements updated",
+    "error_label":"Error happened"
+}

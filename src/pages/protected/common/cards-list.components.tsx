@@ -30,17 +30,7 @@ export const CardsList = (props) => {
 
     const classes = useStyles();
 
-    // const itemList = props.data.map((item) => (
-    //     <EventCard
-    //         item={item}
-    //         key={item.id}
-    //         mapIdsToHazards={props.mapIdsToHazards}
-    //         mapIdsToInfos={props.mapIdsToInfos}
-    //         mapRef={props.mapRef}
-    //         leftClickState={props.leftClickState}
-    //         setLeftClickState={props.setLeftClickState}
-    //     />
-    // ))
+ 
     const itemList = props.data.map((item)=>props.renderItem(item))
 
     const errorString = (props.isError) ? "social:fetch_error" : "social:no_results"
