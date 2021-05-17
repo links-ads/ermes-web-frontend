@@ -40,7 +40,7 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
     const fetchEventStats = useCallback((args) => {
         dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetEventStatistics(args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, undefined, undefined).then(result => {
+            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
                 dispatch({type:'RESULT',value:{
                     events_count:result.data['events_count'] || 0,
                     hazard_count:result.data['hazards_count'],
@@ -54,7 +54,7 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
     const fetchTweetStats = useCallback( (args) => {
         dispatch({type:'FETCH'})
         socialApiFactory.socialGetTweetStatistics(args.informativeSelect, args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, undefined, undefined).then(result => {
+            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
                 dispatch({type:'RESULT',value:{
                     tweets_count:result.data['tweets_count'] || 0,
                     hazard_count:result.data['hazards_count'],

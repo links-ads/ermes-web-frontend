@@ -7,7 +7,7 @@ import MapSlide from '../../common/map/map-popup-card';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { Card, Grid, Slide, Typography } from '@material-ui/core';
+import { Button, Card, Grid, Slide, Typography } from '@material-ui/core';
 
 import { useTranslation } from 'react-i18next'
 
@@ -34,6 +34,18 @@ const SocialMap = (props) => {
             },
             headerText: {
                 color: 'white'
+            },
+            button:{
+                borderColor:'white',
+                color:'white',
+                borderWidth:1,
+                "&:disabled":{
+                    color:'rgba(255, 255, 255, 0.3)',
+                    border:'1px solid rgba(255, 255, 255, 0.12)'
+                },
+                "&:hover":{
+                    backgroundColor:'rgba(255, 255, 255, 0.4)'
+                },
             }
         }));
     const classes = useStyles();
@@ -53,6 +65,18 @@ const SocialMap = (props) => {
         features: []
       })
 
+    const searchButtonHandler = () =>{
+        let map = props.mapRef?.current?.getMap()
+        if(map!==undefined)
+        {
+            var bounds = map.getBounds().toArray()
+            const obj = {southWest:bounds[0].map(i=>Math.floor(i)) as [number,number],
+                northEast:bounds[1].map(i=>Math.floor(i)) as [number,number]
+            }
+            props.filterApplyHandler(obj)
+        }
+        
+    }
     useEffect(()=>{
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
@@ -87,6 +111,18 @@ const SocialMap = (props) => {
                     <Grid item>
                         <Typography display='inline' className={classes.headerText} variant='h6'>{t('social:map_zoom')} : </Typography>
                         <Typography display='inline' className={classes.headerBoldText} variant='h6'>{mapViewport.zoom.toFixed(2)}</Typography>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            variant='outlined'
+                            onClick={searchButtonHandler}
+                            disabled={props.isLoading || props.mapRef?.current?.getMap()===undefined}
+                            // style={{color:'white'}}
+                            // color='inherit'
+                            className={classes.button}
+                        >
+                            {t("social:map_button_label")}
+                        </Button>
                     </Grid>
                 </Grid>
             </div>

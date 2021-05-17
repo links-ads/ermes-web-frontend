@@ -63,5 +63,6 @@
     "map_zoom":"Zoom",
     "event_start":"Start",
     "event_update":"Last update",
-    "event_end":"End"
+    "event_end":"End",
+    "map_button_label":"Search here"
 }

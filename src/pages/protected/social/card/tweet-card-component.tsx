@@ -28,7 +28,15 @@ export const TweetCard = (props) => {
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 display: 'inline-block',
-                padding: 6
+                padding: 6,
+                // filter:'brightness(1)',
+                "&:hover": {
+                    // backgroundColor: 'rgba(255,255,255, 0.05)',
+                    // filter:'brightness(1.2)',
+                    // box-shadow: inset 0 0 0 10em rgba(255, 255, 255, 0.3);
+                    boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
+                    cursor:'pointer'
+                }
             },
             grid_root: {
                 display: 'flex',
@@ -79,7 +87,7 @@ export const TweetCard = (props) => {
         });
         return uniqueMedias
     }
-    
+
     const renderTweetMedia = (uniqueMedias, expanded) => {
         if (uniqueMedias == null || uniqueMedias.length === 0)
             return null;
@@ -93,7 +101,7 @@ export const TweetCard = (props) => {
                     >
                         {uniqueMedias.map((media) => {
                             return (
-                                <div key={media.id_str} style={{margin:'auto', textAlign:'center'}} >
+                                <div key={media.id_str} style={{ margin: 'auto', textAlign: 'center' }} >
                                     { (media.type === 'PHOTO') ?
                                         (<img src={media.url} alt='' width='80%' style={{ cursor: 'pointer' }}
                                             onClick={() => window.open(media.url)} />) :
@@ -101,7 +109,7 @@ export const TweetCard = (props) => {
                                             (<video controls width='80%'>
                                                 <source src={media.url}></source>
                                             </video>) : null
-    
+
                                     }
                                 </div>
                             )
@@ -128,7 +136,10 @@ export const TweetCard = (props) => {
     </IconButton>)
 
     return (
-        <Card className={classes.root} raised={true}>
+        <Card className={classes.root} raised={true}
+            onPointerEnter={() => console.log("ENTER", tweet.id)}
+            onPointerLeave={() => console.log("LEAVE", tweet.id)}
+        >
             <TweetContent
                 tweet={tweet}
                 mapIdsToHazards={props.mapIdsToHazards}

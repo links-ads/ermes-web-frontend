@@ -56,8 +56,8 @@ const useTweetsAnnotations = () => {
         else
             dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetAnnotations(pageNumber, page_size, args.informativeSelect, args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, undefined,
-            undefined).then(result => {
+            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest,
+            args.northEast).then(result => {
                 let newData = transformData(result.data.items)
                 newData = update ? [...annotationsState.data, ...newData || [] as any] : newData || [] as any
                 sideEffect(newData)

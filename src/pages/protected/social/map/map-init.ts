@@ -8,7 +8,7 @@ export const TWEETS_LAYER_ID = 'tweets-point'
 export const DEFAULT_MAP_VIEWPORT = {
     latitude: 45.3,
     longitude: 7.23,
-    zoom: 5
+    zoom: 2.5
 }
 
 export const unclusteredPointsProps = {

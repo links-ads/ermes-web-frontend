@@ -66,7 +66,9 @@ const SocialComponent = (props) => {
         languageSelect: [],
         hazardSelect: [],
         infoTypeSelect: [],
-        informativeSelect: 'true'
+        informativeSelect: 'true',
+        southWest:undefined,
+        northEast:undefined
     })
 
     const [filtersState, fetchFilters] = useFilters()
@@ -82,10 +84,11 @@ const SocialComponent = (props) => {
     }, [filterArgs])
 
     const filterApplyHandler = (args) => {
-        // if (!checkEqualArgs(filterArgs, args)) {
-        console.log("FILTER FETCH",args)
-        setFilterArgs(args)
-        // }
+        const newArgs = {
+            ...filterArgs,
+            ...args
+        }
+        setFilterArgs(newArgs)
     }
 
     const infoCount = useMemo(() => {
@@ -185,7 +188,6 @@ const SocialComponent = (props) => {
                     </Grid>
                     <Grid style={{ flex: 1, width: '100%', height: '90%' }} container justify='space-evenly'>
                         <SocialMap
-                            fetchingArgs={filterArgs}
                             mapIdsToHazards={filtersState.mapIdsToHazards}
                             mapIdsToInfos={filtersState.mapIdsToInfos}
                             mapRef={mapRef}
@@ -194,6 +196,7 @@ const SocialComponent = (props) => {
                             data={tweetAnnotations.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
+                            filterApplyHandler={filterApplyHandler}
                         />
                     </Grid>
                 </Grid>

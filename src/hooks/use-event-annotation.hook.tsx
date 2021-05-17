@@ -56,7 +56,7 @@ const useEventsAnnotations = () => {
         else
             dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetEvents(pageNumber, page_size, args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, undefined, undefined).then(result => {
+            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
                 let newData = transformData(result.data.items)
                 newData = update ? [...annotationsState.data, ...newData || [] as any] : newData || [] as any
                 let hasMore = (result.data.total !== undefined) && (newData.length < result.data?.total)
