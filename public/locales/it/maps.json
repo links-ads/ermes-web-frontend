@@ -10,5 +10,19 @@
   "Moving" : "In movimento",
   "Active": "Attivo",
   "all":"Tutti",
-  "filter_by_type": "Filtra per tipo"
+  "filter_by_type": "Filtra per tipo",
+  "flood": "Allagamento",
+  "fire": "Incendio",
+  "landslide": "Slavina",
+  "wind": "Vento",
+  "storm": "Tempesta",
+  "temperature": "Temperatura",
+  "avalanche": "Valanghe",
+  "snow": "Neve",
+  "rain": "Pioggia",
+  "earthquake": "Terremoto",
+  "subsidence": "Subsidenza",
+  "weather": "Meteo",
+  "filter_by_hazard": "Filtra per tipo di rischio",
+  "none": "Nessuno"
 }

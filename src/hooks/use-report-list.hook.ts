@@ -1,8 +1,8 @@
-import { useCallback, useReducer, useMemo, useState } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
 import { ReportsApiFactory, DTResultOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
-
-const MAX_RESULT_COUNT = 7
+import { useSnackbars } from './use-snackbars.hook'
+const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
 
 const reducer = (currentState, action) => {
@@ -37,14 +37,16 @@ const reducer = (currentState, action) => {
 
 export default function useReportList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
+  const [filters, setFilters] = useState([])
+  const { displayErrorSnackbar } = useSnackbars()
+  const mounted = useRef(false);
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
-
   const fetchReports = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       repApiFactory
         .reportsGetReports(
-          undefined,
+          filters,
           undefined,
           undefined,
           undefined,
@@ -69,84 +71,35 @@ export default function useReportList() {
           })
         })
         .catch((err) => {
-          // displayErrorSnackbar(err)
+          displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory]
+    [repApiFactory, displayErrorSnackbar, filters]
   )
 
-  return [dataState, fetchReports]
+  const applyFilterReloadData = (newFilters) => {
+    dispatch(initialState)
+    setFilters(newFilters)
+
+  }
+  useEffect(() => {
+    if(mounted.current){
+      fetchReports(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        }
+      )
+    }else {
+      mounted.current = true;
+    }
+
+  }, [filters])
+
+  return [dataState, fetchReports, applyFilterReloadData]
 }
-
-// import { ReportsApiAxiosParamCreator, ReportDto, DTResultOfReportDto } from 'faster-ts-sdk'
-// import { useSnackbars } from './use-snackbars.hook'
-// import { useState, useEffect } from 'react'
-// import { APIAxiosHookOpts, useAxiosWithParamCreator, useAPIConfiguration } from './api-hooks'
-
-// const MAX_RESULT_COUNT = 7
-
-// type RepApiPC = typeof ReportsApiAxiosParamCreator
-// type KRRepApiPC = keyof ReturnType<RepApiPC>
-// type SearchObject = { value: string; regex: boolean }
-
-// export default function useCommList() {
-//   // adds an element to the array if it does not already exist using a comparer
-//   // function
-
-//   const methodName: KRRepApiPC = 'reportsGetReports' // profileGetOrganizationMembers
-
-//   const opts: APIAxiosHookOpts<RepApiPC> = {
-//     type: 'backoffice',
-//     args: [
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       undefined,
-//       MAX_RESULT_COUNT
-//     ], // TODO ADD PAGING PARAMS AND FILTERS
-//     paramCreator: ReportsApiAxiosParamCreator,
-//     methodName
-//   }
-
-//   const [
-//     { data: result, loading: repsLoading, error: repsError },
-//     loadUsers
-//   ] = useAxiosWithParamCreator<RepApiPC, DTResultOfReportDto | undefined>(opts, false)
-
-//   const { displayErrorSnackbar } = useSnackbars()
-//   const reps: ReportDto[] = result?.data || []
-//   const [recordsTotal, setRecordsTotal] = useState<number>(result?.recordsTotal || 0)
-//   const [updating, setCommUpdating] = useState<boolean>(false)
-//   const [repsData, setData] = useState<ReportDto[]>(reps)
-//   const isRepsLoading: boolean = updating || repsLoading
-
-// useEffect(() => {
-//   if (repsError) {
-//     displayErrorSnackbar(repsError.response?.data.error)
-//   }
-// }, [repsError, displayErrorSnackbar])
-
-//   useEffect(() => {
-//     if (!isRepsLoading) {
-//       setData(reps)
-//     }
-//   }, [isRepsLoading, reps])
-
-//   console.log('RECORDS TOTAL', recordsTotal)
-
-//   const getNextValues = async function () {
-//   }
-
-//   return {
-//     repsData,
-//     isRepsLoading,
-//     getNextValues,
-//   }
-// }

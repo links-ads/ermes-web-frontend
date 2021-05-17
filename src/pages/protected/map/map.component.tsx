@@ -17,7 +17,7 @@ import FloatingFilterTab from './floatingfiltertab.component'
 // import { EmergencyType } from './map/api-data/emergency.component'
 import { GetApiGeoJson } from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
-import MapDrawer from './map-drawer.component'
+import MapDrawer from './map-drawer/map-drawer.component'
 import ViewCompactIcon from '@material-ui/icons/ViewCompact'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
