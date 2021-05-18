@@ -15,7 +15,16 @@
   "mapboxgl": {
     "apiKey": "1234567890",
     "mapServerURL": "https://longisland.polito.it",
-    "mapStylesURL": "https://longisland.polito.it/map-assets/i-react/map-styles/"
+    "mapStylesURL": "https://longisland.polito.it/map-assets/i-react/map-styles/",
+    "mapViewport": {
+      "latitude": 45.3,
+      "longitude": 7.23,
+      "zoom": 2.5
+    },
+    "mapBounds": {
+      "southWest": [61,60],
+      "northEast": [-47,24]
+    }
   },
   "fusionAuth": {
     "url": "https://auth.shelter-project.cloud",

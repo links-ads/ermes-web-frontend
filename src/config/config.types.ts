@@ -50,6 +50,13 @@ export interface MapboxGlConfig {
   // if defined, styled without URL or with relative URL will start from be assumed on thsi URL
   // e.g. https://myserver.com/styles -> styles: ['bright'] -> https://myserver.com/styles/bright.json
   mapStylesURL?: string
+  //default mapViewport
+  mapViewport?: { latitude: number, longitude: number, zoom: number }
+  //default mapBounds for spacial filters
+  mapBounds?: {
+    southWest: [number, number],
+    northEast: [number, number]
+  }
 }
 
 export interface AppConfig {

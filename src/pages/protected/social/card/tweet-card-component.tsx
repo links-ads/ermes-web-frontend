@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '@material-ui/core/Card';
 
 import CardActions from '@material-ui/core/CardActions';
@@ -18,6 +18,8 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { getTweetLocation } from '../../common/map/map-common';
 import { TweetContent } from './tweet-card-content';
 
+import { TWEETS_LAYER_ID, CLUSTER_LAYER_ID, HOVER_TWEETS_LAYER_ID, SOURCE_ID } from '../map/map-init';
+import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 
 export const TweetCard = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -35,7 +37,7 @@ export const TweetCard = (props) => {
                     // filter:'brightness(1.2)',
                     // box-shadow: inset 0 0 0 10em rgba(255, 255, 255, 0.3);
                     boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
-                    cursor:'pointer'
+                    cursor: 'pointer'
                 }
             },
             grid_root: {
@@ -69,7 +71,8 @@ export const TweetCard = (props) => {
         }));
 
     const classes = useStyles();
-    const [expanded, setExpanded] = React.useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const [featureToHover, setFeatureHover] = useState({})
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -135,10 +138,73 @@ export const TweetCard = (props) => {
         <ExpandMoreIcon />
     </IconButton>)
 
+
     return (
         <Card className={classes.root} raised={true}
-            onPointerEnter={() => console.log("ENTER", tweet.id)}
-            onPointerLeave={() => console.log("LEAVE", tweet.id)}
+            onPointerEnter={() => {
+                if (coord === undefined) return null
+                const map = props.mapRef.current.getMap()
+                if (map === undefined) return
+                const point = map.project(coord)
+                var bbox = [
+                    [point.x - 50, point.y - 50],
+                    [point.x + 50, point.y + 50]
+                ]
+                const features = map.queryRenderedFeatures(bbox, { layers: [TWEETS_LAYER_ID, CLUSTER_LAYER_ID] })
+                console.log(features)
+                if (features.length > 0) {
+                    if (features.length > 1) {
+                        console.log("ERROR, MANY POINT")
+                    }
+                    const feature = features[0]
+                    switch (feature.layer.id) {
+                        case TWEETS_LAYER_ID:
+                            // props.setMapHoverState({type:'point',id:feature.id})
+                            setFeatureHover({'type':'point','id':feature.id || feature.properties['id']})
+                            updatePointFeatureLayerIdFilter(map, HOVER_TWEETS_LAYER_ID,feature.id || feature.properties['id'])
+                            break;
+                        case CLUSTER_LAYER_ID:
+                            console.log("CLUSTER")
+                            console.log(feature)
+                            setFeatureHover({'type':'cluster','id':feature.id })
+                            map.setFeatureState({
+                                source: SOURCE_ID,
+                                id: feature.id,
+                            }, {
+                                hover: true
+                            })
+                            break;
+                    }
+                }
+                else {
+                    setFeatureHover({
+                        'type': null,
+                        'id': null
+                    })
+                }
+
+            }}
+            onPointerLeave={() => {
+                // props.setMapHoverState({type:'point',id:'null'})
+                const map = props.mapRef.current.getMap()
+                if (map === undefined) return
+                switch (featureToHover['type']) {
+                    case null:
+                        return
+                    case 'point':
+                        updatePointFeatureLayerIdFilter(map, HOVER_TWEETS_LAYER_ID, 'null')
+                        break;
+                    case 'cluster':
+                        map.setFeatureState({
+                            source: SOURCE_ID,
+                            id: featureToHover['id'],
+                        }, {
+                            hover: false
+                        })
+                        break;
+                }
+                console.log("LEAVE", tweet.id)
+            }}
         >
             <TweetContent
                 tweet={tweet}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
 import SocialFilter from '../common/filters/filters'
@@ -15,6 +15,7 @@ import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
+import {DEFAULT_MAP_BOUNDS} from '../common/map/map-common';
 import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
@@ -24,7 +25,8 @@ import useTweetsAnnotations from '../../../hooks/use-tweet-annotation.hook';
 import { FiltersType } from '../common/filters/reducer';
 import { CardsList } from '../common/cards-list.components';
 
-import {TweetCard} from './card/tweet-card-component';
+import { TweetCard } from './card/tweet-card-component';
+import { AppConfig, AppConfigContext } from '../../../config';
 
 const SocialComponent = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -57,7 +59,10 @@ const SocialComponent = (props) => {
     const PAGE_SIZE = 1000
     const MINI_PAGE_SIZE = 20
     const mapRef = useRef<InteractiveMap>(null)
+    const appConfig = useContext<AppConfig>(AppConfigContext)
+    const mapConfig = appConfig.mapboxgl
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
+    // const [mapHoverState,setMapHoverState] = useState({type:'point',id:'null'})
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()
     const [filterArgs, setFilterArgs] = useState<FiltersType>({
@@ -67,8 +72,8 @@ const SocialComponent = (props) => {
         hazardSelect: [],
         infoTypeSelect: [],
         informativeSelect: 'true',
-        southWest:undefined,
-        northEast:undefined
+        southWest: mapConfig?.mapBounds?.southWest || DEFAULT_MAP_BOUNDS.southWest,
+        northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
     })
 
     const [filtersState, fetchFilters] = useFilters()
@@ -144,23 +149,24 @@ const SocialComponent = (props) => {
                         </Grid>
                     </Grid>
                     <Grid className={classes.tweetsListContainer} item >
-                            <CardsList
+                        <CardsList
                             data={shownData.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
                             hasMore={shownData.size < tweetAnnotations.data.length}
                             moreData={() => showMoreData()}
                             renderItem={(item) => (
-                                    <TweetCard
-                                        item={item}
-                                        key={item.id}
-                                        mapIdsToHazards={filtersState.mapIdsToHazards}
-                                        mapIdsToInfos={filtersState.mapIdsToInfos}
-                                        mapRef={mapRef}
-                                        leftClickState={mapLeftClickState}
-                                        setLeftClickState={setMapLeftClickState}
-                                    />
-                                )}
+                                <TweetCard
+                                    item={item}
+                                    key={item.id}
+                                    mapIdsToHazards={filtersState.mapIdsToHazards}
+                                    mapIdsToInfos={filtersState.mapIdsToInfos}
+                                    mapRef={mapRef}
+                                    mapLeftClickState={mapLeftClickState}
+                                    setMapLeftClickState={setMapLeftClickState}
+                                // setMapHoverState={setMapHoverState}
+                                />
+                            )}
                         />
                     </Grid>
                 </Grid>
@@ -197,6 +203,7 @@ const SocialComponent = (props) => {
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
                             filterApplyHandler={filterApplyHandler}
+                        // mapHoverState={mapHoverState}
                         />
                     </Grid>
                 </Grid>
