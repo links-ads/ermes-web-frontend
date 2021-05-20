@@ -36,7 +36,7 @@ export const parseDataToGeoJson = (data) => {
             "hazard_types": item.hazard_types,
             "informative": item.informative,
             "id_str": item.id_str,
-            "id": i
+            "id": item.id_str
         }
         const coordinates = getTweetLocation(item)
         if (coordinates !== undefined) {
@@ -155,4 +155,19 @@ export const getZoomFromArea = (area) => {
     if (area < 100) return 4
     if (area < 500) return 3
     else return 2.5
+}
+
+export const getBboxSizeFromZoom = (zoom:number) => {
+    if(!zoom) return 100
+    if(zoom < 3) return 100
+    if(zoom < 5) return 150
+    if(zoom < 7) return 200
+    if(zoom < 9) return 200
+    if(zoom < 10) return 250
+    if(zoom < 11) return 300
+    if(zoom < 12) return 350
+    if(zoom < 13) return 400
+    if(zoom < 14) return 450
+    if(zoom < 15) return 500
+    else return 700
 }

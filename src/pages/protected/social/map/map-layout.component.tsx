@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { InteractiveMap, Source, Layer } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
-import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import MapSlide from '../../common/map/map-popup-card';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -63,10 +62,8 @@ const SocialMap = (props) => {
     const { t } = useTranslation(['social'])
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
-    console.log(mapConfig)
     const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
-    const spiderifierRef = useRef<Spiderifier | null>(null)
-    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
+
     const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
@@ -74,11 +71,11 @@ const SocialMap = (props) => {
 
     const searchButtonHandler = () => {
         let map = props.mapRef?.current?.getMap()
-        if (map !== undefined) {
+        if (map) {
             var bounds = map.getBounds().toArray()
             const obj = {
-                southWest: bounds[0].map(i => Math.floor(i)) as [number, number],
-                northEast: bounds[1].map(i => Math.floor(i)) as [number, number]
+                southWest: bounds[0] as [number, number],
+                northEast: bounds[1] as [number, number]
             }
             props.filterApplyHandler(obj)
         }
@@ -87,7 +84,7 @@ const SocialMap = (props) => {
     // useEffect(()=>{
     //     console.log(props.mapHoverState)
     //     let map = props.mapRef?.current?.getMap()
-    //     if(map===undefined) return
+    //     if(!map) return
     //     const hoverState = props.mapHoverState
     //     if (hoverState.type === 'point')
     //     {
@@ -100,7 +97,8 @@ const SocialMap = (props) => {
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
             props.setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...props.leftClickState.pointFeatures } })
-        if (map !== undefined) {
+        if (map) {
+            props.spiderifierRef.current?.clearSpiders(map)
             setGeoJsonData(parseDataToGeoJson(props.data))
         }
     }, [props.mapRef, props.data])
@@ -153,8 +151,8 @@ const SocialMap = (props) => {
                 transformRequest={transformRequest}
                 onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
                 ref={props.mapRef}
-                interactiveLayerIds={[TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...spiderLayerIds]}
-                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, spiderifierRef)}
+                interactiveLayerIds={[TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
+                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, props.spiderifierRef)}
                 onLoad={() => {
                     if (props.mapRef.current) {
                         try {
@@ -167,14 +165,16 @@ const SocialMap = (props) => {
                                     map.addImage('twitterIconHover', tweetImageHover);
                                 }
                             });
-                            mapOnLoadHandler(map,
-                                spiderifierRef,
-                                setSpiderLayerIds,
+                            mapOnLoadHandler(
+                                map,
+                                props.spiderifierRef,
+                                props.setSpiderLayerIds,
                                 setMapViewport,
                                 SOURCE_ID,
                                 TWEETS_LAYER_ID,
                                 unclusteredPointsProps,
-                                undefined)
+                                undefined,
+                                { paint: HOVER_TWEETS_LAYER_PROPS.paint as mapboxgl.SymbolPaint, layout: HOVER_TWEETS_LAYER_PROPS.layout as mapboxgl.AnyLayout })
                         }
                         catch (err) {
                             console.error('Map Load Error', err)
@@ -221,7 +221,10 @@ const SocialMap = (props) => {
 
                 </Slide>
             </InteractiveMap>
-            <MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>
+            {
+                (props.mapRef.current?.getMap()) &&
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={props.spiderifierRef} direction="right"></MapStyleToggle>)
+            }
         </div>
     );
 }

@@ -27,6 +27,7 @@ import { CardsList } from '../common/cards-list.components';
 
 import { TweetCard } from './card/tweet-card-component';
 import { AppConfig, AppConfigContext } from '../../../config';
+import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
 const SocialComponent = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -56,9 +57,11 @@ const SocialComponent = (props) => {
     const classes = useStyles();
 
     const { t } = useTranslation(['social'])
-    const PAGE_SIZE = 1000
+    const PAGE_SIZE = 30000
     const MINI_PAGE_SIZE = 20
     const mapRef = useRef<InteractiveMap>(null)
+    const spiderifierRef = useRef<Spiderifier | null>(null)
+    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
@@ -164,6 +167,8 @@ const SocialComponent = (props) => {
                                     mapRef={mapRef}
                                     mapLeftClickState={mapLeftClickState}
                                     setMapLeftClickState={setMapLeftClickState}
+                                    spiderifierRef={spiderifierRef}
+                                    spiderLayerIds={spiderLayerIds}
                                 // setMapHoverState={setMapHoverState}
                                 />
                             )}
@@ -203,6 +208,9 @@ const SocialComponent = (props) => {
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
                             filterApplyHandler={filterApplyHandler}
+                            spiderifierRef={spiderifierRef}
+                            spiderLayerIds={spiderLayerIds}
+                            setSpiderLayerIds={setSpiderLayerIds}
                         // mapHoverState={mapHoverState}
                         />
                     </Grid>
