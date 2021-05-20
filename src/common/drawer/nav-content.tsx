@@ -16,13 +16,14 @@ import Settings from '@material-ui/icons/Settings'
 import SupervisedUserCircle from '@material-ui/icons/SupervisedUserCircle'
 import Watch from '@material-ui/icons/Watch'
 import GroupWorkIcon from '@material-ui/icons/GroupWork';
+import PublishIcon from '@material-ui/icons/Publish';
 import React, {useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
-import { UserRole } from 'ermes-ts-sdk'
-import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
-import { controlAccess } from '../../pages/protected/control-access'
+import { UserRole } from 'ermes-ts-sdk/dist/common/index'
+import { useSidebarCollapse } from '@mui-treasury/layout/hooks';
+import { controlAccess} from '../../pages/protected/control-access'; 
 
 interface INavContentLinkConfig {
   primaryText: string
@@ -93,20 +94,25 @@ const decisionMaking: NavContentLinkConfig[] = [
 ]
 
 const admin: NavContentLinkConfig[] = [
+  // {
+  //   primaryText: 'common:page_administration',
+  //   icon: <Settings />,
+  //   to: '/administration'
+  // },
+  // {
+  //   primaryText: 'common:page_organizations',
+  //   icon: <SupervisedUserCircle />,
+  //   to: '/organizations'
+  // },
+  // {
+  //   primaryText: 'common:page_users',
+  //   icon: <People />,
+  //   to: '/users'
+  // }
   {
-    primaryText: 'common:page_administration',
-    icon: <Settings />,
-    to: '/administration'
-  },
-  {
-    primaryText: 'common:page_organizations',
-    icon: <SupervisedUserCircle />,
-    to: '/organizations'
-  },
-  {
-    primaryText: 'common:page_users',
-    icon: <People />,
-    to: '/users'
+    primaryText: 'common:page_import',
+    icon: <PublishIcon />,
+    to: '/import'
   }
 ]
 

@@ -16,6 +16,7 @@ const accessPolicy = [
     {link:/^\/administration$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/organizations$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
+    {link:/^\/import$/,users:[ROLE_ADMIN]},
     //specific organization route
     {link:/^\/organizations\/.+$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     //specific user route
