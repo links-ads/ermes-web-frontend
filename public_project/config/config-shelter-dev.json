@@ -1,0 +1,28 @@
+{
+  "envTag": "",
+  "ui": {
+    "availableThemes": ["dark", "light"],
+    "defaultTheme": "dark"
+  },
+  "i18n": {
+    "ns": ["common", "errors"],
+    "defaultNS": "common",
+    "fallbackNS": "common",
+    "whitelist": ["en", "it"],
+    "preload": ["en", "it"],
+    "fallbackLng": "en"
+  },
+  "mapboxgl": {
+    "apiKey": "1234567890",
+    "mapServerURL": "https://longisland.polito.it",
+    "mapStylesURL": "https://longisland.polito.it/map-assets/i-react/map-styles/"
+  },
+  "fusionAuth": {
+    "url": "https://auth.shelter-project.cloud",
+    "clientId": "7b31e994-862b-466a-ab97-30cd36973829",
+    "tenantId": "3df7c97a-0794-4db8-9a11-8084766c1a5e"
+  },
+  "backend": {
+    "url": "https://api-dev.shelter-project.cloud"
+  }
+}
