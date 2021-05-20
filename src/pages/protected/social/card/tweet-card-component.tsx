@@ -138,13 +138,11 @@ export const TweetCard = (props) => {
     return (
         <Card className={classes.root} raised={true}
             onPointerEnter={() => {
-                console.log("ENTER",tweet.id_str)
                 if (coord === undefined) return null
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 const point = map.project(coord)
                 const bboxSize = getBboxSizeFromZoom(map.getZoom())
-                console.log(bboxSize)
                 var bbox = [
                     [point.x - bboxSize/2, point.y - bboxSize/2],
                     [point.x + bboxSize/2, point.y + bboxSize/2]
@@ -216,7 +214,6 @@ export const TweetCard = (props) => {
             }}
             onPointerLeave={() => {
                 // props.setMapHoverState({type:'point',id:'null'})
-                console.log("LEAVE",tweet.id_str)
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 switch (featureToHover.type) {
