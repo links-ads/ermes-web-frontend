@@ -7,7 +7,7 @@
  import { getFusionAuthURLs } from './auth/auth.utils'
  import { SCOPE } from './auth/auth.consts'
  import { restoreTokenInState } from '../oauth/react-oauth2-hook-mod'
- import { IProfile } from 'ermes-ts-sdk/dist/common/index'
+ import { IProfile } from 'ermes-ts-sdk'
  import { LocalUser } from './auth/auth.types'
  
  export const USER_STORAGE_KEY = 'auth-profile-'

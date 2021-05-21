@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { AppConfigContext, AppConfig } from '../../config'
 import { getFusionAuthURLs } from './auth.utils'
 import { Configuration, ProfileApiFactory, ProfileDto } from 'ermes-ts-sdk'
-import { Profile } from 'ermes-ts-sdk/dist/common/index'
+import { Profile } from 'ermes-ts-sdk'
 import { useSnackbars } from '../../hooks/use-snackbars.hook'
 import { USER_STORAGE_KEY } from '../store.utils'
 

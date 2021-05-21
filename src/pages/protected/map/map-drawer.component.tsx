@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { makeStyles, Theme, useTheme } from '@material-ui/core/styles'
+import React, { useEffect } from 'react'
+import { makeStyles, useTheme } from '@material-ui/core/styles'
 
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
