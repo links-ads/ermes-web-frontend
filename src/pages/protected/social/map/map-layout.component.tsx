@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { InteractiveMap, Source, Layer } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';

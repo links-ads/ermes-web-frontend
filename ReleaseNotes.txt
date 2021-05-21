@@ -1,3 +1,4 @@
 Ver.
 --------------------------
 - Feature - Add Import page for admin (#2)
+- Feature - Add Spatial filter to Social Map

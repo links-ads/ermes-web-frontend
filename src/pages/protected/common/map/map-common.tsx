@@ -24,7 +24,6 @@ export const getTweetLocation = (tweet) => {
 
 export const parseDataToGeoJson = (data) => {
     let featuresList = [] as GeoJSON.Feature[]
-    let i = 0
     for (let item of data) {
         let properties = {
             "author_display_name": item.author.display_name,
@@ -48,7 +47,6 @@ export const parseDataToGeoJson = (data) => {
                 } as unknown as GeoJSON.Point,
                 "properties": properties
             } as unknown as GeoJSON.Feature)
-            i++
         }
     }
     return {
