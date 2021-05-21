@@ -2,7 +2,7 @@ import { Action } from 'redux'
 import { AUTH_ACTIONS } from './auth.actions'
 import { JWT /* , User */ } from '@fusionauth/typescript-client'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { IProfile } from 'ermes-ts-sdk/dist/common/index'
+import { IProfile } from 'ermes-ts-sdk'
 import { AppState } from '../app.state'
 
 // TODO use USER DEFINITION

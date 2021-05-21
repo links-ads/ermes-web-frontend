@@ -27,8 +27,7 @@ export default function useCommList() {
   const commsAPIFactory = CommunicationsApiFactory(backendAPIConfig)
 
   const [
-    { data: result, loading: commsLoading, error: commsError },
-    loadUsers
+    { data: result, loading: commsLoading, error: commsError }
   ] = useAxiosWithParamCreator<CommApiPC, DTResultOfCommunicationDto | undefined>(opts, false)
 
   const { displayErrorSnackbar } = useSnackbars()
@@ -37,8 +36,8 @@ export default function useCommList() {
   const [updating, setUserUpdating] = useState<boolean>(false)
   const [commsData, setData] = useState<CommunicationDto[]>(comms)
   const isCommsLoading: boolean = updating || commsLoading
-  const [startDate, setStartDate] = useState(undefined)
-  const [endDate, setEndDate] = useState(undefined)
+  const [startDate] = useState(undefined)
+  const [endDate] = useState(undefined)
   const [searchText, setSearchText] = useState<string>()
   // const [searchText, setSearchText] = useState(undefined)
 

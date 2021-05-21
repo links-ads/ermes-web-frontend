@@ -21,7 +21,7 @@ import React, {useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
-import { UserRole } from 'ermes-ts-sdk/dist/common/index'
+import { UserRole } from 'ermes-ts-sdk'
 import { useSidebarCollapse } from '@mui-treasury/layout/hooks';
 import { controlAccess} from '../../pages/protected/control-access'; 
 
