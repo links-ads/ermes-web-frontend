@@ -1,4 +1,7 @@
 Ver.
---------------------------
+-----------------------
+
+Ver. 1.0.0 - 2021-05-21
+-----------------------
 - Feature - Add Import page for admin (#2)
-- Feature - Add Spatial filter to Social Map
+- Feature - Add Spatial filter to Social Map (#4)
