@@ -14,7 +14,7 @@ import {
   ContainerSize,
   ContainerSizeContext
 } from '../../../common/size-aware-container.component'
-import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
+
 import bbox from '@turf/bbox'
 import { BottomDrawerComponent } from './bottom-drawer.component'
 import { AppConfigContext } from '../../../config'
@@ -45,6 +45,7 @@ import { FilterType } from './filter-type.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
+import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
