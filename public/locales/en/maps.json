@@ -24,5 +24,17 @@
   "subsidence": "Subsidence",
   "weather": "Weather",
   "filter_by_hazard": "Filter by Hazard",
-  "none": "None"
+  "none": "Not defined",
+  "name": "Name",
+  "group": "Group",
+  "status": "Status",
+  "value": "Value",
+  "unknown": "Unknown",
+  "notified" : "Notified",
+  "managed" : "Managed",
+  "closed" : "Closed",
+  "address": "Address",
+  "notes": "Notes",
+  "organizationName": "Organization Name",
+  "username": "Username"
 }

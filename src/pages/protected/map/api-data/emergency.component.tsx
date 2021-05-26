@@ -17,7 +17,7 @@ import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
-// import TableHead from '@material-ui/core/TableHead';
+import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import Card from '@material-ui/core/Card'
@@ -33,6 +33,8 @@ import Chip from '@material-ui/core/Chip'
 import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@material-ui/core'
+import useCategoriesList from '../../../../hooks/use-categories-list.hook'
+import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles({
   root: {
@@ -62,7 +64,7 @@ const useStyles = makeStyles({
   }
 })
 
-const reportCard = (data, t, classes) => {
+const reportCard = (data, t, classes, catDetails) => {
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -70,6 +72,7 @@ const reportCard = (data, t, classes) => {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   const details = data?.data?.feature?.properties
+
   if (!data.isLoading) {
     return (
       <>
@@ -106,7 +109,7 @@ const reportCard = (data, t, classes) => {
             <Typography gutterBottom variant="h4" component="h2" style={{ wordBreak: 'break-all' }}>
               <Chip
                 avatar={<Avatar>{HAZARD_SOCIAL_ICONS[details.hazard.toLowerCase()]}</Avatar>}
-                label={details.hazard}
+                label={t('maps:'+details.hazard.toLowerCase())}
               />
             </Typography>
 
@@ -121,7 +124,8 @@ const reportCard = (data, t, classes) => {
                       color="textSecondary"
                       style={{ textTransform: 'uppercase' }}
                     >
-                      {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp;
+                      {t('maps:'+elem)}:&nbsp;
+                      {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
                     </Typography>
                     <Typography component={'span'} variant="body1">
                       {details[elem]}
@@ -133,6 +137,46 @@ const reportCard = (data, t, classes) => {
               return null
             })}
           </CardContent>
+          <TableContainer component={Paper}>
+            <Table className={classes.table} size="small" aria-label="a dense table">
+              <TableHead>
+                <TableRow>
+                  <TableCell align="left">
+                    <b>{t('maps:name')}</b>
+                  </TableCell>
+                  <TableCell align="left">
+                    <b>{t('maps:group')}</b>
+                  </TableCell>
+                  <TableCell align="left">
+                    <b>{t('maps:status')}</b>
+                  </TableCell>
+                  <TableCell align="left">
+                    <b>{t('maps:value')}</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {details!.extensionData.map((row) => (
+                  <TableRow key={row.name}>
+                    <TableCell component="th" align="left" scope="row">
+                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
+                    </TableCell>
+                    <TableCell align="center">
+                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
+                    </TableCell>
+                    <TableCell align="left">{t('maps:'+row.status.toLowerCase())}</TableCell>
+                    <TableCell align="left">
+                      {row.value}
+                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.unitOfMeasure
+                        ? catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                            ?.unitOfMeasure
+                        : null}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
           <CardActions className={classes.cardAction}>
             <Typography color="textSecondary">
               {' '}
@@ -146,6 +190,7 @@ const reportCard = (data, t, classes) => {
             </Typography>
           </CardActions>
         </Card>
+
         <Typography
           variant="body2"
           color="textSecondary"
@@ -153,6 +198,9 @@ const reportCard = (data, t, classes) => {
           style={{ wordBreak: 'break-all' }}
         >
           {/* Latitude: {latitude.toFixed(4)}, Longitude: {longitude.toFixed(4)} */}
+          {/* {details!.extensionData.map((elem) => {
+            return elem.categoryId + ' '
+          })} */}
         </Typography>
       </>
     )
@@ -275,14 +323,23 @@ export function EmergencyContent({
   ...rest
 }: EmergencyPropsWithLocation) {
   const classes = useStyles()
-  const { t } = useTranslation(['common'])
+  const { t } = useTranslation(['common', 'maps'])
   const [repDetails, fetchRepDetails] = useReportById()
-
+  const [catDetails, fetchCategoriesList] = useCategoriesList()
   useEffect(() => {
     switch (type) {
       case 'Report':
         fetchRepDetails(
           rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        fetchCategoriesList(
           (data) => {
             return data
           },
@@ -298,14 +355,18 @@ export function EmergencyContent({
   }, [rest.id, fetchRepDetails])
 
   useEffect(() => {
-    console.log(repDetails)
+    console.log('REP DETAILS', repDetails)
   }, [repDetails])
+
+  useEffect(() => {
+    console.log('CAT DETAILS', catDetails)
+  }, [catDetails])
 
   let todisplay = <></>
   switch (type) {
     // Report request
     case 'Report': {
-      todisplay = reportCard(repDetails, t, classes)
+      todisplay = reportCard(repDetails, t, classes, catDetails)
       break
     }
     default: {

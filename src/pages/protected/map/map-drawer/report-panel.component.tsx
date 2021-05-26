@@ -13,7 +13,7 @@ import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import ListItemText from '@material-ui/core/ListItemText'
-
+import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common'
 import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
@@ -214,7 +214,8 @@ export default function ReportPanel(props) {
                           component="h2"
                           style={{ marginBottom: '0px' }}
                         >
-                          {t('maps:' + elem.hazard.toLowerCase())}
+                          {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()] ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()] : null}
+                          {' ' + t('maps:' + elem.hazard.toLowerCase())}
                         </Typography>
                         <Typography color="textSecondary">
                           {formatter.format(new Date(elem.timestamp as string))}

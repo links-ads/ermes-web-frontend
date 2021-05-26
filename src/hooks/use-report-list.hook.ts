@@ -39,7 +39,7 @@ export default function useReportList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const [filters, setFilters] = useState([])
   const { displayErrorSnackbar } = useSnackbars()
-  const mounted = useRef(false);
+  const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
   const fetchReports = useCallback(
@@ -81,10 +81,9 @@ export default function useReportList() {
   const applyFilterReloadData = (newFilters) => {
     dispatch(initialState)
     setFilters(newFilters)
-
   }
   useEffect(() => {
-    if(mounted.current){
+    if (mounted.current) {
       fetchReports(
         0,
         (data) => {
@@ -95,10 +94,9 @@ export default function useReportList() {
           return data
         }
       )
-    }else {
-      mounted.current = true;
+    } else {
+      mounted.current = true
     }
-
   }, [filters])
 
   return [dataState, fetchReports, applyFilterReloadData]

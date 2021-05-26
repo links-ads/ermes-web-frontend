@@ -5,6 +5,7 @@ import { Typography } from '@material-ui/core';
 export const HAZARD_SOCIAL_ICONS = {
   storm: '⚡️',
   wildfire: '🔥',
+  fire: '🔥',
   flood: '💧',
   earthquake: '🌋',
   landslide: '⛰️',
@@ -15,6 +16,8 @@ export const HAZARD_SOCIAL_ICONS = {
   temp_anomaly: '🌀️',
   collapse: '⛰️',
   accident: '🚨',
+  rain: '⛈️',
+  none: ''
   // NEW 2020!
 };
 
