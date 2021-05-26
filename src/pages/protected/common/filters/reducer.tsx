@@ -4,7 +4,10 @@ export interface FiltersType {
     languageSelect: []
     hazardSelect: []
     infoTypeSelect: []
-    informativeSelect: string
+    informativeSelect: string,
+    southWest:[number,number] | undefined,
+    northEast:[number,number] | undefined
+
 }
 
 const filterReducer = (currentFilters: FiltersType, action: any): FiltersType => {
@@ -46,7 +49,9 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
                 languageSelect: [],
                 hazardSelect: [],
                 infoTypeSelect: [],
-                informativeSelect: ''
+                informativeSelect: '',
+                southWest:undefined,
+                northEast:undefined
             }
         default:
             throw new Error("Invalid action type")

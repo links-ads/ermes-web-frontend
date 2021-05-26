@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react';
+import React, { useReducer, useState, useMemo} from 'react';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import Grid from '@material-ui/core/Grid';
@@ -61,8 +61,7 @@ const SocialFilter = (props) => {
 
 
     const { t } = useTranslation(['social'])
-    const enumLangKeys = Object.values(SocialModuleLanguageType)
-    const langKeys = enumLangKeys
+    const langKeys = useMemo(()=>Object.values(SocialModuleLanguageType),[])
     const informativeValues = ["true", "false"]
 
     const [dialogOpen, setDialogOpen] = useState(false)

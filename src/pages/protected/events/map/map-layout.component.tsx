@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useContext } from 'react';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
@@ -8,14 +8,15 @@ import { useTranslation } from 'react-i18next'
 import { Card, CircularProgress, Grid, Slide, Typography } from '@material-ui/core';
 import InteractiveMap, { Layer, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
-import { clearEventMap, parseEventDataToGeoJson } from '../../common/map/map-common';
+import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../common/map/map-common';
 import debounce from 'lodash.debounce';
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import MapSlide from '../../common/map/map-popup-card';
 import EventContent from '../card/event-card-content';
 import { mapClickHandler } from './map-click-handler';
-import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, DEFAULT_MAP_VIEWPORT, unclusteredPointsProps, SOURCE_PROPS, EVENTS_LAYER_PROPS, CLUSTER_LAYER_PROPS,updateHazardMarkers } from './map-init';
+import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, unclusteredPointsProps, SOURCE_PROPS, EVENTS_LAYER_PROPS, CLUSTER_LAYER_PROPS, updateHazardMarkers } from './map-init';
 import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
+import { AppConfig, AppConfigContext } from '../../../../config';
 
 const DEBOUNCE_TIME = 200 //ms
 
@@ -45,16 +46,18 @@ const EventMap = (props) => {
         mapServerURL
     } = useMapPreferences()
     const { t } = useTranslation(['social'])
-    const [mapViewport, setMapViewport] = useState(DEFAULT_MAP_VIEWPORT)
+    const appConfig = useContext<AppConfig>(AppConfigContext)
+    const mapConfig = appConfig.mapboxgl
+    const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-    const [geoJsonData,setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
+    const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
-      })
+    })
     const updateMarkers = useCallback(
         debounce((map: mapboxgl.Map | undefined) => {
-            if (map !== undefined) {
+            if (map) {
                 clusterMarkersRef.current = updateHazardMarkers(SOURCE_ID, clusterMarkersRef, map)
             }
         }, DEBOUNCE_TIME),
@@ -64,7 +67,7 @@ const EventMap = (props) => {
 
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()
-        if (map !== undefined) {
+        if (map) {
             clearEventMap(map, props.setLeftClickState, props.leftClickState)
             console.log(props.data)
             setGeoJsonData(parseEventDataToGeoJson(props.data))
@@ -117,14 +120,16 @@ const EventMap = (props) => {
                     if (props.mapRef.current) {
                         try {
                             let map = props.mapRef?.current?.getMap()
-                            mapOnLoadHandler(map,
+                            mapOnLoadHandler(
+                                map,
                                 spiderifierRef,
                                 setSpiderLayerIds,
                                 setMapViewport,
                                 SOURCE_ID,
                                 EVENTS_LAYER_ID,
                                 unclusteredPointsProps,
-                                updateMarkers)
+                                updateMarkers,
+                                false)
                             updateMarkers(map)
 
                         }
@@ -163,7 +168,10 @@ const EventMap = (props) => {
                     </MapSlide>
                 </Slide>
             </InteractiveMap>
-            <MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>
+            {
+                (props.mapRef.current?.getMap()) &&
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>)
+            }
         </div >
     );
 }

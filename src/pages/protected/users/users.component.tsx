@@ -132,7 +132,7 @@ export function Users() {
               try {
                 // loading ON
                 setUserUpdating(true)
-                await userAPIFactory.usersCreateUser(newUserInput)
+                await userAPIFactory.usersCreateOrUpdateUser(newUserInput)
                 await loadUsers() // refresh
               } catch (err) {
                 displayErrorSnackbar(err.response?.data.error)
@@ -150,7 +150,7 @@ export function Users() {
               try {
                 // loading ON
                 setUserUpdating(true)
-                await userAPIFactory.usersCreateUser(newUserInput)
+                await userAPIFactory.usersCreateOrUpdateUser(newUserInput)
                 await loadUsers() // refresh
               } catch (err) {
                 displayErrorSnackbar(err.response?.data.error)

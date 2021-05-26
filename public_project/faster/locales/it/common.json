@@ -33,6 +33,7 @@
   "page_administration": "Amministrazione FASTER",
   "page_organizations": "Organizzazioni FASTER",
   "page_users": "Utenti FASTER",
+  "page_import": "Importa Dati",
   "page_about": "Informazioni",
   "user_birth_date": "Data di nascita: {{birthDate}}",
   "user_email": "Email: {{email}}",

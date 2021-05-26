@@ -31,8 +31,7 @@ export default function useCommList() {
   const commsAPIFactory = CommunicationsApiFactory(backendAPIConfig)
 
   const [
-    { data: result, loading: commsLoading, error: commsError },
-    loadUsers
+    { data: result, loading: commsLoading, error: commsError }
   ] = useAxiosWithParamCreator<CommApiPC, DTResultOfCommunicationDto | undefined>(opts, false)
 
   const { displayErrorSnackbar } = useSnackbars()

@@ -64,7 +64,9 @@ const EventsComponent = (props) => {
         languageSelect: [],
         hazardSelect: [],
         infoTypeSelect: [],
-        informativeSelect: 'true'
+        informativeSelect: 'true',
+        southWest:undefined,
+        northEast:undefined
     })
 
     useEffect(()=>{

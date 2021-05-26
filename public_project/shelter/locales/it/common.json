@@ -33,6 +33,7 @@
   "page_administration": "Amministrazione SHELTER",
   "page_organizations": "Organizzazioni SHELTER",
   "page_users": "Utenti SHELTER",
+  "page_import": "Importa Dati",
   "page_about": "Informazioni",
   "user_birth_date": "Data di nascita: {{birthDate}}",
   "user_email": "Email: {{email}}",

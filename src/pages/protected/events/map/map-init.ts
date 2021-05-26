@@ -81,11 +81,6 @@ export const unclusteredPointsProps = {
     } as mapboxgl.SymbolPaint
 }
 
-export const DEFAULT_MAP_VIEWPORT = {
-    latitude: 45.3,
-    longitude: 7.23,
-    zoom: 2.5
-}
 
 export const SOURCE_PROPS = {
     cluster: true,

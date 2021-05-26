@@ -8,22 +8,24 @@ export const mapOnLoadHandler = (
     sourceId,
     pointsLayerId,
     pointsLayerProps,
-    updateMarkers
+    updateMarkers,
+    leavesHoverProps: { paint: mapboxgl.SymbolPaint; layout: mapboxgl.AnyLayout }
+        | false = false
 ) => {
+
     spiderifierRef.current = new Spiderifier({
         sourceName: sourceId,
         leavesLayerType: 'symbol',
         leavesLayerPaintOptions: pointsLayerProps,
-        highlightLeavesOnHover: false,
+        highlightLeavesOnHover: leavesHoverProps,
         onLeavesLayerUpdate: setSpiderLayerIds
     })
 
-    if(updateMarkers === undefined)
-    {
-        updateMarkers = (map)=>{}
+
+    if (updateMarkers === undefined) {
+        updateMarkers = (map) => { }
     }
-    else
-    {
+    else {
         map.on('move', () => updateMarkers(map))
     }
 
@@ -66,5 +68,16 @@ export const mapOnLoadHandler = (
             })
         }
     })
+
+    //restore webgl context when it is lost
+    map.on('webglcontextlost', function () {
+        console.log("WEBGL Context lost, restoring...")
+        var gl = map.getCanvas().getContext('webgl');
+        gl.getExtension('WEBGL_lose_context').restoreContext();
+    });
+    //console to check context is restored
+    map.on('webglcontextrestored', function () {
+        console.log('WEBGL Context Restored');
+    });
 
 }

@@ -1,9 +1,6 @@
 import React, { memo } from 'react'
 import Typography from '@material-ui/core/Typography'
-import * as z from 'zebras'
-import { default as moment } from 'moment'
 import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
@@ -13,24 +10,11 @@ import { getRandomBackgroundAndTextColors } from '../../../utils/color.utils'
 
 export const TestWidget = memo(
   function TestWidgetInner({ wid }: { wid?: string }) {
-    // Provisional
-    const sampleData = {
-      volunteer: ['Mario Rossi', 'Felipe Verdi', 'Antonio Bianchi', 'Carlo Neri'],
-      status: ['Operational', 'Stand-by', 'Not Active', 'Operational'],
-      lastUpdate: [
-        moment(),
-        moment().subtract(30, 'minutes'),
-        moment().subtract(1, 'days'),
-        moment().subtract(2, 'minutes')
-      ],
-      activeMissions: [2, 1, 0, 1]
-    }
 
     // Better load fro CSV anyway!
     // Dataframe is a simple array of objects so the following is basically useless
     // but if z is used for stats then it is very useful for data visualization
     // in both tables and charts
-    const rows = []
     // Object.keys(sampleData).reduce(
     //   (data, col) => z.addCol(col, sampleData[col], data),
     //   Object.keys(sampleData).map(() => ({}))

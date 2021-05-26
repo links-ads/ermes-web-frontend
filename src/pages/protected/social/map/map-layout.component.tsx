@@ -1,25 +1,28 @@
-import React, { useState, useRef, useEffect} from 'react';
-import { InteractiveMap, Source,Layer } from 'react-map-gl';
+import React, { useState, useEffect, useContext } from 'react';
+import { InteractiveMap, Source, Layer } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
-import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import MapSlide from '../../common/map/map-popup-card';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-import { Card, Grid, Slide, Typography } from '@material-ui/core';
+import { Button, Card, Grid, Slide, Typography } from '@material-ui/core';
 
 import { useTranslation } from 'react-i18next'
 
 
-import { parseDataToGeoJson } from '../../common/map/map-common';
+import { DEFAULT_MAP_VIEWPORT, parseDataToGeoJson } from '../../common/map/map-common';
 import { TweetContent } from '../card/tweet-card-content';
-import { CLUSTER_COUNT_LAYER_PROPS, CLUSTER_LAYER_ID, CLUSTER_LAYER_PROPS, DEFAULT_MAP_VIEWPORT, SOURCE_ID, TWEETS_LAYER_ID, TWEETS_LAYER_PROPS, unclusteredPointsProps } from './map-init';
+import { CLUSTER_COUNT_LAYER_PROPS, CLUSTER_LAYER_ID, CLUSTER_LAYER_PROPS, HOVER_TWEETS_LAYER_PROPS, SOURCE_ID, TWEETS_LAYER_ID, TWEETS_LAYER_PROPS, unclusteredPointsProps } from './map-init';
 import { mapClickHandler } from './map-click-handler';
 import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
+import { AppConfig, AppConfigContext } from '../../../../config';
+// import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 
 const tweetImage = new Image(50, 50);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
+const tweetImageHover = new Image(50, 50);
+tweetImageHover.src = require('../../../../assets/twitterIcon/twitterHover.png');
 
 const SocialMap = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -34,6 +37,18 @@ const SocialMap = (props) => {
             },
             headerText: {
                 color: 'white'
+            },
+            button: {
+                borderColor: 'white',
+                color: 'white',
+                borderWidth: 1,
+                "&:disabled": {
+                    color: 'rgba(255, 255, 255, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)'
+                },
+                "&:hover": {
+                    backgroundColor: 'rgba(255, 255, 255, 0.4)'
+                },
             }
         }));
     const classes = useStyles();
@@ -45,22 +60,48 @@ const SocialMap = (props) => {
         mapServerURL
     } = useMapPreferences()
     const { t } = useTranslation(['social'])
-    const [mapViewport, setMapViewport] = useState(DEFAULT_MAP_VIEWPORT)
-    const spiderifierRef = useRef<Spiderifier | null>(null)
-    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-    const [geoJsonData,setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
+    const appConfig = useContext<AppConfig>(AppConfigContext)
+    const mapConfig = appConfig.mapboxgl
+    const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
+
+    const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
-      })
+    })
 
-    useEffect(()=>{
+    const searchButtonHandler = () => {
+        let map = props.mapRef?.current?.getMap()
+        if (map) {
+            var bounds = map.getBounds().toArray()
+            const obj = {
+                southWest: bounds[0] as [number, number],
+                northEast: bounds[1] as [number, number]
+            }
+            props.filterApplyHandler(obj)
+        }
+
+    }
+    // useEffect(()=>{
+    //     console.log(props.mapHoverState)
+    //     let map = props.mapRef?.current?.getMap()
+    //     if(!map) return
+    //     const hoverState = props.mapHoverState
+    //     if (hoverState.type === 'point')
+    //     {
+    //         updatePointFeatureLayerIdFilter(map,HOVER_TWEETS_LAYER_ID,hoverState.id)
+    //     }
+
+    // },[props.mapHoverState])
+
+    useEffect(() => {
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
             props.setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...props.leftClickState.pointFeatures } })
-        if(map !== undefined){
+        if (map) {
+            props.spiderifierRef.current?.clearSpiders(map)
             setGeoJsonData(parseDataToGeoJson(props.data))
         }
-    },[props.mapRef,props.data])
+    }, [props.mapRef, props.data])
 
     return (
         <div style={{ display: 'flex', width: '100%', height: '70vh', minHeight: 400, position: 'relative' }}>
@@ -88,6 +129,16 @@ const SocialMap = (props) => {
                         <Typography display='inline' className={classes.headerText} variant='h6'>{t('social:map_zoom')} : </Typography>
                         <Typography display='inline' className={classes.headerBoldText} variant='h6'>{mapViewport.zoom.toFixed(2)}</Typography>
                     </Grid>
+                    <Grid item>
+                        <Button
+                            variant='outlined'
+                            onClick={searchButtonHandler}
+                            disabled={props.isLoading || props.mapRef?.current?.getMap() === undefined}
+                            className={classes.button}
+                        >
+                            {t("social:map_button_label")}
+                        </Button>
+                    </Grid>
                 </Grid>
             </div>
             <InteractiveMap
@@ -100,26 +151,30 @@ const SocialMap = (props) => {
                 transformRequest={transformRequest}
                 onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
                 ref={props.mapRef}
-                interactiveLayerIds={[TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...spiderLayerIds]}
-                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, spiderifierRef)}
+                interactiveLayerIds={[TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
+                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, props.spiderifierRef)}
                 onLoad={() => {
                     if (props.mapRef.current) {
                         try {
                             let map = props.mapRef?.current?.getMap()
-                            if (!map.hasImage('twitterIcon')) {
-                                map.addImage('twitterIcon', tweetImage);
-                            }
-                            map.on('styleimagemissing', function() {
-                                map.addImage('twitterIcon', tweetImage);
-                                });
-                            mapOnLoadHandler(map,
-                                spiderifierRef,
-                                setSpiderLayerIds,
+                            map.on('styleimagemissing', function () {
+                                if (!map.hasImage('twitterIcon')) {
+                                    map.addImage('twitterIcon', tweetImage);
+                                }
+                                if (!map.hasImage('twitterIconHover')) {
+                                    map.addImage('twitterIconHover', tweetImageHover);
+                                }
+                            });
+                            mapOnLoadHandler(
+                                map,
+                                props.spiderifierRef,
+                                props.setSpiderLayerIds,
                                 setMapViewport,
                                 SOURCE_ID,
                                 TWEETS_LAYER_ID,
                                 unclusteredPointsProps,
-                                undefined)
+                                undefined,
+                                { paint: HOVER_TWEETS_LAYER_PROPS.paint as mapboxgl.SymbolPaint, layout: HOVER_TWEETS_LAYER_PROPS.layout as mapboxgl.AnyLayout })
                         }
                         catch (err) {
                             console.error('Map Load Error', err)
@@ -128,19 +183,19 @@ const SocialMap = (props) => {
                 }
                 }
             >
-            <Source
-                id={SOURCE_ID}
-                type='geojson'
-                data={ geoJsonData}
-                cluster={ true}
-                generateId={ true}
-                clusterMaxZoom={ 15} 
-                clusterRadius={ 50}
-            >
-            </Source>
-            <Layer {...TWEETS_LAYER_PROPS}/>
-            <Layer {...CLUSTER_LAYER_PROPS}/>
-            <Layer {...CLUSTER_COUNT_LAYER_PROPS}/>
+                <Source
+                    id={SOURCE_ID}
+                    type='geojson'
+                    data={geoJsonData}
+                    cluster={true}
+                    clusterMaxZoom={15}
+                    clusterRadius={50}
+                >
+                </Source>
+                <Layer {...TWEETS_LAYER_PROPS} />
+                <Layer {...CLUSTER_LAYER_PROPS} />
+                <Layer {...CLUSTER_COUNT_LAYER_PROPS} />
+                <Layer {...HOVER_TWEETS_LAYER_PROPS} />
                 <Slide
                     direction='left'
                     in={props.leftClickState.showPoint}
@@ -166,7 +221,10 @@ const SocialMap = (props) => {
 
                 </Slide>
             </InteractiveMap>
-            <MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>
+            {
+                (props.mapRef.current?.getMap()) &&
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={props.spiderifierRef} direction="right"></MapStyleToggle>)
+            }
         </div>
     );
 }

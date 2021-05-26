@@ -1,0 +1,23 @@
+{
+    "label_title":"Importa file",
+    "label_activities":"Attività",
+    "label_categories":"Categorie",
+    "label_users":"Utenti",
+    "select_label":"Tipo di import",
+    "extension_error":"Estensione del file deve essere .xls o .xlsx",
+    "name_error":"Nome del file deve essere uguale a {{filename}}",
+    "zone_label":"Trascina qui il file che vuoi caricare o premi per selezionare il file",
+    "zone_sublabel":"( Solo file *.xls o *.xlsx saranno accettati )",
+    "file_ok":"File {{filename}} è pronto per essere inviato",
+    "zone_name_label":"( Nome del file deve essere {{filename}}.xls o {{filename}}.xlsx )",
+    "remove_button":"Rimuovi",
+    "upload_button":"Carica",
+    "loading_label":"Caricamento in corso...",
+    "result_label":"Risultato",
+    "translationsAdded": "Traduzioni aggiunte", 
+    "translationsUpdated": "Traduzioni aggiornate",
+    "translationsDetectedEmptyAndSkipped": "Traduzioni vuote e ignorate",
+    "elementsAdded": "Elementi aggiunti",
+    "elementsUpdated": "Elementi aggiornati",
+    "error_label":"Si è verificato un error"
+}
