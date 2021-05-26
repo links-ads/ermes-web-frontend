@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Feature - Add Report management in drawer (#3)
 
 Ver. 1.0.0 - 2021-05-21
 -----------------------
