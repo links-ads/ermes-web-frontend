@@ -123,7 +123,8 @@ export function updateMarkers<P extends string>(
   colors: string[],
   markersRef: React.MutableRefObject<[object, object]>,
   // markersOnScreenRef: React.RefObject<Object>,
-  map: mapboxgl.Map
+  map: mapboxgl.Map,
+  checkFeatureState:boolean=false
 ): [object, object] {
   let allMarkers = markersRef.current || [{}, {}]
   let [markers, markersOnScreen] = allMarkers
@@ -133,18 +134,26 @@ export function updateMarkers<P extends string>(
     GeoJSON.Point,
     ClusterProps<P>
   >[]
-
   // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
   // and add it to the map if it's not there already
+  const processedClusters = [] as string[]
   for (var i = 0; i < features.length; i++) {
     const coords = features[i].geometry.coordinates as [number, number]
     const props = features[i].properties
     if (!props.cluster) continue
     const id = props.cluster_id
-
+    if (processedClusters.includes(id)) continue
+    var isHover = false
+    if(checkFeatureState!==null){
+      const state = map.getFeatureState({
+        source: sourceName,
+        id: id
+        })
+        isHover = state.hover ? state.hover : false
+    }
     let marker = markers[id]
-    if (!marker) {
-      const el = donutChartHTML<ClusterProps<P>>(props, relevantKeys, colors)
+    if (!marker || checkFeatureState) {
+      const el = donutChartHTML<ClusterProps<P>>(props, relevantKeys, colors,isHover)
       if (el) {
         marker = markers[id] = new Marker({
           element: el
@@ -152,8 +161,20 @@ export function updateMarkers<P extends string>(
       }
     }
     newMarkers[id] = marker
+    processedClusters.push(id)
 
-    if (!markersOnScreen[id]) marker.addTo(map)
+    // if marker is not present, add it
+    if (!markersOnScreen[id]) 
+      marker.addTo(map)
+    else{
+      // otherwise, if you have to check for featureState
+      if(checkFeatureState){
+        // remove old marker
+        markersOnScreen[id].remove()
+        // add new one
+        marker.addTo(map)
+      }
+    }
   }
   // for every marker we've added previously, remove those that are no longer visible
   for (let id of Object.keys(markersOnScreen)) {

@@ -9,9 +9,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 import clsx from 'clsx';
-import { clearEventMap } from '../../common/map/map-common';
+import { clearEventMap, queryHoveredFeature } from '../../common/map/map-common';
 import { ParsedTweet } from '../../common/utils/utils.common';
 import EventContent from './event-card-content';
+import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 
 export const EventCard = (props) => {
 
@@ -23,7 +24,11 @@ export const EventCard = (props) => {
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 display: 'inline-block',
-                padding: 6
+                padding: 6,
+                "&:hover": {
+                    boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
+                    cursor: 'pointer'
+                }
             },
             expand: {
                 transform: 'rotate(0deg)',
@@ -48,7 +53,7 @@ export const EventCard = (props) => {
 
     const classes = useStyles();
     const [expanded, setExpanded] = useState(false);
-
+    const [featureToHover, setFeatureHover] = useState<{ type: string | null, id: string | null }>({ type: null, id: null })
     const theme = useTheme()
     const hasTweets = props.item.tweets.length > 0
     const expandButton = (hasTweets) ? (<IconButton
@@ -61,14 +66,51 @@ export const EventCard = (props) => {
     >
         <ExpandMoreIcon />
     </IconButton>) : null
-    
+
+    const event = props.item
     return (
-        <Card className={classes.root} raised={true}>
+        <Card className={classes.root} raised={true}
+            onPointerEnter={() => {
+                const coord = props.item.hotspots_centroid.coordinates
+                if (!coord) return
+                const map = props.mapRef.current.getMap()
+                if (!map) return
+                const result = queryHoveredFeature(map,coord,[EVENTS_LAYER_ID, CLUSTER_LAYER_ID],EVENTS_LAYER_ID,CLUSTER_LAYER_ID,event.id,SOURCE_ID)
+                if(result.type === 'point' || result.type ==='cluster')
+                {
+                    map.setFeatureState({
+                        source: SOURCE_ID,
+                        id: result.id,
+                    }, {
+                        hover: true
+                    })
+                    setFeatureHover({ type: result.type, id: result.id })
+                    if(result.type === 'cluster')
+                        props.setMapHoverState({set:true})
+                }
+            }}
+            onPointerLeave={() => {
+                const map = props.mapRef.current.getMap()
+                if (!map) return
+                if(featureToHover.type === 'point' || featureToHover.type ==='cluster')
+                {
+                    map.setFeatureState({
+                        source: SOURCE_ID,
+                        id: featureToHover['id'],
+                    }, {
+                        hover: false
+                    })
+                    setFeatureHover({ type: featureToHover.type, id: featureToHover.id })
+                    if(featureToHover.type === 'cluster')
+                        props.setMapHoverState({set:false})
+                }
+            }}
+        >
             <EventContent
                 mapIdsToHazards={props.mapIdsToHazards}
                 item={props.item}
                 chipSize={'medium'}
-                textSizes={{title:'h6',body:'body1'}}
+                textSizes={{ title: 'h6', body: 'body1' }}
             />
             <CardActions disableSpacing className={classes.action}>
                 {props.item.hotspots.coordinates && (
@@ -77,7 +119,7 @@ export const EventCard = (props) => {
                             try {
                                 const map = props.mapRef?.current.getMap()
                                 const centroid = props.item.hotspots_centroid.coordinates
-                                clearEventMap(map,props.setLeftClickState,props.leftClickState)
+                                clearEventMap(map, props.setLeftClickState, props.leftClickState)
                                 map?.flyTo(
                                     {
                                         center: centroid,

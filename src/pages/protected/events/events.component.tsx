@@ -1,52 +1,32 @@
 import { CircularProgress, Grid, Paper, Typography } from '@material-ui/core';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook'
 
 import SocialFilter from '../common/filters/filters';
 
-
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { LanguageCard, SocialPieChart, VolumeCard } from '../common/stats-cards.components';
+import { LanguageCard, parseStats, SocialPieChart, VolumeCard } from '../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
 import EventMap from './map/map-layout.component';
 import { FiltersType } from '../common/filters/reducer';
-import {CardsList} from '../common/cards-list.components';
-import {EventCard} from './card/event-card.component';
+import { CardsList } from '../common/cards-list.components';
+import { EventCard } from './card/event-card.component';
 import InteractiveMap from 'react-map-gl';
 import React from 'react';
+import { AppConfig, AppConfigContext } from '../../../config';
+import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData, _MS_PER_DAY } from '../common/utils/utils.common';
+
+const PAGE_SIZE = 1000
+const MINI_PAGE_SIZE = 20
+
 
 const EventsComponent = (props) => {
 
-    const PAGE_SIZE = 1000
-    const MINI_PAGE_SIZE = 20
-
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            tweetsStatContainer: {
-                margin: '8px'
-            },
-            filterContainer: {
-                margin: '8px',
-                backgroundColor: theme['palette']['primary']['main']
-            },
-            infoContainer: {
-                marginBottom: '16px'
-            },
-            pieContainer: {
-                height: '40vh',
-                minHeight: 200,
-                width: '45vw',
-                position: 'relative'
-            },
-            tweetsListContainer: {
-                margin: '16px 8px 8px 0px',
-                maxWidth: '30vw'
-            }
-        }));
+    const useStyles = makeStyles((theme: Theme) => createStyles(getSocialDashboardStyle(theme)));
 
     const classes = useStyles();
 
@@ -54,71 +34,40 @@ const EventsComponent = (props) => {
     const [filtersState, fetchFilters] = useFilters()
     const [eventStats, fetchEventsStat] = useSocialStat('EVENTS')
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
-    const { t } = useTranslation(['social'])
+    const [mapHoverState,setMapHoverState] = useState({set:false})
+    const appConfig = useContext<AppConfig>(AppConfigContext)
+    const mapConfig = appConfig.mapboxgl
     const mapRef = useRef<InteractiveMap>(null)
-    const [shownData,setShownData] = useState({size:0,data:[] as any[]})
-    
-    const [filterArgs, setFilterArgs] = useState<FiltersType>({
-        startDate: new Date(new Date().valueOf() - 1000 * 60 * 60 * 24),
-        endDate: new Date(),
-        languageSelect: [],
-        hazardSelect: [],
-        infoTypeSelect: [],
-        informativeSelect: 'true',
-        southWest:undefined,
-        northEast:undefined
-    })
+    const { t } = useTranslation(['social'])
+    const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
 
-    useEffect(()=>{
-        setShownData({size:MINI_PAGE_SIZE,data:[...eventAnnotations.data].splice(0,MINI_PAGE_SIZE)})
-    },[eventAnnotations.data])
+    const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
 
     useEffect(() => {
         fetchFilters()
     }, [fetchFilters])
-
-    const infoCount = useMemo(()=>{
-        if(eventStats.stats.info_count === undefined) return {}
-        if(Object.entries(eventStats.stats.info_count).length === 0  || Object.entries(filtersState.mapIdsToInfos).length === 0) return {}
-        return Object.entries(eventStats.stats.info_count).map(tuple => { 
-            return { id: tuple[0], label: filtersState.mapIdsToInfos[parseInt(tuple[0])], value: tuple[1] } })
-        
-    },[eventStats.stats.info_count,filtersState.mapIdsToInfos]) 
-
-    const hazardCount = useMemo(() => {
-        if(eventStats.stats.hazard_count === undefined) return {}
-        if(Object.entries(eventStats.stats.hazard_count).length === 0  || Object.entries(filtersState.mapIdsToHazards).length === 0) return {}
-        return Object.entries(eventStats.stats.hazard_count).map(tuple => {
-            return { id: tuple[0], label: filtersState.mapIdsToHazards[parseInt(tuple[0])], value: tuple[1] }
-        })
-    }, [filtersState.mapIdsToHazards, eventStats.stats.hazard_count]
-    )
-
 
     useEffect(() => {
         fetchEventsStat(filterArgs)
         fetchEvents(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
     }, [filterArgs])
 
-    const filterApplyHandler = (args) => {
-        // if (!checkEqualArgs(filterArgs, args)) {
-            setFilterArgs(args)
-        // }
-        //altrimenti non faccio nulla
-        return
-    }
+    useEffect(() => {
+        setShownData({ size: MINI_PAGE_SIZE, data: [...eventAnnotations.data].splice(0, MINI_PAGE_SIZE) })
+    }, [eventAnnotations.data])
 
-    const showMoreData = () => {
-        const newData = shownData.data.concat([...eventAnnotations.data].slice(shownData.size,shownData.size+MINI_PAGE_SIZE))
-        const newSize  = newData.length
-        setShownData({size:newSize,data:newData})
-    }
+    const infoCount = useMemo(() => { return parseStats(eventStats.stats.info_count, filtersState.mapIdsToInfos) },
+        [eventStats.stats.info_count, filtersState.mapIdsToInfos])
+
+    const hazardCount = useMemo(() => { return parseStats( eventStats.stats.hazard_count,filtersState.mapIdsToHazards) },
+        [filtersState.mapIdsToHazards, eventStats.stats.hazard_count]
+    )
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
             <Grid className={classes.filterContainer} item lg='auto' sm='auto' xl='auto'>
                 <SocialFilter
-                    onFilterApply={filterApplyHandler}
+                    onFilterApply={(args)=>filterApplyHandler(args,filterArgs,setFilterArgs,mapRef)}
                     hazardNames={filtersState.hazardNames}
                     infoNames={filtersState.infoNames}
                     mapHazardsToIds={filtersState.mapHazardsToIds}
@@ -141,18 +90,19 @@ const EventsComponent = (props) => {
                             isLoading={eventAnnotations.isLoading}
                             hasMore={shownData.size < eventAnnotations.data.length}
                             isError={eventAnnotations.error}
-                            moreData={() => showMoreData()}
+                            moreData={() => showMoreSocialData(shownData,eventAnnotations.data,MINI_PAGE_SIZE,setShownData)}
                             renderItem={(item) => (
-                                    <EventCard
-                                        item={item}
-                                        key={item.id}
-                                        mapIdsToHazards={filtersState.mapIdsToHazards}
-                                        mapIdsToInfos={filtersState.mapIdsToInfos}
-                                        mapRef={mapRef}
-                                        leftClickState={mapLeftClickState}
-                                        setLeftClickState={setMapLeftClickState}
-                                    />
-                                )}
+                                <EventCard
+                                    item={item}
+                                    key={item.id}
+                                    mapIdsToHazards={filtersState.mapIdsToHazards}
+                                    mapIdsToInfos={filtersState.mapIdsToInfos}
+                                    mapRef={mapRef}
+                                    leftClickState={mapLeftClickState}
+                                    setLeftClickState={setMapLeftClickState}
+                                    setMapHoverState={setMapHoverState}
+                                />
+                            )}
                         />
                     </Grid>
                 </Grid>
@@ -190,6 +140,8 @@ const EventsComponent = (props) => {
                             data={eventAnnotations.data}
                             isLoading={eventAnnotations.isLoading}
                             isError={eventAnnotations.error}
+                            filterApplyHandler={(args)=>filterApplyHandler(args,filterArgs,setFilterArgs,mapRef)}
+                            mapHoverState={mapHoverState}
                         />
                     </Grid>
                 </Grid>

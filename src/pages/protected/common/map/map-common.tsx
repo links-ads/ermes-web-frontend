@@ -6,7 +6,7 @@ export const DEFAULT_MAP_VIEWPORT: { latitude: number, longitude: number, zoom: 
     zoom: 2.5
 }
 
-export const DEFAULT_MAP_BOUNDS : {southWest:[number,number],northEast:[number,number]} = {
+export const DEFAULT_MAP_BOUNDS: { southWest: [number, number], northEast: [number, number] } = {
     southWest: [61, 60],
     northEast: [-47, 24]
 }
@@ -155,17 +155,86 @@ export const getZoomFromArea = (area) => {
     else return 2.5
 }
 
-export const getBboxSizeFromZoom = (zoom:number) => {
-    if(!zoom) return 100
-    if(zoom < 3) return 100
-    if(zoom < 5) return 150
-    if(zoom < 7) return 200
-    if(zoom < 9) return 200
-    if(zoom < 10) return 250
-    if(zoom < 11) return 300
-    if(zoom < 12) return 350
-    if(zoom < 13) return 400
-    if(zoom < 14) return 450
-    if(zoom < 15) return 500
+const getBboxSizeFromZoom = (zoom: number) => {
+    if (!zoom) return 100
+    if (zoom < 3) return 100
+    if (zoom < 5) return 150
+    if (zoom < 7) return 200
+    if (zoom < 9) return 200
+    if (zoom < 10) return 250
+    if (zoom < 11) return 300
+    if (zoom < 12) return 350
+    if (zoom < 13) return 400
+    if (zoom < 14) return 450
+    if (zoom < 15) return 500
     else return 700
+}
+
+const clipBounds = (bounds: number[]) => {
+    for (let i = 0; i < bounds.length; i++) {
+        bounds[i] = Math.max(-180, Math.min(bounds[i], 180))
+    }
+    return bounds
+}
+
+export const getMapBounds = (mapRef) => {
+    let map = mapRef?.current?.getMap()
+    if (!map) return {
+        southWest: undefined,
+        northEast: undefined
+    }
+    var bounds = map.getBounds().toArray()
+    return {
+        southWest: clipBounds(bounds[0]) as [number, number],
+        northEast: clipBounds(bounds[1]) as [number, number]
+    }
+}
+export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer, elementId, sourceId) => {
+    const point = map.project(coord)
+    const bboxSize = getBboxSizeFromZoom(map.getZoom())
+    var bbox = [
+        [point.x - bboxSize / 2, point.y - bboxSize / 2],
+        [point.x + bboxSize / 2, point.y + bboxSize / 2]
+    ]
+    var features = map.queryRenderedFeatures(bbox, { layers: layers })
+    if (features.length > 0) {
+        // filter features that match the id of the tweet
+        const clusterFeatures = features.filter(point => point.layer.id === clusterLayer)
+        const pointFeatures = features.filter(point => (point.layer.id === pointLayer) && (point.properties['id'] === elementId))
+        const leavesFeatures = features.filter(point => (point.layer.id.includes('spider-leaves') && (point.properties['id'] === elementId)))
+        if (leavesFeatures.length > 0) {
+            const feature = leavesFeatures[0]
+            return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
+        }
+        else if (pointFeatures.length > 0) {
+            const feature = pointFeatures[0]
+            return { type: 'point', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
+        }
+        else if (clusterFeatures.length === 1) {
+            const feature = clusterFeatures[0]
+            return { type: 'cluster', id: feature.id }
+        }
+        else {
+            var minDist = Number.POSITIVE_INFINITY
+            var id = -1
+            for (let i = 0; i < clusterFeatures.length; i++) {
+                var currentDist = distance(coord, clusterFeatures[i].geometry.coordinates)
+                if (currentDist < minDist) {
+                    minDist = currentDist
+                    id = clusterFeatures[i].id
+                }
+            }
+            return { type: 'cluster', id: id }
+        }
+    }
+    else {
+        return {
+            type: null,
+            id: null
+        }
+    }
+}
+
+const distance = (a, b) => {
+    return Math.sqrt((Math.pow(a[0] - b[0], 2)) + (Math.pow(a[1] - b[1], 2)))
 }

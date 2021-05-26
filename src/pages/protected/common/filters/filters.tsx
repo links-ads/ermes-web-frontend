@@ -26,8 +26,8 @@ import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import filterReducer from './reducer';
+import { _MS_PER_DAY } from '../utils/utils.common';
 
-const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const SocialFilter = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
