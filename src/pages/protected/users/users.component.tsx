@@ -128,9 +128,8 @@ export function Users() {
               const newUserInput: UpdateProfileInput = {
                 user: newData.user,
                 // TODO HANDLE
-                organizationId: newData.organization?.id
+                organizationId: newData.organization?.id || newData['organization.id']
               }
-              console.log(newData)
               try {
                 // loading ON
                 setUserUpdating(true)

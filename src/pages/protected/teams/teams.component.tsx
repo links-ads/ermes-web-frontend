@@ -3,7 +3,7 @@ import Typography from '@material-ui/core/Typography'
 import MaterialTable, { Column } from 'material-table'
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { Input, ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
+import { ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
 import {
   TeamsApiAxiosParamCreator,
   TeamsApiFactory,
@@ -29,14 +29,16 @@ type KRTmsApiPC = keyof ReturnType<TmsApiPC>
 
 function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
   const lookupKeys = Object.keys(orgLookup)
-  const empty = lookupKeys[0]
+  const empty = lookupKeys[0] || ''
   return [
     { title: t('admin:team_name'), field: 'name' },
     {
-      title: t('admin:team_org_name'), field: 'organization.id', editable: 'onAdd',
+      title: t('admin:team_org_name'), 
+      field: 'organization.id', 
+      editable: 'onAdd',
       lookup: orgLookup,
-      emptyValue: empty,
       initialEditValue: (lookupKeys.length > 1) ? undefined : empty,
+      emptyValue:empty
     },
     {
       title: t('admin:team_people_count'),
@@ -48,17 +50,18 @@ function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
 }
 function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds): Column<TeamOutputDto>[] {
   const lookupObj = genLookupObject()
-  const lookupEntries = Object.entries(lookupObj)
+  const orgUsersEntries = Object.entries(lookupObj)
+  const availableOrgUsers = orgUsersEntries.filter(entry => !membersIds.includes(parseInt(entry[0])))
   return [{
     title: t('admin:team_mem_name'), field: 'id', lookup: lookupObj,
-    initialEditValue: lookupEntries.filter(entry => !membersIds.includes(parseInt(entry[0])))[0][0],
+    initialEditValue: availableOrgUsers.length > 0 ? availableOrgUsers[0][0] : undefined,
     editComponent: props => {
       return (<Select
-        value={props.value}
+        value={props.value || ''}
         onChange={(e) => props.onChange(e.target.value)}
       >
         {/* shows only user not already included in this team or the user currently in edit mode */}
-        {lookupEntries.filter(entry => !membersIds.includes(parseInt(entry[0])) || props.rowData.id === parseInt(entry[0]))
+        {orgUsersEntries.filter(entry => !membersIds.includes(parseInt(entry[0])) || props.rowData.id === parseInt(entry[0]))
           .map((entry) => (
             <MenuItem
               key={entry[0]}
@@ -84,7 +87,7 @@ const RenderMembersTables = (
 ) => {
   // Return lookup table with the possible users to be selected
 
-  const membersIds = useMemo(() => rowData.members?.map((mem) => mem.id), [rowData])
+  const membersIds = useMemo(() => rowData?.members?.map((mem) => mem.id) || [], [rowData])
 
   const genLookupObject = () => {
     let persons: any = {}
@@ -110,7 +113,7 @@ const RenderMembersTables = (
   }
 
   // If no row is selected...
-  if (!rowData.id) {
+  if (!rowData || !rowData.id) {
     return (
       <div className="teams-select-team-centered">
         <span>
@@ -183,7 +186,7 @@ export function Teams() {
   const { isOrgLoading, orgLookup } = useOrgList()
   // Documents involved in translation
   const { t } = useTranslation(['admin', 'tables'])
-
+  
   // Load api to get the data needed for Teams, set it to backoffice (not public) and load load the configurations
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const teamAPIFactory = TeamsApiFactory(backendAPIConfig)
@@ -198,7 +201,7 @@ export function Teams() {
     { data: result, loading: teamsLoading, error: teamsError },
     loadTeams
   ] = useAxiosWithParamCreator<TmsApiPC, DTResultOfTeamOutputDto | undefined>(opts, false)
-
+  
   const { displayErrorSnackbar } = useSnackbars()
   const teams: TeamOutputDto[] = result?.data || []
   const [updating, setUpdating] = useState<boolean>(false)
@@ -206,7 +209,7 @@ export function Teams() {
   const isLoading: boolean = updating || teamsLoading || isOrgLoading// true if one true, otherwise false
   const [membersData, setMembersData] = useState<TeamOutputDto>({})
   const [selectedRow, setSelectedRow] = useState<number>(-1)
-
+  
   useEffect(() => {
     if (!teamsLoading) {
       setData(teams)
@@ -215,17 +218,17 @@ export function Teams() {
       }
     }
   }, [teamsLoading, selectedRow, teams])
-
+  
   useEffect(() => {
     if (teamsError) {
       displayErrorSnackbar(teamsError.response?.data.error)
     }
   }, [teamsError, displayErrorSnackbar])
-
+  
   const columns = useMemo(() => localizeColumns(t, orgLookup), [t, orgLookup])
-
+  
   const localization = useMemo(() => localizeMaterialTable(t), [t])
-
+  
   return (
     <AdministrationContainer>
       <div className="not-column-centered">
@@ -267,11 +270,11 @@ export function Teams() {
               setSelectedRow(rowData.tableData.id!)
             }}
             editable={{
-              onRowAdd: async (newData: TeamOutputDto) => {
+              onRowAdd: async (newData) => {
                 const newTeamInput: CreateUpdateTeamInput = {
                   team: {
-                    name: newData.name!,
-                    organizationId: newData.organization!.id
+                    name: newData.name as string,
+                    organizationId: newData.organization?.id || newData['organization.id']
                   }
                 }
                 try {
