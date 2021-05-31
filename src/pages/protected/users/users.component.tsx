@@ -26,7 +26,8 @@ const options: Options = {
 }
 
 function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
-  const empty = Object.keys(orgLookup)[0]
+  const lookupKeys = Object.keys(orgLookup)
+  const empty = lookupKeys[0]
   return [
     {
       title: t('admin:user_avatar'),
@@ -40,7 +41,9 @@ function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
           />
         ) : (
           <span>-</span> // add default avatar?
-        )
+        ),
+        initialEditValue: '',
+        emptyValue: ''
     },
     { title: t('admin:user_username'), field: 'user.username' },
     { title: t('admin:user_email'), field: 'user.email' },
@@ -52,8 +55,7 @@ function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
       editable: 'onAdd',
       lookup: orgLookup,
       emptyValue: empty,
-      initialEditValue: empty,
-      
+      initialEditValue: (lookupKeys.length > 1) ? undefined : empty,      
     }
   ]
 }

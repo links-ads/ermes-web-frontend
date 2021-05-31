@@ -3,7 +3,7 @@ import Typography from '@material-ui/core/Typography'
 import MaterialTable, { Column } from 'material-table'
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { Paper } from '@material-ui/core'
+import { Input, ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
 import {
   TeamsApiAxiosParamCreator,
   TeamsApiFactory,
@@ -21,15 +21,23 @@ import { AdministrationContainer, RefreshButton } from '../common/common.compone
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
+import useOrgList from '../../../hooks/use-organization-list.hooks'
 
 const MAX_RESULT_COUNT = 1000
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
 type KRTmsApiPC = keyof ReturnType<TmsApiPC>
 
-function localizeColumns(t: TFunction): Column<TeamOutputDto>[] {
+function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
+  const lookupKeys = Object.keys(orgLookup)
+  const empty = lookupKeys[0]
   return [
     { title: t('admin:team_name'), field: 'name' },
-    { title: t('admin:team_org_name'), field: 'organization.name', editable: 'never' },
+    {
+      title: t('admin:team_org_name'), field: 'organization.id', editable: 'onAdd',
+      lookup: orgLookup,
+      emptyValue: empty,
+      initialEditValue: (lookupKeys.length > 1) ? undefined : empty,
+    },
     {
       title: t('admin:team_people_count'),
       field: 'members.length',
@@ -38,8 +46,29 @@ function localizeColumns(t: TFunction): Column<TeamOutputDto>[] {
     }
   ]
 }
-function localizeMemColumns(t: TFunction, genLookupObject: Function): Column<TeamOutputDto>[] {
-  return [{ title: t('admin:team_mem_name'), field: 'id', lookup: genLookupObject() }]
+function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds): Column<TeamOutputDto>[] {
+  const lookupObj = genLookupObject()
+  const lookupEntries = Object.entries(lookupObj)
+  return [{
+    title: t('admin:team_mem_name'), field: 'id', lookup: lookupObj,
+    initialEditValue: lookupEntries.filter(entry => !membersIds.includes(parseInt(entry[0])))[0][0],
+    editComponent: props => {
+      return (<Select
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
+      >
+        {/* shows only user not already included in this team or the user currently in edit mode */}
+        {lookupEntries.filter(entry => !membersIds.includes(parseInt(entry[0])) || props.rowData.id === parseInt(entry[0]))
+          .map((entry) => (
+            <MenuItem
+              key={entry[0]}
+              value={entry[0]}
+            >
+              <ListItemText primary={entry[1] as string} />
+            </MenuItem>))}
+      </Select>)
+    }
+  }]
 }
 
 const RenderMembersTables = (
@@ -54,12 +83,14 @@ const RenderMembersTables = (
   localization
 ) => {
   // Return lookup table with the possible users to be selected
+
+  const membersIds = useMemo(() => rowData.members?.map((mem) => mem.id), [rowData])
+
   const genLookupObject = () => {
     let persons: any = {}
-    Object.entries(users).forEach(([key, value]: any) => {
+    Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
       persons[value.personId] = value.user.username
     })
-    console.log(persons)
     return persons
   }
 
@@ -111,10 +142,10 @@ const RenderMembersTables = (
         height: '100%',
         width: '100%'
       }}
-      columns={localizeMemColumns(t, genLookupObject)}
+      columns={localizeMemColumns(t, genLookupObject, membersIds)}
       editable={{
         onRowAdd: async (newData: TeamOutputDto) => {
-          const ids = rowData.members.map((mem) => mem.id).concat([Number(newData.id)])
+          const ids = membersIds.concat([Number(newData.id)])
           const newTeamMemInput: SetTeamMembersInput = {
             teamId: rowData.id,
             membersIds: ids
@@ -122,7 +153,7 @@ const RenderMembersTables = (
           await SetTeamMembsFromInput(newTeamMemInput)
         },
         onRowUpdate: async (newData: TeamOutputDto, oldData?: TeamOutputDto) => {
-          let ids = rowData.members.map((mem) => mem.id)
+          let ids = [...membersIds]
           const i = ids.indexOf(Number(oldData!.id))
           ids[i] = Number(newData!.id)
           const newTeamMemInput: SetTeamMembersInput = {
@@ -132,7 +163,7 @@ const RenderMembersTables = (
           await SetTeamMembsFromInput(newTeamMemInput)
         },
         onRowDelete: async (oldData: TeamOutputDto) => {
-          let ids = rowData.members.map((mem) => mem.id)
+          let ids = [...membersIds]
           const i = ids.indexOf(Number(oldData!.id))
           ids.splice(i, 1)
           const newTeamMemInput: SetTeamMembersInput = {
@@ -149,7 +180,7 @@ const RenderMembersTables = (
 export function Teams() {
   // Load Hook to retrieve list of all users
   const { usersData, isUserLoading } = useUsersList()
-
+  const { isOrgLoading, orgLookup } = useOrgList()
   // Documents involved in translation
   const { t } = useTranslation(['admin', 'tables'])
 
@@ -172,7 +203,7 @@ export function Teams() {
   const teams: TeamOutputDto[] = result?.data || []
   const [updating, setUpdating] = useState<boolean>(false)
   const [data, setData] = useState<TeamOutputDto[]>(teams)
-  const isLoading: boolean = updating || teamsLoading // true if one true, otherwise false
+  const isLoading: boolean = updating || teamsLoading || isOrgLoading// true if one true, otherwise false
   const [membersData, setMembersData] = useState<TeamOutputDto>({})
   const [selectedRow, setSelectedRow] = useState<number>(-1)
 
@@ -191,7 +222,7 @@ export function Teams() {
     }
   }, [teamsError, displayErrorSnackbar])
 
-  const columns = useMemo(() => localizeColumns(t), [t])
+  const columns = useMemo(() => localizeColumns(t, orgLookup), [t, orgLookup])
 
   const localization = useMemo(() => localizeMaterialTable(t), [t])
 
@@ -239,7 +270,8 @@ export function Teams() {
               onRowAdd: async (newData: TeamOutputDto) => {
                 const newTeamInput: CreateUpdateTeamInput = {
                   team: {
-                    name: newData.name!
+                    name: newData.name!,
+                    organizationId: newData.organization!.id
                   }
                 }
                 try {
