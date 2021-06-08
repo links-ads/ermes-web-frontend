@@ -72,6 +72,7 @@ const useImports = () => {
                 importApiFactory.importImportActivities(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
                 break;
             case ImportEnum.USERS:
+                importApiFactory.importImportUsers(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
                 break;
             case ImportEnum.CATEGORIES:
                 importApiFactory.importImportActivities(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
