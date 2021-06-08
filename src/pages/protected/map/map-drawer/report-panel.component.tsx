@@ -22,7 +22,6 @@ const useStyles = makeStyles((theme) => ({
     height: '90%'
   },
   container_without_search: {
-    height: window.innerHeight - 190,
     overflowY: 'scroll'
   },
   card: {
@@ -79,7 +78,10 @@ export default function ReportPanel(props) {
   const [selHazard, setSelHazard] = React.useState({}) //['ALL' as HazardType]
   const [repsData, getRepsData, applyFilterReloadData] = useReportList()
   const { t } = useTranslation(['common', 'maps', 'social'])
-
+  const [height, setHeight] = React.useState(window.innerHeight)
+  const resizeHeight = () => {
+    setHeight(window.innerHeight)
+  }
   const handleChangeHazard = (event) => {
     const change = event.target.value
 
@@ -126,6 +128,13 @@ export default function ReportPanel(props) {
     }
   }, [repsData])
 
+
+
+  useEffect(() => {
+    window.addEventListener('resize', resizeHeight)
+    return () => window.removeEventListener('resize', resizeHeight)
+  })
+
   return (
     <div className="container_without_search">
       <span>
@@ -166,7 +175,11 @@ export default function ReportPanel(props) {
         </Button>
       </span>
       {!repsData.isLoading ? (
-        <div className={classes.container_without_search} id="scrollableElem">
+        <div
+          className={classes.container_without_search}
+          id="scrollableElem"
+          style={{ height: height - 280 }}
+        >
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -214,7 +227,9 @@ export default function ReportPanel(props) {
                           component="h2"
                           style={{ marginBottom: '0px' }}
                         >
-                          {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()] ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()] : null}
+                          {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                            ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                            : null}
                           {' ' + t('maps:' + elem.hazard.toLowerCase())}
                         </Typography>
                         <Typography color="textSecondary">

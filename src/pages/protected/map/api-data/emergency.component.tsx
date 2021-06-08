@@ -109,7 +109,7 @@ const reportCard = (data, t, classes, catDetails) => {
             <Typography gutterBottom variant="h4" component="h2" style={{ wordBreak: 'break-all' }}>
               <Chip
                 avatar={<Avatar>{HAZARD_SOCIAL_ICONS[details.hazard.toLowerCase()]}</Avatar>}
-                label={t('maps:'+details.hazard.toLowerCase())}
+                label={t('maps:' + details.hazard.toLowerCase())}
               />
             </Typography>
 
@@ -124,7 +124,7 @@ const reportCard = (data, t, classes, catDetails) => {
                       color="textSecondary"
                       style={{ textTransform: 'uppercase' }}
                     >
-                      {t('maps:'+elem)}:&nbsp;
+                      {t('maps:' + elem)}:&nbsp;
                       {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
                     </Typography>
                     <Typography component={'span'} variant="body1">
@@ -137,46 +137,49 @@ const reportCard = (data, t, classes, catDetails) => {
               return null
             })}
           </CardContent>
-          <TableContainer component={Paper}>
-            <Table className={classes.table} size="small" aria-label="a dense table">
-              <TableHead>
-                <TableRow>
-                  <TableCell align="left">
-                    <b>{t('maps:name')}</b>
-                  </TableCell>
-                  <TableCell align="left">
-                    <b>{t('maps:group')}</b>
-                  </TableCell>
-                  <TableCell align="left">
-                    <b>{t('maps:status')}</b>
-                  </TableCell>
-                  <TableCell align="left">
-                    <b>{t('maps:value')}</b>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {details!.extensionData.map((row) => (
-                  <TableRow key={row.name}>
-                    <TableCell component="th" align="left" scope="row">
-                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
-                    </TableCell>
-                    <TableCell align="center">
-                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
-                    </TableCell>
-                    <TableCell align="left">{t('maps:'+row.status.toLowerCase())}</TableCell>
+          {details?.extensionData.length > 0 ? (
+            <TableContainer component={Paper}>
+              <Table className={classes.table} size="small" aria-label="a dense table">
+                <TableHead>
+                  <TableRow>
                     <TableCell align="left">
-                      {row.value}
-                      {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.unitOfMeasure
-                        ? catDetails?.data?.find((x) => x.categoryId === row.categoryId)
-                            ?.unitOfMeasure
-                        : null}
+                      <b>{t('maps:name')}</b>
+                    </TableCell>
+                    <TableCell align="left">
+                      <b>{t('maps:group')}</b>
+                    </TableCell>
+                    <TableCell align="left">
+                      <b>{t('maps:status')}</b>
+                    </TableCell>
+                    <TableCell align="left">
+                      <b>{t('maps:value')}</b>
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {details!.extensionData.map((row) => (
+                    <TableRow key={row.name}>
+                      <TableCell component="th" align="left" scope="row">
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
+                      </TableCell>
+                      <TableCell align="center">
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
+                      </TableCell>
+                      <TableCell align="left">{t('maps:' + row.status.toLowerCase())}</TableCell>
+                      <TableCell align="left">
+                        {row.value}
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                          ?.unitOfMeasure
+                          ? catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                              ?.unitOfMeasure
+                          : null}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : null}
           <CardActions className={classes.cardAction}>
             <Typography color="textSecondary">
               {' '}
