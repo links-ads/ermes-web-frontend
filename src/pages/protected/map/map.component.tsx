@@ -5,7 +5,7 @@ import { CulturalProps } from './provisional-data/cultural.component'
 import { MapStateContextProvider } from './map.contest'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers'
+import { MuiPickersUtilsProvider, KeyboardDateTimePicker  } from '@material-ui/pickers'
 import Grid from '@material-ui/core/Grid'
 import DateFnsUtils from '@date-io/date-fns'
 import { useTranslation } from 'react-i18next'
@@ -90,28 +90,30 @@ export function Map() {
             <Grid container justify="space-around">
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 {/* Date pickers */}
-                <KeyboardDatePicker
+                <KeyboardDateTimePicker 
+                  
                   style={{ paddingTop: 0, marginTop: 0 }}
-                  disableToolbar
+                  // disableToolbar
                   variant="inline"
-                  format="dd/MM/yyyy"
+                  format="dd/MM/yyyy hh:mm"
                   margin="normal"
                   id="end-date-picker-inline"
                   label={t('common:date_picker_test_start')}
                   value={selectedStartDate}
                   onChange={handleStartDateChange}
-                  maxDate={selectedEndDate}
+                  // maxDate={selectedEndDate}
                   disableFuture={false}
                   autoOk={true}
+                  ampm={false}
                   KeyboardButtonProps={{
                     'aria-label': 'change date'
                   }}
                 />
-                <KeyboardDatePicker
+                <KeyboardDateTimePicker 
                   style={{ paddingTop: 0, marginTop: 0 }}
-                  disableToolbar
+                  // disableToolbar
                   variant="inline"
-                  format="dd/MM/yyyy"
+                  format="dd/MM/yyyy hh:mm"
                   margin="normal"
                   id="start-date-picker-inline"
                   label={t('common:date_picker_test_end')}
@@ -119,7 +121,8 @@ export function Map() {
                   onChange={handleEndDateChange}
                   disableFuture={false}
                   autoOk={true}
-                  minDate={selectedStartDate}
+                  ampm={false}
+                  // minDate={selectedStartDate}
                   KeyboardButtonProps={{
                     'aria-label': 'change date'
                   }}

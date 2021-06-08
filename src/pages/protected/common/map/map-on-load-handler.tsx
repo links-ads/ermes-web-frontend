@@ -68,16 +68,7 @@ export const mapOnLoadHandler = (
             })
         }
     })
+    updateMarkers(map)
 
-    //restore webgl context when it is lost
-    map.on('webglcontextlost', function () {
-        console.log("WEBGL Context lost, restoring...")
-        var gl = map.getCanvas().getContext('webgl');
-        gl.getExtension('WEBGL_lose_context').restoreContext();
-    });
-    //console to check context is restored
-    map.on('webglcontextrestored', function () {
-        console.log('WEBGL Context Restored');
-    });
 
 }

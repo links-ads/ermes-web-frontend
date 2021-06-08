@@ -1,6 +1,9 @@
 Ver.
 -----------------------
 - Feature - Add Report management in drawer (#3)
+- Feature - Add spatial filter to Event Map (#8)
+- Feature - Fix Organizations/Teams/Users pages (#7)
+- Hotfix - Fixed date pickers including time (#6)
 
 Ver. 1.0.0 - 2021-05-21
 -----------------------

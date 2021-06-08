@@ -1,6 +1,9 @@
-import React from 'react';
 import { Typography } from '@material-ui/core';
+import React from 'react';
+import { FiltersType } from '../filters/reducer';
+import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../map/map-common'
 
+export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 export const HAZARD_SOCIAL_ICONS = {
   storm: '⚡️',
@@ -26,6 +29,49 @@ export const INFORMATIVE_ICONS = {
   not_informative: '🔴'
 }
 
+export const getSocialDashboardStyle = (theme) => {
+  return {
+    tweetsStatContainer: {
+      margin: '8px'
+    },
+    filterContainer: {
+      margin: '8px',
+      backgroundColor: theme['palette']['primary']['main']
+    },
+    infoContainer: {
+      marginBottom: '16px'
+    },
+    pieContainer: {
+      height: '40vh',
+      minHeight: 200,
+      width: '45vw',
+      position: 'relative'
+    } as import('@material-ui/styles').CSSProperties,
+    tweetsListContainer: {
+      margin: '16px 8px 8px 0px',
+      maxWidth: '30vw'
+    }
+  }
+}
+
+export const showMoreSocialData = (shownData, annotationData, pageSize, setShownData) => {
+  const newData = shownData.data.concat([...annotationData].slice(shownData.size, shownData.size + pageSize))
+  const newSize = newData.length
+  setShownData({ size: newSize, data: newData })
+}
+
+export const getDefaultFilterArgs = (mapConfig) => {
+  return {
+    startDate: new Date(new Date().valueOf() - _MS_PER_DAY),
+    endDate: new Date(),
+    languageSelect: [],
+    hazardSelect: [],
+    infoTypeSelect: [],
+    informativeSelect: 'true',
+    southWest: mapConfig?.mapBounds?.southWest || DEFAULT_MAP_BOUNDS.southWest,
+    northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
+  } as FiltersType
+}
 const checkEqualArrays = (a, b) => {
   if (a === b) return true;
   if (a == null || b == null) return false;
@@ -54,7 +100,7 @@ export const checkEqualArgs = (oldArgs, newArgs) => {
 
 export const parseTweetText = (tweetText) => {
   const text = tweetText.replace(/\n/ig, '')
-  let elements = []
+  let elements = [] as any[]
   let accumulated = ""
   let v = text.trim().split(' ')
   for (let word of v) {
@@ -123,4 +169,13 @@ export const ParsedTweet = (props) => {
       }
     </React.Fragment>
   )
+}
+
+
+export const filterApplyHandler = (newArgs = {}, stateArgs, setArgs, mapRef) => {
+  setArgs({
+    ...stateArgs,
+    ...newArgs,
+    ...getMapBounds(mapRef)
+  })
 }

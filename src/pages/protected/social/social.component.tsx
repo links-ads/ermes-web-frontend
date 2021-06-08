@@ -10,12 +10,12 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { useTranslation } from 'react-i18next'
 
-import { VolumeCard, InformativeCard, LanguageCard, SocialPieChart } from '../common/stats-cards.components'
+import { VolumeCard, InformativeCard, LanguageCard, SocialPieChart, parseStats } from '../common/stats-cards.components'
 import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
-import {DEFAULT_MAP_BOUNDS} from '../common/map/map-common';
+import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../common/utils/utils.common';
 import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
@@ -29,36 +29,15 @@ import { TweetCard } from './card/tweet-card-component';
 import { AppConfig, AppConfigContext } from '../../../config';
 import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
+const PAGE_SIZE = 30000
+const MINI_PAGE_SIZE = 20
+
 const SocialComponent = (props) => {
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            tweetsStatContainer: {
-                margin: '8px'
-            },
-            tweetsListContainer: {
-                margin: '16px 8px 8px 0px',
-                maxWidth: '30vw'
-            },
-            filterContainer: {
-                margin: '8px',
-                backgroundColor: theme['palette']['primary']['main']
-            },
-            infoContainer: {
-                marginBottom: '16px'
-            },
-            pieContainer: {
-                height: '35vh',
-                minHeight: 200,
-                width: '45vw',
-                position: 'relative'
-            }
-        }));
+    const useStyles = makeStyles((theme: Theme) => createStyles(getSocialDashboardStyle(theme)));
 
     const classes = useStyles();
 
     const { t } = useTranslation(['social'])
-    const PAGE_SIZE = 30000
-    const MINI_PAGE_SIZE = 20
     const mapRef = useRef<InteractiveMap>(null)
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
@@ -68,70 +47,36 @@ const SocialComponent = (props) => {
     // const [mapHoverState,setMapHoverState] = useState({type:'point',id:'null'})
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()
-    const [filterArgs, setFilterArgs] = useState<FiltersType>({
-        startDate: new Date(new Date().valueOf() - 1000 * 60 * 60 * 24),
-        endDate: new Date(),
-        languageSelect: [],
-        hazardSelect: [],
-        infoTypeSelect: [],
-        informativeSelect: 'true',
-        southWest: mapConfig?.mapBounds?.southWest || DEFAULT_MAP_BOUNDS.southWest,
-        northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
-    })
+    const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
 
     const [filtersState, fetchFilters] = useFilters()
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
 
     useEffect(() => {
-        setShownData({ size: MINI_PAGE_SIZE, data: [...tweetAnnotations.data].splice(0, MINI_PAGE_SIZE) })
-    }, [tweetAnnotations.data])
+        fetchFilters()
+    }, [fetchFilters])
 
     useEffect(() => {
         fetchTweetsStat(filterArgs)
         fetchTweetAnnotations(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
     }, [filterArgs])
 
-    const filterApplyHandler = (args) => {
-        const newArgs = {
-            ...filterArgs,
-            ...args
-        }
-        setFilterArgs(newArgs)
-    }
-
-    const infoCount = useMemo(() => {
-        if (tweetsStats.stats.info_count === undefined) return {}
-        if (Object.entries(tweetsStats.stats.info_count).length === 0 || Object.entries(filtersState.mapIdsToInfos).length === 0) return {}
-        return Object.entries(tweetsStats.stats.info_count).map(tuple => {
-            return { id: tuple[0], label: filtersState.mapIdsToInfos[parseInt(tuple[0])], value: tuple[1] }
-        })
-
-    }, [tweetsStats.stats.info_count, filtersState.mapIdsToInfos])
-
-    const hazardCount = useMemo(() => {
-        if (tweetsStats.stats.hazard_count === undefined) return {}
-        if (Object.entries(tweetsStats.stats.hazard_count).length === 0 || Object.entries(filtersState.mapIdsToHazards).length === 0) return {}
-        return Object.entries(tweetsStats.stats.hazard_count).map(tuple => {
-            return { id: tuple[0], label: filtersState.mapIdsToHazards[parseInt(tuple[0])], value: tuple[1] }
-        })
-    }, [filtersState.mapIdsToHazards, tweetsStats.stats.hazard_count]
-    )
-
     useEffect(() => {
-        fetchFilters()
-    }, [fetchFilters])
+        setShownData({ size: MINI_PAGE_SIZE, data: [...tweetAnnotations.data].splice(0, MINI_PAGE_SIZE) })
+    }, [tweetAnnotations.data])
 
-    const showMoreData = () => {
-        const newData = shownData.data.concat([...tweetAnnotations.data].slice(shownData.size, shownData.size + MINI_PAGE_SIZE))
-        const newSize = newData.length
-        setShownData({ size: newSize, data: newData })
-    }
+    const infoCount = useMemo(() => { return parseStats(tweetsStats.stats.info_count, filtersState.mapIdsToInfos) },
+        [tweetsStats.stats.info_count, filtersState.mapIdsToInfos])
+
+    const hazardCount = useMemo(() => { return parseStats(tweetsStats.stats.hazard_count, filtersState.mapIdsToHazards) },
+        [filtersState.mapIdsToHazards, tweetsStats.stats.hazard_count]
+    )
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
             <Grid className={classes.filterContainer} item lg='auto' sm='auto' xl='auto'>
                 <SocialFilter
-                    onFilterApply={filterApplyHandler}
+                    onFilterApply={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
                     hazardNames={filtersState.hazardNames}
                     infoNames={filtersState.infoNames}
                     mapHazardsToIds={filtersState.mapHazardsToIds}
@@ -157,7 +102,7 @@ const SocialComponent = (props) => {
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
                             hasMore={shownData.size < tweetAnnotations.data.length}
-                            moreData={() => showMoreData()}
+                            moreData={() => showMoreSocialData(shownData, tweetAnnotations.data, MINI_PAGE_SIZE, setShownData)}
                             renderItem={(item) => (
                                 <TweetCard
                                     item={item}
@@ -207,7 +152,7 @@ const SocialComponent = (props) => {
                             data={tweetAnnotations.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
-                            filterApplyHandler={filterApplyHandler}
+                            filterApplyHandler={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}
                             setSpiderLayerIds={setSpiderLayerIds}

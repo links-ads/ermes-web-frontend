@@ -147,6 +147,14 @@ const defs = [
     }
 ]
 
+export const parseStats = (stats, mapping) : {} => {
+    if (!stats) return {}
+    if (Object.entries(stats).length === 0 || Object.entries(mapping).length === 0) return {}
+    return Object.entries(stats).map(tuple => {
+        return { id: tuple[0], label: mapping[parseInt(tuple[0])], value: tuple[1] }
+    })
+}
+
 
 export const SocialPieChart = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
@@ -183,7 +191,7 @@ export const SocialPieChart = (props) => {
         radialLabelsTextColor={theme['palette']['text']['primary']}
         radialLabelsLinkColor={theme['palette']['text']['primary']}
 
-        theme={{"textColor":"inherit"}}
+        theme={{ "textColor": "inherit" }}
         tooltip={(d) => {
             let item = d.datum;
             return (
@@ -207,27 +215,27 @@ export const SocialPieChart = (props) => {
         }}
         enableSliceLabels={false}
         defs={defs}
-    legends={[
-        {
-            anchor: 'left',
-            direction: 'column',
-            translateY: 0,
-            itemTextColor: 'red',
-            translateX: -210,
-            itemWidth: 10,
-            itemHeight: 18,
-            symbolSize: 18,
-            justify: false,
-            symbolShape: 'circle',
-            effects: [
-                {
-                    on: 'hover',
-                    style: {
-                        itemTextColor: '#000'
+        legends={[
+            {
+                anchor: 'left',
+                direction: 'column',
+                translateY: 0,
+                itemTextColor: 'red',
+                translateX: -210,
+                itemWidth: 10,
+                itemHeight: 18,
+                symbolSize: 18,
+                justify: false,
+                symbolShape: 'circle',
+                effects: [
+                    {
+                        on: 'hover',
+                        style: {
+                            itemTextColor: '#000'
+                        }
                     }
-                }
-            ]
-        }
-    ]}
+                ]
+            }
+        ]}
     />
 }

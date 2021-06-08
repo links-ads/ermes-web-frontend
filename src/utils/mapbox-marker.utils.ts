@@ -49,7 +49,8 @@ export function donutSegmentSVG(
 export function donutChartHTML<P extends { [k: string]: number }>(
   props: P,
   keys: (keyof P)[],
-  colors: string[]
+  colors: string[],
+  isHover:boolean = false
 ) {
   let offsets: number[] = []
   let counts = Object.entries(props)
@@ -60,8 +61,8 @@ export function donutChartHTML<P extends { [k: string]: number }>(
     offsets.push(total)
     total += counts[i]
   }
-  const fontSize = total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16
-  const r = total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18
+  const fontSize = (total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16) + (isHover ? 2 : 0)
+  const r = (total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18) + (isHover ? 10 : 0)
   const r0 = Math.round(r * 0.6)
   const w = r * 2
 

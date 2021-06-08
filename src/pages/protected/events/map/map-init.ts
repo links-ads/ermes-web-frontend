@@ -47,18 +47,18 @@ const hazardCategories: HazardType[] = Object.keys(HazardColorMap) as HazardType
 
 type CounterType = {
     [k in HazardType]?: mapboxgl.Expression
-  }
+}
 
 const hazardClusterProperties = hazardCategories.reduce<CounterType>(
     (allCategories, nextCategory) => {
-      allCategories[nextCategory] = ['+', ['case', ['==', ['get', 'hazard'], nextCategory], 1, 0]] // if match case, 1 else 0, sum
-      return allCategories
+        allCategories[nextCategory] = ['+', ['case', ['==', ['get', 'hazard'], nextCategory], 1, 0]] // if match case, 1 else 0, sum
+        return allCategories
     },
     {}
-  )
+)
 
-export const updateHazardMarkers = (sourceName,clusterRef,map) => {
-  return updateMarkers<HazardType>(sourceName, hazardCategories, Object.values(HazardColorMap), clusterRef, map)
+export const updateHazardMarkers = (sourceName, clusterRef, map,layerName) => {
+    return updateMarkers<HazardType>(sourceName, hazardCategories, Object.values(HazardColorMap), clusterRef, map,layerName)
 }
 
 export const getColorForHazard = [
@@ -74,9 +74,17 @@ export const unclusteredPointsProps = {
     } as mapboxgl.AnyLayout,
     paint: {
         'circle-color': getColorForHazard,
-        'circle-radius': 6,
+        'circle-radius': ['+', 6, ['case', ['boolean',
+            ['feature-state', 'hover'],
+            false
+        ],
+            6, 0]],
         'circle-stroke-opacity': 0.7,
-        'circle-stroke-width': 2,
+        'circle-stroke-width': ['+', 2, ['case', ['boolean',
+        ['feature-state', 'hover'],
+        false
+    ],
+        2, 0]],
         'circle-stroke-color': '#ffffff'
     } as mapboxgl.SymbolPaint
 }
@@ -90,7 +98,7 @@ export const SOURCE_PROPS = {
     clusterProperties: hazardClusterProperties
 }
 
-export const EVENTS_LAYER_PROPS : LayerProps = {
+export const EVENTS_LAYER_PROPS: LayerProps = {
     id: EVENTS_LAYER_ID,
     type: 'circle',
     source: SOURCE_ID,
@@ -98,7 +106,7 @@ export const EVENTS_LAYER_PROPS : LayerProps = {
     ...unclusteredPointsProps
 }
 
-export const CLUSTER_LAYER_PROPS : LayerProps = {
+export const CLUSTER_LAYER_PROPS: LayerProps = {
     id: CLUSTER_LAYER_ID,
     type: 'circle',
     source: SOURCE_ID,
