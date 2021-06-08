@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Hotfix - Fixed date pickers including time (#6)
 
 Ver. 1.0.0 - 2021-05-21
 -----------------------
