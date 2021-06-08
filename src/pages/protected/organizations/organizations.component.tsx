@@ -15,6 +15,8 @@ import {
   CreateOrUpdateOrganizationInput
 } from 'ermes-backoffice-ts-sdk'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
+import { useUser } from '../../../state/auth/auth.hooks'
+import { ROLE_ADMIN } from '../../../App.const'
 
 const options: Options = {
   sorting: true,
@@ -33,12 +35,13 @@ function localizeColumns(t: TFunction): Column<OrganizationDto>[] {
       // see https://material-table.com/#/docs/features/custom-column-rendering
       title: t('org_logo'),
       field: 'logoUrl',
-      render: (rowData) =>
-        rowData.logoUrl ? (
-          <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
-        ) : (
-          <span>-</span> // add default logo?
-        )
+      render: (rowData) => rowData.logoUrl ? (
+        <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
+      ) : (
+        <span>-</span> // add default logo?
+      ),
+      initialEditValue: '',
+      emptyValue: ''
     },
     { title: t('org_short_name'), field: 'shortName' },
     { title: t('org_name'), field: 'name' },
@@ -54,6 +57,7 @@ export function Organizations() {
   const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig)
   const { displayErrorSnackbar } = useSnackbars()
 
+  const user = useUser()
   const { orgData, isOrgLoading, loadOrganizations, setOrgUpdating } = useOrgList()
 
   const columns = useMemo(
@@ -94,10 +98,10 @@ export function Organizations() {
                 }
               />
             </Typography>
-          }            
+          }
           onRowClick={(e, rowData: any) => {
             // console.log(rowData)
-            return  window.location.href=window.location.href + '/teams'
+            return window.location.href = window.location.href + '/teams'
           }}
           options={options}
           //options={{ ...options, minBodyHeight: bodyHeight, maxBodyHeight: bodyHeight }}
@@ -105,7 +109,8 @@ export function Organizations() {
           data={orgData}
           columns={columns}
           editable={{
-            onRowAdd: async (newData: OrganizationDto) => {
+            isDeleteHidden: (rowData) => true,
+            onRowAdd: (user.isAuthenticated && user.profile?.role === ROLE_ADMIN) ? async (newData: OrganizationDto) => {
               const newDataInput: CreateOrUpdateOrganizationInput = {
                 organization: newData
               }
@@ -120,7 +125,7 @@ export function Organizations() {
                 // loading OFF
                 setOrgUpdating(false)
               }
-            },
+            } : undefined,
             onRowUpdate: async (newData: OrganizationDto, oldData?: OrganizationDto) => {
               const newDataInput: CreateOrUpdateOrganizationInput = {
                 organization: newData
