@@ -82,8 +82,8 @@ const mockupData = {
     ],
     "missionsByStatus": [
       {
-        "id": "active",
-        "label": "active",
+        "id": "created",
+        "label": "created",
         "value": 10
       },
       {
@@ -92,8 +92,8 @@ const mockupData = {
         "value": 5
       },
       {
-        "id": "off",
-        "label": "off",
+        "id": "TakenInCharge",
+        "label": "TakenInCharge",
         "value": 10
       },
     ],
