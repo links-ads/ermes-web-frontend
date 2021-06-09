@@ -1,5 +1,5 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { ReportsApiFactory, DTResultOfReportDto } from 'ermes-ts-sdk'
+import { ActionsApiFactory, PersonActionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 
@@ -36,21 +36,17 @@ const reducer = (currentState, action) => {
   return initialState
 }
 
-export default function useReportList() {
+export default function usePeopleList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
-
-  const [filters, setFilters] = useState([])
   const { displayErrorSnackbar } = useSnackbars()
-  const mounted = useRef(false)
+  //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const fetchReports = useCallback(
+  const fetchPeople = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       repApiFactory
-        .reportsGetReports(
-          filters,
-          undefined,
+        .actionsGetActions(
           undefined,
           undefined,
           undefined,
@@ -60,48 +56,29 @@ export default function useReportList() {
           undefined,
           undefined,
           MAX_RESULT_COUNT,
-          tot
+          tot,
+          undefined,
+          undefined,
+          undefined,
+          undefined
         )
         .then((result) => {
-          let newData: DTResultOfReportDto[] = transformData(result.data.data) || []
+            let newData: PersonActionDto[] = transformData(result.data.data) || []
 
-          let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
+            let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
 
-          dispatch({
-            type: 'RESULT',
-            value: newData,
-            tot: totToDown
-          })
+            dispatch({
+                type: 'RESULT',
+                value: newData,
+                tot: totToDown
+            })
         })
         .catch((err) => {
           displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, filters]
+    [repApiFactory, displayErrorSnackbar]
   )
-
-  const applyFilterReloadData = (newFilters) => {
-    dispatch(initialState)
-    setFilters(newFilters)
-  }
-
-  useEffect(() => {
-    if (mounted.current) {
-      fetchReports(
-        0,
-        (data) => {
-          return data
-        },
-        {},
-        (data) => {
-          return data
-        }
-      )
-    } else {
-      mounted.current = true
-    }
-  }, [filters])
-
-  return [dataState, fetchReports, applyFilterReloadData]
+  return [dataState, fetchPeople]
 }

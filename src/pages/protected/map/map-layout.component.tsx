@@ -10,10 +10,7 @@ import {
 } from 'react-map-gl'
 import { useMapPreferences } from '../../../state/preferences/preferences.hooks'
 import { useTranslation } from 'react-i18next'
-import {
-  ContainerSize,
-  ContainerSizeContext
-} from '../../../common/size-aware-container.component'
+import { ContainerSize, ContainerSizeContext } from '../../../common/size-aware-container.component'
 
 import bbox from '@turf/bbox'
 import { BottomDrawerComponent } from './bottom-drawer.component'
@@ -46,11 +43,12 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
+import { MapHeadDrawer } from '../common/map/map-drawer'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
-  top: 0,
+  top: 45,
   left: 0,
   margin: 10
 }
@@ -346,26 +344,41 @@ export function MapLayout(props) {
     if (props.goToCoord !== undefined) {
       // console.log(props.goToCoord)
 
-      mapViewRef.current?.getMap().flyTo(
-        {
-          center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
-          zoom: 15
-        },
-        {
-          how: 'fly',
-          longitude: props.goToCoord.longitude,
-          latitude: props.goToCoord.latitude,
-          zoom: 15
-        }
-      ).once('moveend', ()=>{
-        setViewport({...viewport, latitude: props.goToCoord.latitude, longitude: props.goToCoord.longitude, zoom: 15})
-      })
-     
+      mapViewRef.current
+        ?.getMap()
+        .flyTo(
+          {
+            center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
+            zoom: 15
+          },
+          {
+            how: 'fly',
+            longitude: props.goToCoord.longitude,
+            latitude: props.goToCoord.latitude,
+            zoom: 15
+          }
+        )
+        .once('moveend', () => {
+          setViewport({
+            ...viewport,
+            latitude: props.goToCoord.latitude,
+            longitude: props.goToCoord.longitude,
+            zoom: 15
+          })
+        })
+
       props.setGoToCoord(undefined)
     }
   }, [props.goToCoord, props.setGoToCoord])
   return (
     <>
+      <MapHeadDrawer
+          mapRef={mapViewRef}
+          filterApplyHandler={()=>{}} //props.filterApplyHandler
+          mapViewport={viewport}
+          customStyle = {{barHeight: '6%'}}
+          isLoading={false}
+        />
       <InteractiveMap
         {...viewport}
         mapStyle={mapTheme?.style}
@@ -382,6 +395,7 @@ export function MapLayout(props) {
         onContextMenu={onContextMenu}
         ref={mapViewRef}
       >
+
         <MapDraw
           ref={mapDrawRef}
           onFeatureAdd={(data: GeoJSON.Feature[]) => {
@@ -455,7 +469,7 @@ export function MapLayout(props) {
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
         />
-        <div className="controls-contaniner" style={{ top: 8 }}>
+        <div className="controls-contaniner" style={{ top: '6%' }}>
           <NavigationControl />
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>

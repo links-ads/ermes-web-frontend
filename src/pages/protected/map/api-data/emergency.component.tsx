@@ -63,14 +63,61 @@ const useStyles = makeStyles({
     height: 'auto'
   }
 })
+const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
+  console.log(details)
 
-const reportCard = (data, t, classes, catDetails) => {
-  const dateOptions = {
-    dateStyle: 'short',
-    timeStyle: 'short',
-    hour12: false
-  } as Intl.DateTimeFormatOptions
-  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+  return (
+    <>
+      <Card elevation={0}>
+        <CardContent style={{ paddingTop: '0px' }}>
+          <Box component="div" display="inline-block">
+            <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
+              {creator}
+            </Typography>
+          </Box>
+          <div style={{ marginBottom: 10 }}>
+            <Typography component={'span'} variant="h5">
+              {description}
+            </Typography>
+          </div>
+          {['status', 'activityName', 'organizationName', 'extensionData'].map((type) => {
+            if (details[type]) {
+              return (
+                <>
+                  <Typography
+                    component={'span'}
+                    variant="caption"
+                    color="textSecondary"
+                    style={{ textTransform: 'uppercase' }}
+                  >
+                    {t('maps:' + type)}:&nbsp;
+                    {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                  </Typography>
+                  <Typography component={'span'} variant="body1">
+                    {details[type]}
+                  </Typography>
+                  <br />
+                </>
+              )
+            }
+            return null
+          })}
+        </CardContent>
+        <CardActions className={classes.cardAction}>
+          <Typography color="textSecondary">
+            {formatter.format(new Date(details.startDate as string))}
+          </Typography>
+
+          <Typography color="textSecondary">
+            {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+          </Typography>
+        </CardActions>
+      </Card>
+    </>
+  )
+}
+
+const reportCard = (data, t, classes, catDetails, formatter) => {
   const details = data?.data?.feature?.properties
 
   if (!data.isLoading) {
@@ -316,7 +363,7 @@ export function EmergencyHoverCardContent({ creator, details, type }: EmergencyP
 }
 
 export function EmergencyContent({
-  descrizione,
+  description,
   thumb,
   image,
   type,
@@ -329,6 +376,12 @@ export function EmergencyContent({
   const { t } = useTranslation(['common', 'maps'])
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
+  const dateOptions = {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    hour12: false
+  } as Intl.DateTimeFormatOptions
+  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   useEffect(() => {
     switch (type) {
       case 'Report':
@@ -357,19 +410,23 @@ export function EmergencyContent({
     }
   }, [rest.id, fetchRepDetails])
 
-  useEffect(() => {
-    console.log('REP DETAILS', repDetails)
-  }, [repDetails])
+  // useEffect(() => {
+  //   console.log('REP DETAILS', repDetails)
+  // }, [repDetails])
 
-  useEffect(() => {
-    console.log('CAT DETAILS', catDetails)
-  }, [catDetails])
+  // useEffect(() => {
+  //   console.log('CAT DETAILS', catDetails)
+  // }, [catDetails])
 
   let todisplay = <></>
   switch (type) {
     // Report request
     case 'Report': {
-      todisplay = reportCard(repDetails, t, classes, catDetails)
+      todisplay = reportCard(repDetails, t, classes, catDetails, formatter)
+      break
+    }
+    case 'Person': {
+      todisplay = personCard(rest, classes, formatter, t, description, creator, latitude, longitude)
       break
     }
     default: {

@@ -1,134 +1,102 @@
-import {
-  CommunicationDto,
-  CommunicationsApiAxiosParamCreator,
-  DTResultOfCommunicationDto,
-  CommunicationsApiFactory
-} from 'ermes-ts-sdk'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { CommunicationsApiFactory, DTResultOfCommunicationDto } from 'ermes-ts-sdk'
+import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
-import { useState, useEffect } from 'react'
-import { APIAxiosHookOpts, useAxiosWithParamCreator, useAPIConfiguration } from './api-hooks'
 
-const MAX_RESULT_COUNT = 7
+const MAX_RESULT_COUNT = 9
+const initialState = { error: false, isLoading: true, data: [], tot: 0 }
 
-type CommApiPC = typeof CommunicationsApiAxiosParamCreator
-type KRCommApiPC = keyof ReturnType<CommApiPC>
-type SearchObject = { value: string; regex: boolean }
-
+const reducer = (currentState, action) => {
+  switch (action.type) {
+    case 'FETCH':
+      return {
+        ...currentState,
+        isLoading: true,
+        data: [],
+        error: false,
+        tot: action.tot
+      }
+    case 'RESULT':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: [...currentState.data, ...action.value],
+        error: false,
+        tot: action.tot
+      }
+    case 'ERROR':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: action.value,
+        hasMore: false,
+        error: true
+      }
+  }
+  return initialState
+}
 export default function useCommList() {
-  // adds an element to the array if it does not already exist using a comparer
-  // function
+  const [dataState, dispatch] = useReducer(reducer, initialState)
 
-  const methodName: KRCommApiPC = 'communicationsGetCommunications' // profileGetOrganizationMembers
-
-  const opts: APIAxiosHookOpts<CommApiPC> = {
-    type: 'backoffice',
-    args: [undefined, undefined, undefined, undefined, undefined, undefined, MAX_RESULT_COUNT], // TODO ADD PAGING PARAMS AND FILTERS
-    paramCreator: CommunicationsApiAxiosParamCreator,
-    methodName
-  }
-
-  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const commsAPIFactory = CommunicationsApiFactory(backendAPIConfig)
-
-  const [
-    { data: result, loading: commsLoading, error: commsError }
-  ] = useAxiosWithParamCreator<CommApiPC, DTResultOfCommunicationDto | undefined>(opts, false)
-
-  const { displayErrorSnackbar } = useSnackbars()
-  const comms: CommunicationDto[] = result?.data || []
-  const [recordsTotal, setRecordsTotal] = useState<number>(result?.recordsTotal || 0)
-  const [updating, setCommUpdating] = useState<boolean>(false)
-  const [commsData, setData] = useState<CommunicationDto[]>(comms)
-  const isCommsLoading: boolean = updating || commsLoading
-  const [startDate, setStartDate] = useState(undefined)
-  const [endDate, setEndDate] = useState(undefined)
   const [searchText, setSearchText] = useState<string | undefined>(undefined)
-
-  useEffect(() => {
-    if (commsError) {
-      displayErrorSnackbar(commsError.response?.data.error)
-    }
-  }, [commsError, displayErrorSnackbar])
-
-  useEffect(() => {
-    if (!commsLoading) {
-      setData(comms)
-    }
-  }, [commsLoading, comms])
-
-  
-  const getNextValues = async function () {
-    await commsAPIFactory
-      .communicationsGetCommunications(
-        startDate,
-        endDate,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        MAX_RESULT_COUNT,
-        commsData.length,
-        undefined,
-        searchText,
-        false
-      )
-      .then((res) => {
-        console.log(res)
-        let appComms: CommunicationDto[] = res?.data.data || []
-        let tmpArr = [...commsData, ...appComms]
-        setRecordsTotal(result?.recordsTotal || 0)
-        // appComms.forEach(function (item) {
-        //   if (!tmpArr.find((o) => o.id === item.id)) {
-        //     tmpArr.push(item)
-        //   }
-        // })
-        setData(tmpArr)
-      })
-      .catch((err) => {
-        displayErrorSnackbar(err)
-      })
+  const { displayErrorSnackbar } = useSnackbars()
+  const mounted = useRef(false)
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const commApiFactory = useMemo(
+    () => CommunicationsApiFactory(backendAPIConfig),
+    [backendAPIConfig]
+  )
+  const fetchCommunications = useCallback(
+    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      commApiFactory
+        .communicationsGetCommunications(
+          undefined, //startDate
+          undefined, //endDate
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          MAX_RESULT_COUNT,
+          tot,
+          undefined,
+          searchText,
+          false
+        )
+        .then((result) => {
+          let newData: DTResultOfCommunicationDto[] = transformData(result.data.data) || []
+          let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
+          dispatch({
+            type: 'RESULT',
+            value: newData,
+            tot: totToDown
+          })
+        })
+        .catch((err) => {
+          displayErrorSnackbar(err)
+          dispatch({ type: 'ERROR', value: errorData })
+        })
+    },
+    [commApiFactory, displayErrorSnackbar, searchText]
+  )
+  const applySearchFilterReloadData = (newFilters: string) => {
+    dispatch(initialState)
+    setSearchText(newFilters)
   }
-  const filterByText = (text: string | undefined) => {
-    if (text === '' || text === undefined) {
-      console.log('EMPTYNESS')
-      setSearchText(undefined)
-    } else {
-      setSearchText(text)
-    }
-
-    setCommUpdating(true)
-    setData([])
-    commsAPIFactory
-      .communicationsGetCommunications(
-        startDate,
-        endDate,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        MAX_RESULT_COUNT,
-        commsData.length,
-        undefined,
-        searchText,
-        false
-      )
-      .then((res) => {
-        console.log(res)
-        let appComms: CommunicationDto[] = res?.data.data || []
-        if(searchText === undefined){
-          setRecordsTotal(result?.recordsTotal || 0)
-        } else {
-          setRecordsTotal(result?.recordsFiltered || 0)
+  useEffect(() => {
+    if (mounted.current) {
+      fetchCommunications(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
         }
-        setData([...appComms])
-        setCommUpdating(false)
-      })
-      .catch((err) => {
-        displayErrorSnackbar(err)
-      })
-  }
-  useEffect(() => {
-    filterByText(searchText)
-  }, [startDate, endDate, searchText])
-  return { commsData, isCommsLoading, getNextValues, recordsTotal, filterByText, setStartDate, setEndDate }
+      )
+    } else {
+      mounted.current = true
+    }
+  }, [searchText])
+  return [dataState, fetchCommunications, applySearchFilterReloadData]
 }

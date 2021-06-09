@@ -82,6 +82,7 @@ export default function ReportPanel(props) {
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
+  
   const handleChangeHazard = (event) => {
     const change = event.target.value
 

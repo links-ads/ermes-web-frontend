@@ -8,6 +8,7 @@ import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
+import PeoplePanel from './people-panel.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -115,7 +116,7 @@ export default function MapDrawer(props) {
             Item Three
           </TabPanel>
           <TabPanel value={value} index={3}>
-            Item Four
+            <PeoplePanel setGoToCoord = {props.setGoToCoord} />
           </TabPanel>
         </SwipeableViews>
         <AppBar

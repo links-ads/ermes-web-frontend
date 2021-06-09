@@ -10,7 +10,7 @@ const SelectionToggleContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 32px;
+  top: 78px;
   left: 0px;
   margin: 10px;
 `

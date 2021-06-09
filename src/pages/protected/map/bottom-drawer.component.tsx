@@ -76,8 +76,8 @@ export function BottomDrawerComponent({
           // borderTopLeftRadius: 15,
           // borderTopRightRadius: 15,
           borderRadius: 15,
-          right: '25px',
-          top: '250px',
+          right: '54px',
+          top: '183px',
           height: 'auto',
           width: '450px'
           // position: 'relative'

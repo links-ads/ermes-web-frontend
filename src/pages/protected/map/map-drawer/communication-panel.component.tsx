@@ -57,27 +57,23 @@ export default function CommunicationPanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { t } = useTranslation(['common', 'maps'])
-  const {
-    commsData,
-    isCommsLoading,
-    getNextValues,
-    recordsTotal,
-    filterByText,
-    setStartDate,
-    setEndDate
-  } = useCommList()
   const classes = useStyles()
-
+  const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-
+  const [commsData, getCommsData, applyFilterByText] = useCommList()
+  const [height, setHeight] = React.useState(window.innerHeight)
+  const resizeHeight = () => {
+    setHeight(window.innerHeight)
+  }
+  
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
+
   const searchInComm = () => {
     console.log(searchText)
     if (searchText !== undefined) {
-      filterByText(searchText)
+      applyFilterByText(searchText)
     }
   }
   const flyToCoords = function (latitude, longitude) {
@@ -85,18 +81,30 @@ export default function CommunicationPanel(props) {
   }
 
   useEffect(() => {
-    if (!isCommsLoading) {
-      console.log(commsData)
-    }
-  }, [commsData, isCommsLoading])
+    getCommsData(
+      0,
+      (data) => {
+        return data
+      },
+      {},
+      (data) => {
+        return data
+      }
+    )
+  }, [])
 
   useEffect(() => {
-    setStartDate(props.selectedStartDate)
-  }, [props.selectedStartDate, setStartDate])
+    window.addEventListener('resize', resizeHeight)
+    return () => window.removeEventListener('resize', resizeHeight)
+  })
 
-  useEffect(() => {
-    setEndDate(props.selectedEndDate)
-  }, [props.selectedEndDate, setEndDate])
+  // useEffect(() => {
+  //   setStartDate(props.selectedStartDate)
+  // }, [props.selectedStartDate, setStartDate])
+
+  // useEffect(() => {
+  //   setEndDate(props.selectedEndDate)
+  // }, [props.selectedEndDate, setEndDate])
 
   return (
     <div className="container">
@@ -109,7 +117,7 @@ export default function CommunicationPanel(props) {
           className={classes.searchField}
           onChange={handleSearchTextChange}
         />
-        {!isCommsLoading ? (
+        {!commsData.isLoading ? (
           <IconButton
             aria-label="search"
             color="inherit"
@@ -122,13 +130,25 @@ export default function CommunicationPanel(props) {
           <CircularProgress color="secondary" size={30} className={classes.searchButton} />
         )}
       </span>
-      {!isCommsLoading ? (
-        <div className={classes.container} id="scrollableElem">
+      {!commsData.isLoading ? (
+        <div className={classes.container} id="scrollableElem"
+        style={{ height: height - 270 }}>
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
-              next={getNextValues}
-              dataLength={commsData.length}
-              hasMore={!(recordsTotal === Number(commsData.length))}
+              next={() => {
+                getCommsData(
+                  commsData.data.length,
+                  (data) => {
+                    return data
+                  },
+                  {},
+                  (data) => {
+                    return data
+                  }
+                )
+              }}
+              dataLength={commsData.data.length}
+              hasMore={commsData.data.length >= commsData.tot ? false : true}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -138,7 +158,7 @@ export default function CommunicationPanel(props) {
               scrollableTarget="scrollableElem"
               // className={classes.cardList}
             >
-              {commsData.map((elem, i) => {
+              {commsData.data.map((elem, i) => {
                 return (
                   <Card key={elem.id} className={classes.card}>
                     <CardContent>

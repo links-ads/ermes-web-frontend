@@ -8,7 +8,7 @@ const FilterTypeContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 64px;
+  top: 112px;
   left: 0px;
   margin: 10px;
 `
