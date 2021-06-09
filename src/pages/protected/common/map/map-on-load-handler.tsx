@@ -70,5 +70,4 @@ export const mapOnLoadHandler = (
     })
     updateMarkers(map)
 
-
 }

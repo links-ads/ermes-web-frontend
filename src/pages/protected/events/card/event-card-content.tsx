@@ -8,7 +8,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 const EventContent = (props) => {
     let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    let formatter = new Intl.DateTimeFormat('en-US', dateOptions)
+    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
     let hazardName = props.mapIdsToHazards[props.item.hazard_id]
     const { t } = useTranslation(['social'])
 

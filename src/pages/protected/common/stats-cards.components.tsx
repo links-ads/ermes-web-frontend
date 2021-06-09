@@ -156,7 +156,7 @@ export const parseStats = (stats, mapping) : {} => {
 }
 
 
-export const SocialPieChart = (props) => {
+export const PieChartStats = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
             tooltipPaper: {
@@ -167,7 +167,7 @@ export const SocialPieChart = (props) => {
                 fontWeight: 'bold'
             }
         }));
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['labels'])
     const classes = useStyles();
     const theme = useTheme()
     return <ResponsivePie
@@ -187,7 +187,7 @@ export const SocialPieChart = (props) => {
         radialLabelsLinkDiagonalLength={8}
         radialLabelsLinkHorizontalLength={12}
         radialLabelsLinkStrokeWidth={1}
-        radialLabel={function (d) { return t('social:' + props.prefix + '_' + d.label) } as unknown as undefined}
+        radialLabel={function (d) { return t(props.prefix + d.label) } as unknown as undefined}
         radialLabelsTextColor={theme['palette']['text']['primary']}
         radialLabelsLinkColor={theme['palette']['text']['primary']}
 
@@ -203,7 +203,7 @@ export const SocialPieChart = (props) => {
                             width: 20
                         }}>&nbsp;</div>
                         <Grid item>
-                            <Typography variant='subtitle2' display='inline' >{t('social:' + props.prefix + '_' + item.label)}: </Typography>
+                            <Typography variant='subtitle2' display='inline' >{t(props.prefix + item.label)}: </Typography>
                             <Typography variant='subtitle2' display='inline' className={classes.boldText}>
                                 {item.value}
                             </Typography>

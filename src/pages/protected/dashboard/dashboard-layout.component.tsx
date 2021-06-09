@@ -2,16 +2,16 @@ import { useTheme } from '@material-ui/core'
 import React, { useCallback, useState, useEffect, useContext } from 'react'
 import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
 import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'
-import { AddWidgetComponent } from './add-widget.component'
+// import { AddWidgetComponent } from './add-widget.component'
 import {
-  WidgetType,
+  // WidgetType,
   IDashboardWidgetLayoutConfig,
-  addDashboardWidget,
+  // addDashboardWidget,
   removeDashboardWidget,
-  getRandomInitialConfig,
   computeLayoutsForDashboardWigetConfig,
   LayoutCols,
-  EmptyLayouts
+  EmptyLayouts,
+  getInitialConfig
 } from './dashboard.config'
 import { Widget } from './widget.component'
 import hash from 'object-hash'
@@ -20,6 +20,8 @@ import {
   ContainerSizeContext,
   ContainerSize
 } from '../../../common/size-aware-container.component'
+
+import useDashboardStats from '../../../hooks/use-dashboard-statistics.hook'
 // import {
 //   ContainerSize,
 //   ContainerSizeContext,
@@ -29,11 +31,14 @@ import {
 export function DashboardLayout({
   className = 'dashboard',
   rowHeight = 150,
-  initialConfig = getRandomInitialConfig(5) // provisional, for demo/testing
+  initialConfig = getInitialConfig()
 }: React.PropsWithChildren<DashboardProps>) {
   const { width } = useContext<ContainerSize>(ContainerSizeContext)
 
   const theme = useTheme()
+
+  const { statsState, fetchStatistics } = useDashboardStats()
+
   const [dashboardWidgetsConfig, setDashboardWidgetsConfig] = useState<
     IDashboardWidgetLayoutConfig[]
   >(initialConfig)
@@ -44,13 +49,17 @@ export function DashboardLayout({
   const [elements, setElements] = useState<JSX.Element[]>([])
   const dashboardWidgetsConfigHash = hash(dashboardWidgetsConfig, { algorithm: 'md5' })
 
-  const addWidget = useCallback(
-    (type: WidgetType) => {
-      setDashboardWidgetsConfig(addDashboardWidget({ type }, dashboardWidgetsConfig))
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash]
-  )
+  // const addWidget = useCallback(
+  //   (type: WidgetType) => {
+  //     setDashboardWidgetsConfig(addDashboardWidget({ type }, dashboardWidgetsConfig))
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [dashboardWidgetsConfigHash]
+  // )
+
+  useEffect(() => {
+    fetchStatistics({})
+  }, [])
 
   const removeWidget = useCallback(
     (wid: string) => {
@@ -103,6 +112,7 @@ export function DashboardLayout({
                   type={dwc.type}
                   title={dwc.title}
                   description={dwc.description}
+                  data={statsState.data[dwc.data]}
                 />
               }
             </div>
@@ -111,7 +121,7 @@ export function DashboardLayout({
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash]
+    [dashboardWidgetsConfigHash,statsState.data]
   )
 
   return (
@@ -134,7 +144,7 @@ export function DashboardLayout({
       >
         {elements}
       </ResponsiveReactGridLayout>
-      <AddWidgetComponent addWidget={addWidget} />
+      {/* <AddWidgetComponent addWidget={addWidget} /> */}
     </>
   )
 }

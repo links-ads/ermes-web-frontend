@@ -29,7 +29,7 @@ export const TweetContent = (props) => {
 
     const tweet = props.tweet
     let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    let formatter = new Intl.DateTimeFormat('en-US', dateOptions)
+    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
     let linkToProfile = "https://twitter.com/" + tweet.author.user_name;
     let informativeLabel = tweet.informative ? 'informative' : 'not_informative'
     const textSizes = props.textSizes

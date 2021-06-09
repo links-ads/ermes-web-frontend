@@ -7,7 +7,7 @@ import useSocialStat from '../../../hooks/use-social-stats.hook'
 import SocialFilter from '../common/filters/filters';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { LanguageCard, parseStats, SocialPieChart, VolumeCard } from '../common/stats-cards.components';
+import { LanguageCard, PieChartStats, VolumeCard,parseStats } from '../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
@@ -160,8 +160,8 @@ const EventsComponent = (props) => {
                                     (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /> </Grid>) :
                                         (Object.entries(hazardCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='hazard'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={hazardCount} />
                                             </div>)
                             }
@@ -177,8 +177,8 @@ const EventsComponent = (props) => {
                                     (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /></Grid>) :
                                         (Object.entries(infoCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='information'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={infoCount} />
                                             </div>)
                             }

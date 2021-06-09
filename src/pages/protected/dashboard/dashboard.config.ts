@@ -22,12 +22,13 @@ export const EmptyLayouts: ReactGridLayout.Layouts = {
   lg: [],
   xl: []
 } // Todo define real-names, e.g. user-states-charts, ...
-export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart'
+export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart' | 'table'
 export type AppLayoutSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 export interface IDashboardWidgetLayoutConfig {
   wid: string
   type: WidgetType
   title?: string
+  data: string
   description?: string
 }
 
@@ -37,37 +38,68 @@ const wtypes: WidgetType[] = ['empty', 'test', 'piechart', 'barchart']
  * Generate a random config of empty widgets
  * @param max
  */
-export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutConfig[] {
-  return [...Array(max).keys()].map((n) => {
-    const type = wtypes[intInRange(wtypes.length - 1)]
-    let title: string
-    let description: string
-    switch (type) {
-      case 'piechart':
-        title = `Pie Chart ${n + 1}`
-        description = 'A pie chart'
-        break
-      case 'test':
-        title = `Test ${n + 1}`
-        description = 'A test widget'
-        break
-      case 'barchart':
-        title = `Bar Chart ${n + 1}`
-        description = 'A bar chart'
-      break
-      case 'empty':
-      default:
-        title = `Empty ${n + 1}`
-        description = 'An empty widget'
-        break
-    }
-    return {
-      wid: nanoid(),
-      type,
-      title,
-      description
-    }
-  })
+// export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutConfig[] {
+//   return [...Array(max).keys()].map((n) => {
+//     const type = wtypes[intInRange(wtypes.length - 1)]
+//     let title: string
+//     let description: string
+//     switch (type) {
+//       case 'piechart':
+//         title = `Pie Chart ${n + 1}`
+//         description = 'A pie chart'
+//         break
+//       case 'test':
+//         title = `Test ${n + 1}`
+//         description = 'A test widget'
+//         break
+//       case 'barchart':
+//         title = `Bar Chart ${n + 1}`
+//         description = 'A bar chart'
+//       break
+//       case 'empty':
+//       default:
+//         title = `Empty ${n + 1}`
+//         description = 'An empty widget'
+//         break
+//     }
+//     return {
+//       wid: nanoid(),
+//       type,
+//       title,
+//       description
+//     }
+//   })
+// }
+
+export function getInitialConfig(): IDashboardWidgetLayoutConfig[] {
+  return [{
+    wid: nanoid(),
+    type: 'piechart',
+    title: 'reportsByHazard',
+    data: 'reportsByHazard',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type : 'piechart',
+    title : 'missionsByStatus',
+    data : 'missionsByStatus',
+    description : ''
+  },
+  {
+    wid: nanoid(),
+    type : 'piechart',
+    title : 'personsByStatus',
+    data : 'personsByStatus',
+    description : ''
+  },
+  {
+    wid: nanoid(),
+    type : 'table',
+    title : 'persons',
+    data : 'persons',
+    description : ''
+  }]
 }
 
 /**
@@ -75,20 +107,20 @@ export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutC
  * @param config
  * @param widgets
  */
-export function addDashboardWidget(
-  config: Partial<IDashboardWidgetLayoutConfig>,
-  widgets: IDashboardWidgetLayoutConfig[]
-): IDashboardWidgetLayoutConfig[] {
-  const nextConfig: IDashboardWidgetLayoutConfig = {
-    wid: nanoid(),
-    type: 'empty',
-    title: `Empty ${widgets.length + 1}`,
-    description: 'An empty widget',
-    // default will be empty if config not provided
-    ...config
-  }
-  return [...widgets, nextConfig]
-}
+// export function addDashboardWidget(
+//   config: Partial<IDashboardWidgetLayoutConfig>,
+//   widgets: IDashboardWidgetLayoutConfig[]
+// ): IDashboardWidgetLayoutConfig[] {
+//   const nextConfig: IDashboardWidgetLayoutConfig = {
+//     wid: nanoid(),
+//     type: 'empty',
+//     title: `Empty ${widgets.length + 1}`,
+//     description: 'An empty widget',
+//     // default will be empty if config not provided
+//     ...config
+//   }
+//   return [...widgets, nextConfig]
+// }
 
 /**
  * Remove a widget from the config

@@ -60,7 +60,7 @@ const SocialFilter = (props) => {
     const classes = useStyles();
 
 
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['social','labels'])
     const langKeys = useMemo(()=>Object.values(SocialModuleLanguageType),[])
     const informativeValues = ["true", "false"]
 
@@ -225,9 +225,9 @@ const SocialFilter = (props) => {
                         value={filters.hazardSelect}
                         onChange={(event, value) => selectionChangeHandler(event, props.hazardNames, 'HAZARDS')}
                         input={<Input />}
-                        renderValue={(selected) => renderValues(selected, "social:hazard_")}
+                        renderValue={(selected) => renderValues(selected, "labels:")}
                     >
-                        {renderOptions(props.hazardNames, filters.hazardSelect, "social:hazard_")}
+                        {renderOptions(props.hazardNames, filters.hazardSelect, "labels:")}
                     </Select>
                 </FormControl>
             </Grid>
@@ -243,9 +243,9 @@ const SocialFilter = (props) => {
                         value={filters.infoTypeSelect}
                         onChange={(event, value) => selectionChangeHandler(event, props.infoNames, 'INFORMATIONS')}
                         input={<Input />}
-                        renderValue={(selected) => renderValues(selected, "social:information_")}
+                        renderValue={(selected) => renderValues(selected, "labels:")}
                     >
-                        {renderOptions(props.infoNames, filters.infoTypeSelect, "social:information_")}
+                        {renderOptions(props.infoNames, filters.infoTypeSelect, "labels:")}
                     </Select>
                 </FormControl>
             </Grid>
