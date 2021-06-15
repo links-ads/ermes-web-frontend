@@ -30,6 +30,7 @@
     "reportsByHazard":"Reports by hazard",
     "missionsByStatus":"Missions by status",
     "personsByStatus":"Persons by status",
+    "activationsByDay":"Activations by day",
     "persons":"Persons",
     "username":"Username",
     "user_ssn":"Tax code",

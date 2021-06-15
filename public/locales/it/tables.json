@@ -27,6 +27,8 @@
   "toolbar_exportTitle": "Esportare",
   "toolbar_exportAriaLabel": "Esportare",
   "toolbar_exportName": "Esporta come CSV",
+  "toolbar_exportCsv":"Esporta CSV",
+  "toolbar_exportPdf":"Esporta PDF",
   "toolbar_searchTooltip": "Ricerca",
   "toolbar_searchPlaceholder": "Ricerca"
 }

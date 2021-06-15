@@ -15,7 +15,7 @@ import { AdministrationContainer, RefreshButton } from '../common/common.compone
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const options: Options = {
+const options: Options<any> = {
   sorting: true,
   pageSize: 10,
   pageSizeOptions: [10, 20, 30],

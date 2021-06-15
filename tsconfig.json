@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "target": "es2019",
-    "lib": ["ES2019", "dom", "dom.iterable", "esnext"],
+    "lib": [
+      "ES2019",
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -24,8 +29,14 @@
     "noLib": false,
     "noEmitHelpers": true,
     "preserveConstEnums": true,
-    "suppressImplicitAnyIndexErrors": true
+    "suppressImplicitAnyIndexErrors": true,
+    "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "exclude": ["src/out", "src/old"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "src/out",
+    "src/old"
+  ]
 }

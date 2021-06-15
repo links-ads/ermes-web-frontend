@@ -147,7 +147,7 @@ const defs = [
     }
 ]
 
-export const parseStats = (stats, mapping) : {} => {
+export const parseStats = (stats, mapping): {} => {
     if (!stats) return {}
     if (Object.entries(stats).length === 0 || Object.entries(mapping).length === 0) return {}
     return Object.entries(stats).map(tuple => {
@@ -156,19 +156,29 @@ export const parseStats = (stats, mapping) : {} => {
 }
 
 
+export const ChartTooltip = (label: string, colour: string, value: number) => {
+    return (
+        <Paper elevation={2} style={{ padding: 5 }}>
+            <Grid container direction='row' justify='center' alignItems='center'>
+                <div style={{
+                    backgroundColor: colour,
+                    margin: 5,
+                    width: 20
+                }}>&nbsp;</div>
+                <Grid item>
+                    <Typography variant='subtitle2' display='inline' >{label}: </Typography>
+                    <Typography variant='subtitle2' display='inline' style={{fontWeight:'bold'}}>
+                        {value}
+                    </Typography>
+
+                </Grid>
+            </Grid>
+        </Paper>
+    );
+}
+
 export const PieChartStats = (props) => {
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            tooltipPaper: {
-                padding: 5
-            },
-            boldText:
-            {
-                fontWeight: 'bold'
-            }
-        }));
     const { t } = useTranslation(['labels'])
-    const classes = useStyles();
     const theme = useTheme()
     return <ResponsivePie
         data={props.data}
@@ -187,31 +197,17 @@ export const PieChartStats = (props) => {
         radialLabelsLinkDiagonalLength={8}
         radialLabelsLinkHorizontalLength={12}
         radialLabelsLinkStrokeWidth={1}
-        radialLabel={function (d) { return t(props.prefix + d.label) } as unknown as undefined}
+        radialLabel={function (d) { return t(props.prefix + d.label.toLowerCase()) } as unknown as undefined}
         radialLabelsTextColor={theme['palette']['text']['primary']}
         radialLabelsLinkColor={theme['palette']['text']['primary']}
 
         theme={{ "textColor": "inherit" }}
         tooltip={(d) => {
             let item = d.datum;
-            return (
-                <Paper elevation={2} className={classes.tooltipPaper}>
-                    <Grid container direction='row' justify='center' alignItems='center'>
-                        <div style={{
-                            backgroundColor: item.color,
-                            margin: 5,
-                            width: 20
-                        }}>&nbsp;</div>
-                        <Grid item>
-                            <Typography variant='subtitle2' display='inline' >{t(props.prefix + item.label)}: </Typography>
-                            <Typography variant='subtitle2' display='inline' className={classes.boldText}>
-                                {item.value}
-                            </Typography>
-
-                        </Grid>
-                    </Grid>
-                </Paper>
-            );
+            return ChartTooltip(
+                t(props.prefix + (item.label as string).toLowerCase()),
+                item.color,
+                item.value)
         }}
         enableSliceLabels={false}
         defs={defs}

@@ -22,7 +22,7 @@ export const EmptyLayouts: ReactGridLayout.Layouts = {
   lg: [],
   xl: []
 } // Todo define real-names, e.g. user-states-charts, ...
-export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart' | 'table'
+export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart' | 'table' | 'line'
 export type AppLayoutSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 export interface IDashboardWidgetLayoutConfig {
   wid: string
@@ -81,25 +81,33 @@ export function getInitialConfig(): IDashboardWidgetLayoutConfig[] {
   },
   {
     wid: nanoid(),
-    type : 'piechart',
-    title : 'missionsByStatus',
-    data : 'missionsByStatus',
-    description : ''
+    type: 'piechart',
+    title: 'missionsByStatus',
+    data: 'missionsByStatus',
+    description: ''
   },
   {
     wid: nanoid(),
-    type : 'piechart',
-    title : 'personsByStatus',
-    data : 'personsByStatus',
-    description : ''
+    type: 'piechart',
+    title: 'personsByStatus',
+    data: 'personsByStatus',
+    description: ''
   },
   {
     wid: nanoid(),
-    type : 'table',
-    title : 'persons',
-    data : 'persons',
-    description : ''
-  }]
+    type: 'table',
+    title: 'persons',
+    data: 'persons',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type: 'line',
+    title: 'activationsByDay',
+    data: 'activationsByDay',
+    description: ''
+  }
+  ]
 }
 
 /**

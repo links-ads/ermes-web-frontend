@@ -113,6 +113,8 @@ export function DashboardLayout({
                   title={dwc.title}
                   description={dwc.description}
                   data={statsState.data[dwc.data]}
+                  isLoading={statsState.isLoading}
+                  isError={statsState.isError}
                 />
               }
             </div>

@@ -18,7 +18,7 @@ import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_ADMIN } from '../../../App.const'
 
-const options: Options = {
+const options: Options<any> = {
   sorting: true,
   pageSize: 10,
   pageSizeOptions: [10, 20, 30],

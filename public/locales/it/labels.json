@@ -30,6 +30,7 @@
     "reportsByHazard":"Report per calamità",
     "missionsByStatus":"Missioni per stato",
     "personsByStatus":"Persone per stato",
+    "activationsByDay":"Attivazioni per giorno",
     "persons":"Persone",
     "username":"Utente",
     "user_ssn":"Codice Fiscale",
