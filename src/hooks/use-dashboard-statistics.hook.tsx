@@ -57,25 +57,25 @@ const useDashboardStats = () => {
 
   const fetchStatistics = useCallback((args) => {
     dispatch({ type: 'FETCH' })
-    // dashboardApiFactory.dashboardGetStatistics(args.startDate, args.endDate).then(result => {
-    //   const resultData = result.data
-    //   dispatch({
-    //     type: 'RESULT', data: {
-    //       ...resultData,
-    //       persons: parsePersonsData(resultData['persons'])
-    //     }
-    //   })
-    // }).catch(() => {
-    //   dispatch({ type: 'ERROR', data: [] })
-    // })
+    dashboardApiFactory.dashboardGetStatistics(args.startDate, args.endDate).then(result => {
+      const resultData = result.data
+      dispatch({
+        type: 'RESULT', data: {
+          ...resultData,
+          persons: parsePersonsData(resultData['persons'])
+        }
+      })
+    }).catch(() => {
+      dispatch({ type: 'ERROR', data: [] })
+    })
 
     // HACK remove once testing of the api is done
-    setTimeout(() => {
-      dispatch({ type: 'RESULT', data: {
-        ...mockupData,
-        persons:parsePersonsData(mockupData['persons'])
-      } })
-    }, 1000)
+    // setTimeout(() => {
+    //   dispatch({ type: 'RESULT', data: {
+    //     ...mockupData,
+    //     persons:parsePersonsData(mockupData['persons'])
+    //   } })
+    // }, 1000)
   }, [])
 
   return { statsState, fetchStatistics }
