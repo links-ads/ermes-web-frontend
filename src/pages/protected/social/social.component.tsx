@@ -74,7 +74,7 @@ const SocialComponent = (props) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid className={classes.filterContainer} item lg='auto' sm='auto' xl='auto'>
+            <Grid style={{margin:8}} item lg='auto' sm='auto' xl='auto'>
                 <SocialFilter
                     onFilterApply={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
                     hazardNames={filtersState.hazardNames}

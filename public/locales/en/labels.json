@@ -1,6 +1,7 @@
 {
     "storm": "Storm",
     "wildfire": "Wildfire",
+    "fire": "Wildfire",
     "flood": "Flood",
     "earthquake": "Earthquake",
     "landslide": "Landslide",
@@ -11,7 +12,8 @@
     "temp_anomaly": "Temperature anomaly",
     "collapse": "Collapse",
     "accident": "Incident",
-    "none": "All",
+    "weather": "Weather",
+    "none": "None",
     "people_affected": "Affected people",
     "caution_advice": "Caution and advice",
     "infrastructure_utilities": "Infrastructures and utilities",

@@ -1,5 +1,5 @@
-import { useTheme } from '@material-ui/core'
-import React, { useCallback, useState, useEffect, useContext } from 'react'
+import { Grid, useTheme } from '@material-ui/core'
+import React, { useCallback, useState, useEffect, useContext, useMemo } from 'react'
 import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
 import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'
 // import { AddWidgetComponent } from './add-widget.component'
@@ -22,6 +22,9 @@ import {
 } from '../../../common/size-aware-container.component'
 
 import useDashboardStats from '../../../hooks/use-dashboard-statistics.hook'
+import { FiltersType } from '../common/filters/reducer'
+import { _MS_PER_DAY } from '../common/utils/utils.common'
+import { DashboardFilters } from './filters'
 // import {
 //   ContainerSize,
 //   ContainerSizeContext,
@@ -45,9 +48,14 @@ export function DashboardLayout({
   const [breakpoint, setBreakpoint] = useState<string>(
     getBreakpointFromWidth(theme.breakpoints.values, width)
   )
-  const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>(EmptyLayouts) // todo load from context/redux/storage
+  const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>(EmptyLayouts) // TODO load from context/redux/storage
   const [elements, setElements] = useState<JSX.Element[]>([])
-  const dashboardWidgetsConfigHash = hash(dashboardWidgetsConfig, { algorithm: 'md5' })
+  const dashboardWidgetsConfigHash = useMemo(()=> hash(dashboardWidgetsConfig, { algorithm: 'md5' }),[dashboardWidgetsConfig])
+  const [filterArgs, setFilterArgs] = useState<FiltersType>(
+    {
+      startDate: new Date(new Date().valueOf() - _MS_PER_DAY * 30 ),
+      endDate: new Date()
+    })
 
   // const addWidget = useCallback(
   //   (type: WidgetType) => {
@@ -58,19 +66,19 @@ export function DashboardLayout({
   // )
 
   useEffect(() => {
-    fetchStatistics({})
-  }, [])
+    fetchStatistics(filterArgs)
+  }, [filterArgs])
 
-  const removeWidget = useCallback(
-    (wid: string) => {
-      setDashboardWidgetsConfig(removeDashboardWidget(wid, dashboardWidgetsConfig))
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash]
-  )
+  // const removeWidget = useCallback(
+  //   (wid: string) => {
+  //     setDashboardWidgetsConfig(removeDashboardWidget(wid, dashboardWidgetsConfig))
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [dashboardWidgetsConfigHash]
+  // )
 
   // function onLayoutChange(l: ReactGridLayout.Layout[], all: ReactGridLayout.Layouts) {
-  //   console.debug('Save layout')
+  //   console.log("LAYOUT CHANGE",l,all)
   // }
 
   const onDragWidgetStop = useCallback<ReactGridLayout.ItemCallback>(
@@ -108,7 +116,8 @@ export function DashboardLayout({
               {
                 <Widget
                   wid={dwc.wid}
-                  removeWidget={removeWidget}
+                  // removeWidget={removeWidget}
+                  removeWidget={(wid)=>{}}
                   type={dwc.type}
                   title={dwc.title}
                   description={dwc.description}
@@ -123,11 +132,16 @@ export function DashboardLayout({
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash,statsState.data]
+    [dashboardWidgetsConfigHash, statsState.data]
   )
-
   return (
     <>
+    <Grid style={{margin:8}}>
+      <DashboardFilters
+        filters={filterArgs}
+        onFilterApply={(args) => setFilterArgs(args)}
+      />
+      </Grid>
       <ResponsiveReactGridLayout
         width={width}
         containerPadding={[16, 16]}
@@ -135,14 +149,15 @@ export function DashboardLayout({
         layouts={layouts}
         rowHeight={rowHeight}
         cols={LayoutCols}
-        compactType={null}
+        compactType={'vertical'}
         onBreakpointChange={onBreakpointChange}
         // onLayoutChange={onLayoutChange}
         onDragStop={onDragWidgetStop}
         breakpoints={theme.breakpoints.values}
         useCSSTransforms={true}
-        preventCollision={true}
-        onWidthChange={(args) => console.debug('Grid layout width change', args)}
+        preventCollision={false}
+        resizeHandles={['se','sw','ne','nw']}
+        // onWidthChange={(args) => console.debug('Grid layout width change', args)}
       >
         {elements}
       </ResponsiveReactGridLayout>

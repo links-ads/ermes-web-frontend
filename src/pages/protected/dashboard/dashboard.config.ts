@@ -169,7 +169,8 @@ function computeLayoutIdAndPreviousLayoutSize(
     // constraints
     minH: 1,
     minW: 1,
-    maxW: Math.max(Math.floor(cols / MAX_W_SLOTS), 1),
+    // maxW: Math.max(Math.floor(cols / MAX_W_SLOTS), 1),
+    maxW: cols,
     maxH: MAX_H_SLOTS
   }
 }

@@ -6,9 +6,9 @@ import {
   useAPIConfiguration
 } from './api-hooks';
 
-const initialState : {isError:boolean,isLoading:boolean,data:any} = { isError: false, isLoading: true, data: {} }
+const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }
 
-const reducer = (currentState, action:{type:string,data?:any}) => {
+const reducer = (currentState, action: { type: string, data?: any }) => {
   switch (action.type) {
     case 'FETCH':
       return {
@@ -38,32 +38,44 @@ const useDashboardStats = () => {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const dashboardApiFactory = useMemo(() => DashboardApiFactory(backendAPIConfig), [backendAPIConfig])
 
+  const parsePersonsData = useCallback((persons) => {
+    const newPersons = [] as any[]
+    let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
+    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+    persons.forEach(person => {
+      const newTimeStamp = formatter.format(new Date(person['timestamp']))
+      const newActivity = person['status'] === 'Active' ? person['activityName'] : '-'
+      newPersons.push({
+        ...person,
+        timestamp: newTimeStamp,
+        activityName: newActivity,
+        tax_code:person['id']
+      })
+    })
+    return newPersons
+  }, [])
+
   const fetchStatistics = useCallback((args) => {
     dispatch({ type: 'FETCH' })
-    dashboardApiFactory.dashboardGetStatistics().then(result => {
-            dispatch({ type: 'RESULT', data: result.data })
-        }).catch(() => {
-            dispatch({ type: 'ERROR', data: [] })
-        })
-
-    // setTimeout(() => {
-    //   const newPersons = [] as any[]
-    //   let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    //   let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
-    //   mockupData['persons'].forEach(person => {
-    //       const newTimeStamp = formatter.format(new Date(person['timestamp']))
-    //       const newActivity = person['status'] === 'Active' ? person['activityName'] : '-'
-    //       newPersons.push({
-    //         ...person,
-    //         timestamp:newTimeStamp,
-    //         activityName:newActivity
-    //       })
+    // dashboardApiFactory.dashboardGetStatistics(args.startDate, args.endDate).then(result => {
+    //   const resultData = result.data
+    //   dispatch({
+    //     type: 'RESULT', data: {
+    //       ...resultData,
+    //       persons: parsePersonsData(resultData['persons'])
+    //     }
     //   })
-    //   dispatch({ type: 'RESULT', data: {
-    //     ...mockupData,
-    //     persons:newPersons
-    //   } })
-    // }, 1000)
+    // }).catch(() => {
+    //   dispatch({ type: 'ERROR', data: [] })
+    // })
+
+    // HACK remove once testing of the api is done
+    setTimeout(() => {
+      dispatch({ type: 'RESULT', data: {
+        ...mockupData,
+        persons:parsePersonsData(mockupData['persons'])
+      } })
+    }, 1000)
   }, [])
 
   return { statsState, fetchStatistics }

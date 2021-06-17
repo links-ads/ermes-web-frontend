@@ -40,10 +40,10 @@ const FallbackComponent = (isLoading: boolean, isError: boolean, data: any, chil
       <CircularProgress size={80} />
     </Grid >) :
     isError ?
-      (<Grid container justify='center' alignItems='center' alignContent='center' style={{height:'100%'}}>
+      (<Grid container justify='center' alignItems='center' style={{height:'100%'}}>
         <Typography style={{ margin: 4 }} align="center" variant="body1">{t("social:fetch_error")}</Typography>
       </Grid >) :
-      data.length === 0 ?
+      (!data || data.length === 0) ?
         (<Grid container justify='center' alignItems='center'  style={{height:'100%'}}>
             <Typography style={{ margin: 4 }} align="center" variant="body1">{t("social:no_results")}</Typography>
         </Grid >) :

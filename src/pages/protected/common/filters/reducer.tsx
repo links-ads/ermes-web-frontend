@@ -1,12 +1,14 @@
+import {_MS_PER_DAY} from '../utils/utils.common'
+
 export interface FiltersType {
     startDate: Date
     endDate: Date
-    languageSelect: []
-    hazardSelect: []
-    infoTypeSelect: []
-    informativeSelect: string,
-    southWest:[number,number] | undefined,
-    northEast:[number,number] | undefined
+    languageSelect?: []
+    hazardSelect?: []
+    infoTypeSelect?: []
+    informativeSelect?: string,
+    southWest?:[number,number] | undefined,
+    northEast?:[number,number] | undefined
 
 }
 
@@ -43,9 +45,10 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
                 informativeSelect: action.value
             }
         case 'RESET':
+            const currentDate = new Date()
             return {
-                startDate: new Date(new Date().valueOf() - 1000 * 60 * 60 * 24),
-                endDate: new Date(),
+                startDate: new Date(currentDate.valueOf() - _MS_PER_DAY * (action.days || 1)),
+                endDate: currentDate,
                 languageSelect: [],
                 hazardSelect: [],
                 infoTypeSelect: [],

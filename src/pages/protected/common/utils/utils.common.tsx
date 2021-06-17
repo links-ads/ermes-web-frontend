@@ -31,10 +31,6 @@ export const getSocialDashboardStyle = (theme) => {
     tweetsStatContainer: {
       margin: '8px'
     },
-    filterContainer: {
-      margin: '8px',
-      backgroundColor: theme['palette']['primary']['main']
-    },
     infoContainer: {
       marginBottom: '16px'
     },
@@ -51,6 +47,38 @@ export const getSocialDashboardStyle = (theme) => {
   }
 }
 
+export const getFiltersStyle = (theme) => {
+  return {
+    filterSection: {
+      padding: '16px 8px',
+      marginLeft: '8px',
+      minWidth: 180,
+      width: '15vw'
+    },
+    filterContainer: {
+      padding: '8px',
+      backgroundColor: theme['palette']['primary']['main']
+    },
+    applyButton: {
+      color: theme['palette']['text']['primary'],
+      backgroundColor: theme['palette']['background']['paper'],
+      margin: '8px'
+    },
+    resetButton: {
+      color: theme['palette']['text']['primary'],
+      backgroundColor: theme['palette']['grey']['600'],
+      margin: '8px'
+    },
+    selectOption: {
+      width: '100%',
+      minWidth: 180,
+      // maxWidth:180
+
+    }
+
+  }
+}
+
 export const showMoreSocialData = (shownData, annotationData, pageSize, setShownData) => {
   const newData = shownData.data.concat([...annotationData].slice(shownData.size, shownData.size + pageSize))
   const newSize = newData.length
@@ -58,9 +86,10 @@ export const showMoreSocialData = (shownData, annotationData, pageSize, setShown
 }
 
 export const getDefaultFilterArgs = (mapConfig) => {
+  const currentDate = new Date()
   return {
-    startDate: new Date(new Date().valueOf() - _MS_PER_DAY),
-    endDate: new Date(),
+    startDate: new Date(currentDate.valueOf() - _MS_PER_DAY),
+    endDate: currentDate,
     languageSelect: [],
     hazardSelect: [],
     infoTypeSelect: [],

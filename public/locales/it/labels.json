@@ -1,6 +1,7 @@
 {
     "storm":"Tempesta",
     "wildfire":"Incendio",
+    "fire":"Incendio",
     "flood":"Inondazione",
     "earthquake":"Terremoto",
     "landslide":"Frana",
@@ -11,7 +12,8 @@
     "temp_anomaly":"Temperature estreme",
     "collapse":"Crollo",
     "accident":"Incidente",
-    "none":"Tutte",
+    "weather": "Meteorologico",
+    "none":"Nessuno",
     "people_affected":"Persone interessate",
     "caution_advice":"Causa e consigli",
     "infrastructure_utilities":"Infrastrutture e servizi",

@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useMemo} from 'react';
+import React, { useReducer, useState, useMemo } from 'react';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import Grid from '@material-ui/core/Grid';
@@ -26,47 +26,23 @@ import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import filterReducer from './reducer';
-import { _MS_PER_DAY } from '../utils/utils.common';
+import { getFiltersStyle, _MS_PER_DAY } from '../utils/utils.common';
 
 
 const SocialFilter = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            filterSection: {
-                padding: '16px 8px',
-                marginLeft: '8px',
-                minWidth: 180,
-                width: '15vw'
-            },
-            applyButton: {
-                color: theme['palette']['text']['primary'],
-                backgroundColor: theme['palette']['background']['paper'],
-                margin: '8px'
-            },
-            resetButton: {
-                color: theme['palette']['text']['primary'],
-                backgroundColor: theme['palette']['grey']['600'],
-                margin: '8px'
-            },
-            selectOption: {
-                width: '100%',
-                minWidth: 180,
-                // maxWidth:180
-
-            }
-
-        }));
+        createStyles(getFiltersStyle(theme)));
 
     const classes = useStyles();
 
 
-    const { t } = useTranslation(['social','labels'])
-    const langKeys = useMemo(()=>Object.values(SocialModuleLanguageType),[])
+    const { t } = useTranslation(['social', 'labels'])
+    const langKeys = useMemo(() => Object.values(SocialModuleLanguageType), [])
     const informativeValues = ["true", "false"]
 
     const [dialogOpen, setDialogOpen] = useState(false)
 
-    const [filters, dispatch] = useReducer(filterReducer,props.filters)
+    const [filters, dispatch] = useReducer(filterReducer, props.filters)
 
     const resetFilters = () => {
         dispatch({ type: 'RESET' })
@@ -77,8 +53,8 @@ const SocialFilter = (props) => {
             setDialogOpen(true)
             return
         }
-        let hazardIds = filters.hazardSelect.map(item => props.mapHazardsToIds[item])
-        let infoIds = filters.infoTypeSelect.map(item => props.mapInfosToIds[item])
+        let hazardIds = filters.hazardSelect?.map(item => props.mapHazardsToIds[item])
+        let infoIds = filters.infoTypeSelect?.map(item => props.mapInfosToIds[item])
         let informative = filters.informativeSelect === '' ? undefined : filters.informativeSelect === 'true'
         let args = {
             languageSelect: filters.languageSelect, informativeSelect: informative, startDate: filters.startDate.toISOString(),
@@ -119,7 +95,7 @@ const SocialFilter = (props) => {
     }
 
     return (
-        <Grid container direction={'row'} justify="space-evenly" alignItems="flex-start" >
+        <Grid container direction={'row'} justify="space-evenly" alignItems="flex-start" className={classes.filterContainer}>
             <Dialog
                 open={dialogOpen}
                 onClose={() => setDialogOpen(false)}
@@ -129,7 +105,7 @@ const SocialFilter = (props) => {
                 <DialogTitle id="alert-dialog-title">{t("social:error")}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {t("social:time_span_error")}
+                        {t("social:time_span_error", { days: 4 })}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -177,7 +153,7 @@ const SocialFilter = (props) => {
                             value={filters.endDate}
                             minDate={new Date(filters.startDate)}
                             maxDate={new Date(new Date(filters.startDate).valueOf() + _MS_PER_DAY * 4)}
-                            maxDateMessage={t("social:time_span_error")}
+                            maxDateMessage={t("social:time_span_error", { days: 4 })}
                             autoOk={true}
                             onChange={(date) => dispatch({ type: 'END_DATE', value: date })}
                             ampm={false}

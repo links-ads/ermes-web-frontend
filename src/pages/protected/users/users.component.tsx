@@ -127,7 +127,6 @@ export function Users() {
             onRowAdd: async (newData: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
                 user: newData.user,
-                // TODO HANDLE
                 organizationId: newData.organization?.id || newData['organization.id']
               }
               try {
@@ -145,7 +144,6 @@ export function Users() {
             onRowUpdate: async (newData: ProfileDto, oldData?: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
                 user: newData.user,
-                // TODO HANDLE
                 organizationId: newData.organization?.id
               }
               try {
