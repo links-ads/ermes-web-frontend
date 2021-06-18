@@ -223,9 +223,9 @@ export class Spiderifier {
             features
           }
         },
-        layout: layoutProperties
-        //paint: paintProperties
-      })
+        layout: layoutProperties,
+        paint: paintProperties
+      } as mapboxgl.AnyLayer)
 
       // Add leaves highlight
       if (highlightLeavesOnHover && id === this.spiderLeavesLayerName) {
@@ -234,9 +234,9 @@ export class Spiderifier {
           type,
           source: id,
           layout: highlightLeavesOnHover.layout,
-          //paint: highlightLeavesOnHover.paint,
+          paint: highlightLeavesOnHover.paint,
           filter: ['all', ['!has', 'point_count'], ['==', 'id', 'null']]
-        })
+        } as mapboxgl.AnyLayer)
       }
     }
   }
@@ -339,6 +339,7 @@ export class Spiderifier {
               this.spiderLeavesCollection.push({
                 type: 'Feature',
                 properties: element.properties,
+                id:element.id,
                 geometry: {
                   type: 'Point',
                   coordinates: [spiderLeafLatLng.lng, spiderLeafLatLng.lat]

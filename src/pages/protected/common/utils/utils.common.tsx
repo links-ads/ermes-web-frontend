@@ -29,6 +29,41 @@ export const INFORMATIVE_ICONS = {
   not_informative: '🔴'
 }
 
+export const getSocialCardStyle = (theme) => {
+  return {
+    root: {
+      width: '100%',
+      marginBottom: '16px',
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+      display: 'inline-block',
+      padding: 6,
+      "&:hover": {
+        boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
+        cursor: 'pointer'
+      }
+    },
+    expand: {
+      transform: 'rotate(0deg)',
+      marginLeft: 'auto',
+      transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+      }),
+    },
+    expandOpen: {
+      transform: 'rotate(180deg)',
+    },
+    content: {
+      margin: '5px',
+      padding: 5
+    },
+    action: {
+      margin: '0px 5px',
+      padding: 0
+    }
+  }
+}
+
 export const getSocialDashboardStyle = (theme) => {
   return {
     tweetsStatContainer: {

@@ -19,6 +19,7 @@ import InteractiveMap from 'react-map-gl';
 import React from 'react';
 import { AppConfig, AppConfigContext } from '../../../config';
 import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData, _MS_PER_DAY } from '../common/utils/utils.common';
+import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
 const PAGE_SIZE = 1000
 const MINI_PAGE_SIZE = 20
@@ -40,7 +41,8 @@ const EventsComponent = (props) => {
     const mapRef = useRef<InteractiveMap>(null)
     const { t } = useTranslation(['social'])
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
-
+    const spiderifierRef = useRef<Spiderifier | null>(null)
+    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
 
     useEffect(() => {
@@ -101,6 +103,8 @@ const EventsComponent = (props) => {
                                     leftClickState={mapLeftClickState}
                                     setLeftClickState={setMapLeftClickState}
                                     setMapHoverState={setMapHoverState}
+                                    spiderifierRef={spiderifierRef}
+                                    spiderLayerIds={spiderLayerIds}
                                 />
                             )}
                         />
@@ -142,6 +146,9 @@ const EventsComponent = (props) => {
                             isError={eventAnnotations.error}
                             filterApplyHandler={(args)=>filterApplyHandler(args,filterArgs,setFilterArgs,mapRef)}
                             mapHoverState={mapHoverState}
+                            spiderifierRef={spiderifierRef}
+                            spiderLayerIds={spiderLayerIds}
+                            setSpiderLayerIds={setSpiderLayerIds}
                         />
                     </Grid>
                 </Grid>

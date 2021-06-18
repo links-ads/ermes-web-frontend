@@ -44,7 +44,6 @@ const SocialComponent = (props) => {
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
-    // const [mapHoverState,setMapHoverState] = useState({type:'point',id:'null'})
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()
     const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
@@ -114,7 +113,6 @@ const SocialComponent = (props) => {
                                     setMapLeftClickState={setMapLeftClickState}
                                     spiderifierRef={spiderifierRef}
                                     spiderLayerIds={spiderLayerIds}
-                                // setMapHoverState={setMapHoverState}
                                 />
                             )}
                         />
@@ -156,7 +154,6 @@ const SocialComponent = (props) => {
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}
                             setSpiderLayerIds={setSpiderLayerIds}
-                        // mapHoverState={mapHoverState}
                         />
                     </Grid>
                 </Grid>

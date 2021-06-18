@@ -8,6 +8,7 @@ export const mapOnLoadHandler = (
     sourceId,
     pointsLayerId,
     pointsLayerProps,
+    leavesLayerType,
     updateMarkers,
     leavesHoverProps: { paint: mapboxgl.SymbolPaint; layout: mapboxgl.AnyLayout }
         | false = false
@@ -15,7 +16,7 @@ export const mapOnLoadHandler = (
 
     spiderifierRef.current = new Spiderifier({
         sourceName: sourceId,
-        leavesLayerType: 'symbol',
+        leavesLayerType:leavesLayerType ,
         leavesLayerPaintOptions: pointsLayerProps,
         highlightLeavesOnHover: leavesHoverProps,
         onLeavesLayerUpdate: setSpiderLayerIds

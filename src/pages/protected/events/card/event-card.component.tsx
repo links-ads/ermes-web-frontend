@@ -10,50 +10,21 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import clsx from 'clsx';
 import { clearEventMap, queryHoveredFeature } from '../../common/map/map-common';
-import { ParsedTweet } from '../../common/utils/utils.common';
+import { getSocialCardStyle, ParsedTweet } from '../../common/utils/utils.common';
 import EventContent from './event-card-content';
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 
 export const EventCard = (props) => {
 
     const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            root: {
-                width: '100%',
-                marginBottom: '16px',
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                display: 'inline-block',
-                padding: 6,
-                "&:hover": {
-                    boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
-                    cursor: 'pointer'
-                }
-            },
-            expand: {
-                transform: 'rotate(0deg)',
-                marginLeft: 'auto',
-                transition: theme.transitions.create('transform', {
-                    duration: theme.transitions.duration.shortest,
-                }),
-            },
-            expandOpen: {
-                transform: 'rotate(180deg)',
-            },
-            content: {
-                margin: '5px',
-                padding: 5
-            },
-            action: {
-                margin: '0px 5px',
-                padding: 0
-            }
-        }));
+        createStyles(
+            getSocialCardStyle(theme)
+        ));
 
 
     const classes = useStyles();
     const [expanded, setExpanded] = useState(false);
-    const [featureToHover, setFeatureHover] = useState<{ type: string | null, id: string | null }>({ type: null, id: null })
+    const [featureToHover, setFeatureHover] = useState<{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string}>({ type: null, id: null })
     const theme = useTheme()
     const hasTweets = props.item.tweets.length > 0
     const expandButton = (hasTweets) ? (<IconButton
@@ -75,35 +46,33 @@ export const EventCard = (props) => {
                 if (!coord) return
                 const map = props.mapRef.current.getMap()
                 if (!map) return
-                const result = queryHoveredFeature(map,coord,[EVENTS_LAYER_ID, CLUSTER_LAYER_ID],EVENTS_LAYER_ID,CLUSTER_LAYER_ID,event.id,SOURCE_ID)
-                if(result.type === 'point' || result.type ==='cluster')
-                {
+                const result = queryHoveredFeature(map, coord, [EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], EVENTS_LAYER_ID, CLUSTER_LAYER_ID, event.id, SOURCE_ID)
+                if (result.type) {
                     map.setFeatureState({
-                        source: SOURCE_ID,
+                        source: result.type =='leaf' ? result.source : SOURCE_ID,
                         id: result.id,
                     }, {
                         hover: true
                     })
-                    setFeatureHover({ type: result.type, id: result.id })
-                    if(result.type === 'cluster')
-                        props.setMapHoverState({set:true})
-                }
+                    if (result.type === 'cluster')
+                        props.setMapHoverState({ set: true })
+                    setFeatureHover(result)
+                }                    
             }}
             onPointerLeave={() => {
                 const map = props.mapRef.current.getMap()
                 if (!map) return
-                if(featureToHover.type === 'point' || featureToHover.type ==='cluster')
-                {
+                if (featureToHover.type) {
                     map.setFeatureState({
-                        source: SOURCE_ID,
-                        id: featureToHover['id'],
+                        source: featureToHover.type =='leaf' ? featureToHover.source :SOURCE_ID,
+                        id: featureToHover.id,
                     }, {
                         hover: false
                     })
-                    setFeatureHover({ type: featureToHover.type, id: featureToHover.id })
-                    if(featureToHover.type === 'cluster')
-                        props.setMapHoverState({set:false})
+                    if (featureToHover.type === 'cluster')
+                        props.setMapHoverState({ set: false })
                 }
+                setFeatureHover({ type: null, id: null })
             }}
         >
             <EventContent
