@@ -9,6 +9,7 @@ import Box from '@material-ui/core/Box'
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,6 +58,7 @@ function a11yProps(index: any) {
 export default function MapDrawer(props) {
   const classes = useStyles()
   const theme = useTheme()
+  const { t } = useTranslation('maps')
 
   const [value, setValue] = React.useState(0)
 
@@ -89,10 +91,10 @@ export default function MapDrawer(props) {
             variant="scrollable"
             aria-label="full width tabs example"
           >
-            <Tab label="Report" {...a11yProps(0)} />
-            <Tab label="Comunicazione" {...a11yProps(1)} />
-            <Tab label="Missione" {...a11yProps(2)} />
-            <Tab label="Persona" {...a11yProps(3)} />
+            <Tab label={t('maps:Report')} {...a11yProps(0)} />
+            <Tab label={t('maps:Communication')} {...a11yProps(1)} />
+            <Tab label={t('maps:Mission')} {...a11yProps(2)} />
+            <Tab label={t('maps:Person')} {...a11yProps(3)} />
           </Tabs>
         </AppBar>
 

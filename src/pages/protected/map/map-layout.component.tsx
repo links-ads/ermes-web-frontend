@@ -376,7 +376,7 @@ export function MapLayout(props) {
           mapRef={mapViewRef}
           filterApplyHandler={()=>{}} //props.filterApplyHandler
           mapViewport={viewport}
-          customStyle = {{barHeight: '6%'}}
+          customStyle = {{barHeight: '48px'}}
           isLoading={false}
         />
       <InteractiveMap
@@ -469,7 +469,7 @@ export function MapLayout(props) {
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
         />
-        <div className="controls-contaniner" style={{ top: '6%' }}>
+        <div className="controls-contaniner" style={{ top: '45px' }}>
           <NavigationControl />
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>

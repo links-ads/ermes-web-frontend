@@ -33,13 +33,13 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     marginBottom: 15,
-    display: 'flex'
+    // display: 'flex'
   },
   cardAction: {
     justifyContent: 'space-between',
     paddingLeft: 16,
     paddingTop: 4,
-    paddingBottom: 0,
+    paddingBottom: 8,
     paddingRight: 0
   },
 

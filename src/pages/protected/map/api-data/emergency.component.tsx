@@ -193,7 +193,7 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                       <b>{t('maps:name')}</b>
                     </TableCell>
                     <TableCell align="left">
-                      <b>{t('maps:group')}</b>
+                      <b>{t('maps:target')}</b>
                     </TableCell>
                     <TableCell align="left">
                       <b>{t('maps:status')}</b>
@@ -207,10 +207,11 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                   {details!.extensionData.map((row) => (
                     <TableRow key={row.name}>
                       <TableCell component="th" align="left" scope="row">
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                       </TableCell>
                       <TableCell align="center">
-                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
+                        {t('maps:' + catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target)}
                       </TableCell>
                       <TableCell align="left">{t('maps:' + row.status.toLowerCase())}</TableCell>
                       <TableCell align="left">

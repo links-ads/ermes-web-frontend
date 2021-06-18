@@ -42,6 +42,7 @@ export default function usePeopleList() {
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [filters, setFilters] = useState([])
 
   const fetchPeople = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -66,7 +67,7 @@ export default function usePeopleList() {
             let newData: PersonActionDto[] = transformData(result.data.data) || []
 
             let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-
+            console.log(filters)
             dispatch({
                 type: 'RESULT',
                 value: newData,
@@ -78,7 +79,12 @@ export default function usePeopleList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar]
+    [repApiFactory, displayErrorSnackbar, filters]
   )
-  return [dataState, fetchPeople]
+  const applyFilterReloadData = (newFilters) => {
+    // dispatch(initialState)
+    // console.log(newFilters)
+    setFilters(newFilters)
+  }
+  return [dataState, fetchPeople, applyFilterReloadData]
 }

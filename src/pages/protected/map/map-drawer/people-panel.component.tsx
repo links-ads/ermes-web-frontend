@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
+import useUsersList from '../../../../hooks/use-users-list.hook'
 import List from '@material-ui/core/List'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import Card from '@material-ui/core/Card'
@@ -8,9 +9,10 @@ import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import ListItemText from '@material-ui/core/ListItemText'
 import { useTranslation } from 'react-i18next'
 import Box from '@material-ui/core/Box'
+import FormControl from '@material-ui/core/FormControl'
+import { ListItemText, Checkbox, Input, InputLabel, MenuItem, Select } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   cardList: {
@@ -69,7 +71,25 @@ export default function PeoplePanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const [peopData, getPeopData] = usePeopleList()
+  const [peopData, getPeopData, applyFilterReloadData] = usePeopleList()
+  const { usersData, isUserLoading } = useUsersList()
+  const [selUsers, setSelUsers] = React.useState({}) //['ALL' as HazardType]
+
+  const handleChangeUser = (event) => {
+    const change = event.target.value
+    let tmp = { ...selUsers }
+    Object.keys(selUsers).forEach((elem) => {
+      if (change.includes(elem)) {
+        tmp[elem] = true
+      } else {
+        tmp[elem] = false
+      }
+    })
+    setSelUsers(tmp)
+  }
+  const handleApplyFilter = () => {
+    applyFilterReloadData(Object.keys(selUsers).filter((item) => selUsers[item]))
+  }
   const classes = useStyles()
 
   const [height, setHeight] = React.useState(window.innerHeight)
@@ -78,7 +98,10 @@ export default function PeoplePanel(props) {
   }
 
   const flyToCoords = function (latitude, longitude) {
-    props.setGoToCoord({ latitude: latitude, longitude: longitude })
+    if (latitude && longitude) {
+      console.log('heyeyeye')
+      props.setGoToCoord({ latitude: latitude, longitude: longitude })
+    }
   }
   const { t } = useTranslation(['common', 'maps', 'social'])
 
@@ -102,11 +125,61 @@ export default function PeoplePanel(props) {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
+  useEffect(() => {
+    if (!isUserLoading) {
+      const tmp = {}
+      usersData.forEach((e) => {
+        tmp[e?.user!.username!] = false
+      })
+      setSelUsers(tmp)
+    }
+  }, [isUserLoading, usersData])
+
   return (
     <div className="container_without_search">
+      <span>
+        <FormControl className={classes.margin}>
+          <InputLabel id="demo-mutiple-checkbox-label">{t('maps:filter_by_hazard')}</InputLabel>
+          <Select
+            labelId="demo-mutiple-checkbox-label"
+            id="demo-mutiple-checkbox"
+            multiple
+            value={Object.keys(selUsers).filter((item) => selUsers[item])} //usersData.map((e) => e?.user?.username)
+            onChange={(event) => {
+              handleChangeUser(event)
+            }}
+            input={<Input />}
+            renderValue={(selected) =>
+              Object.keys(selUsers)
+                .filter((item) => selUsers[item])
+                .join(', ')
+            }
+          >
+            {usersData.map((e) => (
+              <MenuItem key={e?.user?.id} value={e?.user!.username!}>
+                <Checkbox checked={selUsers[e?.user!.username!]} />
+                <ListItemText primary={e?.user?.username} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            handleApplyFilter()
+          }}
+          className={classes.applyButton}
+        >
+          {t('social:filter_apply')}
+        </Button>
+      </span>
       {!peopData.isLoading ? (
-        <div className={classes.container_without_search} id="scrollableElem"
-        style={{ height: height - 200 }}>
+        <div
+          className={classes.container_without_search}
+          id="scrollableElem"
+          style={{ height: height - 280 }}
+        >
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -144,7 +217,9 @@ export default function PeoplePanel(props) {
                               component="h2"
                               style={{ marginBottom: '0px' }}
                             >
-                              {elem.username}
+                              {elem.username.length > 22
+                                ? elem.username.substring(0, 20) + '...'
+                                : elem.username}
                             </Typography>
                           </Box>
                           <Box component="div" display="inline-block">
@@ -180,16 +255,16 @@ export default function PeoplePanel(props) {
                       </CardContent>
                       <CardActions className={classes.cardAction}>
                         <Typography variant="body2" color="textSecondary">
-                          {(elem!.location!.latitude as number).toFixed(4) +
+                          {(elem?.location?.latitude as number)?.toFixed(4) +
                             ' , ' +
-                            (elem!.location!.longitude as number).toFixed(4)}
+                            (elem?.location?.longitude as number)?.toFixed(4)}
                         </Typography>
                         <Button
                           size="small"
                           onClick={() =>
                             flyToCoords(
-                              elem!.location!.latitude as number,
-                              elem!.location!.longitude as number
+                              elem?.location?.latitude as number,
+                              elem?.location?.longitude as number
                             )
                           }
                           className={classes.viewInMap}

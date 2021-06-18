@@ -33,6 +33,8 @@ export const BrandLogoD = styled.div<BrandLogoProps>`
   background-repeat: no-repeat;
   background-size: contain;
   height: 56px;
+  padding: 7px;
+  padding-left: 0px;
   width: 198px; /* 200 is 320:90 = 198:56 = 226:64 */
   transform-style: preserve-3d;
   transition: transform 1s linear;

@@ -8,6 +8,7 @@ import styled from 'styled-components'
 
 import Toolbar from '@material-ui/core/Toolbar'
 import { AccountWidget } from './app-bar-widgets/account-widget'
+import { TitleWidget } from './app-bar-widgets/title-widget'
 import { Spacer } from './common-components'
 import Close from '@material-ui/icons/Close'
 import Menu from '@material-ui/icons/Menu'
@@ -31,6 +32,9 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         )}
         <BrandLogo />
         <Spacer />
+        <TitleWidget />
+        <Spacer />
+        
         <ThemeSelect />
         <LanguageSelect />
         {isAuthenticated ? <AccountWidget /> : <div />}
