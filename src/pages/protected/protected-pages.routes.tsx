@@ -142,7 +142,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
         }}
       ></Route>
       <Route
-        path={'/users/:uid'}
+        path={'/organizations/users'}
         render={({ location }) => {
           return controlAccess(location.pathname, profile.role) ? (
             <Suspense
@@ -158,39 +158,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
         }}
       ></Route>
       <Route
-        path={'/organizations/:oid/users/:uid'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
-            <Suspense
-              fallback={
-                <div className="full-screen centered">
-                  <CircularProgress color="secondary" size={120} />
-                </div>
-              }
-            >
-              <Users />
-            </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
-      <Route
-        path={'/organizations/:oid/users'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
-            <Suspense
-              fallback={
-                <div className="full-screen centered">
-                  <CircularProgress color="secondary" size={120} />
-                </div>
-              }
-            >
-              <Users />
-            </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
-      <Route
-        path={'/organizations/:oid/teams'}
+        path={'/organizations/teams'}
         render={({ location }) => {
           return controlAccess(location.pathname, profile.role) ? (
             <Suspense
@@ -201,22 +169,6 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
               }
             >
               <Teams />
-            </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
-      <Route
-        path={'/organizations/:oid'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role)  ? (
-            <Suspense
-              fallback={
-                <div className="full-screen centered">
-                  <CircularProgress color="secondary" size={120} />
-                </div>
-              }
-            >
-              <Organizations />
             </Suspense>
           ) : (unAuthorizedContent(location))
         }}

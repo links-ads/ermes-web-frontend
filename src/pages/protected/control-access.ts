@@ -17,16 +17,8 @@ const accessPolicy = [
     {link:/^\/organizations$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/import$/,users:[ROLE_ADMIN]},
-    //specific organization route
-    {link:/^\/organizations\/.+$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
-    //specific user route
-    {link:/^\/users\/[\s|\S]{1,}$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
-    //users organization route
-    {link:/^\/organizations\/[\s|\S]{1,}\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
-    //specific user organization route
-    {link:/^\/organizations\/[\s|\S]{1,}\/users\/[\s|\S]{1,}$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
-    //specific organization teams route
-    {link:/^\/organizations\/[\s|\S]{1,}\/teams$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]}
+    {link:/^\/organizations\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
+    {link:/^\/organizations\/teams$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]}
 ]
 
 export const controlAccess = (page,role) => {
