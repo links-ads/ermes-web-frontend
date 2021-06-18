@@ -33,7 +33,7 @@ export function AboutPage() {
               values={{ description }}
             ></Trans>
           </Typography>
-          <Typography variant="body1">{t('about:faster_goal')}</Typography>
+          <Typography variant="body1">{t('about:goal')}</Typography>
           <br></br>
           <Typography variant="body2">
             Build Date: {new Date(buildDate).toLocaleString()}
