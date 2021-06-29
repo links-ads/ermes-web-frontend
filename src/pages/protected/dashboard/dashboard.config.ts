@@ -11,6 +11,7 @@ const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHKLMNOPQRSTUVXYZ
 
 export const LayoutCols = { xs: 1, sm: 2, md: 2, lg: 4, xl: 4 }
 export const LayoutDefaultHeights = { xs: 2, sm: 2, md: 2, lg: 2, xl: 3 }
+export const LayoutDefaultWidths = { xs: 1, sm: 1, md: 1, lg: 2, xl: 2 }
 
 export const MAX_W_SLOTS = 2 // determines how much a widget can expand in width
 export const MAX_H_SLOTS = 3 // determines how much a widget can expand in height
@@ -151,21 +152,22 @@ export function removeDashboardWidget(
 
 function computeLayoutIdAndPreviousLayoutSize(
   id: string,
-  cols: number,
-  h: number = 1,
+  cols: number, // number of columns in current layout
+  defaultHeight: number = 1,
+  defaultWidth:number = 1,
   // lastLayoutItem: ReactGridLayout.Layout | null,
-  lastLayoutSize: number
+  lastLayoutSize: number // number of elements actually in layout
 ): ReactGridLayout.Layout {
-  const y_pos = Math.floor(lastLayoutSize / cols) //WARN works with w = 1
-  const x_pos = lastLayoutSize % cols
+  const y_pos = Math.floor((lastLayoutSize*defaultWidth) / cols) //WARN works with w = 1
+  const x_pos = (lastLayoutSize*defaultWidth) % cols
   return {
     i: id,
     x: x_pos,
     y: y_pos,
     // TODO get size and constraints from cfg, but taking into account above
     // size
-    w: 1,
-    h,
+    w: defaultWidth,
+    h:defaultHeight,
     // constraints
     minH: 1,
     minW: 1,
@@ -185,6 +187,7 @@ function computeLayoutByItemIds(
   const sizeDiff = configsSize - oldLayoutSize
   const cols = LayoutCols[bpKey]
   const defaultHeight = LayoutDefaultHeights[bpKey]
+  const defaultWidth = LayoutDefaultWidths[bpKey]
   let layout: ReactGridLayout.Layout[] = [...oldLayout]
   let existingWids: string[] = []
   if (sizeDiff > 0) {
@@ -193,7 +196,7 @@ function computeLayoutByItemIds(
     const newLayoutItems = configs
       .filter((cfg) => !existingWids.includes(cfg.wid))
       .map((cfg, i) =>
-        computeLayoutIdAndPreviousLayoutSize(cfg.wid, cols, defaultHeight, oldLayoutSize + i)
+        computeLayoutIdAndPreviousLayoutSize(cfg.wid, cols, defaultHeight,defaultWidth, oldLayoutSize + i)
       )
     layout = [...layout, ...newLayoutItems]
   } else if (sizeDiff < 0) {

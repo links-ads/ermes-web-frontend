@@ -28,7 +28,7 @@ export const DashboardFilters = (props) => {
         props.onFilterApply({startDate:filters.startDate.toISOString(),endDate:filters.endDate.toISOString()})
     }
     return (
-        <Grid container direction={'row'} justify='center' className={classes.filterContainer}>
+        <Grid container direction={'row'} justify='space-around' className={classes.filterContainer}>
             <Grid container direction={'row'} justify='center' alignItems='center' style={{ display: 'flex', flex: 2, margin: 16 }}>
                 <Grid item>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -86,7 +86,7 @@ export const DashboardFilters = (props) => {
                     </MuiPickersUtilsProvider>
                 </Grid>
             </Grid>
-            <Grid container direction={'row'} justify="space-evenly" alignContent='center' style={{ display: 'flex', flex: 1 }}>
+            <Grid container direction={'row'} justify="center" alignContent='center' style={{ display: 'flex', flex: 1 }}>
                 <Grid>
                     <Button
                         className={classes.resetButton}
