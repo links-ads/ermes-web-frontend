@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import { useTranslation } from 'react-i18next'
+import useLanguage from '../../../../hooks/use-language.hook';
 
 export const TweetContent = (props) => {
 
@@ -23,13 +24,15 @@ export const TweetContent = (props) => {
             }
         }));
 
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['labels'])
 
     const classes = useStyles();
 
+    const {dateLocale} = useLanguage()
+
     const tweet = props.tweet
-    let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+    let dateOptions = { hour12: false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'} as Intl.DateTimeFormatOptions
+    let formatter = new Intl.DateTimeFormat(dateLocale, dateOptions)
     let linkToProfile = "https://twitter.com/" + tweet.author.user_name;
     let informativeLabel = tweet.informative ? 'informative' : 'not_informative'
     const textSizes = props.textSizes
@@ -71,14 +74,14 @@ export const TweetContent = (props) => {
                     return (<Chip
                         avatar={<Avatar>{HAZARD_SOCIAL_ICONS[hazardName]}</Avatar>}
                         size={props.chipSize}
-                        key={hazard.label_id} label={t("social:hazard_" + hazardName)} style={{ margin: '3px' }} />)
+                        key={hazard.label_id} label={t("labels:" + hazardName)} style={{ margin: '3px' }} />)
                 })}
                 {
-                    (Object.entries(props.mapIdsToInfos).length > 0) && tweet.information_types.map(info => (<Chip key={info.label_id} style={{ margin: '3px' }} size={props.chipSize} label={t("social:information_" + props.mapIdsToInfos[info.label_id])}
+                    (Object.entries(props.mapIdsToInfos).length > 0) && tweet.information_types.map(info => (<Chip key={info.label_id} style={{ margin: '3px' }} size={props.chipSize} label={t("labels:" + props.mapIdsToInfos[info.label_id])}
                         avatar={<Avatar><InfoIcon /></Avatar>}></Chip>))
                 }
                 {
-                    <Chip key={0} style={{ margin: '3px' }} size={props.chipSize} avatar={<Avatar>{INFORMATIVE_ICONS[informativeLabel]}</Avatar>} label={t("social:info_" + informativeLabel)}></Chip>
+                    <Chip key={0} style={{ margin: '3px' }} size={props.chipSize} avatar={<Avatar>{INFORMATIVE_ICONS[informativeLabel]}</Avatar>} label={t("labels:" + informativeLabel)}></Chip>
                 }
             </CardContent>
         </React.Fragment>

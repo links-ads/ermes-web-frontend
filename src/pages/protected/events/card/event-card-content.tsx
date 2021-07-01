@@ -4,13 +4,15 @@ import React from 'react';
 import { useTranslation } from 'react-i18next'
 import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import useLanguage from '../../../../hooks/use-language.hook';
 
 
 const EventContent = (props) => {
-    let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+    const {dateLocale} = useLanguage()
+    let dateOptions = { hour12: false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit' } as Intl.DateTimeFormatOptions
+    let formatter = new Intl.DateTimeFormat(dateLocale, dateOptions)
     let hazardName = props.mapIdsToHazards[props.item.hazard_id]
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['social','labels'])
 
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
@@ -60,7 +62,7 @@ const EventContent = (props) => {
                     (<Chip
                     avatar={<Avatar>{HAZARD_SOCIAL_ICONS[hazardName]}</Avatar>}
                     size={props.chipSize}
-                    label={t("social:hazard_" + hazardName)} style={{ margin: '3px' }} />)
+                    label={t("labels:" + hazardName)} style={{ margin: '3px' }} />)
                 }
             </CardContent>
         </React.Fragment>

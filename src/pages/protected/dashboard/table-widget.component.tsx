@@ -1,12 +1,12 @@
 import React from 'react';
-import MaterialTable, { Column, Options } from 'material-table'
+import MaterialTable from 'material-table'
 import { useTranslation } from 'react-i18next'
 import {localizeMaterialTable} from '../../../common/localize-material-table'
 
 export const TableWidget = (
     props
 ) => {
-    const { t, i18n } = useTranslation(['labels', 'tables'])
+    const { t } = useTranslation(['labels', 'tables'])
     const columns = [
         { title: t('username'), field: 'username' },
         { title: t('user_ssn'), field: 'tax_code' },
@@ -43,7 +43,6 @@ export const TableWidget = (
                         exportPDFName: t("tables:toolbar_exportPdf")
                     }
                 }}
-            // style={{ overflowX: 'scroll', width: '120%' }}
             />
         </div>
     )

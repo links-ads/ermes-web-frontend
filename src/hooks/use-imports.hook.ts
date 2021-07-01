@@ -63,7 +63,7 @@ const useImports = () => {
             type:'ERROR',
         })
         displayErrorSnackbar(response['response'].statusText)
-    }, [])
+    }, [displayErrorSnackbar])
 
     const sendFile = useCallback((selection: string, file) => {
         dispatch({ type: 'SEND' })
@@ -80,7 +80,7 @@ const useImports = () => {
             default:
                 console.error('ERROR')
         }
-    }, [])
+    }, [importApiFactory,handleSuccess,handleFailure])
 
     return { importState, sendFile }
 }

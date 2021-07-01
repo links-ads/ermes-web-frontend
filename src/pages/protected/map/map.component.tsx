@@ -20,6 +20,7 @@ import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer.component'
 import ViewCompactIcon from '@material-ui/icons/ViewCompact'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import useLanguage from '../../../hooks/use-language.hook'
 
 type MapFeature = CulturalProps
 
@@ -47,6 +48,8 @@ export function Map() {
 
   // Toggle for the side drawer
   const [toggleSideDrawer, settoggleSideDrawer] = useState<boolean>(false)
+
+  const {dateFormat} = useLanguage()
 
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
@@ -90,7 +93,7 @@ export function Map() {
                   style={{ paddingTop: 0, marginTop: 0 }}
                   // disableToolbar
                   variant="inline"
-                  format="dd/MM/yyyy hh:mm"
+                  format={dateFormat}
                   margin="normal"
                   id="end-date-picker-inline"
                   label={t('common:date_picker_test_start')}
@@ -108,7 +111,7 @@ export function Map() {
                   style={{ paddingTop: 0, marginTop: 0 }}
                   // disableToolbar
                   variant="inline"
-                  format="dd/MM/yyyy hh:mm"
+                  format={dateFormat}
                   margin="normal"
                   id="start-date-picker-inline"
                   label={t('common:date_picker_test_end')}

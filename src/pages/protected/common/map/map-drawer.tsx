@@ -3,8 +3,6 @@ import Grid from '@material-ui/core/Grid';
 import React from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { useTranslation } from 'react-i18next'
-import { getMapBounds } from './map-common';
-
 
 export const MapHeadDrawer = (props) => {
     const useStyles = makeStyles((theme: Theme) =>

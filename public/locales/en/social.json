@@ -25,8 +25,6 @@
     "informative_info":"Informativeness",
     "informative_true":"True",
     "informative_false":"False",
-    "info_informative":"Informative",
-    "info_not_informative":"Not informative",
     "informative_yes":"yes",
     "informative_no":"no",
     "label_hazard_count":"Hazard count",

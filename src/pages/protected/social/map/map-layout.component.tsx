@@ -41,17 +41,6 @@ const SocialMap = (props) => {
         features: []
     })
 
-    
-    // useEffect(()=>{
-    //     let map = props.mapRef?.current?.getMap()
-    //     if(!map) return
-    //     const hoverState = props.mapHoverState
-    //     if (hoverState.type === 'point')
-    //     {
-    //         updatePointFeatureLayerIdFilter(map,HOVER_TWEETS_LAYER_ID,hoverState.id)
-    //     }
-
-    // },[props.mapHoverState])
 
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()

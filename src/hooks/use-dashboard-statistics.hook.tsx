@@ -5,6 +5,7 @@ import {
 import {
   useAPIConfiguration
 } from './api-hooks';
+import useLanguage from './use-language.hook';
 
 const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }
 
@@ -37,11 +38,12 @@ const useDashboardStats = () => {
   const [statsState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const dashboardApiFactory = useMemo(() => DashboardApiFactory(backendAPIConfig), [backendAPIConfig])
+  const {dateLocale} = useLanguage()
 
   const parsePersonsData = useCallback((persons) => {
     const newPersons = [] as any[]
-    let dateOptions = { dateStyle: 'short', timeStyle: 'short', hour12: false } as Intl.DateTimeFormatOptions
-    let formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+    let dateOptions = { hour12: false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'} as Intl.DateTimeFormatOptions
+    let formatter = new Intl.DateTimeFormat(dateLocale, dateOptions)
     persons.forEach(person => {
       const newTimeStamp = formatter.format(new Date(person['timestamp']))
       const newActivity = person['status'] === 'Active' ? person['activityName'] : '-'
@@ -68,158 +70,9 @@ const useDashboardStats = () => {
     }).catch(() => {
       dispatch({ type: 'ERROR', data: [] })
     })
-
-    // HACK remove once testing of the api is done
-    // setTimeout(() => {
-    //   dispatch({ type: 'RESULT', data: {
-    //     ...mockupData,
-    //     persons:parsePersonsData(mockupData['persons'])
-    //   } })
-    // }, 1000)
   }, [])
 
   return { statsState, fetchStatistics }
-}
-
-const mockupData = {
-  "reportsByHazard": [
-    {
-      "id": "wildfire",
-      "label": "wildfire",
-      "value": 10
-    },
-    {
-      "id": "storm",
-      "label": "storm",
-      "value": 5
-    },
-    {
-      "id": "pandemic",
-      "label": "pandemic",
-      "value": 3
-    },
-    {
-      "id": "earthquake",
-      "label": "earthquake",
-      "value": 10
-    }
-  ],
-  "missionsByStatus": [
-    {
-      "id": "created",
-      "label": "created",
-      "value": 10
-    },
-    {
-      "id": "completed",
-      "label": "completed",
-      "value": 5
-    },
-    {
-      "id": "TakenInCharge",
-      "label": "TakenInCharge",
-      "value": 10
-    },
-  ],
-  "personsByStatus": [
-    {
-      "id": "active",
-      "label": "active",
-      "value": 2
-    },
-    {
-      "id": "moving",
-      "label": "moving",
-      "value": 5
-    },
-    {
-      "id": "off",
-      "label": "off",
-      "value": 8
-    },
-  ],
-  "persons": [
-    {
-      "id": 0,
-      "deviceId": "1",
-      "deviceName": "watch",
-      "location": {
-        "latitude": 0,
-        "longitude": 0
-      },
-      "latitude": 0,
-      "longitude": 0,
-      "timestamp": "2021-06-07T12:32:59.261Z",
-      "extensionData": "string",
-      "status": "Off",
-      "organizationId": 0,
-      "organizationName": "links",
-      "activityId": 0,
-      "activityName": "rescue",
-      "username": "links.1",
-      "type": "PersonActionSharingPosition"
-    },
-    {
-      "id": 1,
-      "deviceId": "1",
-      "deviceName": "watch",
-      "location": {
-        "latitude": 0,
-        "longitude": 0
-      },
-      "latitude": 0,
-      "longitude": 0,
-      "timestamp": "2021-06-03T12:32:59.261Z",
-      "extensionData": "string",
-      "status": "Active",
-      "organizationId": 0,
-      "organizationName": "links",
-      "activityId": 1,
-      "activityName": "prova",
-      "username": "links.2",
-      "type": "PersonActionSharingPosition"
-    },
-    {
-      "id": 2,
-      "deviceId": "1",
-      "deviceName": "watch",
-      "location": {
-        "latitude": 0,
-        "longitude": 0
-      },
-      "latitude": 0,
-      "longitude": 0,
-      "timestamp": "2021-06-02T12:32:59.261Z",
-      "extensionData": "string",
-      "status": "Active",
-      "organizationId": 0,
-      "organizationName": "links",
-      "activityId": 5,
-      "activityName": "Prova rescue",
-      "username": "links.3",
-      "type": "PersonActionSharingPosition"
-    },
-    {
-      "id": 3,
-      "deviceId": "1",
-      "deviceName": "watch",
-      "location": {
-        "latitude": 0,
-        "longitude": 0
-      },
-      "latitude": 0,
-      "longitude": 0,
-      "timestamp": "2021-05-31T12:32:59.261Z",
-      "extensionData": "string",
-      "status": "Moving",
-      "organizationId": 0,
-      "organizationName": "links",
-      "activityId": 5,
-      "activityName": "Wildfire",
-      "username": "links.20",
-      "type": "PersonActionSharingPosition"
-    },
-  ]
 }
 
 export default useDashboardStats;

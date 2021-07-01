@@ -1,8 +1,9 @@
-import React, { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Button, Grid } from '@material-ui/core';
 import { IconButton, InputAdornment } from "@material-ui/core";
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
+
 import EventIcon from '@material-ui/icons/Event';
 
 import { useTranslation } from 'react-i18next'
@@ -13,31 +14,39 @@ import filterReducer from '../common/filters/reducer'
 import { getFiltersStyle, _MS_PER_DAY } from '../common/utils/utils.common'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-
-
+import { forceFiltersDateRange } from '../common/filters/filters';
+import useLanguage from '../../../hooks/use-language.hook';
 
 export const DashboardFilters = (props) => {
-    const { t } = useTranslation(['social'])
+    const { t, i18n } = useTranslation(['social'])
     const [filters, dispatch] = useReducer(filterReducer, props.filters)
     const useStyles = makeStyles((theme: Theme) =>
         createStyles(getFiltersStyle(theme)));
 
     const classes = useStyles();
 
-    const applyFilters = () =>{
-        props.onFilterApply({startDate:filters.startDate.toISOString(),endDate:filters.endDate.toISOString()})
+    const applyFilters = () => {
+        props.onFilterApply({ startDate: filters.startDate.toISOString(), endDate: filters.endDate.toISOString() })
     }
+
+    const { dateFormat } = useLanguage()
+
+    useEffect(() => console.log('LANGUAGE', i18n.language), [i18n.language])
+
+    useEffect(() => {
+        forceFiltersDateRange(filters.startDate.getTime(), filters.endDate.getTime(), _MS_PER_DAY * 30, (newDate) => dispatch({ type: 'END_DATE', value: new Date(newDate) }))
+    }, [filters.startDate])
+
     return (
         <Grid container direction={'row'} justify='space-around' className={classes.filterContainer}>
-            <Grid container direction={'row'} justify='center' alignItems='center' style={{ display: 'flex', flex: 2, margin: 16 }}>
+            <Grid container direction={'row'} justify='center' alignItems='center' style={{ flex: 2, margin: 8 }}>
                 <Grid item>
                     <MuiPickersUtilsProvider utils={DateFnsUtils}>
                         <DateTimePicker
                             disableToolbar={false}
                             disableFuture={true}
-                            invalidDateMessage={t("social:invalid_date_message")}
                             variant="inline"
-                            format="MM/dd/yyyy - HH:mm"
+                            format={dateFormat}
                             id="starting-date"
                             label={t("social:starting_date")}
                             value={filters.startDate}
@@ -62,14 +71,12 @@ export const DashboardFilters = (props) => {
                             disableToolbar={false}
                             disableFuture={true}
                             variant="inline"
-                            invalidDateMessage={t("social:invalid_date_message")}
-                            format="MM/dd/yyyy - HH:mm"
+                            format={dateFormat}
                             id="end-date"
                             label={t("social:end_date")}
                             value={filters.endDate}
                             minDate={new Date(filters.startDate)}
                             maxDate={new Date(new Date(filters.startDate).valueOf() + _MS_PER_DAY * 30)}
-                            maxDateMessage={t("social:time_span_error", { days: 30 })}
                             autoOk={true}
                             onChange={(date) => dispatch({ type: 'END_DATE', value: date })}
                             ampm={false}
