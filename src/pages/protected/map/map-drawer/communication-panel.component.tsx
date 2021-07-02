@@ -71,7 +71,6 @@ export default function CommunicationPanel(props) {
   }
 
   const searchInComm = () => {
-    console.log(searchText)
     if (searchText !== undefined) {
       applyFilterByText(searchText)
     }

@@ -44,6 +44,7 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
 import { MapHeadDrawer } from '../common/map/map-drawer'
+import { drawPolyToMap, removePolyToMap } from '../common/map/map-common'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -139,6 +140,9 @@ export function MapLayout(props) {
 
   // Display wizard or confirm dialog for features
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose)
+
+  // Variable checked to draw polygons to the map
+  const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)
 
   useEffect(
     () => {
@@ -342,7 +346,6 @@ export function MapLayout(props) {
 
   useEffect(() => {
     if (props.goToCoord !== undefined) {
-      // console.log(props.goToCoord)
 
       mapViewRef.current
         ?.getMap()
@@ -370,15 +373,28 @@ export function MapLayout(props) {
       props.setGoToCoord(undefined)
     }
   }, [props.goToCoord, props.setGoToCoord])
+
+  // Draw communication polygon to map when pin is clicked, if not remove it
+  useEffect(() => {
+    if (clickedPoint) {
+      if (polyToMap) {
+        drawPolyToMap(mapViewRef, polyToMap?.feature, EmergencyColorMap['Communication'], viewport, setViewport)
+      }
+    } else {
+      setPolyToMap(undefined)
+      removePolyToMap(mapViewRef)
+    }
+  }, [polyToMap, clickedPoint])
+
   return (
     <>
       <MapHeadDrawer
-          mapRef={mapViewRef}
-          filterApplyHandler={()=>{}} //props.filterApplyHandler
-          mapViewport={viewport}
-          customStyle = {{barHeight: '48px'}}
-          isLoading={false}
-        />
+        mapRef={mapViewRef}
+        filterApplyHandler={() => {}} //props.filterApplyHandler
+        mapViewport={viewport}
+        customStyle={{ barHeight: '48px' }}
+        isLoading={false}
+      />
       <InteractiveMap
         {...viewport}
         mapStyle={mapTheme?.style}
@@ -395,7 +411,6 @@ export function MapLayout(props) {
         onContextMenu={onContextMenu}
         ref={mapViewRef}
       >
-
         <MapDraw
           ref={mapDrawRef}
           onFeatureAdd={(data: GeoJSON.Feature[]) => {
@@ -506,7 +521,10 @@ export function MapLayout(props) {
       >
         {/* TODO a smart details component that can differentiate between content types */}
         {clickedPoint && (
-          <EmergencyDetailsCard {...(clickedPoint as ItemWithLatLng<EmergencyProps>)} />
+          <EmergencyDetailsCard
+            {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
+            setPolyToMap={setPolyToMap}
+          />
         )}
       </BottomDrawerComponent>
     </>

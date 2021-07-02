@@ -32,19 +32,18 @@ const reducer = (currentState, action) => {
 }
 
 const useCommById = () => {
-  const [annotationsState, dispatch] = useReducer(reducer, initialState)
+  const [commByIdState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig), [
     backendAPIConfig
   ])
 
-  const fetchAnnotations = useCallback(
+  const fetchCommById = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       commApiFactory
-        .communicationsGetCommunicationById(id, false)
+        .communicationsGetCommunicationById(id, true)
         .then((result) => {
           let newData: GetEntityByIdOutputOfCommunicationDto = transformData(result.data)
-          console.log(newData)
           sideEffect(newData)
           dispatch({ type: 'RESULT', value: newData })
         })
@@ -52,10 +51,10 @@ const useCommById = () => {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [CommunicationsApiFactory, annotationsState]
+    [CommunicationsApiFactory, commByIdState]
   )
 
-  return [annotationsState, fetchAnnotations]
+  return [commByIdState, fetchCommById]
 }
 
 export default useCommById

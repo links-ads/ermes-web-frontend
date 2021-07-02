@@ -62,8 +62,6 @@ export function BottomDrawerComponent({
   const { collapsed, open: leftSidebarOpen } = state
   const leftSidebarCollapsedOpen = collapsed && leftSidebarOpen
   const classes = useStyles()
-  const { t } = useTranslation(['common'])
-  // console.log(children)
   return (
     <Drawer
       anchor={'right'}

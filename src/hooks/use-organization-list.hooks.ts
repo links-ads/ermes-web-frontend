@@ -41,7 +41,6 @@ export default function useOrgList () {
       Object.entries(organizations).forEach(([key, value]: any) => {
         lookupObject[value.id] = value.name
       })
-      // console.log(lookupObject)
       setOrgLookup(lookupObject)
       setData(organizations)
     }

@@ -77,7 +77,6 @@ export function Users() {
   //   Object.entries(orgData).forEach(([key, value]: any) => {
   //     lookupObject[value.id] = value.name
   //   })
-  //   console.log(lookupObject)
   // }, [isOverallLoading])
 
   // const columns = useMemo(

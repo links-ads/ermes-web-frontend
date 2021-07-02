@@ -24,6 +24,7 @@
   "subsidence": "Subsidence",
   "weather": "Weather",
   "filter_by_hazard": "Filter by Hazard",
+  "filter_by_people" : "Filter by people",
   "none": "Not defined",
   "name": "Name",
   "group": "Group",

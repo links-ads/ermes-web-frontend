@@ -67,7 +67,6 @@ export default function usePeopleList() {
             let newData: PersonActionDto[] = transformData(result.data.data) || []
 
             let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-            console.log(filters)
             dispatch({
                 type: 'RESULT',
                 value: newData,
@@ -83,7 +82,6 @@ export default function usePeopleList() {
   )
   const applyFilterReloadData = (newFilters) => {
     // dispatch(initialState)
-    // console.log(newFilters)
     setFilters(newFilters)
   }
   return [dataState, fetchPeople, applyFilterReloadData]

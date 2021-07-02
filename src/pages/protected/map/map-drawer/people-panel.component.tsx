@@ -99,7 +99,6 @@ export default function PeoplePanel(props) {
 
   const flyToCoords = function (latitude, longitude) {
     if (latitude && longitude) {
-      console.log('heyeyeye')
       props.setGoToCoord({ latitude: latitude, longitude: longitude })
     }
   }
@@ -118,9 +117,9 @@ export default function PeoplePanel(props) {
     )
   }, [])
 
-  useEffect(() => {
-    console.log(peopData)
-  }, [peopData])
+  // useEffect(() => {
+  //   console.log(peopData)
+  // }, [peopData])
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
@@ -139,7 +138,7 @@ export default function PeoplePanel(props) {
     <div className="container_without_search">
       <span>
         <FormControl className={classes.margin}>
-          <InputLabel id="demo-mutiple-checkbox-label">{t('maps:filter_by_hazard')}</InputLabel>
+          <InputLabel id="demo-mutiple-checkbox-label">{t('maps:filter_by_people')}</InputLabel>
           <Select
             labelId="demo-mutiple-checkbox-label"
             id="demo-mutiple-checkbox"

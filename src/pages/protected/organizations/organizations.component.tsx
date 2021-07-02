@@ -100,7 +100,6 @@ export function Organizations() {
             </Typography>
           }
           onRowClick={(e, rowData: any) => {
-            // console.log(rowData)
             return window.location.href = window.location.href + '/teams'
           }}
           options={options}

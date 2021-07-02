@@ -34,6 +34,7 @@ import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@material-ui/core'
 import useCategoriesList from '../../../../hooks/use-categories-list.hook'
+import useCommById from '../../../../hooks/use-comm-by-id.hook'
 import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles({
@@ -64,7 +65,6 @@ const useStyles = makeStyles({
   }
 })
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
-  console.log(details)
 
   return (
     <>
@@ -114,6 +114,40 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
         </CardActions>
       </Card>
     </>
+  )
+}
+
+const commCard = (data, classes, t, formatter, latitude, longitude) => {
+  if (!data.isLoading) {
+    return (
+      <>
+        <Card elevation={0}>
+          <CardContent style={{ paddingTop: '0px' }}>
+            <div style={{ marginBottom: 10 }}>
+              <Typography component={'span'} variant="h5">
+                {data.data?.feature?.properties?.message}
+              </Typography>
+            </div>
+          </CardContent>
+          <CardActions className={classes.cardAction}>
+            <Typography color="textSecondary">
+              {formatter.format(
+                new Date(data.data?.feature?.properties?.duration?.lowerBound as string)
+              )}
+            </Typography>
+
+            <Typography color="textSecondary">
+              {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+            </Typography>
+          </CardActions>
+        </Card>
+      </>
+    )
+  }
+  return (
+    <div>
+      <CircularProgress />
+    </div>
   )
 }
 
@@ -211,7 +245,10 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                       </TableCell>
                       <TableCell align="center">
-                        {t('maps:' + catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target)}
+                        {t(
+                          'maps:' +
+                            catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target
+                        )}
                       </TableCell>
                       <TableCell align="left">{t('maps:' + row.status.toLowerCase())}</TableCell>
                       <TableCell align="left">
@@ -377,14 +414,29 @@ export function EmergencyContent({
   const { t } = useTranslation(['common', 'maps'])
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
+  const [commDetails, fetchCommDetails] = useCommById()
+
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
     hour12: false
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+
   useEffect(() => {
     switch (type) {
+      case 'Communication':
+        fetchCommDetails(
+          rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
       case 'Report':
         fetchRepDetails(
           rest.id,
@@ -415,9 +467,13 @@ export function EmergencyContent({
   //   console.log('REP DETAILS', repDetails)
   // }, [repDetails])
 
-  // useEffect(() => {
-  //   console.log('CAT DETAILS', catDetails)
-  // }, [catDetails])
+  useEffect(() => {
+    if (!commDetails.isLoading) {
+      rest.setPolyToMap({
+        feature: commDetails.data.feature,
+      })
+    }
+  }, [commDetails])
 
   let todisplay = <></>
   switch (type) {
@@ -430,6 +486,11 @@ export function EmergencyContent({
       todisplay = personCard(rest, classes, formatter, t, description, creator, latitude, longitude)
       break
     }
+    case 'Communication': {
+      // data, classes, t, formatter, latitude, longitude
+      todisplay = commCard(commDetails, classes, t, formatter, latitude, longitude)
+      break
+    }
     default: {
       todisplay = <div>Work in progress...</div>
       break
@@ -439,34 +500,37 @@ export function EmergencyContent({
   return todisplay
 }
 
-export function EmergencyInfo(props: EmergencyPropsWithLocation) {
-  const { /*  descrizione,  thumb,  */ latitude, longitude } = props
+// export function EmergencyInfo(props: EmergencyPropsWithLocation) {
+//   const { /*  descrizione,  thumb,  */ latitude, longitude } = props
 
-  return (
-    <>
-      {/* <ImageContainer imageUrl={thumb} imgWidth={200}  /> */}
-      <EmergencyContent {...props} />
-      <Typography
-        variant="body2"
-        color="textSecondary"
-        component="p"
-        style={{ wordBreak: 'break-all' }}
-      >
-        Latitude: {latitude}, Longitude: {longitude}
-      </Typography>
-    </>
-  )
-}
+//   return (
+//     <>
+//       {/* <ImageContainer imageUrl={thumb} imgWidth={200}  /> */}
+//       <EmergencyContent {...props} />
+//       <Typography
+//         variant="body2"
+//         color="textSecondary"
+//         component="p"
+//         style={{ wordBreak: 'break-all' }}
+//       >
+//         Latitude: {latitude}, Longitude: {longitude}
+//       </Typography>
+//     </>
+//   )
+// }
 
-export function EmergencyDrawerDetails({
-  item,
-  latitude,
-  longitude
-}: ItemWithLatLng<EmergencyProps>) {
+export function EmergencyDrawerDetails(props) {
   return (
     <div style={{ padding: 8, display: 'flex', flexDirection: 'column' }}>
       {/* <ImageContainer imageUrl={item?.image || ''} imgWidth={240} imgHeight={240} /> */}
-      {item && <EmergencyContent {...item} latitude={latitude} longitude={longitude} />}
+      {props.item && (
+        <EmergencyContent
+          {...props.item}
+          latitude={props.latitude}
+          longitude={props.longitude}
+          setPolyToMap={props.setPolyToMap}
+        />
+      )}
       {/* <Typography
         variant="body2"
         color="textSecondary"

@@ -19,6 +19,14 @@ function compareProperties(prevProps: EmergencyCardProps, nextProps: EmergencyCa
   )
 }
 
+function comparePropertiesWithPoly(prevProps, nextProps) {
+  return (
+    (prevProps?.item === null && nextProps?.item === null) ||
+    // TODO better use a feature.id here!
+    (prevProps?.latitude === nextProps?.latitude && prevProps?.longitude === nextProps?.longitude)
+  )
+}
+
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {
     return point ? (
@@ -37,7 +45,7 @@ export const EmergencyHoverPopup = memo(
             title={point.item?.details}
             // src={point.item?.image}
             // imageHeight={84}
-            style={{ width: 300, borderRadius: 10}}
+            style={{ width: 300, borderRadius: 10 }}
           />
         )}
       </Popup>
@@ -53,14 +61,18 @@ export const EmergencyHoverPopup = memo(
   }
 )
 
-export const EmergencyDetailsCard = memo(function EmergencyClickPopup({
-  item,
-  ...rest
-}: EmergencyCardProps) {
+export const EmergencyDetailsCard = function EmergencyClickPopup(props) {
   /* TODO a smart details component that can differentiate between content types */
-  return item ? <EmergencyDrawerDetails item={item} {...rest} /> : null
-},
-compareProperties)
+  return props.item ? (
+    <EmergencyDrawerDetails
+      item={props.item}
+      latitude={props.latitude}
+      longitude={props.longitude}
+      setPolyToMap={props.setPolyToMap}
+    />
+  ) : null
+}
+//, compareProperties)
 
 // ON CTX -> Create | Update | Delete
 export function EmergencyItemCreationStepper({

@@ -122,12 +122,12 @@ export default function ReportPanel(props) {
     )
   }, [])
 
-  useEffect(() => {
-    if (!repsData.isLoading) {
-      // console.log('REPS DATA', repsData)
-      // console.log(repsData?[0].mediaURIs?[0].thumbnailURI)
-    }
-  }, [repsData])
+  // useEffect(() => {
+  //   if (!repsData.isLoading) {
+  //     // console.log('REPS DATA', repsData)
+  //     // console.log(repsData?[0].mediaURIs?[0].thumbnailURI)
+  //   }
+  // }, [repsData])
 
 
 
