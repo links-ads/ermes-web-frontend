@@ -9,6 +9,7 @@ import Box from '@material-ui/core/Box'
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
+import MissionsPanel from './missions-panel.component'
 import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
@@ -62,7 +63,6 @@ export default function MapDrawer(props) {
 
   const [value, setValue] = React.useState(0)
 
-  
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
   }
@@ -115,10 +115,10 @@ export default function MapDrawer(props) {
           </TabPanel>
 
           <TabPanel value={value} index={2}>
-            Item Three
+            <MissionsPanel setGoToCoord={props.setGoToCoord} />
           </TabPanel>
           <TabPanel value={value} index={3}>
-            <PeoplePanel setGoToCoord = {props.setGoToCoord} />
+            <PeoplePanel setGoToCoord={props.setGoToCoord} />
           </TabPanel>
         </SwipeableViews>
         <AppBar

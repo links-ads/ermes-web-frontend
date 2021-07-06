@@ -37,5 +37,12 @@
   "address": "Indirizzo",
   "notes": "Note",
   "organizationName": "Nome organizzazione",
-  "username": "Username"
+  "username": "Username",
+  "timestamp": "Orario",
+  "heartbeat": "Battito",
+  "oxygen": "Ossigeno",
+  "yes": "Si",
+  "no": "No",
+  "on": "Attivo",
+  "target" : "Target"
 }

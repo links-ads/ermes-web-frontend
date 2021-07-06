@@ -35,9 +35,9 @@ export function onMapLeftClickHandler<T extends object>(
   const clear = (map: mapboxgl.Map) => {
     setLeftClickedFeature(null)
     setRightClickedFeature(null)
-    if (spiderifierRef.current && mapViewRef.current) {
-      spiderifierRef.current.clearSpiders(map)
-    }
+    // if (spiderifierRef.current && mapViewRef.current) {
+    //   spiderifierRef.current.clearSpiders(map)
+    // }
   }
 
   if (map && Array.isArray(features) && features.length > 0) {
@@ -45,7 +45,7 @@ export function onMapLeftClickHandler<T extends object>(
     const layer = features[0]['layer']['id'] as string
     if (layer === 'unclustered-point') {
       // Cast is necessary
-      const feature = (features[0] as unknown) as GeoJSON.Feature<GeoJSON.Point, T>
+      const feature = features[0] as unknown as GeoJSON.Feature<GeoJSON.Point, T>
       const properties = feature.properties
       const [longitude, latitude] = feature.geometry.coordinates
       const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
@@ -56,10 +56,14 @@ export function onMapLeftClickHandler<T extends object>(
       if (spiderifierRef.current && mapViewRef.current) {
         spiderifierRef.current.toggleSpiders(map, evt)
       }
-      setLeftClickedFeature(null)
     } else {
       // Other layer - Clear feature
-      clear(map)
+      const feature = features[0] as unknown as GeoJSON.Feature<GeoJSON.Point, T>
+      const properties = feature.properties
+      const [longitude, latitude] = feature.geometry.coordinates
+      const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
+      setLeftClickedFeature(leftClickedFeature)
+        // clear(map)
     }
   } else {
     // Clear feature
@@ -115,7 +119,7 @@ export function onMapRightClickHandler<T extends object>(
       const layer = features[0]['layer']['id'] as string
       if (layer === 'unclustered-point') {
         // TODO Customize. Consider also that Beni dataset has no type attribute :(
-        const item: T = (features[0].properties as unknown) as T
+        const item: T = features[0].properties as unknown as T
         const rightClickedFeature: ItemWithLatLng<T> = { item, ...location }
         setRightClickedFeature(rightClickedFeature)
       }

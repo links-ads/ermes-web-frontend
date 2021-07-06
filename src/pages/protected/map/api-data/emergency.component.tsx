@@ -65,7 +65,8 @@ const useStyles = makeStyles({
   }
 })
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
-
+  let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
+  console.log(extensionData)
   return (
     <>
       <Card elevation={0}>
@@ -80,7 +81,7 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
               {description}
             </Typography>
           </div>
-          {['status', 'activityName', 'organizationName', 'extensionData'].map((type) => {
+          {['status', 'activityName', 'organizationName'].map((type) => {
             if (details[type]) {
               return (
                 <>
@@ -102,6 +103,45 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
             }
             return null
           })}
+
+          {extensionData ? (
+            <>
+              {/* {"on": true, "oxygen": "40%", "heartbeat": "96bpm", "timestamp": "2021-02-04T11:45:00Z"} */}
+              <TableContainer component={Paper}>
+                <Table className={classes.table} size="small" aria-label="a dense table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="left">
+                        <b>{t('maps:on')}</b>
+                      </TableCell>
+                      <TableCell align="left">
+                        <b>{t('maps:oxygen')}</b>
+                      </TableCell>
+                      <TableCell align="left">
+                        <b>{t('maps:heartbeat')}</b>
+                      </TableCell>
+                      <TableCell align="left">
+                        <b>{t('maps:timestamp')}</b>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell component="th" align="left" scope="row">
+                        {extensionData['on'] ? t('maps:yes') : t('maps:no')}
+                      </TableCell>
+                      <TableCell align="center">{extensionData['oxygen']}</TableCell>
+                      <TableCell align="center">{extensionData['heartbeat']}</TableCell>
+                      <TableCell align="center">
+                        {formatter.format(new Date(extensionData['timestamp'] as string))}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <br />
+            </>
+          ) : null}
         </CardContent>
         <CardActions className={classes.cardAction}>
           <Typography color="textSecondary">
@@ -470,7 +510,7 @@ export function EmergencyContent({
   useEffect(() => {
     if (!commDetails.isLoading) {
       rest.setPolyToMap({
-        feature: commDetails.data.feature,
+        feature: commDetails.data.feature
       })
     }
   }, [commDetails])

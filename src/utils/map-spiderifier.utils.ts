@@ -37,8 +37,8 @@ interface SpiderifierOptions {
   legsLayerPaintOptions: { paint: mapboxgl.LinePaint; layout?: mapboxgl.AnyLayout }
   // new
   highlightLeavesOnHover:
-  | false
-  | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
+    | false
+    | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
   onLeavesLayerUpdate?: (layerIds: string[]) => void
 }
 
@@ -402,7 +402,7 @@ export class Spiderifier {
       )
     }
   }
-  
+
   public toggleSpiders(map: mapboxgl.Map, e: ClickEvent | PointerEvent) {
     const features = map.queryRenderedFeatures(e.point, {
       layers: ['clusters']
@@ -436,6 +436,7 @@ export class Spiderifier {
               this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
             if (alreadyOpen) {
               this.clearSpiders(map)
+              
             } else {
               this.spiderifiedCluster = {
                 id: clusterId,
@@ -449,30 +450,35 @@ export class Spiderifier {
     }
   }
 
-  public spiderifyClusterIfNotOpen(map: mapboxgl.Map, clusterId: number, coord:[number,number]) {
-    const alreadyOpen =
-      this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
+  public spiderifyClusterIfNotOpen(map: mapboxgl.Map, clusterId: number, coord: [number, number]) {
+    const alreadyOpen = this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
     if (alreadyOpen) {
       this.clearSpiders(map)
+      
     } else {
       this.spiderifiedCluster = {
         id: clusterId,
-        coordinates:coord
+        coordinates: coord
       }
       this.spiderifyCluster(map, this.spiderifiedCluster)
     }
   }
-  public attachOnLoadListeners(map: mapboxgl.Map, clustersLayerName: string = 'clusters') {
-    map
-      // Click on cluster
-      .on('click', clustersLayerName, (e) => this.toggleSpiders(map, e))
-      // Click on map
-      .on('click', (e) => {
-        this.clearSpiders(map)
-      })
-      // zoom start
-      .on('zoomstart', () => {
-        this.clearSpiders(map)
-      })
-  }
+
+  // This function does seem to be doing nothing???
+  // public attachOnLoadListeners(map: mapboxgl.Map, clustersLayerName: string = 'clusters') {
+  //   map
+  //     // Click on cluster
+  //     .on('click', clustersLayerName, (e) => {
+  //       this.toggleSpiders(map, e)
+        
+  //     })
+  //     // Click on map
+  //     .on('click', (e) => {
+  //       this.clearSpiders(map)
+  //     })
+  //     // zoom start
+  //     .on('zoomstart', () => {
+  //       this.clearSpiders(map)
+  //     })
+  // }
 }
