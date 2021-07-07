@@ -376,13 +376,16 @@ export function MapLayout(props) {
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
+    const map = mapViewRef.current?.getMap()
     if (clickedPoint) {
       if (polyToMap) {
-        drawPolyToMap(mapViewRef, polyToMap?.feature, EmergencyColorMap['Communication'], viewport, setViewport)
+        drawPolyToMap(map, polyToMap?.feature.properties.centroid,
+          JSON.parse(polyToMap?.feature?.geometry),{},
+          EmergencyColorMap['Communication'])
       }
     } else {
       setPolyToMap(undefined)
-      removePolyToMap(mapViewRef)
+      removePolyToMap(map)
     }
   }, [polyToMap, clickedPoint])
 
@@ -390,7 +393,7 @@ export function MapLayout(props) {
     <>
       <MapHeadDrawer
         mapRef={mapViewRef}
-        filterApplyHandler={() => {}} //props.filterApplyHandler
+        filterApplyHandler={() => { }} //props.filterApplyHandler
         mapViewport={viewport}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}

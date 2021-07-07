@@ -5,9 +5,6 @@ export const EVENTS_LAYER_ID = 'events'
 export const CLUSTER_LAYER_ID = 'clusters'
 export const SOURCE_ID = 'events-source'
 
-export const POLYGON_SOURCE_ID = 'polygon-source'
-export const POLYGON_LAYER_ID = 'polygon-layer'
-export const POLYGON_STROKE_ID = 'polygon-stroke'
 
 
 type HazardType =

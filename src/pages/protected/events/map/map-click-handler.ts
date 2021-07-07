@@ -1,5 +1,7 @@
-import { clearEventMap, getZoomFromArea, parseEvent } from "../../common/map/map-common"
-import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, getColorForHazard, POLYGON_LAYER_ID, POLYGON_SOURCE_ID, POLYGON_STROKE_ID, SOURCE_ID } from "./map-init"
+import { clearEventMap, drawPolyToMap, getZoomFromArea, parseEvent } from "../../common/map/map-common"
+import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, getColorForHazard, SOURCE_ID } from "./map-init"
+import { POLYGON_LAYER_ID, POLYGON_SOURCE_ID, POLYGON_STROKE_ID } from '../../common/map/map-common';
+
 
 export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, mapViewport, spiderifierRef) => {
     // handle only left click
@@ -18,67 +20,13 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
             const feature = (features[0] as unknown) as GeoJSON.Feature<GeoJSON.Point>
             const properties = feature.properties
             const centroid = JSON.parse(properties?.center)
-            //Add source and layer for polygon
             const coordinates = JSON.parse(properties?.polygon)
-            const source_data = {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": {
-                            "type": "MultiPolygon",
-                            "coordinates": coordinates
-                        },
-                        "properties": {
-                            "hazard": properties?.hazard
-                        }
-                    }
-                ]
-            } as unknown as GeoJSON.FeatureCollection
-            let s = map.getSource(POLYGON_SOURCE_ID) as mapboxgl.GeoJSONSource
-            if (s === undefined) {
-                map.addSource(POLYGON_SOURCE_ID, {
-                    type: 'geojson',
-                    data: source_data
-                });
-            }
-            else {
-                s.setData(source_data)
-            }
-            if (map.getLayer(POLYGON_LAYER_ID) === undefined) {
-                map.addLayer({
-                    id: POLYGON_LAYER_ID,
-                    type: 'fill',
-                    source: POLYGON_SOURCE_ID,
-                    layout: {},
-                    paint: {
-                        'fill-color': getColorForHazard, // blue color fill
-                        'fill-opacity': 0.5
-                    }
-                });
-            }
-            if (map.getLayer(POLYGON_STROKE_ID) === undefined) {
-                map.addLayer({
-                    id: POLYGON_STROKE_ID,
-                    type: 'line',
-                    source: POLYGON_SOURCE_ID,
-                    layout: {},
-                    paint: {
-                        'line-color': getColorForHazard, // blue color fill
-                        'line-width': 2
-                    }
-                });
-            }
-            map?.flyTo(
-                {
-                    center: centroid,
-                    zoom: getZoomFromArea(properties?.total_area)
-                    // zoom: getZoomFromArea(getPolygonArea(coordinates[0]))
-                },
-                {
-                    how: 'fly',
-                }
-            )
+            drawPolyToMap(map, { longitude: centroid[0], latitude: centroid[1] }, {
+                "type": "MultiPolygon",
+                "coordinates": coordinates
+            } as GeoJSON.MultiPolygon, {
+                "hazard": properties?.hazard
+            }, getColorForHazard as mapboxgl.Expression)
             const newLeftClickState = { showPoint: true, clickedPoint: { long: centroid[0], lat: centroid[1] }, pointFeatures: parseEvent(properties) }
             setLeftClickState(newLeftClickState)
         }
@@ -90,13 +38,13 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
             setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...leftClickState.pointFeatures } })
         }
         else {
-            clearEventMap(map,setLeftClickState,leftClickState)
+            clearEventMap(map, setLeftClickState, leftClickState)
         }
     }
     else {
         // Clear feature
         if (map) {
-            clearEventMap(map,setLeftClickState,leftClickState)
+            clearEventMap(map, setLeftClickState, leftClickState)
         }
     }
 }
