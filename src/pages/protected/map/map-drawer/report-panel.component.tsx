@@ -156,7 +156,7 @@ export default function ReportPanel(props) {
             }
           >
             {Object.keys(selHazard).map((key) => (
-              <MenuItem key={key} value={key}>
+              <MenuItem key={"report-select-"+key} value={key}>
                 <Checkbox checked={selHazard[key]} />
                 <ListItemText primary={t('maps:' + HazardType[key].toLowerCase())} />
                 {/* {t('maps:' + HazardType[key].toLowerCase())} */}
@@ -207,7 +207,7 @@ export default function ReportPanel(props) {
             >
               {repsData.data.map((elem, i) => {
                 return (
-                  <Card key={elem.id} className={classes.card}>
+                  <Card key={"report"+elem.id} className={classes.card}>
                     <CardMedia
                       className={classes.cover}
                       image={

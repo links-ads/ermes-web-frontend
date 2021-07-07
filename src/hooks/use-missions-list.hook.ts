@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo, useState } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect } from 'react'
 import { MissionsApiFactory, MissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
@@ -42,10 +42,11 @@ export default function useMissionsList() {
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [filters, setFilters] = useState([])
+  const [textQuery, setSearchQuery] = useState<string|undefined>(undefined)
 
   const fetchMissions = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+        console.log('MISSION FUNCTION CALLING')
         missionsApiFactory.missionsGetMissions(
           undefined,
           undefined,
@@ -57,7 +58,7 @@ export default function useMissionsList() {
           MAX_RESULT_COUNT,
           tot,
           undefined,
-          undefined,
+          textQuery,
           undefined,
           undefined
         )
@@ -76,11 +77,23 @@ export default function useMissionsList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [missionsApiFactory, displayErrorSnackbar, filters]
+    [missionsApiFactory, displayErrorSnackbar, textQuery]
   )
-  const applyFilterReloadData = (newFilters) => {
-    // dispatch(initialState)
-    setFilters(newFilters)
+  const applySearchQueryReloadData = (searchQuery:string) => {
+    dispatch(initialState)
+    setSearchQuery(searchQuery)
   }
-  return [dataState, fetchMissions, applyFilterReloadData]
+  useEffect(() => {
+    fetchMissions(
+      0,
+      (data) => {
+        return data
+      },
+      {},
+      (data) => {
+        return data
+      }
+    )
+  }, [textQuery])
+  return [dataState, fetchMissions, applySearchQueryReloadData]
 }

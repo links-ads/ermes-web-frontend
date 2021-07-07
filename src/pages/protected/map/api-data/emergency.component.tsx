@@ -35,6 +35,7 @@ import { useTranslation } from 'react-i18next'
 import { Avatar } from '@material-ui/core'
 import useCategoriesList from '../../../../hooks/use-categories-list.hook'
 import useCommById from '../../../../hooks/use-comm-by-id.hook'
+import useMissionsById from '../../../../hooks/use-missions-by-id.hooks'
 import Box from '@material-ui/core/Box'
 
 const useStyles = makeStyles({
@@ -157,6 +158,46 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
   )
 }
 
+const missCard = (data, classes, t, formatter, latitude, longitude) => {
+  console.log('MISS CARD BY ID', data)
+  if (!data.isLoading) {
+    return (
+      <>
+        <Card elevation={0}>
+          <CardContent style={{ paddingTop: '0px' }}>
+            <div style={{ marginBottom: 10 }}>
+              <Typography component={'span'} variant="h5">
+                {data.data?.feature?.properties?.title}
+              </Typography>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <Typography component={'span'} variant="body1">
+                {data.data?.feature?.properties?.description}
+              </Typography>
+            </div>
+          </CardContent>
+
+          <CardActions className={classes.cardAction}>
+            <Typography color="textSecondary">
+              {formatter.format(
+                new Date(data.data?.feature?.properties?.duration?.lowerBound as string)
+              )}
+            </Typography>
+
+            <Typography color="textSecondary">
+              {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+            </Typography>
+          </CardActions>
+        </Card>
+      </>
+    )
+  }
+  return (
+    <div>
+      <CircularProgress />
+    </div>
+  )
+}
 const commCard = (data, classes, t, formatter, latitude, longitude) => {
   if (!data.isLoading) {
     return (
@@ -455,6 +496,7 @@ export function EmergencyContent({
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
+  const [missDetails, fetchMissDetails] = useMissionsById()
 
   const dateOptions = {
     dateStyle: 'short',
@@ -465,6 +507,18 @@ export function EmergencyContent({
 
   useEffect(() => {
     switch (type) {
+      case 'Mission':
+        fetchMissDetails(
+          rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
       case 'Communication':
         fetchCommDetails(
           rest.id,
@@ -531,6 +585,9 @@ export function EmergencyContent({
       todisplay = commCard(commDetails, classes, t, formatter, latitude, longitude)
       break
     }
+    case 'Mission':
+      todisplay = missCard(missDetails, classes, t, formatter, latitude, longitude)
+      break
     default: {
       todisplay = <div>Work in progress...</div>
       break

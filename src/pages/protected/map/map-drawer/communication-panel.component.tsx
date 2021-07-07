@@ -159,7 +159,7 @@ export default function CommunicationPanel(props) {
             >
               {commsData.data.map((elem, i) => {
                 return (
-                  <Card key={elem.id} className={classes.card}>
+                  <Card key={"communication"+elem.id} className={classes.card}>
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.message}

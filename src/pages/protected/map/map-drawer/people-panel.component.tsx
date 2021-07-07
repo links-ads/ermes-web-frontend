@@ -155,7 +155,7 @@ export default function PeoplePanel(props) {
             }
           >
             {usersData.map((e) => (
-              <MenuItem key={e?.user?.id} value={e?.user!.username!}>
+              <MenuItem key={"people-select-"+e?.user?.id} value={e?.user!.username!}>
                 <Checkbox checked={selUsers[e?.user!.username!]} />
                 <ListItemText primary={e?.user?.username} />
               </MenuItem>
@@ -205,7 +205,7 @@ export default function PeoplePanel(props) {
             >
               {peopData.data.map((elem, i) => {
                 return (
-                  <Card key={elem.id} className={classes.card}>
+                  <Card key={"people-"+elem.id} className={classes.card}>
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>
                         <div className={classes.headerBlock}>

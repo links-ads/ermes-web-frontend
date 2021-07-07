@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll'
   },
   card: {
-    marginBottom: 15,
+    marginBottom: 15
     // display: 'flex'
   },
   cardAction: {
@@ -66,12 +66,12 @@ export default function CommunicationPanel(props) {
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
-  
+
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
 
-  const searchInComm = () => {
+  const searchInMiss = () => {
     if (searchText !== undefined) {
       applyFilterByText(searchText)
     }
@@ -105,6 +105,9 @@ export default function CommunicationPanel(props) {
   // useEffect(() => {
   //   setEndDate(props.selectedEndDate)
   // }, [props.selectedEndDate, setEndDate])
+  useEffect(() => {
+    console.log('MISSION DATA', missionsData)
+  }, [missionsData])
 
   return (
     <div className="container">
@@ -121,7 +124,7 @@ export default function CommunicationPanel(props) {
           <IconButton
             aria-label="search"
             color="inherit"
-            onClick={searchInComm}
+            onClick={searchInMiss}
             className={classes.searchButton}
           >
             <SearchIcon />
@@ -131,8 +134,7 @@ export default function CommunicationPanel(props) {
         )}
       </span>
       {!missionsData.isLoading ? (
-        <div className={classes.container} id="scrollableElem"
-        style={{ height: height - 270 }}>
+        <div className={classes.container} id="scrollableElem" style={{ height: height - 270 }}>
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -160,7 +162,7 @@ export default function CommunicationPanel(props) {
             >
               {missionsData.data.map((elem, i) => {
                 return (
-                  <Card key={elem.id} className={classes.card}>
+                  <Card key={"missions-"+elem.id} className={classes.card}>
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.title}
