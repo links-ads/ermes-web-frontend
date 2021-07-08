@@ -11,6 +11,7 @@ const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHKLMNOPQRSTUVXYZ
 
 export const LayoutCols = { xs: 1, sm: 2, md: 2, lg: 4, xl: 4 }
 export const LayoutDefaultHeights = { xs: 2, sm: 2, md: 2, lg: 2, xl: 3 }
+export const LayoutDefaultWidths = { xs: 1, sm: 1, md: 1, lg: 2, xl: 2 }
 
 export const MAX_W_SLOTS = 2 // determines how much a widget can expand in width
 export const MAX_H_SLOTS = 3 // determines how much a widget can expand in height
@@ -22,12 +23,13 @@ export const EmptyLayouts: ReactGridLayout.Layouts = {
   lg: [],
   xl: []
 } // Todo define real-names, e.g. user-states-charts, ...
-export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart'
+export type WidgetType = 'empty' | 'test' | 'piechart' | 'barchart' | 'table' | 'line'
 export type AppLayoutSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 export interface IDashboardWidgetLayoutConfig {
   wid: string
   type: WidgetType
   title?: string
+  data: string
   description?: string
 }
 
@@ -37,37 +39,76 @@ const wtypes: WidgetType[] = ['empty', 'test', 'piechart', 'barchart']
  * Generate a random config of empty widgets
  * @param max
  */
-export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutConfig[] {
-  return [...Array(max).keys()].map((n) => {
-    const type = wtypes[intInRange(wtypes.length - 1)]
-    let title: string
-    let description: string
-    switch (type) {
-      case 'piechart':
-        title = `Pie Chart ${n + 1}`
-        description = 'A pie chart'
-        break
-      case 'test':
-        title = `Test ${n + 1}`
-        description = 'A test widget'
-        break
-      case 'barchart':
-        title = `Bar Chart ${n + 1}`
-        description = 'A bar chart'
-      break
-      case 'empty':
-      default:
-        title = `Empty ${n + 1}`
-        description = 'An empty widget'
-        break
-    }
-    return {
-      wid: nanoid(),
-      type,
-      title,
-      description
-    }
-  })
+// export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutConfig[] {
+//   return [...Array(max).keys()].map((n) => {
+//     const type = wtypes[intInRange(wtypes.length - 1)]
+//     let title: string
+//     let description: string
+//     switch (type) {
+//       case 'piechart':
+//         title = `Pie Chart ${n + 1}`
+//         description = 'A pie chart'
+//         break
+//       case 'test':
+//         title = `Test ${n + 1}`
+//         description = 'A test widget'
+//         break
+//       case 'barchart':
+//         title = `Bar Chart ${n + 1}`
+//         description = 'A bar chart'
+//       break
+//       case 'empty':
+//       default:
+//         title = `Empty ${n + 1}`
+//         description = 'An empty widget'
+//         break
+//     }
+//     return {
+//       wid: nanoid(),
+//       type,
+//       title,
+//       description
+//     }
+//   })
+// }
+
+export function getInitialConfig(): IDashboardWidgetLayoutConfig[] {
+  return [{
+    wid: nanoid(),
+    type: 'piechart',
+    title: 'reportsByHazard',
+    data: 'reportsByHazard',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type: 'piechart',
+    title: 'missionsByStatus',
+    data: 'missionsByStatus',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type: 'piechart',
+    title: 'personsByStatus',
+    data: 'personsByStatus',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type: 'table',
+    title: 'persons',
+    data: 'persons',
+    description: ''
+  },
+  {
+    wid: nanoid(),
+    type: 'line',
+    title: 'activationsByDay',
+    data: 'activationsByDay',
+    description: ''
+  }
+  ]
 }
 
 /**
@@ -75,20 +116,20 @@ export function getRandomInitialConfig(max: number = 3): IDashboardWidgetLayoutC
  * @param config
  * @param widgets
  */
-export function addDashboardWidget(
-  config: Partial<IDashboardWidgetLayoutConfig>,
-  widgets: IDashboardWidgetLayoutConfig[]
-): IDashboardWidgetLayoutConfig[] {
-  const nextConfig: IDashboardWidgetLayoutConfig = {
-    wid: nanoid(),
-    type: 'empty',
-    title: `Empty ${widgets.length + 1}`,
-    description: 'An empty widget',
-    // default will be empty if config not provided
-    ...config
-  }
-  return [...widgets, nextConfig]
-}
+// export function addDashboardWidget(
+//   config: Partial<IDashboardWidgetLayoutConfig>,
+//   widgets: IDashboardWidgetLayoutConfig[]
+// ): IDashboardWidgetLayoutConfig[] {
+//   const nextConfig: IDashboardWidgetLayoutConfig = {
+//     wid: nanoid(),
+//     type: 'empty',
+//     title: `Empty ${widgets.length + 1}`,
+//     description: 'An empty widget',
+//     // default will be empty if config not provided
+//     ...config
+//   }
+//   return [...widgets, nextConfig]
+// }
 
 /**
  * Remove a widget from the config
@@ -111,25 +152,27 @@ export function removeDashboardWidget(
 
 function computeLayoutIdAndPreviousLayoutSize(
   id: string,
-  cols: number,
-  h: number = 1,
+  cols: number, // number of columns in current layout
+  defaultHeight: number = 1,
+  defaultWidth:number = 1,
   // lastLayoutItem: ReactGridLayout.Layout | null,
-  lastLayoutSize: number
+  lastLayoutSize: number // number of elements actually in layout
 ): ReactGridLayout.Layout {
-  const y_pos = Math.floor(lastLayoutSize / cols) //WARN works with w = 1
-  const x_pos = lastLayoutSize % cols
+  const y_pos = Math.floor((lastLayoutSize*defaultWidth) / cols) //WARN works with w = 1
+  const x_pos = (lastLayoutSize*defaultWidth) % cols
   return {
     i: id,
     x: x_pos,
     y: y_pos,
     // TODO get size and constraints from cfg, but taking into account above
     // size
-    w: 1,
-    h,
+    w: defaultWidth,
+    h:defaultHeight,
     // constraints
     minH: 1,
     minW: 1,
-    maxW: Math.max(Math.floor(cols / MAX_W_SLOTS), 1),
+    // maxW: Math.max(Math.floor(cols / MAX_W_SLOTS), 1),
+    maxW: cols,
     maxH: MAX_H_SLOTS
   }
 }
@@ -144,6 +187,7 @@ function computeLayoutByItemIds(
   const sizeDiff = configsSize - oldLayoutSize
   const cols = LayoutCols[bpKey]
   const defaultHeight = LayoutDefaultHeights[bpKey]
+  const defaultWidth = LayoutDefaultWidths[bpKey]
   let layout: ReactGridLayout.Layout[] = [...oldLayout]
   let existingWids: string[] = []
   if (sizeDiff > 0) {
@@ -152,7 +196,7 @@ function computeLayoutByItemIds(
     const newLayoutItems = configs
       .filter((cfg) => !existingWids.includes(cfg.wid))
       .map((cfg, i) =>
-        computeLayoutIdAndPreviousLayoutSize(cfg.wid, cols, defaultHeight, oldLayoutSize + i)
+        computeLayoutIdAndPreviousLayoutSize(cfg.wid, cols, defaultHeight,defaultWidth, oldLayoutSize + i)
       )
     layout = [...layout, ...newLayoutItems]
   } else if (sizeDiff < 0) {

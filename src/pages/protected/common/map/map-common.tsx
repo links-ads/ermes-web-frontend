@@ -188,51 +188,42 @@ export const getMapBounds = (mapRef) => {
     northEast: clipBounds(bounds[1]) as [number, number]
   }
 }
-export const queryHoveredFeature = (
-  map,
-  coord,
-  layers,
-  pointLayer,
-  clusterLayer,
-  elementId,
-  sourceId
-) => {
-  const point = map.project(coord)
-  const bboxSize = getBboxSizeFromZoom(map.getZoom())
-  var bbox = [
-    [point.x - bboxSize / 2, point.y - bboxSize / 2],
-    [point.x + bboxSize / 2, point.y + bboxSize / 2]
-  ]
-  var features = map.queryRenderedFeatures(bbox, { layers: layers })
-  if (features.length > 0) {
-    // filter features that match the id of the tweet
-    const clusterFeatures = features.filter((point) => point.layer.id === clusterLayer)
-    const pointFeatures = features.filter(
-      (point) => point.layer.id === pointLayer && point.properties['id'] === elementId
-    )
-    const leavesFeatures = features.filter(
-      (point) => point.layer.id.includes('spider-leaves') && point.properties['id'] === elementId
-    )
-    if (leavesFeatures.length > 0) {
-      const feature = leavesFeatures[0]
-      return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
-    } else if (pointFeatures.length > 0) {
-      const feature = pointFeatures[0]
-      return { type: 'point', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
-    } else if (clusterFeatures.length === 1) {
-      const feature = clusterFeatures[0]
-      return { type: 'cluster', id: feature.id }
-    } else {
-      var minDist = Number.POSITIVE_INFINITY
-      var id = -1
-      for (let i = 0; i < clusterFeatures.length; i++) {
-        var currentDist = distance(coord, clusterFeatures[i].geometry.coordinates)
-        if (currentDist < minDist) {
-          minDist = currentDist
-          id = clusterFeatures[i].id
+export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer, elementId, sourceId):{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string} => {
+    const point = map.project(coord)
+    const bboxSize = getBboxSizeFromZoom(map.getZoom())
+    var bbox = [
+        [point.x - bboxSize / 2, point.y - bboxSize / 2],
+        [point.x + bboxSize / 2, point.y + bboxSize / 2]
+    ]
+    var features = map.queryRenderedFeatures(bbox, { layers: layers })
+    if (features.length > 0) {
+        // filter features that match the id of the tweet
+        const clusterFeatures = features.filter(point => point.layer.id === clusterLayer)
+        const pointFeatures = features.filter(point => (point.layer.id === pointLayer) && (point.properties['id'] === elementId))
+        const leavesFeatures = features.filter(point => (point.layer.id.includes('spider-leaves') && (point.properties['id'] === elementId)))
+        if (leavesFeatures.length > 0) {
+            const feature = leavesFeatures[0]
+            return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'],source:feature.source }
         }
-      }
-      return { type: 'cluster', id: id }
+        else if (pointFeatures.length > 0) {
+            const feature = pointFeatures[0]
+            return { type: 'point', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
+        }
+        else if (clusterFeatures.length === 1) {
+            const feature = clusterFeatures[0]
+            return { type: 'cluster', id: feature.id }
+        }
+        else {
+            var minDist = Number.POSITIVE_INFINITY
+            var id = -1
+            for (let i = 0; i < clusterFeatures.length; i++) {
+                var currentDist = distance(coord, clusterFeatures[i].geometry.coordinates)
+                if (currentDist < minDist) {
+                    minDist = currentDist
+                    id = clusterFeatures[i].id
+                }
+            }
+            return { type: 'cluster', id: id }
     }
   } else {
     return {

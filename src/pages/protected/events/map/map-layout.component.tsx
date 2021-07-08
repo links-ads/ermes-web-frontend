@@ -2,13 +2,11 @@ import React, { useRef, useState, useEffect, useCallback, useContext, useMemo } 
 
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 
-import { useTranslation } from 'react-i18next'
 import { Card, CircularProgress, Grid, Slide } from '@material-ui/core';
 import InteractiveMap, { Layer, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../common/map/map-common';
 import debounce from 'lodash.debounce';
-import { Spiderifier } from '../../../../utils/map-spiderifier.utils';
 import MapSlide from '../../common/map/map-popup-card';
 import EventContent from '../card/event-card-content';
 import { mapClickHandler } from './map-click-handler';
@@ -32,8 +30,6 @@ const EventMap = (props) => {
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
-    const spiderifierRef = useRef<Spiderifier | null>(null)
-    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
@@ -96,22 +92,23 @@ const EventMap = (props) => {
                 transformRequest={transformRequest}
                 onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
                 ref={props.mapRef}
-                interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...spiderLayerIds]}
-                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, spiderifierRef)}
+                interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
+                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, props.spiderifierRef)}
                 onLoad={() => {
                     if (props.mapRef.current) {
                         try {
                             let map = props.mapRef?.current?.getMap()
                             mapOnLoadHandler(
                                 map,
-                                spiderifierRef,
-                                setSpiderLayerIds,
+                                props.spiderifierRef,
+                                props.setSpiderLayerIds,
                                 setMapViewport,
                                 SOURCE_ID,
                                 EVENTS_LAYER_ID,
                                 unclusteredPointsProps,
+                                EVENTS_LAYER_PROPS.type,
                                 updateMarkersDebounced,
-                                false)
+                                unclusteredPointsProps)
                             // update map markers as soon as source data is loaded
                             map.on('data', (e) => {
                                 if (e.source?.type === 'geojson' && e.isSourceLoaded) {
@@ -156,7 +153,7 @@ const EventMap = (props) => {
             </InteractiveMap>
             {
                 (props.mapRef.current?.getMap()) &&
-                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>)
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={props.spiderifierRef} direction="right"></MapStyleToggle>)
             }
         </div >
     );

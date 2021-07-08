@@ -29,14 +29,45 @@ export const INFORMATIVE_ICONS = {
   not_informative: '🔴'
 }
 
+export const getSocialCardStyle = (theme) => {
+  return {
+    root: {
+      width: '100%',
+      marginBottom: '16px',
+      textOverflow: "ellipsis",
+      overflow: "hidden",
+      display: 'inline-block',
+      padding: 6,
+      "&:hover": {
+        boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
+        cursor: 'pointer'
+      }
+    },
+    expand: {
+      transform: 'rotate(0deg)',
+      marginLeft: 'auto',
+      transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+      }),
+    },
+    expandOpen: {
+      transform: 'rotate(180deg)',
+    },
+    content: {
+      margin: '5px',
+      padding: 5
+    },
+    action: {
+      margin: '0px 5px',
+      padding: 0
+    }
+  }
+}
+
 export const getSocialDashboardStyle = (theme) => {
   return {
     tweetsStatContainer: {
       margin: '8px'
-    },
-    filterContainer: {
-      margin: '8px',
-      backgroundColor: theme['palette']['primary']['main']
     },
     infoContainer: {
       marginBottom: '16px'
@@ -54,6 +85,38 @@ export const getSocialDashboardStyle = (theme) => {
   }
 }
 
+export const getFiltersStyle = (theme) => {
+  return {
+    filterSection: {
+      padding: '16px 8px',
+      marginLeft: '8px',
+      minWidth: 180,
+      width: '15vw'
+    },
+    filterContainer: {
+      padding: '8px',
+      backgroundColor: theme['palette']['primary']['main']
+    },
+    applyButton: {
+      color: theme['palette']['text']['primary'],
+      backgroundColor: theme['palette']['background']['paper'],
+      margin: '8px'
+    },
+    resetButton: {
+      color: theme['palette']['text']['primary'],
+      backgroundColor: theme['palette']['grey']['600'],
+      margin: '8px'
+    },
+    selectOption: {
+      width: '100%',
+      minWidth: 180,
+      // maxWidth:180
+
+    }
+
+  }
+}
+
 export const showMoreSocialData = (shownData, annotationData, pageSize, setShownData) => {
   const newData = shownData.data.concat([...annotationData].slice(shownData.size, shownData.size + pageSize))
   const newSize = newData.length
@@ -61,9 +124,10 @@ export const showMoreSocialData = (shownData, annotationData, pageSize, setShown
 }
 
 export const getDefaultFilterArgs = (mapConfig) => {
+  const currentDate = new Date()
   return {
-    startDate: new Date(new Date().valueOf() - _MS_PER_DAY),
-    endDate: new Date(),
+    startDate: new Date(currentDate.valueOf() - _MS_PER_DAY),
+    endDate: currentDate,
     languageSelect: [],
     hazardSelect: [],
     infoTypeSelect: [],

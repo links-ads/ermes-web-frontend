@@ -10,7 +10,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { useTranslation } from 'react-i18next'
 
-import { VolumeCard, InformativeCard, LanguageCard, SocialPieChart, parseStats } from '../common/stats-cards.components'
+import { VolumeCard, InformativeCard, LanguageCard, PieChartStats,parseStats } from '../common/stats-cards.components'
 import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
@@ -44,7 +44,6 @@ const SocialComponent = (props) => {
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
-    // const [mapHoverState,setMapHoverState] = useState({type:'point',id:'null'})
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()
     const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
@@ -74,7 +73,7 @@ const SocialComponent = (props) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid className={classes.filterContainer} item lg='auto' sm='auto' xl='auto'>
+            <Grid style={{margin:8}} item lg='auto' sm='auto' xl='auto'>
                 <SocialFilter
                     onFilterApply={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
                     hazardNames={filtersState.hazardNames}
@@ -114,7 +113,6 @@ const SocialComponent = (props) => {
                                     setMapLeftClickState={setMapLeftClickState}
                                     spiderifierRef={spiderifierRef}
                                     spiderLayerIds={spiderLayerIds}
-                                // setMapHoverState={setMapHoverState}
                                 />
                             )}
                         />
@@ -156,7 +154,6 @@ const SocialComponent = (props) => {
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}
                             setSpiderLayerIds={setSpiderLayerIds}
-                        // mapHoverState={mapHoverState}
                         />
                     </Grid>
                 </Grid>
@@ -175,8 +172,8 @@ const SocialComponent = (props) => {
                                     (tweetsStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /> </Grid>) :
                                         (Object.entries(hazardCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='hazard'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={hazardCount} />
                                             </div>)
                             }
@@ -192,8 +189,8 @@ const SocialComponent = (props) => {
                                     (tweetsStats.isLoading) ? <Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /></Grid> :
                                         (Object.entries(infoCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='information'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={infoCount} />
                                             </div>)
                             }

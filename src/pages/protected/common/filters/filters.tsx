@@ -1,10 +1,10 @@
-import React, { useReducer, useState, useMemo} from 'react';
+import React, { useReducer, useMemo,useEffect } from 'react';
 import DateFnsUtils from '@date-io/date-fns';
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers';
 import Grid from '@material-ui/core/Grid';
 import FormControl from '@material-ui/core/FormControl';
 
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton, InputAdornment, Typography } from "@material-ui/core";
+import { IconButton, InputAdornment, Typography } from "@material-ui/core";
 import EventIcon from '@material-ui/icons/Event';
 
 import Select from '@material-ui/core/Select';
@@ -26,59 +26,37 @@ import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import filterReducer from './reducer';
-import { _MS_PER_DAY } from '../utils/utils.common';
+import { getFiltersStyle, _MS_PER_DAY } from '../utils/utils.common';
+import useLanguage from '../../../../hooks/use-language.hook';
 
 
 const SocialFilter = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
-            filterSection: {
-                padding: '16px 8px',
-                marginLeft: '8px',
-                minWidth: 180,
-                width: '15vw'
-            },
-            applyButton: {
-                color: theme['palette']['text']['primary'],
-                backgroundColor: theme['palette']['background']['paper'],
-                margin: '8px'
-            },
-            resetButton: {
-                color: theme['palette']['text']['primary'],
-                backgroundColor: theme['palette']['grey']['600'],
-                margin: '8px'
-            },
-            selectOption: {
-                width: '100%',
-                minWidth: 180,
-                // maxWidth:180
-
-            }
-
-        }));
+        createStyles(getFiltersStyle(theme)));
 
     const classes = useStyles();
 
 
-    const { t } = useTranslation(['social'])
-    const langKeys = useMemo(()=>Object.values(SocialModuleLanguageType),[])
+    const { t } = useTranslation(['social', 'labels'])
+    const langKeys = useMemo(() => Object.values(SocialModuleLanguageType), [])
     const informativeValues = ["true", "false"]
 
-    const [dialogOpen, setDialogOpen] = useState(false)
+    const [filters, dispatch] = useReducer(filterReducer, props.filters)
 
-    const [filters, dispatch] = useReducer(filterReducer,props.filters)
+    const {dateFormat} = useLanguage()
 
     const resetFilters = () => {
         dispatch({ type: 'RESET' })
     }
 
+    useEffect(()=>{
+        forceFiltersDateRange(filters.startDate.getTime(),filters.endDate.getTime(),_MS_PER_DAY*4,(newDate)=>dispatch({ type: 'END_DATE', value: new Date(newDate)}))
+    },[filters.startDate])
+
     const applyFilters = () => {
-        if (Math.abs(filters.endDate.getTime() - filters.startDate.getTime()) > _MS_PER_DAY * 4) {
-            setDialogOpen(true)
-            return
-        }
-        let hazardIds = filters.hazardSelect.map(item => props.mapHazardsToIds[item])
-        let infoIds = filters.infoTypeSelect.map(item => props.mapInfosToIds[item])
+
+        let hazardIds = filters.hazardSelect?.map(item => props.mapHazardsToIds[item])
+        let infoIds = filters.infoTypeSelect?.map(item => props.mapInfosToIds[item])
         let informative = filters.informativeSelect === '' ? undefined : filters.informativeSelect === 'true'
         let args = {
             languageSelect: filters.languageSelect, informativeSelect: informative, startDate: filters.startDate.toISOString(),
@@ -119,23 +97,7 @@ const SocialFilter = (props) => {
     }
 
     return (
-        <Grid container direction={'row'} justify="space-evenly" alignItems="flex-start" >
-            <Dialog
-                open={dialogOpen}
-                onClose={() => setDialogOpen(false)}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{t("social:error")}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {t("social:time_span_error")}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setDialogOpen(false)} color="primary">Ok</Button>
-                </DialogActions>
-            </Dialog>
+        <Grid container direction={'row'} justify="space-evenly" alignItems="flex-start" className={classes.filterContainer}>
             <Grid style={{ display: 'flex', flex: 1.5 }} container className={classes.filterSection} direction={'column'}
                 justify="space-around" >
                 <Grid item >
@@ -143,9 +105,8 @@ const SocialFilter = (props) => {
                         <DateTimePicker
                             disableToolbar={false}
                             disableFuture={true}
-                            invalidDateMessage={t("social:invalid_date_message")}
                             variant="inline"
-                            format="MM/dd/yyyy - HH:mm"
+                            format={dateFormat}
                             id="starting-date"
                             label={t("social:starting_date")}
                             value={filters.startDate}
@@ -170,14 +131,12 @@ const SocialFilter = (props) => {
                             disableToolbar={false}
                             disableFuture={true}
                             variant="inline"
-                            invalidDateMessage={t("social:invalid_date_message")}
-                            format="MM/dd/yyyy - HH:mm"
+                            format={dateFormat}
                             id="end-date"
                             label={t("social:end_date")}
                             value={filters.endDate}
                             minDate={new Date(filters.startDate)}
                             maxDate={new Date(new Date(filters.startDate).valueOf() + _MS_PER_DAY * 4)}
-                            maxDateMessage={t("social:time_span_error")}
                             autoOk={true}
                             onChange={(date) => dispatch({ type: 'END_DATE', value: date })}
                             ampm={false}
@@ -225,9 +184,9 @@ const SocialFilter = (props) => {
                         value={filters.hazardSelect}
                         onChange={(event, value) => selectionChangeHandler(event, props.hazardNames, 'HAZARDS')}
                         input={<Input />}
-                        renderValue={(selected) => renderValues(selected, "social:hazard_")}
+                        renderValue={(selected) => renderValues(selected, "labels:")}
                     >
-                        {renderOptions(props.hazardNames, filters.hazardSelect, "social:hazard_")}
+                        {renderOptions(props.hazardNames, filters.hazardSelect, "labels:")}
                     </Select>
                 </FormControl>
             </Grid>
@@ -243,9 +202,9 @@ const SocialFilter = (props) => {
                         value={filters.infoTypeSelect}
                         onChange={(event, value) => selectionChangeHandler(event, props.infoNames, 'INFORMATIONS')}
                         input={<Input />}
-                        renderValue={(selected) => renderValues(selected, "social:information_")}
+                        renderValue={(selected) => renderValues(selected, "labels:")}
                     >
-                        {renderOptions(props.infoNames, filters.infoTypeSelect, "social:information_")}
+                        {renderOptions(props.infoNames, filters.infoTypeSelect, "labels:")}
                     </Select>
                 </FormControl>
             </Grid>
@@ -288,3 +247,9 @@ const SocialFilter = (props) => {
 
 
 export default SocialFilter;
+
+export const forceFiltersDateRange = (startDate,endDate, range, updateEndDate) => {
+    if (Math.abs(endDate - startDate) > range) {
+        updateEndDate(startDate+range)
+    }
+}

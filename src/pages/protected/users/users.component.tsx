@@ -15,7 +15,7 @@ import { AdministrationContainer, RefreshButton } from '../common/common.compone
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const options: Options = {
+const options: Options<any> = {
   sorting: true,
   pageSize: 10,
   pageSizeOptions: [10, 20, 30],
@@ -126,7 +126,6 @@ export function Users() {
             onRowAdd: async (newData: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
                 user: newData.user,
-                // TODO HANDLE
                 organizationId: newData.organization?.id || newData['organization.id']
               }
               try {
@@ -144,7 +143,6 @@ export function Users() {
             onRowUpdate: async (newData: ProfileDto, oldData?: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
                 user: newData.user,
-                // TODO HANDLE
                 organizationId: newData.organization?.id
               }
               try {

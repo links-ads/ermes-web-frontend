@@ -27,6 +27,8 @@
   "toolbar_exportTitle": "Export",
   "toolbar_exportAriaLabel": "Export",
   "toolbar_exportName": "Export as CSV",
+  "toolbar_exportCsv":"Export as CSV",
+  "toolbar_exportPdf":"Export as PDF",
   "toolbar_searchTooltip": "Search",
   "toolbar_searchPlaceholder": "Search"
 }

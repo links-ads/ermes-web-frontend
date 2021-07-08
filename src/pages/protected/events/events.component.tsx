@@ -7,7 +7,7 @@ import useSocialStat from '../../../hooks/use-social-stats.hook'
 import SocialFilter from '../common/filters/filters';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { LanguageCard, parseStats, SocialPieChart, VolumeCard } from '../common/stats-cards.components';
+import { LanguageCard, PieChartStats, VolumeCard,parseStats } from '../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
@@ -19,6 +19,7 @@ import InteractiveMap from 'react-map-gl';
 import React from 'react';
 import { AppConfig, AppConfigContext } from '../../../config';
 import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData, _MS_PER_DAY } from '../common/utils/utils.common';
+import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
 const PAGE_SIZE = 1000
 const MINI_PAGE_SIZE = 20
@@ -40,7 +41,8 @@ const EventsComponent = (props) => {
     const mapRef = useRef<InteractiveMap>(null)
     const { t } = useTranslation(['social'])
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
-
+    const spiderifierRef = useRef<Spiderifier | null>(null)
+    const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
 
     useEffect(() => {
@@ -65,7 +67,7 @@ const EventsComponent = (props) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid className={classes.filterContainer} item lg='auto' sm='auto' xl='auto'>
+            <Grid style={{margin:8}} item lg='auto' sm='auto' xl='auto'>
                 <SocialFilter
                     onFilterApply={(args)=>filterApplyHandler(args,filterArgs,setFilterArgs,mapRef)}
                     hazardNames={filtersState.hazardNames}
@@ -101,6 +103,8 @@ const EventsComponent = (props) => {
                                     leftClickState={mapLeftClickState}
                                     setLeftClickState={setMapLeftClickState}
                                     setMapHoverState={setMapHoverState}
+                                    spiderifierRef={spiderifierRef}
+                                    spiderLayerIds={spiderLayerIds}
                                 />
                             )}
                         />
@@ -142,6 +146,9 @@ const EventsComponent = (props) => {
                             isError={eventAnnotations.error}
                             filterApplyHandler={(args)=>filterApplyHandler(args,filterArgs,setFilterArgs,mapRef)}
                             mapHoverState={mapHoverState}
+                            spiderifierRef={spiderifierRef}
+                            spiderLayerIds={spiderLayerIds}
+                            setSpiderLayerIds={setSpiderLayerIds}
                         />
                     </Grid>
                 </Grid>
@@ -160,8 +167,8 @@ const EventsComponent = (props) => {
                                     (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /> </Grid>) :
                                         (Object.entries(hazardCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='hazard'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={hazardCount} />
                                             </div>)
                             }
@@ -177,8 +184,8 @@ const EventsComponent = (props) => {
                                     (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /></Grid>) :
                                         (Object.entries(infoCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                             (<div className={classes.pieContainer}>
-                                                <SocialPieChart
-                                                    prefix='information'
+                                                <PieChartStats
+                                                    prefix='labels:'
                                                     data={infoCount} />
                                             </div>)
                             }
