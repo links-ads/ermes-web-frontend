@@ -7,7 +7,7 @@ import Chip from '@material-ui/core/Chip';
 import IconButton from '@material-ui/core/IconButton';
 import TwitterIcon from '@material-ui/icons/Twitter';
 import InfoIcon from '@material-ui/icons/Info';
-import { HAZARD_SOCIAL_ICONS, INFORMATIVE_ICONS, ParsedTweet } from '../../common/utils/utils.common'
+import { HAZARD_SOCIAL_ICONS, INFORMATIVE_ICONS, ParsedTweet } from '../../../../utils/utils.common'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 

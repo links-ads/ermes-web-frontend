@@ -2,7 +2,7 @@ import { Avatar, CardContent, CardHeader, Chip, Typography } from '@material-ui/
 import React from 'react';
 
 import { useTranslation } from 'react-i18next'
-import { HAZARD_SOCIAL_ICONS } from '../../common/utils/utils.common';
+import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import useLanguage from '../../../../hooks/use-language.hook';
 

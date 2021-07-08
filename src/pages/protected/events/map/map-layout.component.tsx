@@ -5,15 +5,15 @@ import { useMapPreferences } from '../../../../state/preferences/preferences.hoo
 import { Card, CircularProgress, Grid, Slide } from '@material-ui/core';
 import InteractiveMap, { Layer, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
-import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../common/map/map-common';
+import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../../../common/map/map-common';
 import debounce from 'lodash.debounce';
-import MapSlide from '../../common/map/map-popup-card';
+import MapSlide from '../../../../common/map/map-popup-card';
 import EventContent from '../card/event-card-content';
 import { mapClickHandler } from './map-click-handler';
 import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, unclusteredPointsProps, SOURCE_PROPS, EVENTS_LAYER_PROPS, CLUSTER_LAYER_PROPS, updateHazardMarkers } from './map-init';
-import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
+import { mapOnLoadHandler } from '../../../../common/map/map-on-load-handler';
 import { AppConfig, AppConfigContext } from '../../../../config';
-import { MapHeadDrawer } from '../../common/map/map-drawer';
+import { MapHeadDrawer } from '../../../../common/map/map-drawer';
 
 const DEBOUNCE_TIME = 200 //ms
 

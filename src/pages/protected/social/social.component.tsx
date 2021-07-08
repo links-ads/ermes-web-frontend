@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
-import SocialFilter from '../common/filters/filters'
+import SocialFilter from '../../../common/filters/filters'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
@@ -10,20 +10,20 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { useTranslation } from 'react-i18next'
 
-import { VolumeCard, InformativeCard, LanguageCard, PieChartStats,parseStats } from '../common/stats-cards.components'
+import { VolumeCard, InformativeCard, LanguageCard, PieChartStats,parseStats } from '../../../common/stats-cards.components'
 import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
-import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../common/utils/utils.common';
+import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
 import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook';
 import useTweetsAnnotations from '../../../hooks/use-tweet-annotation.hook';
 
-import { FiltersType } from '../common/filters/reducer';
-import { CardsList } from '../common/cards-list.components';
+import { FiltersType } from '../../../common/filters/reducer';
+import { CardsList } from '../../../common/cards-list.components';
 
 import { TweetCard } from './card/tweet-card-component';
 import { AppConfig, AppConfigContext } from '../../../config';

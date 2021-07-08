@@ -1,5 +1,5 @@
 import React from 'react'
-import { AdministrationContainer } from '../common/common.components'
+import { AdministrationContainer } from '../../../common/common.components'
 import { LinkCard } from './link-card.component'
 import { Container } from '@material-ui/core'
 import { useTranslation } from 'react-i18next'

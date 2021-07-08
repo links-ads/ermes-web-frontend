@@ -1,4 +1,4 @@
-import { Spiderifier } from "../../../../utils/map-spiderifier.utils"
+import { Spiderifier } from "../../utils/map-spiderifier.utils"
 
 export const mapOnLoadHandler = (
     map,

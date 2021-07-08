@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core';
 import React from 'react';
-import { FiltersType } from '../filters/reducer';
-import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../map/map-common'
+import { FiltersType } from '../common/filters/reducer';
+import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
 
 export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 

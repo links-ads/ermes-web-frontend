@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
-import { AdministrationContainer, RefreshButton } from '../common/common.components'
+import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 

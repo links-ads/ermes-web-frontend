@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import Typography from '@material-ui/core/Typography'
 import MaterialTable, { Column, Options } from 'material-table'
-import { AdministrationContainer, RefreshButton } from '../common/common.components'
+import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
 import { TFunction } from 'i18next'

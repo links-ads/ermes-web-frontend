@@ -43,8 +43,8 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { MapHeadDrawer } from '../common/map/map-drawer'
-import { drawPolyToMap, removePolyToMap } from '../common/map/map-common'
+import { MapHeadDrawer } from '../../../common/map/map-drawer'
+import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {

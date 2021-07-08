@@ -9,8 +9,8 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 import clsx from 'clsx';
-import { clearEventMap, queryHoveredFeature } from '../../common/map/map-common';
-import { getSocialCardStyle, ParsedTweet } from '../../common/utils/utils.common';
+import { clearEventMap, queryHoveredFeature } from '../../../../common/map/map-common';
+import { getSocialCardStyle, ParsedTweet } from '../../../../utils/utils.common';
 import EventContent from './event-card-content';
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 

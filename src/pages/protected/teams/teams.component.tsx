@@ -17,7 +17,7 @@ import {
   useAxiosWithParamCreator,
   useAPIConfiguration
 } from '../../../hooks/api-hooks'
-import { AdministrationContainer, RefreshButton } from '../common/common.components'
+import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'

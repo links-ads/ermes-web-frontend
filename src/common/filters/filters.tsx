@@ -26,8 +26,8 @@ import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 import filterReducer from './reducer';
-import { getFiltersStyle, _MS_PER_DAY } from '../utils/utils.common';
-import useLanguage from '../../../../hooks/use-language.hook';
+import { getFiltersStyle, _MS_PER_DAY } from '../../utils/utils.common';
+import useLanguage from '../../hooks/use-language.hook';
 
 
 const SocialFilter = (props) => {

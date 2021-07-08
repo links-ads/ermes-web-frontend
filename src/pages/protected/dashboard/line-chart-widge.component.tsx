@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '@material-ui/core';
-import { ChartTooltip } from '../common/stats-cards.components';
+import { ChartTooltip } from '../../../common/stats-cards.components';
 
 export const LineChartWidget = (
     props

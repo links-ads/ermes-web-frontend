@@ -4,21 +4,21 @@ import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook'
 
-import SocialFilter from '../common/filters/filters';
+import SocialFilter from '../../../common/filters/filters';
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { LanguageCard, PieChartStats, VolumeCard,parseStats } from '../common/stats-cards.components';
+import { LanguageCard, PieChartStats, VolumeCard,parseStats } from '../../../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
 import EventMap from './map/map-layout.component';
-import { FiltersType } from '../common/filters/reducer';
-import { CardsList } from '../common/cards-list.components';
+import { FiltersType } from '../../../common/filters/reducer';
+import { CardsList } from '../../../common/cards-list.components';
 import { EventCard } from './card/event-card.component';
 import InteractiveMap from 'react-map-gl';
 import React from 'react';
 import { AppConfig, AppConfigContext } from '../../../config';
-import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData, _MS_PER_DAY } from '../common/utils/utils.common';
+import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData, _MS_PER_DAY } from '../../../utils/utils.common';
 import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
 const PAGE_SIZE = 1000

@@ -15,12 +15,12 @@ import Carousel from 'react-material-ui-carousel'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 
-import { getTweetLocation, queryHoveredFeature } from '../../common/map/map-common';
+import { getTweetLocation, queryHoveredFeature } from '../../../../common/map/map-common';
 import { TweetContent } from './tweet-card-content';
 
 import { TWEETS_LAYER_ID, CLUSTER_LAYER_ID, HOVER_TWEETS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
-import { getSocialCardStyle } from '../../common/utils/utils.common';
+import { getSocialCardStyle } from '../../../../utils/utils.common';
 
 export const TweetCard = (props) => {
     const useStyles = makeStyles((theme: Theme) =>

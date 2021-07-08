@@ -2,20 +2,20 @@ import React, { useState, useEffect, useContext } from 'react';
 import { InteractiveMap, Source, Layer } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
-import MapSlide from '../../common/map/map-popup-card';
+import MapSlide from '../../../../common/map/map-popup-card';
 
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { Card, Grid, Slide } from '@material-ui/core';
 
 
-import { DEFAULT_MAP_VIEWPORT, parseDataToGeoJson } from '../../common/map/map-common';
+import { DEFAULT_MAP_VIEWPORT, parseDataToGeoJson } from '../../../../common/map/map-common';
 import { TweetContent } from '../card/tweet-card-content';
 import { CLUSTER_COUNT_LAYER_PROPS, CLUSTER_LAYER_ID, CLUSTER_LAYER_PROPS, HOVER_TWEETS_LAYER_PROPS, SOURCE_ID, TWEETS_LAYER_ID, TWEETS_LAYER_PROPS, unclusteredPointsProps } from './map-init';
 import { mapClickHandler } from './map-click-handler';
-import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
+import { mapOnLoadHandler } from '../../../../common/map/map-on-load-handler';
 import { AppConfig, AppConfigContext } from '../../../../config';
-import { MapHeadDrawer } from '../../common/map/map-drawer';
+import { MapHeadDrawer } from '../../../../common/map/map-drawer';
 
 const tweetImage = new Image(50, 50);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');

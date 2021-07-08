@@ -1,4 +1,4 @@
-import {_MS_PER_DAY} from '../utils/utils.common'
+import {_MS_PER_DAY} from '../../utils/utils.common'
 
 export interface FiltersType {
     startDate: Date

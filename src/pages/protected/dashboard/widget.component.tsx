@@ -11,7 +11,7 @@ import { WidgetType } from './dashboard.config'
 import { useTheme } from '@material-ui/core/styles';
 import { BarWidget } from './bar-widget'
 import { CircularProgress, Grid, Typography } from '@material-ui/core'
-import { PieChartStats } from '../common/stats-cards.components'
+import { PieChartStats } from '../../../common/stats-cards.components'
 import { TableWidget } from './table-widget.component'
 import { LineChartWidget } from './line-chart-widge.component'
 import { ReactReduxContextValue } from 'react-redux'

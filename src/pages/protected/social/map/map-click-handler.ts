@@ -1,4 +1,4 @@
-import { parseTweet } from '../../common/map/map-common'
+import { parseTweet } from '../../../../common/map/map-common'
 import { CLUSTER_LAYER_ID, SOURCE_ID, TWEETS_LAYER_ID } from './map-init'
 
 export const mapClickHandler = (
