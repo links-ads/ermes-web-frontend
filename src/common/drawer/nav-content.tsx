@@ -56,17 +56,20 @@ const orgManagement = (oid: string): NavContentLinkConfig[] => [
   {
     primaryText: 'common:page_organization',
     icon: <SupervisedUserCircle />,
-    to: `/organizations/${oid}`
+    // to: `/organizations/${oid}`
+    to: `/organizations`
   },
   {
     primaryText: 'common:page_org_users',
     icon: <People />,
-    to: `/organizations/${oid}/users`
+    // to: `/organizations/${oid}/users`
+    to: `/organizations/users`
   },
   {
     primaryText: 'common:page_teams',
     icon: <GroupWorkIcon />,
-    to: `/organizations/${oid}/teams`
+    // to: `/organizations/${oid}/teams`
+    to: `/organizations/teams`
   }
 ]
 
@@ -121,7 +124,8 @@ function getLinks(role: UserRole, oid: string = 'unkn'): NavContentLinkConfig[] 
   //check which admin and decision making content logged user can see
   linksConfig = linksConfig.concat(admin.filter(i=>controlAccess(i?.to,role)),[null],decisionMaking.filter(i=>controlAccess(i?.to,role)),[null])
   //check whether logged user can see organizations content
-  if(controlAccess('/organizations/'+oid,role))
+  // if(controlAccess('/organizations/'+oid,role))
+  if(controlAccess('/organizations',role))
   {
     linksConfig = linksConfig.concat(orgManagement(oid),[null])
 
