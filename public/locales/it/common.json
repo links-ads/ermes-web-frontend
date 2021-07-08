@@ -47,5 +47,11 @@
   "page_social":"Social",
   "page_events":"Eventi",
   "date_picker_test_start":"Data di inizio",
-  "date_picker_test_end":"Data di fine"
+  "date_picker_test_end":"Data di fine",
+  "page_social":"Social",
+  "search": "Cerca",
+  "loading": "Caricamento",
+  "end_of_list": "Fine lista",
+  "view_in_map": "Vedi nella mappa",
+  "image_not_available": "Immagine non disponibile"
 }

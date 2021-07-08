@@ -16,7 +16,6 @@ import { mapClickHandler } from './map-click-handler';
 import { mapOnLoadHandler } from '../../common/map/map-on-load-handler';
 import { AppConfig, AppConfigContext } from '../../../../config';
 import { MapHeadDrawer } from '../../common/map/map-drawer';
-// import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 
 const tweetImage = new Image(50, 50);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
@@ -102,6 +101,7 @@ const SocialMap = (props) => {
                                 SOURCE_ID,
                                 TWEETS_LAYER_ID,
                                 unclusteredPointsProps,
+                                TWEETS_LAYER_PROPS.type,
                                 undefined,
                                 { paint: HOVER_TWEETS_LAYER_PROPS.paint as mapboxgl.SymbolPaint, layout: HOVER_TWEETS_LAYER_PROPS.layout as mapboxgl.AnyLayout })
                         }

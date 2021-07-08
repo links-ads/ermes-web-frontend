@@ -1,6 +1,6 @@
 {
-  "short_name": "ERMES Web Tool",
-  "name": "ERMES Backoffice and frontend",
+  "short_name": "FASTER Web Tool",
+  "name": "FASTER Backoffice and Secondary Frontend",
   "icons": [
     {
       "src": "icons/favicon.ico",
@@ -18,7 +18,6 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": ".",
   "display": "standalone",
   "theme_color": "#004792",
   "background_color": "#091744"

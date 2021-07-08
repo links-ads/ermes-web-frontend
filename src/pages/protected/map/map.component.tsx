@@ -17,7 +17,7 @@ import FloatingFilterTab from './floatingfiltertab.component'
 // import { EmergencyType } from './map/api-data/emergency.component'
 import { GetApiGeoJson } from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
-import MapDrawer from './map-drawer.component'
+import MapDrawer from './map-drawer/map-drawer.component'
 import ViewCompactIcon from '@material-ui/icons/ViewCompact'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import useLanguage from '../../../hooks/use-language.hook'
@@ -50,6 +50,8 @@ export function Map() {
   const [toggleSideDrawer, settoggleSideDrawer] = useState<boolean>(false)
 
   const {dateFormat} = useLanguage()
+  // Coordinates for the fly to
+  const [goToCoord, setGoToCoord] = useState<{latitude: number, longitude: number} | undefined >(undefined)
 
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
@@ -62,6 +64,8 @@ export function Map() {
   const searchByDates = async function () {
     await filterByDate(selectedStartDate, selectedEndDate)
   }
+
+
 
   // if I close the filter tab, all the filters get reselected
   // useEffect(() => {
@@ -143,7 +147,12 @@ export function Map() {
           )}
         </Toolbar>
       </AppBar>
-      <MapDrawer toggleSideDrawer={toggleSideDrawer} />
+      <MapDrawer
+        toggleSideDrawer={toggleSideDrawer}
+        selectedStartDate={selectedStartDate}
+        selectedEndDate={selectedEndDate}
+        setGoToCoord={setGoToCoord}
+      />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
@@ -161,6 +170,8 @@ export function Map() {
             filterList={filterList}
             prepGeoJson={prepGeoData}
             isGeoJsonPrepared={isGeoJsonPrepared}
+            setGoToCoord={setGoToCoord}
+            goToCoord={goToCoord}
           />
         </MapStateContextProvider>
       </MapContainer>

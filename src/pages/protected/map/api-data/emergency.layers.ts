@@ -69,7 +69,7 @@ export const unclusteredPointLayerPins: LayerProps = {
 }
 
 // Yellow marker for hovered feature
-export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom' | 'ref' | 'source-layer'>> = {
+export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom'>> = {
   id: 'unclustered-point-hovered',
   type: 'symbol',
   source: 'emergency-source',
@@ -85,7 +85,7 @@ export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' |
     // 'icon-halo-color': yellow[500],
     // 'icon-halo-width': 10,
     // 'icon-halo-blur': 5
-  }  
+  }
 }
 
 // All possible types

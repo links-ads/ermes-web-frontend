@@ -2,5 +2,5 @@
     "about": "Informazioni su FASTER",
     "description": "<0>Descrizione:</0> {{description}}",
     "version": "<0>Versione:</0> {{version}}",
-    "faster_goal": "FASTER è un progetto finanziato da H2020 che coinvolge un consorzio di partner di ricerca, sociali e tecnici e organizzazioni di primo intervento."
+    "goal": "FASTER è un progetto finanziato da H2020 che coinvolge un consorzio di partner di ricerca, sociali e tecnici e organizzazioni di primo intervento."
 }

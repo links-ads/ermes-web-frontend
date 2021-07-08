@@ -47,6 +47,11 @@
   "org_name": "Organization: {{organizationName}}",
   "date_picker_test_start":"Starting date",
   "date_picker_test_end":"Ending date",
-  "page_events":"Events",
-  "page_social":"Social"
+  "page_social":"Social",
+  "search": "Search",
+  "loading": "Loading",
+  "end_of_list": "End of list",
+  "view_in_map": "View in map",
+  "image_not_available": "Image not available",
+  "page_events":"Events"
 }

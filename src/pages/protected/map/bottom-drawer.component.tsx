@@ -1,10 +1,11 @@
 import React from 'react'
+import { makeStyles, Theme, useTheme } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
-import IconButton from '@material-ui/core/IconButton'
-import CloseIcon from '@material-ui/icons/Close'
-import Typography from '@material-ui/core/Typography'
+
 import { useSidebarCollapse } from '@mui-treasury/layout'
 import styled from 'styled-components'
+
+import { useTranslation } from 'react-i18next'
 
 const BottomDrawerHeader = styled.div`
   display: flex;
@@ -35,6 +36,20 @@ interface BottomDrawerProps {
   onCloseButtonClick?: () => void
 }
 
+const useStyles = makeStyles((theme) => ({
+  cardAction: {
+    justifyContent: 'space-between',
+    padding: 16
+  },
+  media: {
+    height: 240
+  },
+  card: {
+    width: '400px',
+    height: 'auto'
+  }
+}))
+
 export function BottomDrawerComponent({
   open,
   title,
@@ -46,18 +61,25 @@ export function BottomDrawerComponent({
   // Compensate left offset
   const { collapsed, open: leftSidebarOpen } = state
   const leftSidebarCollapsedOpen = collapsed && leftSidebarOpen
-
+  const classes = useStyles()
+  const { t } = useTranslation(['common'])
+  // console.log(children)
   return (
     <Drawer
-      anchor={'bottom'}
+      anchor={'right'}
       open={open}
       variant="persistent"
       PaperProps={{
         style: {
           marginLeft: leftSidebarCollapsedOpen ? 64 : 'auto',
           maxHeight: '60vh',
-          borderTopLeftRadius: 15,
-          borderTopRightRadius: 15,
+          // borderTopLeftRadius: 15,
+          // borderTopRightRadius: 15,
+          borderRadius: 15,
+          right: '25px',
+          top: '250px',
+          height: 'auto',
+          width: '450px'
           // position: 'relative'
         }
       }}
@@ -67,26 +89,7 @@ export function BottomDrawerComponent({
       onClose={onClose}
       className="bottom-drawer"
     >
-      <BottomDrawerHeader>
-        {title ? (
-          <Typography gutterBottom variant="h5" component="h5">
-            {title}
-          </Typography>
-        ) : (
-            <div />
-          )}
-        {onCloseButtonClick ? (
-          <IconButton aria-label="settings" onClick={onCloseButtonClick}>
-            <CloseIcon />
-          </IconButton>
-        ) : (
-            <div />
-          )}
-      </BottomDrawerHeader>
-      <BottomDrawerBody>
-        {children}
-
-      </BottomDrawerBody>
+      {children}
     </Drawer>
   )
 }

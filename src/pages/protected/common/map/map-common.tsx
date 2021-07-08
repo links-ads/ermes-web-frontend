@@ -74,6 +74,7 @@ export const parseEventDataToGeoJson = (items) => {
         }
         featuresList.push({
             "type": "Feature",
+            "id":item.id,
             "geometry": item.hotspots_centroid as unknown as GeoJSON.Point,
             "properties": properties
         } as unknown as GeoJSON.Feature)
@@ -189,7 +190,7 @@ export const getMapBounds = (mapRef) => {
         northEast: clipBounds(bounds[1]) as [number, number]
     }
 }
-export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer, elementId, sourceId) => {
+export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer, elementId, sourceId):{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string} => {
     const point = map.project(coord)
     const bboxSize = getBboxSizeFromZoom(map.getZoom())
     var bbox = [
@@ -204,7 +205,7 @@ export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer
         const leavesFeatures = features.filter(point => (point.layer.id.includes('spider-leaves') && (point.properties['id'] === elementId)))
         if (leavesFeatures.length > 0) {
             const feature = leavesFeatures[0]
-            return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
+            return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'],source:feature.source }
         }
         else if (pointFeatures.length > 0) {
             const feature = pointFeatures[0]

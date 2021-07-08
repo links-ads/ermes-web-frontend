@@ -20,22 +20,12 @@ import { TweetContent } from './tweet-card-content';
 
 import { TWEETS_LAYER_ID, CLUSTER_LAYER_ID, HOVER_TWEETS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
+import { getSocialCardStyle } from '../../common/utils/utils.common';
 
 export const TweetCard = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
-            root: {
-                width: '100%',
-                marginBottom: '16px',
-                textOverflow: "ellipsis",
-                overflow: "hidden",
-                display: 'inline-block',
-                padding: 6,
-                "&:hover": {
-                    boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
-                    cursor: 'pointer'
-                }
-            },
+            ...getSocialCardStyle(theme),
             grid_root: {
                 display: 'flex',
                 flexWrap: 'wrap',
@@ -46,29 +36,11 @@ export const TweetCard = (props) => {
                 flexWrap: 'nowrap',
                 transform: 'translateZ(0)',
             },
-            expand: {
-                transform: 'rotate(0deg)',
-                marginLeft: 'auto',
-                transition: theme.transitions.create('transform', {
-                    duration: theme.transitions.duration.shortest,
-                }),
-            },
-            expandOpen: {
-                transform: 'rotate(180deg)',
-            },
-            content: {
-                margin: '5px',
-                padding: 5
-            },
-            action: {
-                margin: '0px 5px',
-                padding: 0
-            }
         }));
 
     const classes = useStyles();
     const [expanded, setExpanded] = useState(false);
-    const [featureToHover, setFeatureHover] = useState<{ type: string | null, id: string | null }>({ type: null, id: null })
+    const [featureToHover, setFeatureHover] = useState<{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string}>({ type: null, id: null })
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -138,7 +110,7 @@ export const TweetCard = (props) => {
     return (
         <Card className={classes.root} raised={true}
             onPointerEnter={() => {
-                if (coord === undefined) return null
+                if (!coord) return 
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 const result = queryHoveredFeature(map, coord, [TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], TWEETS_LAYER_ID, CLUSTER_LAYER_ID, tweet.id_str, SOURCE_ID)
@@ -146,7 +118,7 @@ export const TweetCard = (props) => {
                     case null:
                         return
                     case 'point':
-                        updatePointFeatureLayerIdFilter(map, HOVER_TWEETS_LAYER_ID, result.id)
+                        updatePointFeatureLayerIdFilter(map, HOVER_TWEETS_LAYER_ID, result.id as string)
                         break
                     case 'cluster':
                         map.setFeatureState({
@@ -166,7 +138,6 @@ export const TweetCard = (props) => {
                     setFeatureHover(result)
             }}
             onPointerLeave={() => {
-                // props.setMapHoverState({type:'point',id:'null'})
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 switch (featureToHover.type) {
@@ -187,7 +158,7 @@ export const TweetCard = (props) => {
                         props.spiderifierRef.current?.highlightHoveredLeaf(map, 'null')
                         break;
                 }
-                // setFeatureHover({ type: 'exit', id:null })
+                setFeatureHover({ type: null, id:null })
             }}
         >
             <TweetContent

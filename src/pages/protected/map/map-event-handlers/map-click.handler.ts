@@ -1,4 +1,4 @@
-import InteractiveMap, { PointerEvent } from 'react-map-gl'
+import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 

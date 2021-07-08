@@ -69,7 +69,7 @@ export const unclusteredPointLayerPins: LayerProps = {
 }
 
 // Yellow marker for hovered feature
-export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom' | 'ref' | 'source-layer'>> = {
+export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom'>> = {
   id: 'unclustered-point-hovered',
   type: 'symbol',
   source: 'cultural-source',

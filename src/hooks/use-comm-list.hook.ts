@@ -12,8 +12,12 @@ const MAX_RESULT_COUNT = 7
 
 type CommApiPC = typeof CommunicationsApiAxiosParamCreator
 type KRCommApiPC = keyof ReturnType<CommApiPC>
+type SearchObject = { value: string; regex: boolean }
 
 export default function useCommList() {
+  // adds an element to the array if it does not already exist using a comparer
+  // function
+
   const methodName: KRCommApiPC = 'communicationsGetCommunications' // profileGetOrganizationMembers
 
   const opts: APIAxiosHookOpts<CommApiPC> = {
@@ -33,13 +37,12 @@ export default function useCommList() {
   const { displayErrorSnackbar } = useSnackbars()
   const comms: CommunicationDto[] = result?.data || []
   const [recordsTotal, setRecordsTotal] = useState<number>(result?.recordsTotal || 0)
-  const [updating, setUserUpdating] = useState<boolean>(false)
+  const [updating, setCommUpdating] = useState<boolean>(false)
   const [commsData, setData] = useState<CommunicationDto[]>(comms)
   const isCommsLoading: boolean = updating || commsLoading
-  const [startDate] = useState(undefined)
-  const [endDate] = useState(undefined)
-  const [searchText, setSearchText] = useState<string>()
-  // const [searchText, setSearchText] = useState(undefined)
+  const [startDate, setStartDate] = useState(undefined)
+  const [endDate, setEndDate] = useState(undefined)
+  const [searchText, setSearchText] = useState<string | undefined>(undefined)
 
   useEffect(() => {
     if (commsError) {
@@ -53,9 +56,8 @@ export default function useCommList() {
     }
   }, [commsLoading, comms])
 
+  
   const getNextValues = async function () {
-    setUserUpdating(true)
-    console.log( Math.floor(commsData.length/MAX_RESULT_COUNT))
     await commsAPIFactory
       .communicationsGetCommunications(
         startDate,
@@ -67,27 +69,34 @@ export default function useCommList() {
         MAX_RESULT_COUNT,
         commsData.length,
         undefined,
-        searchText
+        searchText,
+        false
       )
       .then((res) => {
         console.log(res)
         let appComms: CommunicationDto[] = res?.data.data || []
-        setData([...commsData, ...appComms])
+        let tmpArr = [...commsData, ...appComms]
+        setRecordsTotal(result?.recordsTotal || 0)
+        // appComms.forEach(function (item) {
+        //   if (!tmpArr.find((o) => o.id === item.id)) {
+        //     tmpArr.push(item)
+        //   }
+        // })
+        setData(tmpArr)
       })
       .catch((err) => {
         displayErrorSnackbar(err)
       })
   }
-  const filterByText = (text: string) =>{
-    if(text === ''){
+  const filterByText = (text: string | undefined) => {
+    if (text === '' || text === undefined) {
+      console.log('EMPTYNESS')
       setSearchText(undefined)
-      console.log('yup')
     } else {
       setSearchText(text)
     }
 
-    setUserUpdating(true)
-    console.log( Math.floor(commsData.length/MAX_RESULT_COUNT))
+    setCommUpdating(true)
     setData([])
     commsAPIFactory
       .communicationsGetCommunications(
@@ -100,18 +109,26 @@ export default function useCommList() {
         MAX_RESULT_COUNT,
         commsData.length,
         undefined,
-        searchText
+        searchText,
+        false
       )
       .then((res) => {
         console.log(res)
         let appComms: CommunicationDto[] = res?.data.data || []
-        setRecordsTotal(result?.recordsFiltered || 0)
+        if(searchText === undefined){
+          setRecordsTotal(result?.recordsTotal || 0)
+        } else {
+          setRecordsTotal(result?.recordsFiltered || 0)
+        }
         setData([...appComms])
+        setCommUpdating(false)
       })
       .catch((err) => {
         displayErrorSnackbar(err)
       })
   }
-
-  return { commsData, isCommsLoading, getNextValues, recordsTotal, filterByText }
+  useEffect(() => {
+    filterByText(searchText)
+  }, [startDate, endDate, searchText])
+  return { commsData, isCommsLoading, getNextValues, recordsTotal, filterByText, setStartDate, setEndDate }
 }
