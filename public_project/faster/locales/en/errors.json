@@ -1,7 +1,0 @@
-{
-  "page_not_found": "This page does not exist: {{page}}",
-  "error_generic": "😵 An error occurred",
-  "error_detailed": "😵 An error occurred: {{errorMessage}}",
-  "invalid_user_code": "User code: {{userCode}} is not valid!",
-  "session_expired": "La tua sessione è scaduta. Rifai il login."
-}
