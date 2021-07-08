@@ -75,6 +75,7 @@ export const parseEventDataToGeoJson = (items) => {
     }
     featuresList.push({
       type: 'Feature',
+      id: item.id,
       geometry: item.hotspots_centroid as unknown as GeoJSON.Point,
       properties: properties
     } as unknown as GeoJSON.Feature)
