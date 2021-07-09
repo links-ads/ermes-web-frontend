@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect, useCallback, useContext, useMemo } 
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 
 import { Card, CircularProgress, Grid, Slide } from '@material-ui/core';
-import InteractiveMap, { Layer, Source } from 'react-map-gl';
+import InteractiveMap, { Layer, NavigationControl, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../../../common/map/map-common';
 import debounce from 'lodash.debounce';
@@ -14,6 +14,7 @@ import { SOURCE_ID, CLUSTER_LAYER_ID, EVENTS_LAYER_ID, unclusteredPointsProps, S
 import { mapOnLoadHandler } from '../../../../common/map/map-on-load-handler';
 import { AppConfig, AppConfigContext } from '../../../../config';
 import { MapHeadDrawer } from '../../../../common/map/map-drawer';
+import { MapContainer } from '../../map/common.components';
 
 const DEBOUNCE_TIME = 200 //ms
 
@@ -82,76 +83,82 @@ const EventMap = (props) => {
                 mapViewport={mapViewport}
                 isLoading={props.isLoading}
             />
-            <InteractiveMap
-                {...mapViewport}
-                width='100%'
-                height='100%'
-                mapStyle={mapTheme?.style}
-                mapboxApiUrl={mapServerURL}
-                mapboxApiAccessToken={apiKey}
-                transformRequest={transformRequest}
-                onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
-                ref={props.mapRef}
-                interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
-                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, props.spiderifierRef)}
-                onLoad={() => {
-                    if (props.mapRef.current) {
-                        try {
-                            let map = props.mapRef?.current?.getMap()
-                            mapOnLoadHandler(
-                                map,
-                                props.spiderifierRef,
-                                props.setSpiderLayerIds,
-                                setMapViewport,
-                                SOURCE_ID,
-                                EVENTS_LAYER_ID,
-                                unclusteredPointsProps,
-                                EVENTS_LAYER_PROPS.type,
-                                updateMarkersDebounced,
-                                unclusteredPointsProps)
-                            // update map markers as soon as source data is loaded
-                            map.on('data', (e) => {
-                                if (e.source?.type === 'geojson' && e.isSourceLoaded) {
-                                    updateMarkers(map)
-                                }
-                            });
-                        }
-                        catch (err) {
-                            console.error('Map Load Error', err)
+            <MapContainer>
+
+                <InteractiveMap
+                    {...mapViewport}
+                    width='100%'
+                    height='100%'
+                    mapStyle={mapTheme?.style}
+                    mapboxApiUrl={mapServerURL}
+                    mapboxApiAccessToken={apiKey}
+                    transformRequest={transformRequest}
+                    onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
+                    ref={props.mapRef}
+                    interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
+                    onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, props.spiderifierRef)}
+                    onLoad={() => {
+                        if (props.mapRef.current) {
+                            try {
+                                let map = props.mapRef?.current?.getMap()
+                                mapOnLoadHandler(
+                                    map,
+                                    props.spiderifierRef,
+                                    props.setSpiderLayerIds,
+                                    setMapViewport,
+                                    SOURCE_ID,
+                                    EVENTS_LAYER_ID,
+                                    unclusteredPointsProps,
+                                    EVENTS_LAYER_PROPS.type,
+                                    updateMarkersDebounced,
+                                    unclusteredPointsProps)
+                                // update map markers as soon as source data is loaded
+                                map.on('data', (e) => {
+                                    if (e.source?.type === 'geojson' && e.isSourceLoaded) {
+                                        updateMarkers(map)
+                                    }
+                                });
+                            }
+                            catch (err) {
+                                console.error('Map Load Error', err)
+                            }
                         }
                     }
-                }
-                }
-            >
-                <Source
-                    id={SOURCE_ID}
-                    data={geoJsonData}
-                    type='geojson'
-                    {...SOURCE_PROPS}
+                    }
                 >
-                    <Layer {...EVENTS_LAYER_PROPS} />
-                    <Layer {...CLUSTER_LAYER_PROPS} />
-                </Source>
-                <Slide
-                    direction='left'
-                    in={props.leftClickState.showPoint}
-                    mountOnEnter={true}
-                    unmountOnExit={true}
-                    timeout={800}
-                >
-                    <MapSlide>
-                        <Card raised={false}>
-                            <EventContent
-                                mapIdsToHazards={props.mapIdsToHazards}
-                                item={props.leftClickState.pointFeatures}
-                                chipSize={'small'}
-                                textSizes={{ title: 'body1', body: 'caption' }}
-                                renderLocation={false}
-                            />
-                        </Card>
-                    </MapSlide>
-                </Slide>
-            </InteractiveMap>
+                    <Source
+                        id={SOURCE_ID}
+                        data={geoJsonData}
+                        type='geojson'
+                        {...SOURCE_PROPS}
+                    >
+                        <Layer {...EVENTS_LAYER_PROPS} />
+                        <Layer {...CLUSTER_LAYER_PROPS} />
+                    </Source>
+                    <div className="controls-contaniner" style={{ top: '45px' }}>
+                        <NavigationControl />
+                    </div>
+                    <Slide
+                        direction='left'
+                        in={props.leftClickState.showPoint}
+                        mountOnEnter={true}
+                        unmountOnExit={true}
+                        timeout={800}
+                    >
+                        <MapSlide>
+                            <Card raised={false}>
+                                <EventContent
+                                    mapIdsToHazards={props.mapIdsToHazards}
+                                    item={props.leftClickState.pointFeatures}
+                                    chipSize={'small'}
+                                    textSizes={{ title: 'body1', body: 'caption' }}
+                                    renderLocation={false}
+                                />
+                            </Card>
+                        </MapSlide>
+                    </Slide>
+                </InteractiveMap>
+            </MapContainer>
             {
                 (props.mapRef.current?.getMap()) &&
                 (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={props.spiderifierRef} direction="right"></MapStyleToggle>)

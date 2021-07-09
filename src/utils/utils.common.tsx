@@ -73,14 +73,21 @@ export const getSocialDashboardStyle = (theme) => {
       marginBottom: '16px'
     },
     pieContainer: {
-      height: '40vh',
+      height: '20vh',
       minHeight: 200,
-      width: '45vw',
+      width: '100%',
       position: 'relative'
     } as import('@material-ui/styles').CSSProperties,
     tweetsListContainer: {
       margin: '16px 8px 8px 0px',
       maxWidth: '30vw'
+    },
+    indicator: {
+      backgroundColor: '#FFF'
+    },
+    appbar: {
+      backgroundColor: theme.palette.primary.main,
+      boxShadow: 'none'
     }
   }
 }

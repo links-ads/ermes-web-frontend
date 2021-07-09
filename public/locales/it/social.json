@@ -39,6 +39,9 @@
     "event_start":"Inizio",
     "event_update":"Ultimo aggiornamento",
     "event_end":"Fine",
-    "map_button_label":"Cerca qui"
+    "map_button_label":"Cerca qui",
+    "tweets_label":"Tweet",
+    "events_label":"Eventi",
+    "stats_label":"Statistiche"
     
 }

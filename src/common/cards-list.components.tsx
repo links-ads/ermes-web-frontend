@@ -14,7 +14,8 @@ export const CardsList = (props) => {
         createStyles({
             root: {
                 width: '100%',
-                marginBottom: '16px',
+                height:'100%',
+                // marginBottom: '8 px',
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 display: 'inline-block',
@@ -47,7 +48,7 @@ export const CardsList = (props) => {
     return (
         <div id="scrollableDiv" style={{
             width: '100%',
-            height: '70vh', minHeight: 400,
+            height: '80vh', minHeight: 400,
             overflow: "auto"
         }}>
             <InfiniteScroll
