@@ -23,14 +23,14 @@ const tweetImageHover = new Image(50, 50);
 tweetImageHover.src = require('../../../../assets/twitterIcon/twitterHover.png');
 
 const SocialMap = (props) => {
-    
+
     const {
         mapTheme,
         apiKey,
         transformRequest,
         mapServerURL
     } = useMapPreferences()
-    
+
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
@@ -134,7 +134,6 @@ const SocialMap = (props) => {
                 >
                     <MapSlide>
                         <Card raised={false}>
-
                             <TweetContent
                                 tweet={props.leftClickState.pointFeatures}
                                 mapIdsToHazards={props.mapIdsToHazards}
@@ -144,10 +143,10 @@ const SocialMap = (props) => {
                                     body: 'body2'
                                 }}
                                 chipSize='small'
+                                renderLocation={false}
                             />
                         </Card>
                     </MapSlide>
-
                 </Slide>
             </InteractiveMap>
             {

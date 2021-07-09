@@ -142,7 +142,7 @@ export const getPolygonArea = (coordinates) => {
 }
 
 export const getZoomFromArea = (area) => {
-  if (area === null || area === undefined) return 4
+  if (!area) return 4
   if (area < 0.0001) return 11
   if (area < 0.1) return 9
   if (area < 0.4) return 8

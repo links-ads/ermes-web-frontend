@@ -93,7 +93,7 @@ const EventMap = (props) => {
                 onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
                 ref={props.mapRef}
                 interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
-                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, props.spiderifierRef)}
+                onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, props.spiderifierRef)}
                 onLoad={() => {
                     if (props.mapRef.current) {
                         try {
@@ -146,6 +146,7 @@ const EventMap = (props) => {
                                 item={props.leftClickState.pointFeatures}
                                 chipSize={'small'}
                                 textSizes={{ title: 'body1', body: 'caption' }}
+                                renderLocation={false}
                             />
                         </Card>
                     </MapSlide>

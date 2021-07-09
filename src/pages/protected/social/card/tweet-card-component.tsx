@@ -1,15 +1,11 @@
 import React, { useState } from 'react';
 import Card from '@material-ui/core/Card';
-
-import CardActions from '@material-ui/core/CardActions';
 import Collapse from '@material-ui/core/Collapse';
 import clsx from 'clsx';
 
 import IconButton from '@material-ui/core/IconButton';
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-import LocationOnIcon from '@material-ui/icons/LocationOn';
 
 import Carousel from 'react-material-ui-carousel'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -40,7 +36,7 @@ export const TweetCard = (props) => {
 
     const classes = useStyles();
     const [expanded, setExpanded] = useState(false);
-    const [featureToHover, setFeatureHover] = useState<{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string}>({ type: null, id: null })
+    const [featureToHover, setFeatureHover] = useState<{ type: "leaf" | "point" | "cluster" | null, id: string | number | null, source?: string }>({ type: null, id: null })
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
@@ -73,7 +69,7 @@ export const TweetCard = (props) => {
                         {uniqueMedias.map((media) => {
                             return (
                                 <div key={media.id_str} style={{ margin: 'auto', textAlign: 'center' }} >
-                                    { (media.type === 'PHOTO') ?
+                                    {(media.type === 'PHOTO') ?
                                         (<img src={media.url} alt='' width='80%' style={{ cursor: 'pointer' }}
                                             onClick={() => window.open(media.url)} />) :
                                         (media.type === 'VIDEO') ?
@@ -110,7 +106,7 @@ export const TweetCard = (props) => {
     return (
         <Card className={classes.root} raised={true}
             onPointerEnter={() => {
-                if (!coord) return 
+                if (!coord) return
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 const result = queryHoveredFeature(map, coord, [TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], TWEETS_LAYER_ID, CLUSTER_LAYER_ID, tweet.id_str, SOURCE_ID)
@@ -158,7 +154,7 @@ export const TweetCard = (props) => {
                         props.spiderifierRef.current?.highlightHoveredLeaf(map, 'null')
                         break;
                 }
-                setFeatureHover({ type: null, id:null })
+                setFeatureHover({ type: null, id: null })
             }}
         >
             <TweetContent
@@ -166,42 +162,18 @@ export const TweetCard = (props) => {
                 mapIdsToHazards={props.mapIdsToHazards}
                 mapIdsToInfos={props.mapIdsToInfos}
                 textSizes={{
-                    subheader: 'subtitle2',
-                    body: 'body1'
+                    subheader: 'caption',
+                    body: 'subtitle2'
                 }}
-                chipSize='medium'
+                chipSize='small'
+                renderLocation={true}
+                pointCoordinates={coord}
+                expandButton={expandButton}
+                mapRef={props.mapRef}
+                mapLeftClickState={props.mapLeftClickState}
+                setMapLeftClickState={props.setMapLeftClickState}
+
             />
-            <CardActions disableSpacing className={classes.action}>
-                {coord === undefined ? null : (
-                    <IconButton onClick={() => {
-                        if (coord !== undefined) {
-                            if (props.mapRef.current) {
-                                try {
-                                    const map = props.mapRef?.current.getMap()
-                                    map?.flyTo(
-                                        {
-                                            center: coord,
-                                            zoom: 15
-                                        },
-                                        {
-                                            how: 'fly'
-                                        }
-                                    )
-                                    if (props.mapLeftClickState.showPoint) {
-                                        props.setMapLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...props.mapLeftClickState.pointFeatures } })
-                                    }
-                                }
-                                catch (err) {
-                                    console.error('MAP Load Error', err)
-                                }
-                            }
-                        }
-                    }}>
-                        <LocationOnIcon />
-                    </IconButton>
-                )}
-                {expandButton}
-            </CardActions>
             {renderTweetMedia(uniqueMedias, expanded)}
         </Card>
     );

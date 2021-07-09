@@ -33,7 +33,7 @@ export const getSocialCardStyle = (theme) => {
   return {
     root: {
       width: '100%',
-      marginBottom: '16px',
+      marginBottom: '8px',
       textOverflow: "ellipsis",
       overflow: "hidden",
       display: 'inline-block',

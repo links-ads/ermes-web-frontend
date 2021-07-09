@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
 import { Card, CardActions, Collapse, Grid, IconButton } from '@material-ui/core';
 
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+
 
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 
 import clsx from 'clsx';
-import { clearEventMap, queryHoveredFeature } from '../../../../common/map/map-common';
+import { queryHoveredFeature } from '../../../../common/map/map-common';
 import { getSocialCardStyle, ParsedTweet } from '../../../../utils/utils.common';
 import EventContent from './event-card-content';
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, SOURCE_ID } from '../map/map-init';
@@ -24,7 +24,7 @@ export const EventCard = (props) => {
 
     const classes = useStyles();
     const [expanded, setExpanded] = useState(false);
-    const [featureToHover, setFeatureHover] = useState<{type:"leaf"|"point"|"cluster"|null,id:string|number|null,source?:string}>({ type: null, id: null })
+    const [featureToHover, setFeatureHover] = useState<{ type: "leaf" | "point" | "cluster" | null, id: string | number | null, source?: string }>({ type: null, id: null })
     const theme = useTheme()
     const hasTweets = props.item.tweets.length > 0
     const expandButton = (hasTweets) ? (<IconButton
@@ -49,7 +49,7 @@ export const EventCard = (props) => {
                 const result = queryHoveredFeature(map, coord, [EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], EVENTS_LAYER_ID, CLUSTER_LAYER_ID, event.id, SOURCE_ID)
                 if (result.type) {
                     map.setFeatureState({
-                        source: result.type =='leaf' ? result.source : SOURCE_ID,
+                        source: result.type == 'leaf' ? result.source : SOURCE_ID,
                         id: result.id,
                     }, {
                         hover: true
@@ -57,14 +57,14 @@ export const EventCard = (props) => {
                     if (result.type === 'cluster')
                         props.setMapHoverState({ set: true })
                     setFeatureHover(result)
-                }                    
+                }
             }}
             onPointerLeave={() => {
                 const map = props.mapRef.current.getMap()
                 if (!map) return
                 if (featureToHover.type) {
                     map.setFeatureState({
-                        source: featureToHover.type =='leaf' ? featureToHover.source :SOURCE_ID,
+                        source: featureToHover.type == 'leaf' ? featureToHover.source : SOURCE_ID,
                         id: featureToHover.id,
                     }, {
                         hover: false
@@ -78,38 +78,15 @@ export const EventCard = (props) => {
             <EventContent
                 mapIdsToHazards={props.mapIdsToHazards}
                 item={props.item}
-                chipSize={'medium'}
-                textSizes={{ title: 'h6', body: 'body1' }}
+                chipSize='small'
+                textSizes={{ title: 'body1', body: 'subtitle2' }}
+                renderLocation={true}
+                mapRef={props.mapRef}
+                leftClickState={props.leftClickState}
+                setLeftClickState={props.setLeftClickState}
+                pointCoordinates={props.item.hotspots.coordinates}
+                expandButton={expandButton}
             />
-            <CardActions disableSpacing className={classes.action}>
-                {props.item.hotspots.coordinates && (
-                    <IconButton onClick={() => {
-                        if (props.mapRef.current) {
-                            try {
-                                const map = props.mapRef?.current.getMap()
-                                const centroid = props.item.hotspots_centroid.coordinates
-                                clearEventMap(map, props.setLeftClickState, props.leftClickState)
-                                map?.flyTo(
-                                    {
-                                        center: centroid,
-                                        zoom: 8
-                                    },
-                                    {
-                                        how: 'fly'
-                                    }
-                                )
-                            }
-                            catch (err) {
-                                console.error('MAP Load Error', err)
-                            }
-                        }
-                    }}>
-                        <LocationOnIcon />
-                    </IconButton>
-                )}
-                {expandButton}
-
-            </CardActions>
             {hasTweets && (<Collapse in={expanded} timeout="auto" unmountOnExit>
                 <div style={{ height: 200, width: '100%', overflow: 'auto', backgroundColor: theme['palette']['background']['default'] }}>
                     {
