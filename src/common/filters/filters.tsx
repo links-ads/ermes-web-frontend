@@ -51,7 +51,7 @@ const SocialFilter = (props) => {
 
     useEffect(()=>{
         forceFiltersDateRange(filters.startDate.getTime(),filters.endDate.getTime(),_MS_PER_DAY*4,(newDate)=>dispatch({ type: 'END_DATE', value: new Date(newDate)}))
-    },[filters.startDate])
+    },[filters.startDate,filters.endDate])
 
     const applyFilters = () => {
 

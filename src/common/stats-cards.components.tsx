@@ -140,11 +140,17 @@ const defs = [
     }
 ]
 
-export const parseStats = (stats, mapping): {} => {
+export const parseStats = (stats, mapping:any|undefined=undefined): {} => {
     if (!stats) return {}
-    if (Object.entries(stats).length === 0 || Object.entries(mapping).length === 0) return {}
+    if (Object.entries(stats).length === 0) return {} 
+    if(mapping && Object.entries(mapping).length === 0) return {}
+    if(mapping)
+        return Object.entries(stats).map(tuple => {
+            return { id: tuple[0], label: mapping[parseInt(tuple[0])], value: tuple[1] }
+        })
+    else
     return Object.entries(stats).map(tuple => {
-        return { id: tuple[0], label: mapping[parseInt(tuple[0])], value: tuple[1] }
+        return { id: tuple[0], label: tuple[0], value: tuple[1] }
     })
 }
 

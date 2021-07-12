@@ -55,7 +55,7 @@ const useDashboardStats = () => {
       })
     })
     return newPersons
-  }, [])
+  }, [dateLocale])
 
   const fetchStatistics = useCallback((args) => {
     dispatch({ type: 'FETCH' })
@@ -70,7 +70,7 @@ const useDashboardStats = () => {
     }).catch(() => {
       dispatch({ type: 'ERROR', data: [] })
     })
-  }, [])
+  }, [dashboardApiFactory,parsePersonsData])
 
   return { statsState, fetchStatistics }
 }

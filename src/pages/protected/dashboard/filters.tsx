@@ -35,7 +35,7 @@ export const DashboardFilters = (props) => {
 
     useEffect(() => {
         forceFiltersDateRange(filters.startDate.getTime(), filters.endDate.getTime(), _MS_PER_DAY * 30, (newDate) => dispatch({ type: 'END_DATE', value: new Date(newDate) }))
-    }, [filters.startDate])
+    }, [filters.startDate,filters.endDate])
 
     return (
         <Grid container direction={'row'} justify='space-around' className={classes.filterContainer}>

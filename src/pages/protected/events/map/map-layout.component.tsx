@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect, useCallback, useContext, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useCallback, useContext } from 'react';
 
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 
-import { Card, CircularProgress, Grid, Slide } from '@material-ui/core';
+import { Card, Slide } from '@material-ui/core';
 import InteractiveMap, { Layer, NavigationControl, Source } from 'react-map-gl';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
-import { clearEventMap, DEFAULT_MAP_VIEWPORT, parseEventDataToGeoJson } from '../../../../common/map/map-common';
+import { clearEventMap, DEFAULT_MAP_VIEWPORT, MapLoadingDiv, parseEventDataToGeoJson } from '../../../../common/map/map-common';
 import debounce from 'lodash.debounce';
 import MapSlide from '../../../../common/map/map-popup-card';
 import EventContent from '../card/event-card-content';
@@ -54,7 +54,7 @@ const EventMap = (props) => {
         let map = props.mapRef?.current?.getMap()
         if (!map) return
         updateMarkers(map)
-    }, [props.mapHoverState, updateMarkers])
+    }, [props.mapHoverState, updateMarkers,props.mapRef])
 
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()
@@ -66,17 +66,10 @@ const EventMap = (props) => {
 
 
     return (
-        <div style={{ display: 'flex', width: '100%', height: '70vh', minHeight: 400, position: 'relative' }}>
-            {props.isLoading && (
-                <Grid style={{
-                    position: 'absolute', zIndex: 10, width: '100%', height: '90%',
-                    top: '10%', backgroundColor: 'black', opacity: 0.65
-                }}
-                    container justify='center' alignItems='center'>
-                    <Grid item style={{ top: '40%', left: '40%' }}>
-                        <CircularProgress size={100} thickness={4} />
-                    </Grid>
-                </Grid>)}
+        <div style={{ display: 'flex', width: '100%', minHeight: 400, position: 'relative' }}>
+            <MapLoadingDiv
+                isLoading={props.isLoading}
+            />
             <MapHeadDrawer
                 mapRef={props.mapRef}
                 filterApplyHandler={props.filterApplyHandler}
@@ -84,7 +77,6 @@ const EventMap = (props) => {
                 isLoading={props.isLoading}
             />
             <MapContainer>
-
                 <InteractiveMap
                     {...mapViewport}
                     width='100%'

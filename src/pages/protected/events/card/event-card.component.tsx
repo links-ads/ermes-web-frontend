@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
-import { Card, CardActions, Collapse, Grid, IconButton } from '@material-ui/core';
+import { Card, Collapse, Grid, IconButton } from '@material-ui/core';
 
 
 
@@ -49,7 +49,7 @@ export const EventCard = (props) => {
                 const result = queryHoveredFeature(map, coord, [EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], EVENTS_LAYER_ID, CLUSTER_LAYER_ID, event.id, SOURCE_ID)
                 if (result.type) {
                     map.setFeatureState({
-                        source: result.type == 'leaf' ? result.source : SOURCE_ID,
+                        source: result.type === 'leaf' ? result.source : SOURCE_ID,
                         id: result.id,
                     }, {
                         hover: true
@@ -64,7 +64,7 @@ export const EventCard = (props) => {
                 if (!map) return
                 if (featureToHover.type) {
                     map.setFeatureState({
-                        source: featureToHover.type == 'leaf' ? featureToHover.source : SOURCE_ID,
+                        source: featureToHover.type === 'leaf' ? featureToHover.source : SOURCE_ID,
                         id: featureToHover.id,
                     }, {
                         hover: false
