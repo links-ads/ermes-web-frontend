@@ -127,7 +127,7 @@ const EventMap = (props) => {
                         <Layer {...EVENTS_LAYER_PROPS} />
                         <Layer {...CLUSTER_LAYER_PROPS} />
                     </Source>
-                    <div className="controls-contaniner" style={{ top: '45px' }}>
+                    <div className="controls-contaniner" style={{ top: '15%' }}>
                         <NavigationControl />
                     </div>
                     <Slide

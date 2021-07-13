@@ -102,7 +102,7 @@ export const Main = styled(Content)`
   height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    height: calc(100% - 128px);
+    height: calc(100% - 97px);
   }
 `
 
@@ -113,12 +113,12 @@ const StyledFooter = styled(Footer).attrs({ className: 'faster-footer' })`
   box-sizing: border-box;
   overflow: hidden;
   background-color: ${(props) => props.theme.palette.background.default};
-  height: 56px;
+  height: 25px;
   width: 100%;
   border-top: 1px solid ${(props) => rgba(props.theme.palette.text.primary, 0.5)};
   /* TODO use props.theme for media queries */
   @media (min-width: 600px) {
-    height: 64px;
+    height: 30px;
   }
   z-index: -1;
 `
@@ -128,7 +128,7 @@ export function GlobalFooter() {
   return (
     <StyledFooter>
       <FooterWrapper>
-        <Typography variant="body2" color="textSecondary" component="p">
+        <Typography variant="caption" color="textSecondary" component="p">
           {t('common:footer')}
         </Typography>
       </FooterWrapper>

@@ -320,8 +320,7 @@ export const drawPolyToMap = (map: mapboxgl.Map | undefined,
 export const MapLoadingDiv = (props) => {
   return props.isLoading && (
     <Grid style={{
-      position: 'absolute', zIndex: 10, width: '100%', height: '90%',
-      top: '10%', backgroundColor: 'black', opacity: 0.65
+      position: 'absolute', zIndex: 10, width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.65
     }}
       container justify='center' alignItems='center'>
       <Grid item style={{ top: '40%', left: '40%' }}>
