@@ -96,7 +96,6 @@ export function MapLayout(props) {
   const clusterMarkersRef = useRef<[object, object]>([{}, {}])
   // Spiderifier
   const spiderifierRef = useRef<Spiderifier | null>(null)
-  const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
 
   // MapDraw
   const mapDrawRef = useRef<MapDrawRefProps>(null)
@@ -178,7 +177,7 @@ export function MapLayout(props) {
   )
 
   // Update markers on map
-  const updateMarkers = useCallback(
+  const updateMarkersDebounced = useCallback(
     debounce((map: mapboxgl.Map | undefined) => {
       // TODO change this when final types defined
       if (map !== undefined) {
@@ -188,13 +187,19 @@ export function MapLayout(props) {
     []
   )
 
+  const updateMarkers = useCallback((map) => {
+    if (map !== undefined) {
+      clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map)
+    }
+  }, [])
+
   const onMapLoad = useCallback(
     () => {
       onMapLoadHandler(
         mapViewRef,
         spiderifierRef,
-        setSpiderLayerIds,
-        updateMarkers,
+        props.setSpiderLayerIds,
+        updateMarkersDebounced,
         unclusteredPointPinsPaint,
         EmergencyColorMap,
         viewport,
@@ -254,12 +259,12 @@ export function MapLayout(props) {
         mapMode,
         isMobileDevice,
         setHoveredPoint,
-        [...GEOJSON_LAYER_IDS, ...spiderLayerIds],
+        [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds],
         evt
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapMode, spiderLayerIds.length]
+    [mapMode, props.spiderLayerIds.length]
   )
   // Empty array ensures that effect is only run on mount and unmount
 
@@ -334,42 +339,36 @@ export function MapLayout(props) {
         features: filteredList
       })
       const map = mapViewRef.current?.getMap()
-      updateMarkers(map)
+      updateMarkersDebounced(map)
     }
   }, [
     props.isGeoJsonPrepared,
     props.filterList,
     props.prepGeoJson.features,
     props.prepGeoJson.features.length,
-    updateMarkers
+    updateMarkersDebounced
   ])
 
   useEffect(() => {
+    console.log('HOVER STATE', props.mapHoverState)
+    const map = mapViewRef.current?.getMap()
+    updateMarkers(map)
+  }, [updateMarkers, props.mapHoverState])
+
+  useEffect(() => {
     if (props.goToCoord !== undefined) {
-
-      mapViewRef.current
-        ?.getMap()
-        .flyTo(
-          {
-            center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
-            zoom: 15
-          },
-          {
-            how: 'fly',
-            longitude: props.goToCoord.longitude,
-            latitude: props.goToCoord.latitude,
-            zoom: 15
-          }
-        )
-        .once('moveend', () => {
-          setViewport({
-            ...viewport,
-            latitude: props.goToCoord.latitude,
-            longitude: props.goToCoord.longitude,
-            zoom: 15
-          })
-        })
-
+      mapViewRef.current?.getMap().flyTo(
+        {
+          center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
+          zoom: 15
+        },
+        {
+          how: 'fly',
+          longitude: props.goToCoord.longitude,
+          latitude: props.goToCoord.latitude,
+          zoom: 15
+        }
+      )
       props.setGoToCoord(undefined)
     }
   }, [props.goToCoord, props.setGoToCoord])
@@ -379,9 +378,13 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     if (clickedPoint) {
       if (polyToMap) {
-        drawPolyToMap(map, polyToMap?.feature.properties.centroid,
-          JSON.parse(polyToMap?.feature?.geometry),{},
-          EmergencyColorMap['Communication'])
+        drawPolyToMap(
+          map,
+          polyToMap?.feature.properties.centroid,
+          JSON.parse(polyToMap?.feature?.geometry),
+          {},
+          EmergencyColorMap['Communication']
+        )
       }
     } else {
       setPolyToMap(undefined)
@@ -389,11 +392,16 @@ export function MapLayout(props) {
     }
   }, [polyToMap, clickedPoint])
 
+  // pass the map for popup over
+  useEffect(() => {
+    props.setMap(mapViewRef.current?.getMap())
+  }, [])
+
   return (
     <>
       <MapHeadDrawer
         mapRef={mapViewRef}
-        filterApplyHandler={() => { }} //props.filterApplyHandler
+        filterApplyHandler={() => {}} //props.filterApplyHandler
         mapViewport={viewport}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}
@@ -405,7 +413,7 @@ export function MapLayout(props) {
         transformRequest={transformRequest}
         clickRadius={CLICK_RADIUS}
         onLoad={onMapLoad}
-        interactiveLayerIds={[...GEOJSON_LAYER_IDS, ...spiderLayerIds]}
+        interactiveLayerIds={[...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]}
         // onHover={(evt) => console.debug('Map: mouse Hover', evt)}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}

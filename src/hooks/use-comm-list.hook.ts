@@ -37,9 +37,10 @@ const reducer = (currentState, action) => {
 }
 export default function useCommList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
-
-  const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { displayErrorSnackbar } = useSnackbars()
+  
+  const [searchText, setSearchText] = useState<string | undefined>(undefined)
+  
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const commApiFactory = useMemo(

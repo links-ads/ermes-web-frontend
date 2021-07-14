@@ -7,14 +7,21 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
+import LocationOnIcon from '@material-ui/icons/LocationOn'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
+import CardWithPopup from './card-with-popup.component'
 import useCommList from '../../../../hooks/use-comm-list.hook'
 
 const useStyles = makeStyles((theme) => ({
+  viewInMap: {
+    textAlign: 'right',
+    width: '10%',
+    marginRight: '8px'
+  },
   searchField: {
     marginTop: 20,
     width: '88%',
@@ -32,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll'
   },
   card: {
-    marginBottom: 15,
+    marginBottom: 15
     // display: 'flex'
   },
   cardAction: {
@@ -62,10 +69,11 @@ export default function CommunicationPanel(props) {
   const [searchText, setSearchText] = React.useState('')
   const [commsData, getCommsData, applyFilterByText] = useCommList()
   const [height, setHeight] = React.useState(window.innerHeight)
+
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
-  
+
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
@@ -130,8 +138,7 @@ export default function CommunicationPanel(props) {
         )}
       </span>
       {!commsData.isLoading ? (
-        <div className={classes.container} id="scrollableElem"
-        style={{ height: height - 270 }}>
+        <div className={classes.container} id="scrollableElem" style={{ height: height - 270 }}>
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -159,7 +166,18 @@ export default function CommunicationPanel(props) {
             >
               {commsData.data.map((elem, i) => {
                 return (
-                  <Card key={"communication"+elem.id} className={classes.card}>
+                  <CardWithPopup
+                    key={'report' + String(elem.id)}
+                    keyID={'report' + String(elem.id)}
+                    latitude={elem!.centroid!.latitude as number}
+                    longitude={elem!.centroid!.longitude as number}
+                    className={classes.card}
+                    map={props.map}
+                    setMapHoverState={props.setMapHoverState}
+                    spiderLayerIds={props.spiderLayerIds}
+                    id={elem.id}
+                  >
+                    {' '}
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.message}
@@ -177,19 +195,20 @@ export default function CommunicationPanel(props) {
                           ' , ' +
                           (elem!.centroid!.longitude as number).toFixed(4)}
                       </Typography>
-                      <Button
-                        size="medium"
+                      <IconButton
+                        size="small"
                         onClick={() =>
                           flyToCoords(
-                            elem!.centroid!.latitude as number,
-                            elem!.centroid!.longitude as number
+                            elem?.centroid?.latitude as number,
+                            elem?.centroid?.longitude as number
                           )
                         }
+                        className={classes.viewInMap}
                       >
-                        {t('common:view_in_map')}
-                      </Button>
+                        <LocationOnIcon />
+                      </IconButton>
                     </CardActions>
-                  </Card>
+                  </CardWithPopup>
                 )
               })}
             </InfiniteScroll>

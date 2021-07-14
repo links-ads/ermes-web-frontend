@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -65,8 +65,10 @@ export function Map() {
     await filterByDate(selectedStartDate, selectedEndDate)
   }
 
-
-
+  const [map, setMap] = useState(undefined)
+  const [mapHoverState, setMapHoverState ] = useState({set: false})
+  const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
+  
   // if I close the filter tab, all the filters get reselected
   // useEffect(() => {
   //   if (toggleActiveFilterTab === false) {
@@ -152,6 +154,9 @@ export function Map() {
         selectedStartDate={selectedStartDate}
         selectedEndDate={selectedEndDate}
         setGoToCoord={setGoToCoord}
+        map={map}
+        setMapHoverState={setMapHoverState}
+        spiderLayerIds={spiderLayerIds}
       />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
@@ -172,6 +177,10 @@ export function Map() {
             isGeoJsonPrepared={isGeoJsonPrepared}
             setGoToCoord={setGoToCoord}
             goToCoord={goToCoord}
+            setMap={setMap}
+            mapHoverState={mapHoverState}
+            spiderLayerIds={spiderLayerIds}
+            setSpiderLayerIds={setSpiderLayerIds}
           />
         </MapStateContextProvider>
       </MapContainer>

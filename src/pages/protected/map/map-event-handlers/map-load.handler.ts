@@ -46,7 +46,18 @@ export async function onMapLoadHandler<T extends object>(
       if (geoJSONSource && geoJSONSource.type === 'geojson') {
         
         map.on('move', () => updateMarkers(map))
-        map.on('moveend', () => updateMarkers(map))
+        map.on('moveend', function (e) {
+          updateMarkers(map)
+          if (e.how !== undefined && e.how === 'fly') {
+              const center = map.getCenter()
+              setViewport({
+                ...viewport,
+                zoom: map.getZoom(),
+                latitude: center.lat,
+                longitude: center.lng
+              })
+          }
+      })
         updateMarkers(map)
 
         // Simple dots on leafs

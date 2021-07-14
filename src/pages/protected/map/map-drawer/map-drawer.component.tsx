@@ -106,19 +106,40 @@ export default function MapDrawer(props) {
         >
           {/* REPORTS */}
           <TabPanel value={value} index={0}>
-            <ReportPanel setGoToCoord={props.setGoToCoord} />
+            <ReportPanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+            />
           </TabPanel>
 
           {/* COMMUNICATION */}
           <TabPanel value={value} index={1}>
-            <CommunicationPanel setGoToCoord={props.setGoToCoord} />
+            <CommunicationPanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+            />
           </TabPanel>
 
           <TabPanel value={value} index={2}>
-            <MissionsPanel setGoToCoord={props.setGoToCoord} />
+            <MissionsPanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+            />
           </TabPanel>
+          
           <TabPanel value={value} index={3}>
-            <PeoplePanel setGoToCoord={props.setGoToCoord} />
+            <PeoplePanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+            />
           </TabPanel>
         </SwipeableViews>
         <AppBar
