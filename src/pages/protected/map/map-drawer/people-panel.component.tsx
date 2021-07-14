@@ -11,10 +11,23 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { useTranslation } from 'react-i18next'
 import Box from '@material-ui/core/Box'
-import FormControl from '@material-ui/core/FormControl'
-import { ListItemText, Checkbox, Input, InputLabel, MenuItem, Select } from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+import LocationOnIcon from '@material-ui/icons/LocationOn'
+import CardWithPopup from './card-with-popup.component'
+import { TextField, IconButton, CircularProgress } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
+  searchField: {
+    marginTop: 20,
+    width: '88%',
+    marginBottom: 20
+  },
+  searchButton: {
+    marginBottom: 20,
+    marginTop: 20,
+    padding: 9,
+    marginLeft: 6
+  },
   cardList: {
     overflowY: 'scroll',
     height: '90%'
@@ -55,7 +68,9 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 12
   },
   viewInMap: {
-    textAlign: 'right'
+    textAlign: 'right',
+    width: '10%',
+    marginRight: '8px'
   },
   headerBlock: {
     display: 'flex',
@@ -71,24 +86,16 @@ export default function PeoplePanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const [peopData, getPeopData, applyFilterReloadData] = usePeopleList()
-  const { usersData, isUserLoading } = useUsersList()
-  const [selUsers, setSelUsers] = React.useState({}) //['ALL' as HazardType]
+  const [peopData, getPeopData, applyFilterReloadData, applyFilterByText] = usePeopleList()
+  const [searchText, setSearchText] = React.useState('')
 
-  const handleChangeUser = (event) => {
-    const change = event.target.value
-    let tmp = { ...selUsers }
-    Object.keys(selUsers).forEach((elem) => {
-      if (change.includes(elem)) {
-        tmp[elem] = true
-      } else {
-        tmp[elem] = false
-      }
-    })
-    setSelUsers(tmp)
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value)
   }
-  const handleApplyFilter = () => {
-    applyFilterReloadData(Object.keys(selUsers).filter((item) => selUsers[item]))
+  const searchInPeople = () => {
+    if (searchText !== undefined) {
+      applyFilterByText(searchText)
+    }
   }
   const classes = useStyles()
 
@@ -117,61 +124,34 @@ export default function PeoplePanel(props) {
     )
   }, [])
 
-  // useEffect(() => {
-  //   console.log(peopData)
-  // }, [peopData])
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-  useEffect(() => {
-    if (!isUserLoading) {
-      const tmp = {}
-      usersData.forEach((e) => {
-        tmp[e?.user!.username!] = false
-      })
-      setSelUsers(tmp)
-    }
-  }, [isUserLoading, usersData])
 
   return (
     <div className="container_without_search">
       <span>
-        <FormControl className={classes.margin}>
-          <InputLabel id="demo-mutiple-checkbox-label">{t('maps:filter_by_people')}</InputLabel>
-          <Select
-            labelId="demo-mutiple-checkbox-label"
-            id="demo-mutiple-checkbox"
-            multiple
-            value={Object.keys(selUsers).filter((item) => selUsers[item])} //usersData.map((e) => e?.user?.username)
-            onChange={(event) => {
-              handleChangeUser(event)
-            }}
-            input={<Input />}
-            renderValue={(selected) =>
-              Object.keys(selUsers)
-                .filter((item) => selUsers[item])
-                .join(', ')
-            }
+        <TextField
+          id="outlined-basic"
+          label={t('common:search')}
+          variant="outlined"
+          size="small"
+          className={classes.searchField}
+          onChange={handleSearchTextChange}
+        />
+        {!peopData.isLoading ? (
+          <IconButton
+            aria-label="search"
+            color="inherit"
+            onClick={searchInPeople}
+            className={classes.searchButton}
           >
-            {usersData.map((e) => (
-              <MenuItem key={"people-select-"+e?.user?.id} value={e?.user!.username!}>
-                <Checkbox checked={selUsers[e?.user!.username!]} />
-                <ListItemText primary={e?.user?.username} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            handleApplyFilter()
-          }}
-          className={classes.applyButton}
-        >
-          {t('social:filter_apply')}
-        </Button>
+            <SearchIcon />
+          </IconButton>
+        ) : (
+          <CircularProgress color="secondary" size={30} className={classes.searchButton} />
+        )}
       </span>
       {!peopData.isLoading ? (
         <div
@@ -205,7 +185,17 @@ export default function PeoplePanel(props) {
             >
               {peopData.data.map((elem, i) => {
                 return (
-                  <Card key={"people-"+elem.id} className={classes.card}>
+                  <CardWithPopup
+                    key={'report' + String(elem.id)}
+                    keyID={'report' + String(elem.id)}
+                    latitude={elem?.location?.latitude as number}
+                    longitude={elem?.location?.longitude as number}
+                    className={classes.card}
+                    map={props.map}
+                    setMapHoverState={props.setMapHoverState}
+                    spiderLayerIds={props.spiderLayerIds}
+                    id={elem.id}
+                  >
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>
                         <div className={classes.headerBlock}>
@@ -258,7 +248,7 @@ export default function PeoplePanel(props) {
                             ' , ' +
                             (elem?.location?.longitude as number)?.toFixed(4)}
                         </Typography>
-                        <Button
+                        <IconButton
                           size="small"
                           onClick={() =>
                             flyToCoords(
@@ -268,11 +258,11 @@ export default function PeoplePanel(props) {
                           }
                           className={classes.viewInMap}
                         >
-                          {t('common:view_in_map')}
-                        </Button>
+                          <LocationOnIcon />
+                        </IconButton>
                       </CardActions>
                     </div>
-                  </Card>
+                  </CardWithPopup>
                 )
               })}
             </InfiniteScroll>

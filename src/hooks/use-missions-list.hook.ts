@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo, useState, useEffect } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
 import { MissionsApiFactory, MissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
@@ -42,12 +42,13 @@ export default function useMissionsList() {
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [textQuery, setSearchQuery] = useState<string|undefined>(undefined)
+  const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
+  const mounted = useRef(false)
 
   const fetchMissions = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-        console.log('MISSION FUNCTION CALLING')
-        missionsApiFactory.missionsGetMissions(
+      missionsApiFactory
+        .missionsGetMissions(
           undefined,
           undefined,
           undefined,
@@ -63,14 +64,14 @@ export default function useMissionsList() {
           undefined
         )
         .then((result) => {
-            let newData: MissionDto[] = transformData(result.data.data) || []
+          let newData: MissionDto[] = transformData(result.data.data) || []
 
-            let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-            dispatch({
-                type: 'RESULT',
-                value: newData,
-                tot: totToDown
-            })
+          let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
+          dispatch({
+            type: 'RESULT',
+            value: newData,
+            tot: totToDown
+          })
         })
         .catch((err) => {
           displayErrorSnackbar(err)
@@ -79,21 +80,25 @@ export default function useMissionsList() {
     },
     [missionsApiFactory, displayErrorSnackbar, textQuery]
   )
-  const applySearchQueryReloadData = (searchQuery:string) => {
+  const applySearchQueryReloadData = (searchQuery: string) => {
     dispatch(initialState)
     setSearchQuery(searchQuery)
   }
   useEffect(() => {
-    fetchMissions(
-      0,
-      (data) => {
-        return data
-      },
-      {},
-      (data) => {
-        return data
-      }
-    )
+    if (mounted.current) {
+      fetchMissions(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        }
+      )
+    } else {
+      mounted.current = true
+    }
   }, [textQuery])
   return [dataState, fetchMissions, applySearchQueryReloadData]
 }

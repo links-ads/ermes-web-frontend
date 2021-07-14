@@ -1,20 +1,24 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import CardMedia from '@material-ui/core/CardMedia'
-import FormControl from '@material-ui/core/FormControl'
-import { Checkbox, Input, InputLabel, MenuItem, Select } from '@material-ui/core'
-import { HazardType } from 'ermes-ts-sdk'
+
+import { IconButton, TextField } from '@material-ui/core'
+
 import useReportList from '../../../../hooks/use-report-list.hook'
 import List from '@material-ui/core/List'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import Card from '@material-ui/core/Card'
+
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
-import ListItemText from '@material-ui/core/ListItemText'
+
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import { useTranslation } from 'react-i18next'
+import CardWithPopup from './card-with-popup.component'
+import SearchIcon from '@material-ui/icons/Search'
+import LocationOnIcon from '@material-ui/icons/LocationOn'
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 const useStyles = makeStyles((theme) => ({
   cardList: {
@@ -62,7 +66,19 @@ const useStyles = makeStyles((theme) => ({
   },
   viewInMap: {
     textAlign: 'right',
-    width: '51%'
+    width: '10%',
+    marginRight: '8px'
+  },
+  searchField: {
+    marginTop: 20,
+    width: '88%',
+    marginBottom: 20
+  },
+  searchButton: {
+    marginBottom: 20,
+    marginTop: 20,
+    padding: 9,
+    marginLeft: 6
   }
 }))
 
@@ -75,41 +91,20 @@ export default function ReportPanel(props) {
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
   const classes = useStyles()
-  const [selHazard, setSelHazard] = React.useState({}) //['ALL' as HazardType]
-  const [repsData, getRepsData, applyFilterReloadData] = useReportList()
+  const [repsData, getRepsData, applyFilterReloadData, applyFilterByText] = useReportList()
   const { t } = useTranslation(['common', 'maps', 'social'])
+  const [searchText, setSearchText] = useState('')
+
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
-  }
-  
-  const handleChangeHazard = (event) => {
-    const change = event.target.value
-
-    let tmp = { ...selHazard }
-    Object.keys(HazardType).forEach((elem) => {
-      if (change.includes(elem)) {
-        tmp[elem] = true
-      } else {
-        tmp[elem] = false
-      }
-    })
-    return setSelHazard(tmp)
   }
 
   const flyToCoords = function (latitude, longitude) {
     props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
-  const handleApplyFilter = function () {
-    applyFilterReloadData(Object.keys(selHazard).filter((item) => selHazard[item]))
-  }
-
   useEffect(() => {
-    const tmp = {}
-    Object.keys(HazardType).map((elem) => (tmp[elem] = false))
-    setSelHazard(tmp)
-
     getRepsData(
       0,
       (data) => {
@@ -122,58 +117,43 @@ export default function ReportPanel(props) {
     )
   }, [])
 
-  // useEffect(() => {
-  //   if (!repsData.isLoading) {
-  //     // console.log('REPS DATA', repsData)
-  //     // console.log(repsData?[0].mediaURIs?[0].thumbnailURI)
-  //   }
-  // }, [repsData])
-
-
-
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value)
+  }
+
+  const searchInComm = () => {
+    if (searchText !== undefined) {
+      applyFilterByText(searchText)
+    }
+  }
 
   return (
     <div className="container_without_search">
       <span>
-        <FormControl className={classes.margin}>
-          <InputLabel id="demo-mutiple-checkbox-label">{t('maps:filter_by_hazard')}</InputLabel>
-          <Select
-            labelId="demo-mutiple-checkbox-label"
-            id="demo-mutiple-checkbox"
-            multiple
-            value={Object.keys(selHazard).filter((item) => selHazard[item])}
-            onChange={(event) => handleChangeHazard(event)}
-            input={<Input />}
-            renderValue={(selected) =>
-              Object.keys(selHazard)
-                .filter((item) => selHazard[item])
-                .map((item) => t('maps:' + HazardType[item].toLowerCase()))
-                .join(', ')
-            }
+        <TextField
+          id="outlined-basic"
+          label={t('common:search')}
+          variant="outlined"
+          size="small"
+          className={classes.searchField}
+          onChange={handleSearchTextChange}
+        />
+        {!repsData.isLoading ? (
+          <IconButton
+            aria-label="search"
+            color="inherit"
+            onClick={searchInComm}
+            className={classes.searchButton}
           >
-            {Object.keys(selHazard).map((key) => (
-              <MenuItem key={"report-select-"+key} value={key}>
-                <Checkbox checked={selHazard[key]} />
-                <ListItemText primary={t('maps:' + HazardType[key].toLowerCase())} />
-                {/* {t('maps:' + HazardType[key].toLowerCase())} */}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            handleApplyFilter()
-          }}
-          className={classes.applyButton}
-        >
-          {t('social:filter_apply')}
-        </Button>
+            <SearchIcon />
+          </IconButton>
+        ) : (
+          <CircularProgress color="secondary" size={30} className={classes.searchButton} />
+        )}
       </span>
       {!repsData.isLoading ? (
         <div
@@ -207,7 +187,17 @@ export default function ReportPanel(props) {
             >
               {repsData.data.map((elem, i) => {
                 return (
-                  <Card key={"report"+elem.id} className={classes.card}>
+                  <CardWithPopup
+                    key={'report' + String(elem.id)}
+                    keyID={'report' + String(elem.id)}
+                    latitude={elem!.location!.latitude as number}
+                    longitude={elem!.location!.longitude as number}
+                    className={classes.card}
+                    map={props.map}
+                    setMapHoverState={props.setMapHoverState}
+                    spiderLayerIds={props.spiderLayerIds}
+                    id={elem.id}
+                  >
                     <CardMedia
                       className={classes.cover}
                       image={
@@ -249,7 +239,7 @@ export default function ReportPanel(props) {
                             ' , ' +
                             (elem!.location!.longitude as number).toFixed(4)}
                         </Typography>
-                        <Button
+                        <IconButton
                           size="small"
                           onClick={() =>
                             flyToCoords(
@@ -259,11 +249,11 @@ export default function ReportPanel(props) {
                           }
                           className={classes.viewInMap}
                         >
-                          {t('common:view_in_map')}
-                        </Button>
+                          <LocationOnIcon />
+                        </IconButton>
                       </CardActions>
                     </div>
-                  </Card>
+                  </CardWithPopup>
                 )
               })}
             </InfiniteScroll>

@@ -107,8 +107,42 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
 
           {extensionData ? (
             <>
+              <div>
+                <Typography
+                  component={'span'}
+                  variant="caption"
+                  color="textSecondary"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  {'Extension data'}:&nbsp;
+                </Typography>
+                {Object.keys(extensionData).map((key) => {
+                  return (
+                    <span
+                      style={{
+                        width: '100%',
+                        display: 'block',
+                        height: '20px',
+                        marginLeft: '35px'
+                      }}
+                    >
+                      <Typography
+                        component={'span'}
+                        variant="caption"
+                        color="textSecondary"
+                        style={{ textTransform: 'uppercase' }}
+                      >
+                        {key}:&nbsp;
+                      </Typography>
+                      <Typography component={'span'} variant="body1">
+                        {'\t' + String(extensionData[key])}
+                      </Typography>
+                    </span>
+                  )
+                })}
+              </div>
               {/* {"on": true, "oxygen": "40%", "heartbeat": "96bpm", "timestamp": "2021-02-04T11:45:00Z"} */}
-              <TableContainer component={Paper}>
+              {/* <TableContainer component={Paper}>
                 <Table className={classes.table} size="small" aria-label="a dense table">
                   <TableHead>
                     <TableRow>
@@ -139,7 +173,7 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
                     </TableRow>
                   </TableBody>
                 </Table>
-              </TableContainer>
+              </TableContainer> */}
               <br />
             </>
           ) : null}
@@ -159,7 +193,6 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
 }
 
 const missCard = (data, classes, t, formatter, latitude, longitude) => {
-  console.log('MISS CARD BY ID', data)
   if (!data.isLoading) {
     return (
       <>
@@ -560,6 +593,13 @@ export function EmergencyContent({
   // useEffect(() => {
   //   console.log('REP DETAILS', repDetails)
   // }, [repDetails])
+  useEffect(() => {
+    if (!missDetails.isLoading) {
+      rest.setPolyToMap({
+        feature: missDetails.data.feature
+      })
+    }
+  }, [missDetails])
 
   useEffect(() => {
     if (!commDetails.isLoading) {

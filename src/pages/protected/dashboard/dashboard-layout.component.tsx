@@ -78,7 +78,6 @@ export function DashboardLayout({
   // )
 
   // function onLayoutChange(l: ReactGridLayout.Layout[], all: ReactGridLayout.Layouts) {
-  //   console.log("LAYOUT CHANGE",l,all)
   // }
 
   const onDragWidgetStop = useCallback<ReactGridLayout.ItemCallback>(

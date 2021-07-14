@@ -13,6 +13,8 @@ import List from '@material-ui/core/List'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useMissionsList from '../../../../hooks/use-missions-list.hook'
+import LocationOnIcon from '@material-ui/icons/LocationOn'
+import CardWithPopup from './card-with-popup.component'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -25,6 +27,11 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     padding: 9,
     marginLeft: 6
+  },
+  viewInMap: {
+    textAlign: 'right',
+    width: '10%',
+    marginRight: '8px'
   },
 
   container: {
@@ -105,9 +112,9 @@ export default function CommunicationPanel(props) {
   // useEffect(() => {
   //   setEndDate(props.selectedEndDate)
   // }, [props.selectedEndDate, setEndDate])
-  useEffect(() => {
-    console.log('MISSION DATA', missionsData)
-  }, [missionsData])
+  // useEffect(() => {
+  //   console.log('MISSION DATA', missionsData)
+  // }, [missionsData])
 
   return (
     <div className="container">
@@ -162,7 +169,17 @@ export default function CommunicationPanel(props) {
             >
               {missionsData.data.map((elem, i) => {
                 return (
-                  <Card key={"missions-"+elem.id} className={classes.card}>
+                  <CardWithPopup
+                    key={'report' + String(elem.id)}
+                    keyID={'report' + String(elem.id)}
+                    latitude={elem!.centroid!.latitude as number}
+                    longitude={elem!.centroid!.longitude as number}
+                    className={classes.card}
+                    map={props.map}
+                    setMapHoverState={props.setMapHoverState}
+                    spiderLayerIds={props.spiderLayerIds}
+                    id={elem.id}
+                  >
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.title}
@@ -180,19 +197,20 @@ export default function CommunicationPanel(props) {
                           ' , ' +
                           (elem!.centroid!.longitude as number).toFixed(4)}
                       </Typography>
-                      <Button
-                        size="medium"
+                      <IconButton
+                        size="small"
                         onClick={() =>
                           flyToCoords(
-                            elem!.centroid!.latitude as number,
-                            elem!.centroid!.longitude as number
+                            elem?.centroid?.latitude as number,
+                            elem?.centroid?.longitude as number
                           )
                         }
+                        className={classes.viewInMap}
                       >
-                        {t('common:view_in_map')}
-                      </Button>
+                        <LocationOnIcon />
+                      </IconButton>
                     </CardActions>
-                  </Card>
+                  </CardWithPopup>
                 )
               })}
             </InfiniteScroll>
