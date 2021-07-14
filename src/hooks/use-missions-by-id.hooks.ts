@@ -39,7 +39,7 @@ const useMissionsById = () => {
   const fetchMissionById = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       repApiFactory
-        .missionsGetMissionById(id, false)
+        .missionsGetMissionById(id, true)
         .then((result) => {
           let newData: GetEntityByIdOutputOfMissionDto = transformData(result.data)
           sideEffect(newData)

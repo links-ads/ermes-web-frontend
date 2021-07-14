@@ -39,10 +39,11 @@ const reducer = (currentState, action) => {
 export default function usePeopleList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const { displayErrorSnackbar } = useSnackbars()
-  //   const mounted = useRef(false)
+  const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [filters, setFilters] = useState([])
+  const mounted = useRef(false)
 
   const fetchPeople = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -59,30 +60,50 @@ export default function usePeopleList() {
           MAX_RESULT_COUNT,
           tot,
           undefined,
-          undefined,
+          searchText,
           undefined,
           undefined
         )
         .then((result) => {
-            let newData: PersonActionDto[] = transformData(result.data.data) || []
+          let newData: PersonActionDto[] = transformData(result.data.data) || []
 
-            let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-            dispatch({
-                type: 'RESULT',
-                value: newData,
-                tot: totToDown
-            })
+          let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
+          dispatch({
+            type: 'RESULT',
+            value: newData,
+            tot: totToDown
+          })
         })
         .catch((err) => {
           displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, filters]
+    [repApiFactory, displayErrorSnackbar, filters, searchText]
   )
   const applyFilterReloadData = (newFilters) => {
     // dispatch(initialState)
     setFilters(newFilters)
   }
-  return [dataState, fetchPeople, applyFilterReloadData]
+  const applySearchFilterReloadData = (query: string) => {
+    dispatch(initialState)
+    setSearchText(query)
+  }
+  useEffect(() => {
+    if (mounted.current) {
+      fetchPeople(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        }
+      )
+    } else {
+      mounted.current = true
+    }
+  }, [searchText])
+  return [dataState, fetchPeople, applyFilterReloadData, applySearchFilterReloadData]
 }

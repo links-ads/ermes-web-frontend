@@ -192,7 +192,15 @@ export const getMapBounds = (mapRef) => {
     northEast: clipBounds(bounds[1]) as [number, number]
   }
 }
-export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer, elementId, sourceId): { type: "leaf" | "point" | "cluster" | null, id: string | number | null, source?: string } => {
+export const queryHoveredFeature = (
+  map,
+  coord,
+  layers,
+  pointLayer,
+  clusterLayer,
+  elementId,
+  sourceId
+): { type: 'leaf' | 'point' | 'cluster' | null; id: string | number | null; source?: string } => {
   const point = map.project(coord)
   const bboxSize = getBboxSizeFromZoom(map.getZoom())
   var bbox = [
@@ -202,22 +210,27 @@ export const queryHoveredFeature = (map, coord, layers, pointLayer, clusterLayer
   var features = map.queryRenderedFeatures(bbox, { layers: layers })
   if (features.length > 0) {
     // filter features that match the id of the tweet
-    const clusterFeatures = features.filter(point => point.layer.id === clusterLayer)
-    const pointFeatures = features.filter(point => (point.layer.id === pointLayer) && (point.properties['id'] === elementId))
-    const leavesFeatures = features.filter(point => (point.layer.id.includes('spider-leaves') && (point.properties['id'] === elementId)))
+    const clusterFeatures = features.filter((point) => point.layer.id === clusterLayer)
+    const pointFeatures = features.filter(
+      (point) => point.layer.id === pointLayer && point.properties['id'] === elementId
+    )
+    const leavesFeatures = features.filter(
+      (point) => point.layer.id.includes('spider-leaves') && point.properties['id'] === elementId
+    )
     if (leavesFeatures.length > 0) {
       const feature = leavesFeatures[0]
-      return { type: 'leaf', id: feature.id !== undefined ? feature.id : feature.properties['id'], source: feature.source }
-    }
-    else if (pointFeatures.length > 0) {
+      return {
+        type: 'leaf',
+        id: feature.id !== undefined ? feature.id : feature.properties['id'],
+        source: feature.source
+      }
+    } else if (pointFeatures.length > 0) {
       const feature = pointFeatures[0]
       return { type: 'point', id: feature.id !== undefined ? feature.id : feature.properties['id'] }
-    }
-    else if (clusterFeatures.length === 1) {
+    } else if (clusterFeatures.length === 1) {
       const feature = clusterFeatures[0]
       return { type: 'cluster', id: feature.id }
-    }
-    else {
+    } else {
       var minDist = Number.POSITIVE_INFINITY
       var id = -1
       for (let i = 0; i < clusterFeatures.length; i++) {
@@ -241,7 +254,6 @@ const distance = (a, b) => {
   return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2))
 }
 
-
 export const removePolyToMap = (map) => {
   let s = map.getSource(POLYGON_SOURCE_ID) as mapboxgl.GeoJSONSource
   if (s && map.getLayer(POLYGON_LAYER_ID) && map.getLayer(POLYGON_STROKE_ID)) {
@@ -251,11 +263,19 @@ export const removePolyToMap = (map) => {
   }
 }
 
-export const drawPolyToMap = (map: mapboxgl.Map | undefined,
-  centroid: { latitude: number, longitude: number },
-  polygon: GeoJSON.MultiPolygon | GeoJSON.Polygon, properties: {},
-  fillColor: mapboxgl.Expression | string) => {
-
+export const drawPolyToMap = (
+  map: mapboxgl.Map | undefined,
+  centroid: { latitude: number; longitude: number },
+  polygon: GeoJSON.MultiPolygon | GeoJSON.Polygon | null,
+  properties: {},
+  fillColor: mapboxgl.Expression | string
+) => {
+  if (
+    !polygon ||
+    !centroid.latitude ||
+    !centroid.longitude
+  )
+    return
   if (!map) return
   const source_data = {
     type: 'FeatureCollection',
@@ -305,16 +325,15 @@ export const drawPolyToMap = (map: mapboxgl.Map | undefined,
     })
   }
   const zoom = getZoomFromArea(getPolygonArea(polygon.coordinates[0]))
-  map
-    ?.flyTo(
-      {
-        center: [centroid.longitude, centroid.latitude],
-        zoom: zoom
-      },
-      {
-        how: 'fly'
-      }
-    )
+  map?.flyTo(
+    {
+      center: [centroid.longitude, centroid.latitude],
+      zoom: zoom
+    },
+    {
+      how: 'fly'
+    }
+  )
 }
 
 export const MapLoadingDiv = (props) => {

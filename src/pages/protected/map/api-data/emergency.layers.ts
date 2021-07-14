@@ -8,12 +8,12 @@ const HOVERED_PIN = 'hovered-pin'
 
 const colors = Object.entries(EmergencyColorMap).flat()
 
-const pointColors: mapboxgl.Expression = ([
+const pointColors: mapboxgl.Expression = [
   'match',
   ['get', 'type'],
   ...colors,
   '#000'
-] as unknown) as mapboxgl.Expression // possibly broken types
+] as unknown as mapboxgl.Expression // possibly broken types
 
 // Circle clusters layers, transparent because it's overlapped by markers
 // but used for catching events
@@ -124,36 +124,36 @@ export function updateMarkers<P extends string>(
   markersRef: React.MutableRefObject<[object, object]>,
   // markersOnScreenRef: React.RefObject<Object>,
   map: mapboxgl.Map,
-  checkFeatureState:boolean=false
+  checkFeatureState: boolean = false
 ): [object, object] {
   let allMarkers = markersRef.current || [{}, {}]
   let [markers, markersOnScreen] = allMarkers
   // let markersOnScreen = markersOnScreenRef.current || {}
   let newMarkers = {}
-  let features = (map.querySourceFeatures(sourceName) as unknown) as GeoJSON.Feature<
+  let features = map.querySourceFeatures(sourceName) as unknown as GeoJSON.Feature<
     GeoJSON.Point,
     ClusterProps<P>
   >[]
   // for every cluster on the screen, create an HTML marker for it (if we didn't yet),
   // and add it to the map if it's not there already
   const processedClusters = [] as string[]
-  for (var i = 0; i < features.length; i++) {
+  for (let i = 0; i < features.length; i++) {
     const coords = features[i].geometry.coordinates as [number, number]
     const props = features[i].properties
     if (!props.cluster) continue
     const id = props.cluster_id
     if (processedClusters.includes(id)) continue
-    var isHover = false
-    if(checkFeatureState!==null){
+    let isHover = false
+    if (checkFeatureState !== null) {
       const state = map.getFeatureState({
         source: sourceName,
         id: id
-        })
-        isHover = state.hover ? state.hover : false
+      })
+      isHover = state.hover ? state.hover : false
     }
     let marker = markers[id]
     if (!marker || checkFeatureState) {
-      const el = donutChartHTML<ClusterProps<P>>(props, relevantKeys, colors,isHover)
+      const el = donutChartHTML<ClusterProps<P>>(props, relevantKeys, colors, isHover)
       if (el) {
         marker = markers[id] = new Marker({
           element: el
@@ -164,11 +164,10 @@ export function updateMarkers<P extends string>(
     processedClusters.push(id)
 
     // if marker is not present, add it
-    if (!markersOnScreen[id]) 
-      marker.addTo(map)
-    else{
+    if (!markersOnScreen[id]) marker.addTo(map)
+    else {
       // otherwise, if you have to check for featureState
-      if(checkFeatureState){
+      if (checkFeatureState) {
         // remove old marker
         markersOnScreen[id].remove()
         // add new one

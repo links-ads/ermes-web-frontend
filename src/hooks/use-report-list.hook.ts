@@ -40,6 +40,7 @@ export default function useReportList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
 
   const [filters, setFilters] = useState([])
+  const [querySearch, setQuerySearch] = useState<undefined | string>(undefined)
   const { displayErrorSnackbar } = useSnackbars()
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -60,13 +61,15 @@ export default function useReportList() {
           undefined,
           undefined,
           MAX_RESULT_COUNT,
-          tot
+          tot,
+          undefined,
+          querySearch
         )
         .then((result) => {
           let newData: DTResultOfReportDto[] = transformData(result.data.data) || []
 
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-
+          console.log('REPORT', newData)
           dispatch({
             type: 'RESULT',
             value: newData,
@@ -85,7 +88,10 @@ export default function useReportList() {
     dispatch(initialState)
     setFilters(newFilters)
   }
-
+  const applySearchFilterReloadData = (query: string) => {
+    dispatch(initialState)
+    setQuerySearch(query)
+  }
   useEffect(() => {
     if (mounted.current) {
       fetchReports(
@@ -101,7 +107,7 @@ export default function useReportList() {
     } else {
       mounted.current = true
     }
-  }, [filters])
+  }, [filters, querySearch])
 
-  return [dataState, fetchReports, applyFilterReloadData]
+  return [dataState, fetchReports, applyFilterReloadData, applySearchFilterReloadData]
 }
