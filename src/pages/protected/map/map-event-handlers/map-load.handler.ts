@@ -76,7 +76,7 @@ export async function onMapLoadHandler<T extends object>(
         })
 
         // Zoom behavior for spiderifier
-        map.on('zoomstart', () => spiderifierRef.current?.clearSpiders(map))
+        // map.on('zoomstart', () => spiderifierRef.current?.clearSpiders(map))
         map.on('zoomend', (e) => {
           if (e['fromCluster']) {
             const center = map.getCenter()

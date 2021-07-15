@@ -191,9 +191,10 @@ export function updateMarkers<P extends string>(
 export function updateEmergencyMarkers(
   sourceName: string,
   markersRef: React.MutableRefObject<[object, object]>, //= [ allmarkers, onscreen]
-  map: mapboxgl.Map
+  map: mapboxgl.Map,
+  checkFeatureState: boolean
 ) {
   const relevantKeys = categories
   const colors = Object.values(EmergencyColorMap)
-  return updateMarkers<EmergencyType>(sourceName, relevantKeys, colors, markersRef, map)
+  return updateMarkers<EmergencyType>(sourceName, relevantKeys, colors, markersRef, map, checkFeatureState)
 }

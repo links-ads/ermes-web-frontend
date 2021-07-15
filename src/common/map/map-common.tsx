@@ -1,5 +1,6 @@
 import React from 'react';
 import { CircularProgress, Grid } from '@material-ui/core';
+import mapboxgl from 'mapbox-gl'
 
 export const POLYGON_SOURCE_ID = 'polygon-source'
 export const POLYGON_LAYER_ID = 'polygon-layer'
@@ -144,19 +145,6 @@ export const getPolygonArea = (coordinates) => {
   return area
 }
 
-export const getZoomFromArea = (area) => {
-  if (!area) return 4
-  if (area < 0.0001) return 11
-  if (area < 0.1) return 9
-  if (area < 0.4) return 8
-  if (area < 2) return 7
-  if (area < 10) return 6
-  if (area < 40) return 5
-  if (area < 100) return 4
-  if (area < 500) return 3
-  else return 2.5
-}
-
 const getBboxSizeFromZoom = (zoom: number) => {
   if (!zoom) return 100
   if (zoom < 3) return 100
@@ -266,16 +254,11 @@ export const removePolyToMap = (map) => {
 export const drawPolyToMap = (
   map: mapboxgl.Map | undefined,
   centroid: { latitude: number; longitude: number },
-  polygon: GeoJSON.MultiPolygon | GeoJSON.Polygon | null,
+  polygon: GeoJSON.MultiPolygon | null,
   properties: {},
   fillColor: mapboxgl.Expression | string
 ) => {
-  if (
-    !polygon ||
-    !centroid.latitude ||
-    !centroid.longitude
-  )
-    return
+  if (!polygon || !centroid.latitude || !centroid.longitude) return
   if (!map) return
   const source_data = {
     type: 'FeatureCollection',
@@ -324,11 +307,19 @@ export const drawPolyToMap = (
       }
     })
   }
-  const zoom = getZoomFromArea(getPolygonArea(polygon.coordinates[0]))
-  map?.flyTo(
+  let poly = [] as any
+  polygon.coordinates.forEach((elem) => {
+    poly = poly.concat([...elem[0]])
+  })
+
+  let llb = new mapboxgl.LngLatBounds()
+  poly.forEach((element) => {
+    llb.extend(element)
+  })
+  map.fitBounds(
+    llb,
     {
-      center: [centroid.longitude, centroid.latitude],
-      zoom: zoom
+      padding: 150
     },
     {
       how: 'fly'

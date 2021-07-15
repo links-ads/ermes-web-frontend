@@ -3,7 +3,7 @@ import { SizeAwareContainer } from '../../../common/size-aware-container.compone
 
 export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-container' })`
   width: 100%;
-  height: 100%;
+  height: 108%;
   flex-grow: 1;
   position: relative;
 

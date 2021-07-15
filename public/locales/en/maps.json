@@ -44,5 +44,8 @@
   "yes": "Yes",
   "no": "No",
   "on": "Active",
-  "target" : "Target"
+  "target" : "Target",
+  "coord_person" : "Coordinator person",
+  "coord_team": "Coordinator team",
+  "coord_org": "Coordinator organization"
 }

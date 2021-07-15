@@ -37,6 +37,7 @@ import useCategoriesList from '../../../../hooks/use-categories-list.hook'
 import useCommById from '../../../../hooks/use-comm-by-id.hook'
 import useMissionsById from '../../../../hooks/use-missions-by-id.hooks'
 import Box from '@material-ui/core/Box'
+import LocationOnIcon from '@material-ui/icons/LocationOn'
 
 const useStyles = makeStyles({
   root: {
@@ -192,7 +193,22 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
   )
 }
 
-const missCard = (data, classes, t, formatter, latitude, longitude) => {
+const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords) => {
+  const details: {
+    title: null | 'coord_person' | 'coord_team' | 'coord_org'
+    content: null | string
+  } = { title: null, content: null }
+
+  if (data.data?.feature?.properties?.coordinatorPersonId) {
+    details.title = 'coord_person'
+    details.content = data.data?.feature?.properties?.coordinatorPersonId.name
+  } else if (data.data?.feature?.properties?.coordinatorTeamId) {
+    details.title = 'coord_team'
+    details.content = data.data?.feature?.properties?.coordinatorPersonId.name
+  } else if (data.data?.feature?.properties?.organization) {
+    details.title = 'coord_org'
+    details.content = data.data?.feature?.properties?.organization.name
+  }
   if (!data.isLoading) {
     return (
       <>
@@ -206,6 +222,82 @@ const missCard = (data, classes, t, formatter, latitude, longitude) => {
             <div style={{ marginBottom: 10 }}>
               <Typography component={'span'} variant="body1">
                 {data.data?.feature?.properties?.description}
+              </Typography>
+            </div>
+            <div>
+              <Typography
+                component={'span'}
+                variant="caption"
+                color="textSecondary"
+                style={{ textTransform: 'uppercase' }}
+              >
+                {t('maps:' + details.title)}:&nbsp;
+                {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+              </Typography>
+              <Typography component={'span'} variant="body1">
+                {details.content}
+              </Typography>
+              <br />
+            </div>
+            <div>
+              {data.data?.feature?.properties?.reports?.length > 0 ? (
+                <Typography
+                  component={'span'}
+                  variant="caption"
+                  color="textSecondary"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  {t('maps:reports')}:&nbsp;
+                </Typography>
+              ) : null}
+              <Typography component={'span'} variant="body1">
+                {/* {'\t' + String(extensionData[key])} */}
+                <TableContainer component={Paper}>
+                  <Table className={classes.table} size="small" aria-label="a dense table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell align="left">
+                          <b>{t('maps:hazard')}</b>
+                        </TableCell>
+                        <TableCell align="left">
+                          <b>{t('maps:organizationName')}</b>
+                        </TableCell>
+                        <TableCell align="left">
+                          <b>{t('maps:timestamp')}</b>
+                        </TableCell>
+                        <TableCell align="left"></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {data.data?.feature?.properties?.reports.map((elem) => {
+                        return (
+                          <TableRow>
+                            <TableCell component="th" align="left" scope="row">
+                              {elem.hazard}
+                            </TableCell>
+                            <TableCell align="center">{elem.organizationName}</TableCell>
+                            <TableCell align="center">
+                              {formatter.format(new Date(elem.timestamp as string))}
+                            </TableCell>
+                            <TableCell align="center">
+                              <IconButton
+                                size="small"
+                                onClick={() =>
+                                  flyToCoords({
+                                    latitude: elem?.location?.latitude as number,
+                                    longitude: elem?.location?.longitude as number
+                                  })
+                                }
+                              >
+                                <LocationOnIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
               </Typography>
             </div>
           </CardContent>
@@ -242,14 +334,17 @@ const commCard = (data, classes, t, formatter, latitude, longitude) => {
                 {data.data?.feature?.properties?.message}
               </Typography>
             </div>
-          </CardContent>
-          <CardActions className={classes.cardAction}>
             <Typography color="textSecondary">
               {formatter.format(
                 new Date(data.data?.feature?.properties?.duration?.lowerBound as string)
+              )}{' '}
+              -{' '}
+              {formatter.format(
+                new Date(data.data?.feature?.properties?.duration?.upperBound as string)
               )}
             </Typography>
-
+          </CardContent>
+          <CardActions className={classes.cardAction}>
             <Typography color="textSecondary">
               {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
             </Typography>
@@ -272,12 +367,6 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
     return (
       <>
         <Card elevation={0}>
-          {/* <CardMedia
-                        className={classes.media}
-                        image={'https://via.placeholder.com/400x200.png?text=' + t('common:image_not_available')}
-                        // image="https://via.placeholder.com/150C/O"
-                        title="Contemplative Reptile"
-                      /> */}
           <Carousel
             animation="slide"
             autoPlay={false}
@@ -626,7 +715,15 @@ export function EmergencyContent({
       break
     }
     case 'Mission':
-      todisplay = missCard(missDetails, classes, t, formatter, latitude, longitude)
+      todisplay = missCard(
+        missDetails,
+        classes,
+        t,
+        formatter,
+        latitude,
+        longitude,
+        rest.setGoToCoord
+      )
       break
     default: {
       todisplay = <div>Work in progress...</div>
@@ -666,6 +763,7 @@ export function EmergencyDrawerDetails(props) {
           latitude={props.latitude}
           longitude={props.longitude}
           setPolyToMap={props.setPolyToMap}
+          setGoToCoord={props.setGoToCoord}
         />
       )}
       {/* <Typography

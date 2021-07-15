@@ -38,6 +38,7 @@ import {
   onMapRightClickHandler
 } from './map-event-handlers'
 import { SelectionToggle } from './selection-toggle.component'
+import { DrawerToggle } from './map-drawer/drawer-toggle.component'
 import { FilterType } from './filter-type.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
@@ -176,22 +177,28 @@ export function MapLayout(props) {
     [editingFeatureType, editingFeatureId, editingFeatureArea]
   )
 
+  const updateMarkers = (map) => {
+    if (map) {
+      clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map, true)
+    }
+  }
+
   // Update markers on map
   const updateMarkersDebounced = useCallback(
     debounce((map: mapboxgl.Map | undefined) => {
       // TODO change this when final types defined
       if (map !== undefined) {
-        clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map)
+        updateMarkers(map)
       }
     }, DEBOUNCE_TIME),
     []
   )
 
-  const updateMarkers = useCallback((map) => {
-    if (map !== undefined) {
-      clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map)
-    }
-  }, [])
+  useEffect(() => {
+    const map = mapViewRef.current?.getMap()
+    if (!map) return
+    updateMarkers(map)
+  }, [props.mapHoverState])
 
   const onMapLoad = useCallback(
     () => {
@@ -350,12 +357,6 @@ export function MapLayout(props) {
   ])
 
   useEffect(() => {
-    console.log('HOVER STATE', props.mapHoverState)
-    const map = mapViewRef.current?.getMap()
-    updateMarkers(map)
-  }, [updateMarkers, props.mapHoverState])
-
-  useEffect(() => {
     if (props.goToCoord !== undefined) {
       mapViewRef.current?.getMap().flyTo(
         {
@@ -376,18 +377,22 @@ export function MapLayout(props) {
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
     const map = mapViewRef.current?.getMap()
+    setPolyToMap(undefined)
     if (clickedPoint) {
       if (polyToMap) {
         drawPolyToMap(
           map,
           polyToMap?.feature.properties.centroid,
-          JSON.parse(polyToMap?.feature?.geometry),
+          {
+            type: 'MultiPolygon',
+
+            coordinates: [JSON.parse(polyToMap?.feature?.geometry).coordinates]
+          } as GeoJSON.MultiPolygon,
           {},
           EmergencyColorMap['Communication']
         )
       }
     } else {
-      setPolyToMap(undefined)
       removePolyToMap(map)
     }
   }, [polyToMap, clickedPoint])
@@ -395,6 +400,7 @@ export function MapLayout(props) {
   // pass the map for popup over
   useEffect(() => {
     props.setMap(mapViewRef.current?.getMap())
+    props.setSpiderifierRef(spiderifierRef)
   }, [])
 
   return (
@@ -515,7 +521,13 @@ export function MapLayout(props) {
           ></ContextMenu>
         )}
       </InteractiveMap>
-      {!isMobileDevice && <SelectionToggle></SelectionToggle>}
+      {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
+      {!isMobileDevice && (
+        <DrawerToggle
+          toggleDrawerTab={props.toggleDrawerTab}
+          setToggleDrawerTab={props.setToggleDrawerTab}
+        ></DrawerToggle>
+      )}
       {!isMobileDevice && (
         <FilterType
           setToggleActiveFilterTab={props.setToggleActiveFilterTab}
@@ -535,6 +547,7 @@ export function MapLayout(props) {
           <EmergencyDetailsCard
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
+            setGoToCoord={props.setGoToCoord}
           />
         )}
       </BottomDrawerComponent>
