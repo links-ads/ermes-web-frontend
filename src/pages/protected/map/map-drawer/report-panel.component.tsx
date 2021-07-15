@@ -197,6 +197,7 @@ export default function ReportPanel(props) {
                     setMapHoverState={props.setMapHoverState}
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
+                    spiderifierRef={props.spiderifierRef}
                   >
                     <CardMedia
                       className={classes.cover}

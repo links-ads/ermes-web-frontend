@@ -176,22 +176,28 @@ export function MapLayout(props) {
     [editingFeatureType, editingFeatureId, editingFeatureArea]
   )
 
+  const updateMarkers = (map) => {
+    if (map) {
+      clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map, true)
+    }
+  }
+
   // Update markers on map
   const updateMarkersDebounced = useCallback(
     debounce((map: mapboxgl.Map | undefined) => {
       // TODO change this when final types defined
       if (map !== undefined) {
-        clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map)
+        updateMarkers(map)
       }
     }, DEBOUNCE_TIME),
     []
   )
 
-  const updateMarkers = useCallback((map) => {
-    if (map !== undefined) {
-      clusterMarkersRef.current = updateEmergencyMarkers(SOURCE_ID, clusterMarkersRef, map)
-    }
-  }, [])
+  useEffect(() => {
+    const map = mapViewRef.current?.getMap()
+    if (!map) return
+    updateMarkers(map)
+  }, [props.mapHoverState])
 
   const onMapLoad = useCallback(
     () => {
@@ -350,12 +356,6 @@ export function MapLayout(props) {
   ])
 
   useEffect(() => {
-    console.log('HOVER STATE', props.mapHoverState)
-    const map = mapViewRef.current?.getMap()
-    updateMarkers(map)
-  }, [updateMarkers, props.mapHoverState])
-
-  useEffect(() => {
     if (props.goToCoord !== undefined) {
       mapViewRef.current?.getMap().flyTo(
         {
@@ -381,7 +381,11 @@ export function MapLayout(props) {
         drawPolyToMap(
           map,
           polyToMap?.feature.properties.centroid,
-          JSON.parse(polyToMap?.feature?.geometry),
+          {
+            type: 'MultiPolygon',
+
+            coordinates: [JSON.parse(polyToMap?.feature?.geometry).coordinates]
+          } as GeoJSON.MultiPolygon,
           {},
           EmergencyColorMap['Communication']
         )
@@ -395,6 +399,7 @@ export function MapLayout(props) {
   // pass the map for popup over
   useEffect(() => {
     props.setMap(mapViewRef.current?.getMap())
+    props.setSpiderifierRef(spiderifierRef)
   }, [])
 
   return (

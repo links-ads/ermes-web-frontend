@@ -111,6 +111,7 @@ export default function MapDrawer(props) {
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
 
@@ -121,6 +122,7 @@ export default function MapDrawer(props) {
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
 
@@ -130,6 +132,7 @@ export default function MapDrawer(props) {
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
           
@@ -139,6 +142,7 @@ export default function MapDrawer(props) {
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
         </SwipeableViews>
