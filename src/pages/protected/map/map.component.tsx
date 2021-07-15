@@ -5,7 +5,7 @@ import { CulturalProps } from './provisional-data/cultural.component'
 import { MapStateContextProvider } from './map.contest'
 import AppBar from '@material-ui/core/AppBar'
 import Toolbar from '@material-ui/core/Toolbar'
-import { MuiPickersUtilsProvider, KeyboardDateTimePicker  } from '@material-ui/pickers'
+import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pickers'
 import Grid from '@material-ui/core/Grid'
 import DateFnsUtils from '@date-io/date-fns'
 import { useTranslation } from 'react-i18next'
@@ -21,6 +21,7 @@ import MapDrawer from './map-drawer/map-drawer.component'
 import ViewCompactIcon from '@material-ui/icons/ViewCompact'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import useLanguage from '../../../hooks/use-language.hook'
+import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 
 type MapFeature = CulturalProps
 
@@ -49,9 +50,11 @@ export function Map() {
   // Toggle for the side drawer
   const [toggleSideDrawer, settoggleSideDrawer] = useState<boolean>(false)
 
-  const {dateFormat} = useLanguage()
+  const { dateFormat } = useLanguage()
   // Coordinates for the fly to
-  const [goToCoord, setGoToCoord] = useState<{latitude: number, longitude: number} | undefined >(undefined)
+  const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
+    undefined
+  )
 
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
@@ -66,9 +69,9 @@ export function Map() {
   }
 
   const [map, setMap] = useState(undefined)
-  const [mapHoverState, setMapHoverState ] = useState({set: false})
+  const [mapHoverState, setMapHoverState] = useState({ set: false })
   const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-  
+  const [spiderifierRef, setSpiderifierRef] = useState<Spiderifier | null>(null)
   // if I close the filter tab, all the filters get reselected
   // useEffect(() => {
   //   if (toggleActiveFilterTab === false) {
@@ -94,8 +97,7 @@ export function Map() {
             <Grid container justify="space-around">
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 {/* Date pickers */}
-                <KeyboardDateTimePicker 
-                  
+                <KeyboardDateTimePicker
                   style={{ paddingTop: 0, marginTop: 0 }}
                   // disableToolbar
                   variant="inline"
@@ -113,7 +115,7 @@ export function Map() {
                     'aria-label': 'change date'
                   }}
                 />
-                <KeyboardDateTimePicker 
+                <KeyboardDateTimePicker
                   style={{ paddingTop: 0, marginTop: 0 }}
                   // disableToolbar
                   variant="inline"
@@ -157,6 +159,7 @@ export function Map() {
         map={map}
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
+        spiderifierRef={spiderifierRef}
       />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
@@ -181,6 +184,7 @@ export function Map() {
             mapHoverState={mapHoverState}
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
+            setSpiderifierRef={setSpiderifierRef}
           />
         </MapStateContextProvider>
       </MapContainer>

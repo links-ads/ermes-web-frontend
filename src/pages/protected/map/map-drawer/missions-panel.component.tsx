@@ -179,6 +179,7 @@ export default function CommunicationPanel(props) {
                     setMapHoverState={props.setMapHoverState}
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
+                    spiderifierRef={props.spiderifierRef}
                   >
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>

@@ -176,6 +176,7 @@ export default function CommunicationPanel(props) {
                     setMapHoverState={props.setMapHoverState}
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
+                    spiderifierRef={props.spiderifierRef}
                   >
                     {' '}
                     <CardContent>

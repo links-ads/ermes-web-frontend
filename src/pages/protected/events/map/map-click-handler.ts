@@ -1,4 +1,4 @@
-import { clearEventMap, drawPolyToMap, getZoomFromArea, parseEvent } from "../../../../common/map/map-common"
+import { clearEventMap, drawPolyToMap, parseEvent } from "../../../../common/map/map-common"
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, getColorForHazard, SOURCE_ID } from "./map-init"
 import { POLYGON_LAYER_ID, POLYGON_SOURCE_ID, POLYGON_STROKE_ID } from '../../../../common/map/map-common';
 

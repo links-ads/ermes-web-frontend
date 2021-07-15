@@ -195,6 +195,7 @@ export default function PeoplePanel(props) {
                     setMapHoverState={props.setMapHoverState}
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
+                    spiderifierRef={props.spiderifierRef}
                   >
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>
