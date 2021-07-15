@@ -44,5 +44,9 @@
   "yes": "Si",
   "no": "No",
   "on": "Attivo",
-  "target" : "Target"
+  "target" : "Target",
+  "coord_person" : "Persona coordinatrice",
+  "coord_team": "Team coordinatore",
+  "coord_org": "Organizzazione coordinatrice"
+
 }

@@ -69,6 +69,7 @@ export const EmergencyDetailsCard = function EmergencyClickPopup(props) {
       latitude={props.latitude}
       longitude={props.longitude}
       setPolyToMap={props.setPolyToMap}
+      setGoToCoord={props.setGoToCoord}
     />
   ) : null
 }
