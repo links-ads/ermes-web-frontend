@@ -11,12 +11,14 @@ import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
 import MissionsPanel from './missions-panel.component'
 import { useTranslation } from 'react-i18next'
+import { IconButton } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 850,
     maxWidth: 450,
-    height: '101%',
+    height: '108%',
     backgroundColor: theme.palette.primary.dark,
     position: 'absolute',
     zIndex: 99
@@ -70,7 +72,9 @@ export default function MapDrawer(props) {
   const handleChangeIndex = (index: number) => {
     setValue(index)
   }
-
+  const onClick = function () {
+    props.setToggleDrawerTab(false)
+  }
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
@@ -82,6 +86,15 @@ export default function MapDrawer(props) {
             boxShadow: 'none'
           }}
         >
+          <IconButton
+            onClick={onClick}
+            aria-label="toggle-selection"
+            className="mapboxgl-ctrl-icon"
+            style={{ width: '60px', marginLeft: '25px' }}
+            // disabled={disabled}
+          >
+            <ArrowBackIcon />
+          </IconButton>
           <Tabs
             value={value}
             onChange={handleChange}
@@ -135,7 +148,7 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
-          
+
           <TabPanel value={value} index={3}>
             <PeoplePanel
               setGoToCoord={props.setGoToCoord}

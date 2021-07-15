@@ -48,7 +48,7 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
 
   // Toggle for the side drawer
-  const [toggleSideDrawer, settoggleSideDrawer] = useState<boolean>(false)
+  const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
   const { dateFormat } = useLanguage()
   // Coordinates for the fly to
@@ -83,7 +83,7 @@ export function Map() {
     <>
       <AppBar position="static">
         {/* Top bar to filter by the dates */}
-        <Toolbar variant="dense">
+        {/* <Toolbar variant="dense">
           <IconButton
             aria-label="view-drawer"
             color="inherit"
@@ -96,7 +96,7 @@ export function Map() {
           <Container maxWidth="sm">
             <Grid container justify="space-around">
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                {/* Date pickers */}
+                
                 <KeyboardDateTimePicker
                   style={{ paddingTop: 0, marginTop: 0 }}
                   // disableToolbar
@@ -149,7 +149,7 @@ export function Map() {
           ) : (
             <CircularProgress color="secondary" size={30} />
           )}
-        </Toolbar>
+        </Toolbar> */}
       </AppBar>
       <MapDrawer
         toggleSideDrawer={toggleSideDrawer}
@@ -160,6 +160,7 @@ export function Map() {
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
         spiderifierRef={spiderifierRef}
+        setToggleDrawerTab={setToggleSideDrawer}
       />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
@@ -175,6 +176,8 @@ export function Map() {
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
+            toggleDrawerTab={toggleSideDrawer}
+            setToggleDrawerTab={setToggleSideDrawer}
             filterList={filterList}
             prepGeoJson={prepGeoData}
             isGeoJsonPrepared={isGeoJsonPrepared}

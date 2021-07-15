@@ -38,6 +38,7 @@ import {
   onMapRightClickHandler
 } from './map-event-handlers'
 import { SelectionToggle } from './selection-toggle.component'
+import { DrawerToggle } from './map-drawer/drawer-toggle.component'
 import { FilterType } from './filter-type.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
@@ -376,6 +377,7 @@ export function MapLayout(props) {
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
     const map = mapViewRef.current?.getMap()
+    setPolyToMap(undefined)
     if (clickedPoint) {
       if (polyToMap) {
         drawPolyToMap(
@@ -391,7 +393,6 @@ export function MapLayout(props) {
         )
       }
     } else {
-      setPolyToMap(undefined)
       removePolyToMap(map)
     }
   }, [polyToMap, clickedPoint])
@@ -520,7 +521,13 @@ export function MapLayout(props) {
           ></ContextMenu>
         )}
       </InteractiveMap>
-      {!isMobileDevice && <SelectionToggle></SelectionToggle>}
+      {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
+      {!isMobileDevice && (
+        <DrawerToggle
+          toggleDrawerTab={props.toggleDrawerTab}
+          setToggleDrawerTab={props.setToggleDrawerTab}
+        ></DrawerToggle>
+      )}
       {!isMobileDevice && (
         <FilterType
           setToggleActiveFilterTab={props.setToggleActiveFilterTab}
@@ -540,6 +547,7 @@ export function MapLayout(props) {
           <EmergencyDetailsCard
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
+            setGoToCoord={props.setGoToCoord}
           />
         )}
       </BottomDrawerComponent>
