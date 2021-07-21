@@ -40,7 +40,8 @@ export const MapHeadDrawer = (props) => {
       style={{
         position: 'absolute',
         width: '100%',
-        height: props.customStyle?.barHeight ? props.customStyle.barHeight : '10%',
+        height: '10%',
+        maxHeight:80,
         backgroundColor: 'black',
         zIndex: 10,
         opacity: 0.5

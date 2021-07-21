@@ -5,6 +5,7 @@ import {
 import {
     useAPIConfiguration
 } from './api-hooks';
+import { parseStats } from '../common/stats-cards.components';
 
 const initialState = {error:false, isLoading: true, stats: {} }
 
@@ -45,7 +46,7 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
                     events_count:result.data['events_count'] || 0,
                     hazard_count:result.data['hazards_count'],
                     info_count:result.data['infotypes_count'],
-                    languages_count:result.data['languages_count'] ? result.data['languages_count'] : 0 
+                    languages_count:result.data['languages_count'] ? parseStats(result.data['languages_count']) : 0 
                 }})
             }).catch(()=>{
                 dispatch({type:'ERROR'})
@@ -59,7 +60,7 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
                     tweets_count:result.data['tweets_count'] || 0,
                     hazard_count:result.data['hazards_count'],
                     info_count:result.data['infotypes_count'],
-                    languages_count:result.data['languages_count'],
+                    languages_count:result.data['languages_count'] ? parseStats(result.data['languages_count']) : 0 ,
                     informativeness_ratio:result.data['informativeness_ratio'] || null
                 }})
             }).catch(() => {

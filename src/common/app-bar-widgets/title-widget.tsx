@@ -23,6 +23,7 @@ export function TitleWidget() {
         {path.map((e, i) => {
           return (
             <Link
+            key={i}
               color={i === path.length - 1 ? 'textPrimary' : 'inherit'}
               aria-current="page"
               href={'/' + path.slice(0, i + 1).join('/')}

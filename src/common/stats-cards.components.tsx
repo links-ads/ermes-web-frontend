@@ -23,9 +23,8 @@ export const VolumeCard = (props) => {
     const useStyles = makeStyles(() =>
         createStyles({
             card_root: {
-                margin: '8px 8px 8px 0px',
-                padding: '2px 8px',
-                height: '100%'
+                marginBottom: '8px',
+                padding: '2px',
             },
             volume_count:
             {
@@ -50,16 +49,10 @@ export const InformativeCard = (props) => {
     const useStyles = makeStyles((theme: Theme) =>
         createStyles({
             card_root: {
-                margin: '8px 8px 8px 0px',
-                padding: '2px 8px',
-                height: '100%'
+                marginBottom: '8px',
+                padding: '2px',
             },
-            notInformativeText:
-            {
-                color: theme['palette']['text']['primary'],
-                fontWeight: 700
-            },
-            informativeText:
+            labelText:
             {
                 color: theme['palette']['text']['primary'],
                 fontWeight: 700
@@ -78,8 +71,8 @@ export const InformativeCard = (props) => {
             (
                 <div style={{ margin: 4 }}>
                     <Grid container direction='row' justify='space-between'>
-                        <Typography className={classes.informativeText} align="left" variant="caption" display='inline'>{t("social:informative_yes").toUpperCase()}</Typography>
-                        <Typography className={classes.notInformativeText} align="right" variant="caption" display='inline'>{t("social:informative_no").toUpperCase()}</Typography>
+                        <Typography className={classes.labelText} align="left" variant="caption" display='inline'>{t("social:informative_yes").toUpperCase()}</Typography>
+                        <Typography className={classes.labelText} align="right" variant="caption" display='inline'>{t("social:informative_no").toUpperCase()}</Typography>
                     </Grid>
                     <LinearProgress
                         className={classes.bar}
@@ -87,8 +80,8 @@ export const InformativeCard = (props) => {
                         variant="determinate"
                         value={props.value} />
                     <Grid container direction='row' justify='space-between'>
-                        <Typography className={classes.informativeText} align="left" variant="caption" display='inline'>{props.value.toFixed(2) + '%'}</Typography>
-                        <Typography className={classes.notInformativeText} align="right" variant="caption" display='inline'>{(100 - props.value).toFixed(2) + '%'}</Typography>
+                        <Typography className={classes.labelText} align="left" variant="caption" display='inline'>{props.value.toFixed(2) + '%'}</Typography>
+                        <Typography className={classes.labelText} align="right" variant="caption" display='inline'>{(100 - props.value).toFixed(2) + '%'}</Typography>
                     </Grid>
                 </div>)
     return (
@@ -147,11 +140,17 @@ const defs = [
     }
 ]
 
-export const parseStats = (stats, mapping): {} => {
+export const parseStats = (stats, mapping:any|undefined=undefined): {} => {
     if (!stats) return {}
-    if (Object.entries(stats).length === 0 || Object.entries(mapping).length === 0) return {}
+    if (Object.entries(stats).length === 0) return {} 
+    if(mapping && Object.entries(mapping).length === 0) return {}
+    if(mapping)
+        return Object.entries(stats).map(tuple => {
+            return { id: tuple[0], label: mapping[parseInt(tuple[0])], value: tuple[1] }
+        })
+    else
     return Object.entries(stats).map(tuple => {
-        return { id: tuple[0], label: mapping[parseInt(tuple[0])], value: tuple[1] }
+        return { id: tuple[0], label: tuple[0], value: tuple[1] }
     })
 }
 

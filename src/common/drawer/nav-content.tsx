@@ -122,9 +122,14 @@ const admin: NavContentLinkConfig[] = [
 function getLinks(role: UserRole, oid: string = 'unkn'): NavContentLinkConfig[] {
   let linksConfig: NavContentLinkConfig[] = []
   //check which admin and decision making content logged user can see
-  linksConfig = linksConfig.concat(admin.filter(i=>controlAccess(i?.to,role)),[null],decisionMaking.filter(i=>controlAccess(i?.to,role)),[null])
-  //check whether logged user can see organizations content
-  // if(controlAccess('/organizations/'+oid,role))
+  const adminContent = admin.filter(i=>controlAccess(i?.to,role))
+  if (adminContent.length > 0) 
+    linksConfig = linksConfig.concat(adminContent,[null])
+
+  const decisionMakingContent = decisionMaking.filter(i=>controlAccess(i?.to,role))
+  if (decisionMakingContent.length > 0)
+    linksConfig = linksConfig.concat(decisionMakingContent,[null])
+
   if(controlAccess('/organizations',role))
   {
     linksConfig = linksConfig.concat(orgManagement(oid),[null])
