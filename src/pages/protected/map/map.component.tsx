@@ -42,6 +42,99 @@ export function Map() {
     'Mission',
     'Report'
   ])
+
+  // const [testMem, setTestMem, removeTestMem] = useMemoryState('testtag', 'some object there')
+
+  // useEffect(() => {
+  //   console.log('TEST MEM', testMem)
+  // }, [testMem])
+
+  const initObjectState = {
+    tabs: 1,
+    xystart: [60, 60],
+    filters: {
+      datestart: {
+        selected: '2021-10-12',
+        type: 'date',
+        tab: 1
+      },
+      dateend: {
+        selected: '2021-10-12',
+        type: 'date',
+        tab: 1
+      },
+      report: {
+        title: 'report',
+        type: 'accordion',
+        tab: 1,
+        content: [
+          {
+            name: 'hazard_select',
+            options: ['option1', 'option2'],
+            type: 'multipleselect',
+            selected: []
+          },
+          {
+            name: 'status',
+            options: ['option1', 'option2', 'option3'],
+            type: 'select',
+            selected: null
+          }
+        ]
+      },
+      mission: {
+        title: 'mission',
+        type: 'accordion',
+        tab: 1,
+        content: [
+          {
+            name: 'status',
+            options: ['option1', 'option2', 'option3'],
+            type: 'select',
+            selected: null
+          }
+        ]
+      },
+      persons: {
+        title: 'persons',
+        type: 'accordion',
+        tab: 1,
+        content: [
+          {
+            name: 'status',
+            options: ['option1', 'option2', 'option3'],
+            type: 'select',
+            selected: null
+          },
+          {
+            name: 'activity_select',
+            options: ['option1', 'option2'],
+            type: 'multipleselect',
+            selected: []
+          }
+        ]
+      },
+      somethingelse: {
+        name: 'hazard_select',
+        options: ['option1', 'option2'],
+        type: 'multipleselect',
+        selected: []
+      },
+      somethingmore: {
+        name: 'status',
+        options: ['option1', 'option2', 'option3'],
+        type: 'select',
+        selected: null
+      }
+    }
+  } as FiltersDescriptorType
+
+  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(initObjectState)
+  const resetFiltersObj = () => {
+      // console.log(filtersObj)
+    setFiltersObj(initObjectState)
+    // setFiltersObj(initObjectState)
+  }
   const { data: activitiesList } = useActivitiesList()
 
   // toggle variable for te type filter tab

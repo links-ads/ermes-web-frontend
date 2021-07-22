@@ -106,10 +106,11 @@ export default function FloatingFilterContainer(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
-  const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : {})
+  const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
 
   useEffect(() => {
     console.log(props.filtersObj)
+    setFilters(props.filtersObj.filters)
   }, [props.filtersObj])
 
   return (
@@ -179,7 +180,7 @@ export default function FloatingFilterContainer(props) {
                   height: dim.height - 100
                 }}
               >
-                {filters !== {} ? (
+                {props.filtersObj.filters ? (
                   props.filtersObj.tabs > 1 ? (
                     <SwipeableViews
                       axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}

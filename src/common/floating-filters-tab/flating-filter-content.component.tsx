@@ -15,6 +15,9 @@ import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
 import Select from '@material-ui/core/Select'
 import { useMemoryState } from '../../hooks/use-memory-state.hook'
+import { forceFiltersDateRange } from '../filters/filters'
+import { _MS_PER_DAY } from '../../utils/utils.common'
+
 const useStyles = makeStyles((theme) => ({
   tab: {
     margin: '15px',
@@ -51,10 +54,10 @@ export function Tab1(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
-  const { t } = useTranslation(['common'])
+  const { t } = useTranslation(['common', 'labels', 'maps'])
   //states which will keep track of the start and end dates
-  const [selectedStartDate, setStartDate] = useState<Date | null>(null)
-  const [selectedEndDate, setEndDate] = useState<Date | null>(null)
+  const [selectedStartDate, setStartDate] = useState<Date | null>(new Date())
+  const [selectedEndDate, setEndDate] = useState<Date | null>(new Date())
 
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
@@ -64,11 +67,20 @@ export function Tab1(props) {
   const handleEndDateChange = async (date: Date | null) => {
     setEndDate(date)
   }
+
   //  props.filters
   let filters = props.filters
-  // useEffect(()=>{
-  //   const filters = props.filters
-  // }, [props.filters])
+  useEffect(() => {
+    if (props.filters['dateend'].range) {
+      forceFiltersDateRange(
+        selectedStartDate?.getTime(),
+        selectedEndDate?.getTime(),
+        props.filters['dateend'].range * _MS_PER_DAY,
+        (newDate) => setEndDate(new Date(newDate))
+      )
+    }
+  }, [props.filters, selectedStartDate])
+
   return (
     <div className={classes.tab}>
       <div>
@@ -110,7 +122,15 @@ export function Tab1(props) {
                 disableFuture={false}
                 autoOk={true}
                 ampm={false}
-                // minDate={selectedStartDate}
+                minDate={selectedStartDate}
+                maxDate={
+                  filters['dateend'].range
+                    ? new Date(
+                        new Date(selectedStartDate!).valueOf() +
+                          _MS_PER_DAY * filters['dateend'].range
+                      )
+                    : undefined
+                }
                 KeyboardButtonProps={{
                   'aria-label': 'change date'
                 }}
@@ -220,9 +240,7 @@ export function Tab1(props) {
             return (
               <div className={classes.block}>
                 <FormControl className={classes.formControl}>
-                  <InputLabel id="demo-simple-select-label">
-                    {filters[widget].name}
-                  </InputLabel>
+                  <InputLabel id="demo-simple-select-label">{filters[widget].name}</InputLabel>
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
@@ -272,7 +290,7 @@ export function Tab1(props) {
                   {filters[widget].options.map((value, key) => (
                     <MenuItem key={'report-select-' + key} value={value}>
                       <Checkbox checked={filters[widget].selected.indexOf(value) > -1} />
-                      <ListItemText primary={value} />
+                      <ListItemText primary={t('labels:' + value)} />
                       {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                     </MenuItem>
                   ))}
