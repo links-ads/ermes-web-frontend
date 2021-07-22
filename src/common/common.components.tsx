@@ -99,10 +99,10 @@ export const Main = styled(Content)`
   top: 56px;
   width: 100%;
   /* TODO use props.theme for media queries */
-  height: calc(100% - 112px);
+  // height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    height: calc(100% - 97px);
+    // height: calc(100% - 97px);
   }
 `
 

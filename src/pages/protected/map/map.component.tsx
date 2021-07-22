@@ -13,7 +13,8 @@ import Container from '@material-ui/core/Container'
 import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import FloatingFilterTab from './floatingfiltertab.component'
+import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
+import FloatingFilterContainer from '../../../common/floating-filters-tab/floating-filter-container.component'
 // import { EmergencyType } from './map/api-data/emergency.component'
 import { GetApiGeoJson } from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
@@ -131,7 +132,7 @@ export function Map() {
 
   const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(initObjectState)
   const resetFiltersObj = () => {
-      // console.log(filtersObj)
+    // console.log(filtersObj)
     setFiltersObj(initObjectState)
     // setFiltersObj(initObjectState)
   }
@@ -258,11 +259,12 @@ export function Map() {
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
-        <FloatingFilterTab
+        <FloatingFilterContainer
           toggleActiveFilterTab={toggleActiveFilterTab}
-          setFilterList={setFilterList}
-          activitiesList={activitiesList}
-        ></FloatingFilterTab>
+          filtersObj={filtersObj}
+          setFiltersObj={setFiltersObj}
+          resetFiltersObj={resetFiltersObj}
+        ></FloatingFilterContainer>
         {/* ) : null} */}
 
         <MapStateContextProvider<MapFeature>>

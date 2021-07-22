@@ -39,7 +39,7 @@ import {
 } from './map-event-handlers'
 import { SelectionToggle } from './selection-toggle.component'
 import { DrawerToggle } from './map-drawer/drawer-toggle.component'
-import { FilterType } from './filter-type.component'
+import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import { FilterButton } from '../../../common/floating-filters-tab/filter-button.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
@@ -428,6 +428,8 @@ export function MapLayout(props) {
         // onDblClick={onDoubleClick}
         onContextMenu={onContextMenu}
         ref={mapViewRef}
+        width="100%"
+        height="calc(100% + 30px)" 
       >
         <MapDraw
           ref={mapDrawRef}
