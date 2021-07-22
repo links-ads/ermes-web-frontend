@@ -40,6 +40,7 @@ import {
 import { SelectionToggle } from './selection-toggle.component'
 import { DrawerToggle } from './map-drawer/drawer-toggle.component'
 import { FilterType } from './filter-type.component'
+import { FilterButton } from '../../../common/floating-filters-tab/filter-button.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
@@ -529,10 +530,10 @@ export function MapLayout(props) {
         ></DrawerToggle>
       )}
       {!isMobileDevice && (
-        <FilterType
+        <FilterButton
           setToggleActiveFilterTab={props.setToggleActiveFilterTab}
           toggleActiveFilterTab={props.toggleActiveFilterTab}
-        ></FilterType>
+        ></FilterButton>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
 

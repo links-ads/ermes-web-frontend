@@ -4,7 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip'
 import styled from 'styled-components'
 import FilterListIcon from '@material-ui/icons/FilterList'
 
-const FilterTypeContainer = styled.div.attrs({
+const FilterButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
@@ -15,7 +15,7 @@ const FilterTypeContainer = styled.div.attrs({
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 // Button which enables the filter on the top left part of the map to filter the types
-export function FilterType(props) {
+export function FilterButton(props) {
 
   const color = props.toggleActiveFilterTab? 'secondary' : 'inherit'
 
@@ -25,7 +25,7 @@ export function FilterType(props) {
   }
 
   return (
-    <FilterTypeContainer>
+    <FilterButtonContainer>
       <Tooltip title={'UPDATE TITLE HERE'}>
         <span>
           <IconButton
@@ -38,6 +38,6 @@ export function FilterType(props) {
           </IconButton>
         </span>
       </Tooltip>
-    </FilterTypeContainer>
+    </FilterButtonContainer>
   )
 }
