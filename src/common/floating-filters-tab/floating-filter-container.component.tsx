@@ -8,7 +8,7 @@ import Draggable from 'react-draggable'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import { Button, CardActions, makeStyles, useTheme } from '@material-ui/core'
+import { Button, CardActions, CircularProgress, makeStyles, useTheme } from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
@@ -83,6 +83,13 @@ const useStyles = makeStyles((theme) => ({
       'box-sizing': 'border-box',
       cursor: 'se-resize'
     }
+  },
+  circularProgressContainer: {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 }))
 
@@ -109,7 +116,6 @@ export default function FloatingFilterContainer(props) {
   const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
 
   useEffect(() => {
-    console.log(props.filtersObj)
     setFilters(props.filtersObj.filters)
   }, [props.filtersObj])
 
@@ -118,6 +124,7 @@ export default function FloatingFilterContainer(props) {
       <Draggable
         axis="both"
         handle=".handle"
+        bounds={props.filtersObj.bounds ? props.filtersObj.bounds : 'parent'}
         defaultPosition={{ x: props.filtersObj.xystart[0], y: props.filtersObj.xystart[1] }}
         position={undefined}
         scale={1}
@@ -150,7 +157,7 @@ export default function FloatingFilterContainer(props) {
               >
                 <span className={classes.titleContainer}>
                   <Typography align="left" variant="h4">
-                    {t('filters:filters')}
+                    {t('labels:filters')}
                   </Typography>
                 </span>
                 {props.filtersObj.tabs > 1 ? (
@@ -164,8 +171,8 @@ export default function FloatingFilterContainer(props) {
                       variant="scrollable"
                       aria-label="full width tabs example"
                     >
-                      <Tab label={t('maps:Report')} {...a11yProps(0)} />
-                      <Tab label={t('maps:Communication')} {...a11yProps(1)} />
+                      <Tab label={t('labels:tab1')} {...a11yProps(0)} />
+                      <Tab label={t('labels:tab2')} {...a11yProps(1)} />
                     </Tabs>
                   </span>
                 ) : null}
@@ -198,7 +205,11 @@ export default function FloatingFilterContainer(props) {
                   ) : (
                     <Tab1 filters={filters} setFilters={setFilters} />
                   )
-                ) : <div>LOADING</div>}
+                ) : (
+                  <div className={classes.circularProgressContainer}>
+                    <CircularProgress color="secondary" size={60} />
+                  </div>
+                )}
               </CardContent>
               <CardActions
                 className={classes.cardAction}
@@ -222,7 +233,7 @@ export default function FloatingFilterContainer(props) {
                   onClick={() => {
                     const newObj = props.filtersObj
                     newObj.filters = filters
-                    props.setFiltersObj(newObj)
+                    props.applyFiltersObj(newObj)
                   }}
                 >
                   Apply

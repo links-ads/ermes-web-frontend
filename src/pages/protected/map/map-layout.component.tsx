@@ -48,6 +48,7 @@ import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.componen
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 
+
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -335,6 +336,8 @@ export function MapLayout(props) {
   )
   // Empty array ensures that effect is only run on mount and unmount
   useEffect(() => {
+    // console.log('filter list', props.filterList)
+    // console.log('prep geo json', props.prepGeoJson.features)
     if (props.isGeoJsonPrepared) {
       let filteredList = props.prepGeoJson.features.filter(
         (a) =>
@@ -429,7 +432,7 @@ export function MapLayout(props) {
         onContextMenu={onContextMenu}
         ref={mapViewRef}
         width="100%"
-        height="calc(100% + 30px)" 
+        height="calc(100% + 30px)"
       >
         <MapDraw
           ref={mapDrawRef}
