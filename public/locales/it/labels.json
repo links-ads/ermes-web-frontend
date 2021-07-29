@@ -41,7 +41,17 @@
     "organizationName":"Organizzazione",
     "status":"Stato",
     "activityName":"Attività",
-    "timestamp":"Ultimo aggiornamento"
-
-
+    "timestamp":"Ultimo aggiornamento",
+    "en":"Inglese",
+    "it":"Italiano",
+    "es":"Spagnolo",
+    "fi":"Finlandese",
+    "el":"Greco",
+    "fr":"Francese",
+    "hr":"Croato",
+    "tr":"Turco",
+    "nl":"Olandese",
+    "true":"Vero",
+    "false":"Falso",
+    "all":"Tutto"
 }

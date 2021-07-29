@@ -1,8 +1,8 @@
 import {_MS_PER_DAY} from '../../utils/utils.common'
 
 export interface FiltersType {
-    startDate: Date
-    endDate: Date
+    datestart: Date
+    dateend: Date
     languageSelect?: []
     hazardSelect?: []
     infoTypeSelect?: []
@@ -17,12 +17,12 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
         case 'START_DATE':
             return {
                 ...currentFilters,
-                startDate: action.value
+                datestart: action.value
             }
         case 'END_DATE':
             return {
                 ...currentFilters,
-                endDate: action.value
+                dateend: action.value
             }
         case 'LANGUAGES':
             return {
@@ -47,8 +47,8 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
         case 'RESET':
             const currentDate = new Date()
             return {
-                startDate: new Date(currentDate.valueOf() - _MS_PER_DAY * (action.days || 1)),
-                endDate: currentDate,
+                datestart: new Date(currentDate.valueOf() - _MS_PER_DAY * (action.days || 1)),
+                dateend: currentDate,
                 languageSelect: [],
                 hazardSelect: [],
                 infoTypeSelect: [],

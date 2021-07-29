@@ -6,7 +6,6 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-// import EventCard from './card/event-card.component';
 
 export const CardsList = (props) => {
 
@@ -14,8 +13,7 @@ export const CardsList = (props) => {
         createStyles({
             root: {
                 width: '100%',
-                height:'100%',
-                // marginBottom: '8 px',
+                // height:'100%',
                 textOverflow: "ellipsis",
                 overflow: "hidden",
                 display: 'inline-block',

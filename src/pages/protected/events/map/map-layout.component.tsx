@@ -2,12 +2,13 @@ import React, { useRef, useState, useEffect, useCallback, useContext, useMemo } 
 
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks'
 
-import { Card, CircularProgress, Grid, Slide } from '@material-ui/core'
-import InteractiveMap, { Layer, Source } from 'react-map-gl'
+import { Card, Slide } from '@material-ui/core'
+import InteractiveMap, { Layer, Source, NavigationControl } from 'react-map-gl'
 import { MapStyleToggle } from '../../map/map-style-toggle.component'
 import {
   clearEventMap,
   DEFAULT_MAP_VIEWPORT,
+  MapLoadingDiv,
   parseEventDataToGeoJson
 } from '../../../../common/map/map-common'
 import debounce from 'lodash.debounce'
@@ -30,6 +31,8 @@ import { MapHeadDrawer } from '../../../../common/map/map-drawer'
 import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
 import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
 import { FiltersDescriptorType } from '../../../../common/floating-filters-tab/floating-filter.interface'
+import { MapContainer } from '../../map/common.components';
+import { extractFilters, getDefaultFilterArgs, getDefaultSocialFilters, _MS_PER_DAY } from '../../../../utils/utils.common'
 
 const DEBOUNCE_TIME = 200 //ms
 
@@ -44,6 +47,10 @@ const EventMap = (props) => {
     type: 'FeatureCollection',
     features: []
   })
+  
+  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames, props.filtersState.infoNames, false))
+
+  const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
 
   const updateMarkers = useCallback((map) => {
     if (map) {
@@ -58,60 +65,22 @@ const EventMap = (props) => {
     []
   )
 
-  /********* EDITING MAP FILTER TAB ***/
-  const initObjectState = {
-    tabs: 1,
-    xystart: [60, 60],
-    filters: {
-      datestart: {
-        selected: '2021-10-12',
-        type: 'date',
-        tab: 1
-      },
-      dateend: {
-        selected: '2021-10-12',
-        type: 'date',
-        tab: 1,
-        range: 4
-      },
-      hazard: {
-        name: 'hazard', 
-        options: ['fire', 'Alluvione'],
-        type: 'multipleselect',
-        selected: []
-      },
-      languages: {
-        name: 'language', 
-        options: ['italian', 'english'],
-        type: 'multipleselect',
-        selected: []
-      },
-      information: {
-        name: 'Informatio bello ciao ', 
-        options: ['tutto', 'Vero', 'Falso'],
-        type: 'select',
-        selected: ''
-      }
 
-    }
-  } as FiltersDescriptorType
 
-  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(initObjectState)
+  useEffect(() => {
+    setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
+  }, [props.filtersState])
+
+
   const resetFiltersObj = () => {
-    console.log(filtersObj)
-    setFiltersObj({
-      tabs: 1,
-      xystart: [60, 60],
-      filters: null
-    })
-    // setFiltersObj(initObjectState)
+    setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
   }
 
-  const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
-  useEffect(() => {
-    console.log('FILTER OBJECT', filtersObj)
-  }, [filtersObj])
-  /********* END EDITING MAP FILTER TAB ***/
+  const applyFilters = (filtersObj) => {
+    props.filterApplyHandler(extractFilters(filtersObj.filters,props.filtersState.mapHazardsToIds,props.filtersState.mapInfosToIds))
+    setToggleActiveFilterTab(false)
+  }
+
 
   // update markers as soon as the hover state changes
   useEffect(() => {
@@ -133,118 +102,106 @@ const EventMap = (props) => {
       style={{
         display: 'flex',
         width: '100%',
-        height: '70vh',
         minHeight: 400,
         position: 'relative'
       }}
     >
-      {props.isLoading && (
-        <Grid
-          style={{
-            position: 'absolute',
-            zIndex: 10,
-            width: '100%',
-            height: '90%',
-            top: '10%',
-            backgroundColor: 'black',
-            opacity: 0.65
-          }}
-          container
-          justify="center"
-          alignItems="center"
-        >
-          <Grid item style={{ top: '40%', left: '40%' }}>
-            <CircularProgress size={100} thickness={4} />
-          </Grid>
-        </Grid>
-      )}
+      <MapLoadingDiv
+        isLoading={props.isLoading}
+      />
       <MapHeadDrawer
         mapRef={props.mapRef}
-        filterApplyHandler={props.filterApplyHandler}
+        filterApplyHandler={()=>props.filterApplyHandler()}
         mapViewport={mapViewport}
         isLoading={props.isLoading}
       />
       <FloatingFilterContainer
         toggleActiveFilterTab={toggleActiveFilterTab}
         filtersObj={filtersObj}
-        setFiltersObj={setFiltersObj}
+        setFiltersObj={applyFilters}
         resetFiltersObj={resetFiltersObj}
       ></FloatingFilterContainer>
-      <InteractiveMap
-        {...mapViewport}
-        width="100%"
-        height="100%"
-        mapStyle={mapTheme?.style}
-        mapboxApiUrl={mapServerURL}
-        mapboxApiAccessToken={apiKey}
-        transformRequest={transformRequest}
-        onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
-        ref={props.mapRef}
-        interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
-        onClick={(evt) =>
-          mapClickHandler(
-            evt,
-            props.mapRef,
-            props.leftClickState,
-            props.setLeftClickState,
-            mapViewport
-          )
-        }
-        onLoad={() => {
-          if (props.mapRef.current) {
-            try {
-              let map = props.mapRef?.current?.getMap()
-              mapOnLoadHandler(
-                map,
-                props.spiderifierRef,
-                props.setSpiderLayerIds,
-                setMapViewport,
-                SOURCE_ID,
-                EVENTS_LAYER_ID,
-                unclusteredPointsProps,
-                EVENTS_LAYER_PROPS.type,
-                updateMarkersDebounced,
-                unclusteredPointsProps
-              )
-              // update map markers as soon as source data is loaded
-              map.on('data', (e) => {
-                if (e.source?.type === 'geojson' && e.isSourceLoaded) {
-                  updateMarkers(map)
-                }
-              })
-            } catch (err) {
-              console.error('Map Load Error', err)
-            }
+      <MapContainer>
+
+        <InteractiveMap
+          {...mapViewport}
+          width="100%"
+          height="100%"
+          mapStyle={mapTheme?.style}
+          mapboxApiUrl={mapServerURL}
+          mapboxApiAccessToken={apiKey}
+          transformRequest={transformRequest}
+          onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
+          ref={props.mapRef}
+          interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
+          onClick={(evt) =>
+            mapClickHandler(
+              evt,
+              props.mapRef,
+              props.leftClickState,
+              props.setLeftClickState,
+              props.spiderifierRef
+            )
           }
-        }}
-      >
-        <Source id={SOURCE_ID} data={geoJsonData} type="geojson" {...SOURCE_PROPS}>
-          <Layer {...EVENTS_LAYER_PROPS} />
-          <Layer {...CLUSTER_LAYER_PROPS} />
-        </Source>
-        <Slide
-          direction="left"
-          in={props.leftClickState.showPoint}
-          mountOnEnter={true}
-          unmountOnExit={true}
-          timeout={800}
+          onLoad={() => {
+            if (props.mapRef.current) {
+              try {
+                let map = props.mapRef?.current?.getMap()
+                mapOnLoadHandler(
+                  map,
+                  props.spiderifierRef,
+                  props.setSpiderLayerIds,
+                  setMapViewport,
+                  SOURCE_ID,
+                  EVENTS_LAYER_ID,
+                  unclusteredPointsProps,
+                  EVENTS_LAYER_PROPS.type,
+                  updateMarkersDebounced,
+                  unclusteredPointsProps
+                )
+                // update map markers as soon as source data is loaded
+                map.on('data', (e) => {
+                  if (e.source?.type === 'geojson' && e.isSourceLoaded) {
+                    updateMarkers(map)
+                  }
+                })
+              } catch (err) {
+                console.error('Map Load Error', err)
+              }
+            }
+          }}
         >
-          <MapSlide>
-            <Card raised={false}>
-              <EventContent
-                mapIdsToHazards={props.mapIdsToHazards}
-                item={props.leftClickState.pointFeatures}
-                chipSize={'small'}
-                textSizes={{ title: 'body1', body: 'caption' }}
-              />
-            </Card>
-          </MapSlide>
-        </Slide>
-      </InteractiveMap>
-      <FilterButton
-        setToggleActiveFilterTab={setToggleActiveFilterTab}
-        toggleActiveFilterTab={toggleActiveFilterTab}
-      ></FilterButton>
+          <Source id={SOURCE_ID} data={geoJsonData} type="geojson" {...SOURCE_PROPS}>
+            <Layer {...EVENTS_LAYER_PROPS} />
+            <Layer {...CLUSTER_LAYER_PROPS} />
+          </Source>
+          <div className="controls-contaniner" style={{ top: '15%' }}>
+            <NavigationControl />
+          </div>
+          <Slide
+            direction="left"
+            in={props.leftClickState.showPoint}
+            mountOnEnter={true}
+            unmountOnExit={true}
+            timeout={800}
+          >
+            <MapSlide>
+              <Card raised={false}>
+                <EventContent
+                  mapIdsToHazards={props.filtersState.mapIdsToHazards}
+                  item={props.leftClickState.pointFeatures}
+                  chipSize={'small'}
+                  textSizes={{ title: 'body1', body: 'caption' }}
+                />
+              </Card>
+            </MapSlide>
+          </Slide>
+        </InteractiveMap>
+        <FilterButton
+          setToggleActiveFilterTab={setToggleActiveFilterTab}
+          toggleActiveFilterTab={toggleActiveFilterTab}
+        ></FilterButton>
+      </MapContainer>
       {props.mapRef.current?.getMap() && (
         <MapStyleToggle
           mapViewRef={props.mapRef}

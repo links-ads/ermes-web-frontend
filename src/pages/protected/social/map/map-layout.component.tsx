@@ -8,13 +8,19 @@ import { Card, Slide } from '@material-ui/core';
 import { MapContainer } from '../../map/common.components';
 
 
-import { DEFAULT_MAP_VIEWPORT, parseDataToGeoJson,MapLoadingDiv } from '../../../../common/map/map-common';
+import { DEFAULT_MAP_VIEWPORT, parseDataToGeoJson, MapLoadingDiv } from '../../../../common/map/map-common';
 import { TweetContent } from '../card/tweet-card-content';
 import { CLUSTER_COUNT_LAYER_PROPS, CLUSTER_LAYER_ID, CLUSTER_LAYER_PROPS, HOVER_TWEETS_LAYER_PROPS, SOURCE_ID, TWEETS_LAYER_ID, TWEETS_LAYER_PROPS, unclusteredPointsProps } from './map-init';
 import { mapClickHandler } from './map-click-handler';
 import { mapOnLoadHandler } from '../../../../common/map/map-on-load-handler';
 import { AppConfig, AppConfigContext } from '../../../../config';
 import { MapHeadDrawer } from '../../../../common/map/map-drawer';
+
+
+import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
+import { FiltersDescriptorType } from '../../../../common/floating-filters-tab/floating-filter.interface'
+import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
+import { extractFilters, getDefaultFilterArgs, getDefaultSocialFilters, _MS_PER_DAY } from '../../../../utils/utils.common';
 
 const tweetImage = new Image(50, 50);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
@@ -29,17 +35,19 @@ const SocialMap = (props) => {
         transformRequest,
         mapServerURL
     } = useMapPreferences()
-
+    
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
-
+    
     const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
     })
 
-
+    const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
+    const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
+    
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
@@ -50,6 +58,21 @@ const SocialMap = (props) => {
         }
     }, [props.mapRef, props.data])
 
+
+    useEffect(() => {
+        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
+    }, [props.filtersState])
+
+    
+    const resetFiltersObj = () => {
+        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
+    }
+
+    const applyFilters = (filtersObj) => {
+        props.filterApplyHandler(extractFilters(filtersObj.filters,props.filtersState.mapHazardsToIds,props.filtersState.mapInfosToIds))
+        setToggleActiveFilterTab(false)
+      }
+
     return (
         <div style={{ display: 'flex', width: '100%', minHeight: 400, position: 'relative' }}>
             <MapLoadingDiv
@@ -57,10 +80,16 @@ const SocialMap = (props) => {
             />
             <MapHeadDrawer
                 mapRef={props.mapRef}
-                filterApplyHandler={props.filterApplyHandler}
+                filterApplyHandler={()=>props.filterApplyHandler()}
                 mapViewport={mapViewport}
                 isLoading={props.isLoading}
             />
+            <FloatingFilterContainer
+                toggleActiveFilterTab={toggleActiveFilterTab}
+                filtersObj={filtersObj}
+                setFiltersObj={applyFilters}
+                resetFiltersObj={resetFiltersObj}
+            ></FloatingFilterContainer>
             <MapContainer>
                 <InteractiveMap
                     {...mapViewport}
@@ -132,8 +161,8 @@ const SocialMap = (props) => {
                             <Card raised={false}>
                                 <TweetContent
                                     tweet={props.leftClickState.pointFeatures}
-                                    mapIdsToHazards={props.mapIdsToHazards}
-                                    mapIdsToInfos={props.mapIdsToInfos}
+                                    mapIdsToHazards={props.filtersState.mapIdsToHazards}
+                                    mapIdsToInfos={props.filtersState.mapIdsToInfos}
                                     textSizes={{
                                         subheader: 'caption',
                                         body: 'body2'
@@ -145,6 +174,10 @@ const SocialMap = (props) => {
                         </MapSlide>
                     </Slide>
                 </InteractiveMap>
+                <FilterButton
+                    setToggleActiveFilterTab={setToggleActiveFilterTab}
+                    toggleActiveFilterTab={toggleActiveFilterTab}
+                ></FilterButton>
             </MapContainer>
             {
                 (props.mapRef.current?.getMap()) &&

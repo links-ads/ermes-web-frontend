@@ -329,13 +329,16 @@ export const drawPolyToMap = (
 
 export const MapLoadingDiv = (props) => {
   return props.isLoading && (
-    <Grid style={{
-      position: 'absolute', zIndex: 10, width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.65
-    }}
-      container justify='center' alignItems='center'>
-      <Grid item style={{ top: '40%', left: '40%' }}>
-        <CircularProgress size={100} thickness={4} />
+    <div style={{display:'flex'}}>
+      <Grid style={{
+        position: 'absolute', zIndex: 10, height: '100%', backgroundColor: 'black', opacity: 0.65
+      }}
+        container justify='center' alignItems='center'>
+        <Grid item style={{ top: '40%', left: '40%' }}>
+          <CircularProgress size={100} thickness={4} />
+        </Grid>
       </Grid>
-    </Grid>)
+    </div>
+  )
 }
 

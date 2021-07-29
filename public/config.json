@@ -27,11 +27,11 @@
     }
   },
   "fusionAuth": {
-    "url": "https://auth.faster-project.cloud",
-    "clientId": "1a3f6b36-4917-48c1-9144-e2dd4ed6d642",
-    "tenantId": "ae5f83c9-11cf-4e84-a4cd-404d40bd6c0b"
+    "url": "https://auth.shelter-project.cloud",
+    "clientId": "7b31e994-862b-466a-ab97-30cd36973829",
+    "tenantId": "3df7c97a-0794-4db8-9a11-8084766c1a5e"
   },
   "backend": {
-    "url": "https://api-dev.faster-project.cloud"
+    "url": "https://api-dev.shelter-project.cloud"
   }
 }

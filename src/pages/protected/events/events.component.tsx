@@ -4,8 +4,6 @@ import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook'
 
-import SocialFilter from '../../../common/filters/filters';
-
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { PieChartStats, VolumeCard, parseStats } from '../../../common/stats-cards.components';
 
@@ -44,14 +42,12 @@ const EventsComponent = (props) => {
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const mapRef = useRef<InteractiveMap>(null)
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['social', 'labels'])
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
     const [tabValue, setTabValue] = React.useState(0);
-
-
 
     useEffect(() => {
         fetchFilters()
@@ -60,7 +56,7 @@ const EventsComponent = (props) => {
     useEffect(() => {
         fetchEventsStat(filterArgs)
         fetchEvents(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
-    }, [filterArgs,fetchEventsStat])
+    }, [filterArgs])
 
     useEffect(() => {
         setShownData({ size: MINI_PAGE_SIZE, data: [...eventAnnotations.data].splice(0, MINI_PAGE_SIZE) })
@@ -75,18 +71,6 @@ const EventsComponent = (props) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid style={{ margin: 8 }} item lg='auto' sm='auto' xl='auto'>
-                <SocialFilter
-                    onFilterApply={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
-                    hazardNames={filtersState.hazardNames}
-                    infoNames={filtersState.infoNames}
-                    mapHazardsToIds={filtersState.mapHazardsToIds}
-                    mapInfosToIds={filtersState.mapInfosToIds}
-                    renderInformative={false}
-                    isError={filtersState.error}
-                    filters={filterArgs}
-                />
-            </Grid>
             <Grid container direction="row" justify="flex-start" alignContent='space-around' >
                 <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3 }}>
                     <AppBar position="static" color="default" className={classes.appbar}>
@@ -145,7 +129,7 @@ const EventsComponent = (props) => {
                                                 (Object.entries(eventStats.stats.languages_count).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                                     (<div className={classes.pieContainer}>
                                                         <PieChartStats
-                                                            prefix='social:lang_'
+                                                            prefix='labels:'
                                                             data={eventStats.stats.languages_count} />
                                                     </div>)
                                     }
@@ -191,16 +175,15 @@ const EventsComponent = (props) => {
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
                     <Grid style={{ flex: 1, width: '100%' }} container justify='space-evenly'>
                         <EventMap
-                            fetchingArgs={filterArgs}
-                            mapIdsToHazards={filtersState.mapIdsToHazards}
-                            mapIdsToInfos={filtersState.mapIdsToInfos}
+                            filtersState={filtersState}
+                            filterArgs={filterArgs}
                             mapRef={mapRef}
                             leftClickState={mapLeftClickState}
                             setLeftClickState={setMapLeftClickState}
                             data={eventAnnotations.data}
                             isLoading={eventAnnotations.isLoading}
                             isError={eventAnnotations.error}
-                            filterApplyHandler={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
+                            filterApplyHandler={(filters)=>filterApplyHandler(filters,filterArgs,setFilterArgs,mapRef)}
                             mapHoverState={mapHoverState}
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}

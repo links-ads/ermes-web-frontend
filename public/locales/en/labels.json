@@ -41,5 +41,17 @@
     "organizationName":"Organization",
     "status":"Status",
     "activityName":"Activity",
-    "timestamp":"Last update"
+    "timestamp":"Last update",
+    "en": "English",
+    "it": "Italian",
+    "es": "Spanish",
+    "fi": "Finnish",
+    "el": "Greek",
+    "fr": "French",
+    "hr": "Croatian",
+    "tr": "Turkish",
+    "nl":"Dutch",
+    "true":"True",
+    "false":"False",
+    "all":"All"
 }

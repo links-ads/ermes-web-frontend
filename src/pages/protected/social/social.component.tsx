@@ -1,8 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 
-import SocialFilter from '../../../common/filters/filters'
-
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 
@@ -42,7 +40,7 @@ const SocialComponent = (props) => {
 
     const classes = useStyles();
 
-    const { t } = useTranslation(['social'])
+    const { t } = useTranslation(['social','labels'])
     const mapRef = useRef<InteractiveMap>(null)
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
@@ -60,11 +58,11 @@ const SocialComponent = (props) => {
     useEffect(() => {
         fetchFilters()
     }, [fetchFilters])
-
+    
     useEffect(() => {
         fetchTweetsStat(filterArgs)
         fetchTweetAnnotations(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
-    }, [filterArgs,fetchTweetsStat])
+    }, [filterArgs])
 
     useEffect(() => {
         setShownData({ size: MINI_PAGE_SIZE, data: [...tweetAnnotations.data].splice(0, MINI_PAGE_SIZE) })
@@ -79,18 +77,6 @@ const SocialComponent = (props) => {
 
     return (
         <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid style={{ margin: 8 }} item lg='auto' sm='auto' xl='auto'>
-                <SocialFilter
-                    onFilterApply={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
-                    hazardNames={filtersState.hazardNames}
-                    infoNames={filtersState.infoNames}
-                    mapHazardsToIds={filtersState.mapHazardsToIds}
-                    mapInfosToIds={filtersState.mapInfosToIds}
-                    renderInformative={true}
-                    isError={filtersState.error}
-                    filters={filterArgs}
-                />
-            </Grid>
             <Grid container direction="row" justify="flex-start" alignContent='space-around' >
                 <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3 }}>
                     <AppBar position="static" color="default" className={classes.appbar}>
@@ -149,7 +135,7 @@ const SocialComponent = (props) => {
                                                 (Object.entries(tweetsStats.stats.languages_count).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                                     (<div className={classes.pieContainer}>
                                                         <PieChartStats
-                                                            prefix='social:lang_'
+                                                            prefix='labels:'
                                                             data={tweetsStats.stats.languages_count} />
                                                     </div>)
                                     }
@@ -193,17 +179,18 @@ const SocialComponent = (props) => {
                     </TabPanel>
                 </Grid>
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
-                    <Grid style={{ flex: 1, width: '100%', height: '90%' }} container justify='space-evenly'>
+                    <Grid style={{ flex: 1, width: '100%'}} container justify='space-evenly'>
                         <SocialMap
-                            mapIdsToHazards={filtersState.mapIdsToHazards}
-                            mapIdsToInfos={filtersState.mapIdsToInfos}
+                            filtersState={filtersState}
                             mapRef={mapRef}
+                            fetchTweetsStat={fetchTweetsStat}
+                            fetchTweetAnnotations={fetchTweetAnnotations}
                             leftClickState={mapLeftClickState}
                             setLeftClickState={setMapLeftClickState}
                             data={tweetAnnotations.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
-                            filterApplyHandler={(args) => filterApplyHandler(args, filterArgs, setFilterArgs, mapRef)}
+                            filterApplyHandler={(filters)=>filterApplyHandler(filters,filterArgs,setFilterArgs,mapRef)}
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}
                             setSpiderLayerIds={setSpiderLayerIds}

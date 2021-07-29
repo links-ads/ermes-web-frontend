@@ -102,7 +102,7 @@ export const Main = styled(Content)`
   // height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    // height: calc(100% - 97px);
+    height: calc(100% - 102px);
   }
 `
 

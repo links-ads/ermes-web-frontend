@@ -40,8 +40,8 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
     const socialApiFactory = useMemo(()=> SocialApiFactory(backendAPIConfig),[backendAPIConfig])
     const fetchEventStats = useCallback((args) => {
         dispatch({ type: 'FETCH' })
-        socialApiFactory.socialGetEventStatistics(args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
+        socialApiFactory.socialGetEventStatistics(args.languageSelect, args.datestart,
+            args.dateend, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
                 dispatch({type:'RESULT',value:{
                     events_count:result.data['events_count'] || 0,
                     hazard_count:result.data['hazards_count'],
@@ -54,8 +54,8 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
     }, [socialApiFactory])
     const fetchTweetStats = useCallback( (args) => {
         dispatch({type:'FETCH'})
-        socialApiFactory.socialGetTweetStatistics(args.informativeSelect, args.languageSelect, args.startDate,
-            args.endDate, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
+        socialApiFactory.socialGetTweetStatistics(args.informativeSelect, args.languageSelect, args.datestart,
+            args.dateend, args.infoTypeSelect, args.hazardSelect, args.southWest, args.northEast).then(result => {
                 dispatch({type:'RESULT',value:{
                     tweets_count:result.data['tweets_count'] || 0,
                     hazard_count:result.data['hazards_count'],

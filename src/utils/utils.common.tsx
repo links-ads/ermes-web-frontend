@@ -1,6 +1,8 @@
 import { Typography } from '@material-ui/core';
+import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import React from 'react';
 import { FiltersType } from '../common/filters/reducer';
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface';
 import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
 
 export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -133,8 +135,8 @@ export const showMoreSocialData = (shownData, annotationData, pageSize, setShown
 export const getDefaultFilterArgs = (mapConfig) => {
   const currentDate = new Date()
   return {
-    startDate: new Date(currentDate.valueOf() - _MS_PER_DAY),
-    endDate: currentDate,
+    datestart: new Date(currentDate.valueOf() - _MS_PER_DAY),
+    dateend: currentDate,
     languageSelect: [],
     hazardSelect: [],
     infoTypeSelect: [],
@@ -143,6 +145,54 @@ export const getDefaultFilterArgs = (mapConfig) => {
     northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
   } as FiltersType
 }
+
+export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, renderInformative = true) => {
+  const obj = {
+    tabs: 1,
+    xystart: [60, 60],
+    filters: {
+      datestart: {
+        selected: defaultArgs.datestart.toDateString(),
+        type: 'date',
+        tab: 1
+      },
+      dateend: {
+        selected: defaultArgs.dateend.toDateString(),
+        type: 'date',
+        tab: 1,
+        range: 4
+      },
+      languageSelect: {
+        name: 'language',
+        options: Object.values(SocialModuleLanguageType),
+        type: 'multipleselect',
+        selected: defaultArgs.languageSelect
+      },
+      hazardSelect: {
+        name: 'hazard',
+        options: hazardNames,
+        type: 'multipleselect',
+        selected: defaultArgs.hazardSelect
+      },
+      infoTypeSelect: {
+        name: 'information',
+        options: infoNames,
+        type: 'multipleselect',
+        selected: defaultArgs.infoTypeSelect
+      },
+    }
+  } as FiltersDescriptorType
+  if (renderInformative) {
+    obj.filters!['informativeSelect'] = {
+      name: 'Informative',
+      options: ['none', 'true', 'false'],
+      type: 'select',
+      selected: defaultArgs.informativeSelect
+    }
+  }
+  return obj
+}
+
 const checkEqualArrays = (a, b) => {
   if (a === b) return true;
   if (a == null || b == null) return false;
@@ -249,4 +299,14 @@ export const filterApplyHandler = (newArgs = {}, stateArgs, setArgs, mapRef) => 
     ...newArgs,
     ...getMapBounds(mapRef)
   })
+}
+
+export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
+  const selectedFilters = {}
+  Object.entries(filtersObj).forEach((e: [string, any]) => selectedFilters[e[0]] = e[1].selected)
+  selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map(h => mapHazards[h])
+  selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map(i => mapInfos[i])
+  if(selectedFilters['informativeSelect'] !== undefined)
+    selectedFilters['informativeSelect'] = selectedFilters['informativeSelect'] === 'none' ? undefined : selectedFilters['informativeSelect'] === 'true'
+    return selectedFilters
 }

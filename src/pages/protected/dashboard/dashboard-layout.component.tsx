@@ -53,8 +53,8 @@ export function DashboardLayout({
   const dashboardWidgetsConfigHash = useMemo(()=> hash(dashboardWidgetsConfig, { algorithm: 'md5' }),[dashboardWidgetsConfig])
   const [filterArgs, setFilterArgs] = useState<FiltersType>(
     {
-      startDate: new Date(new Date().valueOf() - _MS_PER_DAY * 30 ),
-      endDate: new Date()
+      datestart: new Date(new Date().valueOf() - _MS_PER_DAY * 30 ),
+      dateend: new Date()
     })
 
   // const addWidget = useCallback(
