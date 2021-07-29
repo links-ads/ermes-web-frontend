@@ -102,7 +102,7 @@ export const Main = styled(Content)`
   // height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    height: calc(100% - 102px);
+    height: calc(100% - 112px);
   }
 `
 
@@ -118,7 +118,7 @@ const StyledFooter = styled(Footer).attrs({ className: 'faster-footer' })`
   border-top: 1px solid ${(props) => rgba(props.theme.palette.text.primary, 0.5)};
   /* TODO use props.theme for media queries */
   @media (min-width: 600px) {
-    height: 30px;
+    height: 40px;
   }
   z-index: -1;
 `
