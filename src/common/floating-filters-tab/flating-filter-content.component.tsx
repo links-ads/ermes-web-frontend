@@ -114,11 +114,11 @@ export function Tab1(props) {
   }, [props.filters, selectedStartDate, selectedEndDate])
 
   useEffect(() => {
-    setEndDate(filters.dateend.selected)
+    setEndDate(filters.dateend.selected ? new Date(filters.dateend.selected) : null)
   }, [filters.dateend.selected])
-
+ 
   useEffect(() => {
-    setStartDate(filters.datestart.selected)
+    setStartDate(filters.datestart.selected ? new Date(filters.datestart.selected) : null)
   }, [filters.datestart.selected])
 
   return (

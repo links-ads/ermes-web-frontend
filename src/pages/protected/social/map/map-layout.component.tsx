@@ -35,19 +35,19 @@ const SocialMap = (props) => {
         transformRequest,
         mapServerURL
     } = useMapPreferences()
-    
+
     const appConfig = useContext<AppConfig>(AppConfigContext)
     const mapConfig = appConfig.mapboxgl
     const [mapViewport, setMapViewport] = useState(mapConfig?.mapViewport || DEFAULT_MAP_VIEWPORT)
-    
+
     const [geoJsonData, setGeoJsonData] = useState<GeoJSON.FeatureCollection>({
         type: 'FeatureCollection',
         features: []
     })
 
     const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
-    const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
-    
+    const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
+
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
@@ -60,37 +60,37 @@ const SocialMap = (props) => {
 
 
     useEffect(() => {
-        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
+        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
     }, [props.filtersState])
 
-    
+
     const resetFiltersObj = () => {
-        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames,props.filtersState.infoNames))
+        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
     }
 
     const applyFilters = (filtersObj) => {
-        props.filterApplyHandler(extractFilters(filtersObj.filters,props.filtersState.mapHazardsToIds,props.filtersState.mapInfosToIds))
+        props.filterApplyHandler(extractFilters(filtersObj.filters, props.filtersState.mapHazardsToIds, props.filtersState.mapInfosToIds))
         setToggleActiveFilterTab(false)
-      }
+    }
 
     return (
         <div style={{ display: 'flex', width: '100%', minHeight: 400, position: 'relative' }}>
-            <MapLoadingDiv
-                isLoading={props.isLoading}
-            />
             <MapHeadDrawer
                 mapRef={props.mapRef}
-                filterApplyHandler={()=>props.filterApplyHandler()}
+                filterApplyHandler={() => props.filterApplyHandler()}
                 mapViewport={mapViewport}
                 isLoading={props.isLoading}
             />
             <FloatingFilterContainer
                 toggleActiveFilterTab={toggleActiveFilterTab}
                 filtersObj={filtersObj}
-                setFiltersObj={applyFilters}
+                applyFiltersObj={applyFilters}
                 resetFiltersObj={resetFiltersObj}
             ></FloatingFilterContainer>
             <MapContainer>
+                <MapLoadingDiv
+                    isLoading={props.isLoading}
+                />
                 <InteractiveMap
                     {...mapViewport}
                     width='100%'

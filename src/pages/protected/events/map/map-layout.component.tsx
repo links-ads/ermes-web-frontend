@@ -47,8 +47,8 @@ const EventMap = (props) => {
     type: 'FeatureCollection',
     features: []
   })
-  
-  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig),props.filtersState.hazardNames, props.filtersState.infoNames, false))
+
+  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
 
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
 
@@ -77,7 +77,7 @@ const EventMap = (props) => {
   }
 
   const applyFilters = (filtersObj) => {
-    props.filterApplyHandler(extractFilters(filtersObj.filters,props.filtersState.mapHazardsToIds,props.filtersState.mapInfosToIds))
+    props.filterApplyHandler(extractFilters(filtersObj.filters, props.filtersState.mapHazardsToIds, props.filtersState.mapInfosToIds))
     setToggleActiveFilterTab(false)
   }
 
@@ -106,23 +106,23 @@ const EventMap = (props) => {
         position: 'relative'
       }}
     >
-      <MapLoadingDiv
-        isLoading={props.isLoading}
-      />
+
       <MapHeadDrawer
         mapRef={props.mapRef}
-        filterApplyHandler={()=>props.filterApplyHandler()}
+        filterApplyHandler={() => props.filterApplyHandler()}
         mapViewport={mapViewport}
         isLoading={props.isLoading}
       />
       <FloatingFilterContainer
         toggleActiveFilterTab={toggleActiveFilterTab}
         filtersObj={filtersObj}
-        setFiltersObj={applyFilters}
+        applyFiltersObj={applyFilters}
         resetFiltersObj={resetFiltersObj}
       ></FloatingFilterContainer>
       <MapContainer>
-
+        <MapLoadingDiv
+          isLoading={props.isLoading}
+        />
         <InteractiveMap
           {...mapViewport}
           width="100%"

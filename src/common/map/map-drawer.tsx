@@ -31,17 +31,13 @@ export const MapHeadDrawer = (props) => {
   const classes = useStyles()
   const { t } = useTranslation(['social'])
 
-  // const searchButtonHandler = () => {
-  //     props.updateMapBbox(getMapBounds(props.mapRef))
-  // }
-
   return (
     <div
       style={{
         position: 'absolute',
         width: '100%',
-        height: '50px',
-        maxHeight:80,
+        height: '10%',
+        maxHeight:50,
         backgroundColor: 'black',
         zIndex: 10,
         opacity: 0.5

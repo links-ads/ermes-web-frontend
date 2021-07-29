@@ -152,12 +152,12 @@ export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, ren
     xystart: [60, 60],
     filters: {
       datestart: {
-        selected: defaultArgs.datestart.toDateString(),
+        selected: defaultArgs.datestart.toISOString(),
         type: 'date',
         tab: 1
       },
       dateend: {
-        selected: defaultArgs.dateend.toDateString(),
+        selected: defaultArgs.dateend.toISOString(),
         type: 'date',
         tab: 1,
         range: 4
