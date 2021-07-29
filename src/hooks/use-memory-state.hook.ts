@@ -1,18 +1,12 @@
 import { useState } from 'react'
 
-export function useMemoryState(key, initialState) {
-  //   const stored = localStorage.getItem(key)
-
-  if (!localStorage.getItem(key)) {
+export function useMemoryState(key: string, initialState: any, overwrite: boolean | undefined = false) {
+  if (!localStorage.getItem(key) || overwrite) {
     localStorage.setItem(key, initialState)
   }
-  //   const [state, setState] = useState(stored ? stored : initialState)
 
-  //   console.log('INT STORED 2', localStorage.getItem(key))
-
-  const onChange = (nextState) => {
+  const changeItem = (nextState: any) => {
     localStorage.setItem(key, nextState)
-    // setState(nextState)
     return
   }
 
@@ -20,5 +14,6 @@ export function useMemoryState(key, initialState) {
     localStorage.removeItem(key)
     return
   }
-  return [localStorage.getItem(key), onChange, removeItem]
+
+  return [localStorage.getItem(key), changeItem, removeItem] as const
 }

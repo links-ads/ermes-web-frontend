@@ -9,7 +9,17 @@ import AccordionSummary from '@material-ui/core/AccordionSummary'
 import AccordionDetails from '@material-ui/core/AccordionDetails'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import Typography from '@material-ui/core/Typography'
-import { Checkbox, FormControlLabel, Input, ListItemText, useTheme } from '@material-ui/core'
+import {
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  Input,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  useTheme
+} from '@material-ui/core'
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
@@ -36,40 +46,62 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     // margin: theme.spacing(1),
     width: '100%',
-    maxWidth: '200px'
+    paddingLeft: 10,
+    paddingRight: 10
   },
   block: {
-    display: 'block',
-    width: '200px',
+    display: 'inline-block',
+    minWidth: '200px',
     verticalAlign: 'start',
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: '15px',
+    maxWidth: '-webkit-fill-available'
   },
   accordionDetails: {
-    display: 'flex',
-    justifyContent: 'space-around'
+    display: 'block'
   }
 }))
+
+const dateToISO = (date: Date | null | undefined) => {
+  return date?.toISOString().replace(/T/, ' ').replace(/\..+/, '')
+}
 
 export function Tab1(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
   const { t } = useTranslation(['common', 'labels', 'maps'])
+  //  props.filters
+  const filters = props.filters
   //states which will keep track of the start and end dates
-  const [selectedStartDate, setStartDate] = useState<Date | null>(new Date())
-  const [selectedEndDate, setEndDate] = useState<Date | null>(new Date())
+  const [selectedStartDate, setStartDate] = useState<Date | null>(
+    filters.datestart.selected ? new Date(filters.datestart.selected) : null
+  )
+  const [selectedEndDate, setEndDate] = useState<Date | null>(
+    filters.dateend.selected ? new Date(filters.dateend.selected) : null
+  )
+  const [expanded, setExpanded] = React.useState<string | false>(false)
+
+  const handleAccordionChange =
+    (panel: string) => (event: React.ChangeEvent<{}>, newExpanded: boolean) => {
+      setExpanded(newExpanded ? panel : false)
+    }
 
   // data filter logic
   const handleStartDateChange = async (date: Date | null) => {
+    const newFilter = filters
+    newFilter['datestart'].selected = dateToISO(date)
+    props.setFilters({ ...newFilter })
     setStartDate(date)
   }
 
   const handleEndDateChange = async (date: Date | null) => {
+    const newFilter = filters
+    newFilter['dateend'].selected = dateToISO(date)
+    props.setFilters({ ...newFilter })
     setEndDate(date)
   }
 
-  //  props.filters
-  let filters = props.filters
   useEffect(() => {
     if (props.filters['dateend'].range) {
       forceFiltersDateRange(
@@ -79,7 +111,15 @@ export function Tab1(props) {
         (newDate) => setEndDate(new Date(newDate))
       )
     }
-  }, [props.filters, selectedStartDate])
+  }, [props.filters, selectedStartDate, selectedEndDate])
+
+  useEffect(() => {
+    setEndDate(filters.dateend.selected)
+  }, [filters.dateend.selected])
+
+  useEffect(() => {
+    setStartDate(filters.datestart.selected)
+  }, [filters.datestart.selected])
 
   return (
     <div className={classes.tab}>
@@ -141,7 +181,7 @@ export function Tab1(props) {
         </MuiPickersUtilsProvider>
       </div>
       <br />
-      {Object.keys(filters).map((widget) => {
+      {Object.keys(filters).map((widget, i) => {
         switch (filters[widget].type) {
           case 'accordion':
             return (
@@ -150,6 +190,8 @@ export function Tab1(props) {
                 style={{
                   backgroundColor: theme.palette.primary.dark
                 }}
+                expanded={expanded === 'panel' + i}
+                onChange={handleAccordionChange('panel' + i)}
               >
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
@@ -157,7 +199,7 @@ export function Tab1(props) {
                   id={filters[widget].title + '-header'}
                 >
                   <Typography className={classes.heading}>
-                    {t('filters:' + filters[widget].title)}
+                    {t('labels:' + filters[widget].title)}
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails className={classes.accordionDetails}>
@@ -171,7 +213,7 @@ export function Tab1(props) {
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                value={elem.selected || ''}
+                                value={t('labels:' + elem.selected) || ''}
                                 onChange={(event) => {
                                   const newFilter = filters
                                   newFilter[widget].content[i].selected = event.target
@@ -184,48 +226,52 @@ export function Tab1(props) {
                                 })}
                               </Select>
                             </FormControl>
-                            <br />
                           </div>
                         )
                       case 'multipleselect':
                         return (
-                          <FormControl className={classes.formControl}>
-                            <InputLabel id="demo-mutiple-checkbox-label">
-                              {t('maps:filter_by_hazard')}
-                            </InputLabel>
-                            <Select
-                              labelId="demo-mutiple-checkbox-label"
-                              id="demo-mutiple-checkbox"
-                              multiple
-                              value={elem.selected || ''}
-                              onChange={(event) => {
-                                const newFilter = filters
-                                if (
-                                  newFilter[widget].content[i].selected.includes(event.target.value)
-                                ) {
-                                  newFilter[widget].content[i].selected = newFilter[widget].content[
-                                    i
-                                  ].selected.filter((e) => e !== event.target.value)
-                                } else {
-                                  newFilter[widget].content[i].selected.push(event.target.value)
-                                }
-                                newFilter[widget].content[i].selected = event.target.value as string
-                                props.setFilters({ ...newFilter })
-                              }}
-                              input={<Input />}
-                              renderValue={(selected) => {
-                                return elem.selected.join(', ')
-                              }}
-                            >
-                              {elem.options.map((value, key) => (
-                                <MenuItem key={'report-select-' + key} value={value}>
-                                  <Checkbox checked={elem.selected.indexOf(value) > -1} />
-                                  <ListItemText primary={value} />
-                                  {/* {t('maps:' + HazardType[key].toLowerCase())} */}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
+                          <div className={classes.block}>
+                            <FormControl className={classes.formControl}>
+                              <InputLabel id="demo-mutiple-checkbox-label">
+                                {t('labels:' + elem.name)}
+                              </InputLabel>
+                              <Select
+                                labelId="demo-mutiple-checkbox-label"
+                                id="demo-mutiple-checkbox"
+                                multiple
+                                value={elem.selected || ''}
+                                onChange={(event) => {
+                                  const newFilter = filters
+                                  if (
+                                    newFilter[widget].content[i].selected.includes(
+                                      event.target.value
+                                    )
+                                  ) {
+                                    newFilter[widget].content[i].selected = newFilter[
+                                      widget
+                                    ].content[i].selected.filter((e) => e !== event.target.value)
+                                  } else {
+                                    newFilter[widget].content[i].selected.push(event.target.value)
+                                  }
+                                  newFilter[widget].content[i].selected = event.target
+                                    .value as string
+                                  props.setFilters({ ...newFilter })
+                                }}
+                                input={<Input />}
+                                renderValue={(selected) => {
+                                  return elem.selected.join(', ')
+                                }}
+                              >
+                                {elem.options.map((value, key) => (
+                                  <MenuItem key={'report-select-' + key} value={value}>
+                                    <Checkbox checked={elem.selected.indexOf(value) > -1} />
+                                    <ListItemText primary={t('labels:' + value)} />
+                                    {/* {t('maps:' + HazardType[key].toLowerCase())} */}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          </div>
                         )
                     }
                   })}
@@ -252,7 +298,7 @@ export function Tab1(props) {
                     }}
                   >
                     {filters[widget].options.map((e) => {
-                      return <MenuItem value={e}>{e}</MenuItem>
+                      return <MenuItem value={e}>{t('labels:' + e)}</MenuItem>
                     })}
                   </Select>
                 </FormControl>
@@ -304,6 +350,253 @@ export function Tab1(props) {
 }
 
 export function Tab2(props) {
-  const classes = useStyles()
-  return <div className={classes.tab}>Tab2</div>
+  // const classes = useStyles()
+  const filters = props.filters
+  const { t } = useTranslation(['labels'])
+  const [selectAll, setSelectAll] = useState<boolean>(true)
+
+  const handleSelectAll = () => {
+    for (let elem of Object.keys(filters?.multicheckCategories.options)) {
+      if (!filters?.multicheckCategories.options[elem]) {
+        return false
+      }
+    }
+
+    for (let elem of Object.keys(filters?.multicheckPersons.options)) {
+      if (!filters?.multicheckPersons.options[elem]) {
+        return false
+      }
+    }
+
+    for (let elem of Object.keys(filters?.multicheckActivities.options)) {
+      if (!filters?.multicheckActivities.options[elem]) {
+        return false
+      }
+    }
+    return true
+  }
+
+  const handleClickSelectAll = () => {
+    const newFilters = filters
+    if (!selectAll) {
+      for (let elem of Object.keys(newFilters?.multicheckCategories.options)) {
+        newFilters!.multicheckCategories!.options[elem] = true
+      }
+
+      for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
+        newFilters!.multicheckPersons!.options[elem] = true
+      }
+      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+        newFilters!.multicheckActivities!.options[elem] = true
+      }
+    } else {
+      for (let elem of Object.keys(newFilters?.multicheckCategories.options)) {
+        newFilters!.multicheckCategories!.options[elem] = false
+      }
+
+      for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
+        newFilters!.multicheckPersons!.options[elem] = false
+      }
+      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+        newFilters!.multicheckActivities!.options[elem] = false
+      }
+    }
+    props.setFilters({ ...newFilters })
+    setSelectAll(!selectAll)
+  }
+
+  return (
+    <>
+      <List style={{ paddingRight: 7 }}>
+        <ListItem
+          disableRipple
+          key={'checkbox-list-label-all'}
+          role={undefined}
+          dense
+          button
+          onClick={(e) => handleClickSelectAll()}
+        >
+          <Typography id="checkbox-list-label-all" color="textSecondary">
+            {t('labels:all')}
+          </Typography>
+          <ListItemSecondaryAction>
+            <Checkbox
+              edge="start"
+              checked={selectAll}
+              onChange={() => handleClickSelectAll()}
+              color="default"
+              inputProps={{ 'aria-labelledby': 'all' }}
+            />
+          </ListItemSecondaryAction>
+        </ListItem>
+      </List>
+      <Divider />
+      <div>
+        <List>
+          {Object.keys(filters?.multicheckCategories?.options).map((key) => {
+            const labelId = `checkbox-list-label-${key}`
+            return (
+              <ListItem
+                key={key}
+                role={undefined}
+                dense
+                button
+                onClick={() => {
+                  const newFilter = filters
+                  newFilter!.multicheckCategories.options[key] =
+                    !filters?.multicheckCategories.options[key]
+                  props.setFilters({ ...newFilter })
+                  setSelectAll(handleSelectAll)
+                }}
+              >
+                <ListItemText id={labelId} primary={`${t('labels:' + key)}`} />
+                <ListItemSecondaryAction>
+                  <Checkbox
+                    edge="start"
+                    checked={filters!.multicheckCategories.options[key]}
+                    tabIndex={-1}
+                    onChange={() => {
+                      const newFilter = filters
+                      newFilter!.multicheckCategories.options[key] =
+                        !filters?.multicheckCategories.options[key]
+                      props.setFilters({ ...newFilter })
+                      setSelectAll(handleSelectAll)
+                    }}
+                    color="default"
+                    inputProps={{ 'aria-labelledby': labelId }}
+                  />
+                </ListItemSecondaryAction>
+              </ListItem>
+            )
+          })}
+
+          <ListItem key={'people'} role={undefined} dense button>
+            <ListItemText id={'checkbox-list-label-people'} primary={t('labels:Person')} />
+          </ListItem>
+          <List component="div" disablePadding style={{ marginLeft: 20 }}>
+            <br />
+            {Object.keys(filters?.multicheckPersons?.options).map((key) => {
+              const labelId = `checkbox-list-label-${key}`
+
+              return (
+                <ListItem
+                  key={key}
+                  role={undefined}
+                  dense
+                  button
+                  onClick={() => {
+                    const newFilter = filters
+                    newFilter!.multicheckPersons.options[key] =
+                      !filters?.multicheckPersons.options[key]
+                    if (key === 'Active') {
+                      if (newFilter!.multicheckPersons.options[key]) {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                          newFilter!.multicheckActivities!.options[elem] = true
+                        }
+                      } else {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                          newFilter!.multicheckActivities!.options[elem] = false
+                        }
+                      }
+                    }
+                    props.setFilters({ ...newFilter })
+                    setSelectAll(handleSelectAll)
+                  }}
+                >
+                  <ListItemText id={labelId} primary={`${t('labels:' + key)}`} />
+                  <ListItemSecondaryAction>
+                    <Checkbox
+                      edge="start"
+                      checked={filters?.multicheckPersons.options[key]}
+                      tabIndex={-1}
+                      onChange={() => {
+                        const newFilter = filters
+                        newFilter!.multicheckPersons.options[key] =
+                          !filters?.multicheckPersons.options[key]
+                        if (key === 'Active') {
+                          if (newFilter!.multicheckPersons.options[key]) {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                              newFilter!.multicheckActivities!.options[elem] = true
+                            }
+                          } else {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                              newFilter!.multicheckActivities!.options[elem] = false
+                            }
+                          }
+                        }
+                        props.setFilters({ ...newFilter })
+                        setSelectAll(handleSelectAll)
+                      }}
+                      color="default"
+                      inputProps={{ 'aria-labelledby': labelId }}
+                    />
+                  </ListItemSecondaryAction>
+                </ListItem>
+              )
+            })}
+            <br />
+            <Divider />
+            <br />
+
+            {filters?.multicheckActivities?.options
+              ? Object.keys(filters?.multicheckActivities?.options).map((key) => {
+                  const labelId = `checkbox-list-label-${key}`
+                  return (
+                    <ListItem
+                      key={key}
+                      role={undefined}
+                      dense
+                      button
+                      onClick={() => {
+                        const newFilter = filters
+                        newFilter!.multicheckActivities.options[key] =
+                          !filters?.multicheckActivities.options[key]
+
+                        let allTrue = true
+                        for (let elem of Object.keys(filters?.multicheckActivities.options)) {
+                          if (!filters?.multicheckActivities.options[elem]) {
+                            allTrue = false
+                          }
+                        }
+                        newFilter!.multicheckPersons.options['Active'] = allTrue
+
+                        props.setFilters({ ...newFilter })
+                        setSelectAll(handleSelectAll)
+                      }}
+                    >
+                      <ListItemText id={labelId} primary={`${t('labels:' + key)}`} />
+                      <ListItemSecondaryAction>
+                        <Checkbox
+                          edge="start"
+                          checked={filters?.multicheckActivities.options[key]}
+                          tabIndex={-1}
+                          onChange={() => {
+                            const newFilter = filters
+                            newFilter!.multicheckActivities.options[key] =
+                              !filters?.multicheckActivities.options[key]
+
+                            let allTrue = true
+                            for (let elem of Object.keys(filters?.multicheckActivities.options)) {
+                              if (!filters?.multicheckActivities.options[elem]) {
+                                allTrue = false
+                              }
+                            }
+                            newFilter!.multicheckPersons.options['Active'] = allTrue
+
+                            props.setFilters({ ...newFilter })
+                            setSelectAll(handleSelectAll)
+                          }}
+                          color="default"
+                          inputProps={{ 'aria-labelledby': labelId }}
+                        />
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  )
+                })
+              : null}
+          </List>
+        </List>
+      </div>
+    </>
+  )
 }

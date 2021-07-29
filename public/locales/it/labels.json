@@ -53,5 +53,18 @@
     "nl":"Olandese",
     "true":"Vero",
     "false":"Falso",
-    "all":"Tutto"
+    "filters": "Filtri",
+    "report" : "Segnalazioni",
+    "mission" : "Missioni",
+    "ReportRequest": "Richiesta di segnalazione",
+    "Communication": "Comunicazioni",
+    "Mission": "Missioni",
+    "Report": "Segnalazioni",
+    "Person": "Persone",
+    "Off": "Fuori servizio",
+    "Moving": "In movimento",
+    "Active": "Attivo",
+    "all": "Tutti",
+    "filter_by_type": "Filtra per tipo"
+
 }
