@@ -65,6 +65,7 @@
     "Moving": "In movimento",
     "Active": "Attivo",
     "all": "Tutti",
-    "filter_by_type": "Filtra per tipo"
-
+    "filter_by_type": "Filtra per tipo",
+    "tab1": "Elenchi",
+    "tab2": "Mappa"
 }

@@ -53,5 +53,7 @@
     "nl":"Dutch",
     "true":"True",
     "false":"False",
-    "all":"All"
+    "all":"All",
+    "tab1": "Lists",
+    "tab2": "Map"
 }

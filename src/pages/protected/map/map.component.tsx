@@ -92,6 +92,8 @@ export function Map() {
       // changeItem(JSON.stringify(initObjectState))
       // setFiltersObj(initObjectState)
     // }
+    changeItem(JSON.stringify(initObjectState))
+    setFiltersObj(initObjectState)
   }
   const applyFiltersObj = () => {
     let newFilterList: Array<string> = []
@@ -111,9 +113,11 @@ export function Map() {
       }
     })
     setFilterList(newFilterList)
-
     changeItem(JSON.stringify(filtersObj))
     setToggleActiveFilterTab(false)
+    const startDate = (filtersObj?.filters?.datestart as any).selected? new Date((filtersObj?.filters?.datestart as any).selected) : null
+    const endDate = (filtersObj?.filters?.dateend as any).selected? new Date((filtersObj?.filters?.dateend as any).selected) : null
+    filterByDate(startDate, endDate)
   }
 
   // Toggle for the side drawer

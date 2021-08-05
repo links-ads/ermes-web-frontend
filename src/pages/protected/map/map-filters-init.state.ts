@@ -7,12 +7,14 @@ export const initObjectState = {
       datestart: {
         selected: null,
         type: 'date',
-        tab: 1
+        tab: 1,
+        clear: true
       },
       dateend: {
         selected: null,
         type: 'date',
-        tab: 1
+        tab: 1,
+        clear: true
       },
       report: {
         title: 'report',
@@ -33,21 +35,13 @@ export const initObjectState = {
             ],
             type: 'multipleselect',
             selected: [
-              'Avalanche',
-              'Earthquake',
-              'Fire',
-              'Flood',
-              'Landslide',
-              'Storm',
-              'Weather',
-              'Subsidence'
             ]
           },
           {
             name: 'status',
             options: ['Unknown', 'Notified', 'Managed', 'Closed'],
             type: 'multipleselect',
-            selected: ['Unknown', 'Notified', 'Managed', 'Closed']
+            selected: []
           }
         ]
       },
@@ -60,7 +54,7 @@ export const initObjectState = {
             name: 'status',
             options: ['Created', 'TakenInCharge', 'Completed', 'Deleted'],
             type: 'multipleselect',
-            selected: ['Created', 'TakenInCharge', 'Completed', 'Deleted']
+            selected: []
           }
         ]
       },
@@ -73,7 +67,7 @@ export const initObjectState = {
             name: 'status',
             options: ['Off', 'Ready', 'Moving', 'Active'],
             type: 'multipleselect',
-            selected: ['Off', 'Ready', 'Moving', 'Active']
+            selected: []
           }
         ]
       },
