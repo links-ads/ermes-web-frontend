@@ -33,12 +33,23 @@ const EventContent = (props) => {
             }
         }));
 
-
     const classes = useStyles();
 
     const textSizes = props.textSizes
+    
+    const cardChips = (
+        <React.Fragment>
+            {
+                (Object.entries(props.mapIdsToHazards).length > 0) &&
+                (<Chip
+                    avatar={<Avatar>{HAZARD_SOCIAL_ICONS[hazardName]}</Avatar>}
+                    size={props.chipSize}
+                    label={t("labels:" + hazardName)} style={{ margin: '3px' }} />)
+            }
+        </React.Fragment>
+    )
 
-    const locationButton = (props.pointCoordinates && props.renderLocation) && (
+    const locationButton = (props.pointCoordinates && props.renderLocation) ? (
         <IconButton onClick={() => {
             if (props.mapRef.current) {
                 try {
@@ -62,28 +73,24 @@ const EventContent = (props) => {
         }}>
             <LocationOnIcon />
         </IconButton>
+    ) : (
+        <div style={{marginTop:8}}>
+            {cardChips}
+        </div>
     )
 
-    const cardChips = (
-        <React.Fragment>
-            {
-                (Object.entries(props.mapIdsToHazards).length > 0) &&
-                (<Chip
-                    avatar={<Avatar>{HAZARD_SOCIAL_ICONS[hazardName]}</Avatar>}
-                    size={props.chipSize}
-                    label={t("labels:" + hazardName)} style={{ margin: '3px' }} />)
-            }
-        </React.Fragment>
-    )
-    const chipSection = props.expandButton ? (
-        <Grid container direction='row'>
-            <Grid container style={{ width: '90%' }} justify='flex-start' alignItems='center'>
-                {cardChips}
+    const chipSection = props.expandButton && (
+        <CardContent className={classes.content}>
+            <Grid container direction='row'>
+                <Grid container style={{ width: '90%' }} justify='flex-start' alignItems='center'>
+                    {cardChips}
+                </Grid>
+                <Grid container style={{ width: '10%' }} justify='center' alignItems='flex-end'>
+                    {props.expandButton}
+                </Grid>
             </Grid>
-            <Grid container style={{ width: '10%' }} justify='center' alignItems='flex-end'>
-                {props.expandButton}
-            </Grid>
-        </Grid>) : cardChips
+        </CardContent>) 
+
     return (
         <React.Fragment>
             <CardHeader className={classes.header}
@@ -95,25 +102,30 @@ const EventContent = (props) => {
                 <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_start") + ' : '}</Typography>
                 <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.started_at))}</Typography>
                 <br />
-                {props.item.updatet_at !== null && (
+                {props.item.updatet_at  && (
                     <React.Fragment>
                         <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_update") + ' : '}</Typography>
                         <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.updated_at))}</Typography>
                         <br />
                     </React.Fragment>
                 )}
-                {props.item.ended_at !== null && (
+                {props.item.ended_at && (
                     <React.Fragment>
                         <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_end") + ' : '}</Typography>
                         <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.ended_at))}</Typography>
                         <br />
                     </React.Fragment>
                 )}
+                {props.item.last_impact_estimation_at  && (
+                    <React.Fragment>
+                        <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_impact") + ' : '}</Typography>
+                        <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.last_impact_estimation_at))}</Typography>
+                        <br />
+                    </React.Fragment>
+                )}
             </CardContent>
-            <CardContent className={classes.content}>
-                {chipSection}
-            </CardContent>
-        </React.Fragment>
+            {chipSection}
+        </React.Fragment >
     )
 }
 

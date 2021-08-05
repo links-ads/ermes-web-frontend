@@ -94,7 +94,7 @@ export function Tab1(props) {
     props.setFilters({ ...newFilter })
     setStartDate(date)
   }
-
+  
   const handleEndDateChange = async (date: Date | null) => {
     const newFilter = filters
     newFilter['dateend'].selected = dateToISO(date)
@@ -108,7 +108,7 @@ export function Tab1(props) {
         selectedStartDate?.getTime(),
         selectedEndDate?.getTime(),
         props.filters['dateend'].range * _MS_PER_DAY,
-        (newDate) => setEndDate(new Date(newDate))
+        (newDate) => handleEndDateChange(new Date(newDate))
       )
     }
   }, [props.filters, selectedStartDate, selectedEndDate])
