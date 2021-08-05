@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { MuiPickersUtilsProvider, KeyboardDateTimePicker } from '@material-ui/pickers'
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDateTimePicker,
+  DateTimePicker
+} from '@material-ui/pickers'
 import { useTranslation } from 'react-i18next'
 import useLanguage from '../../hooks/use-language.hook'
 import DateFnsUtils from '@date-io/date-fns'
@@ -13,6 +17,7 @@ import {
   Checkbox,
   Divider,
   FormControlLabel,
+  IconButton,
   Input,
   List,
   ListItem,
@@ -27,6 +32,8 @@ import Select from '@material-ui/core/Select'
 import { useMemoryState } from '../../hooks/use-memory-state.hook'
 import { forceFiltersDateRange } from '../filters/filters'
 import { _MS_PER_DAY } from '../../utils/utils.common'
+import ClearIcon from '@material-ui/icons/Clear'
+import TodayIcon from '@material-ui/icons/Today'
 
 const useStyles = makeStyles((theme) => ({
   tab: {
@@ -46,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   formControl: {
     // margin: theme.spacing(1),
     width: '100%',
-    paddingLeft: 10,
+    paddingLeft: 0,
     paddingRight: 10
   },
   block: {
@@ -59,6 +66,10 @@ const useStyles = makeStyles((theme) => ({
   },
   accordionDetails: {
     display: 'block'
+  },
+  clearButton: {
+    padding: 0,
+    paddingRight: 5
   }
 }))
 
@@ -88,20 +99,40 @@ export function Tab1(props) {
     }
 
   // data filter logic
-  const handleStartDateChange = async (date: Date | null) => {
+  const handleStartDateChange = async (date: Date | null, e: null | React.MouseEvent = null) => {
+    if (e) {
+      e.stopPropagation()
+    }
     const newFilter = filters
     newFilter['datestart'].selected = dateToISO(date)
     props.setFilters({ ...newFilter })
     setStartDate(date)
   }
 
-  const handleEndDateChange = async (date: Date | null) => {
+  const handleEndDateChange = async (date: Date | null, e: null | React.MouseEvent = null) => {
+    if (e) {
+      e.stopPropagation()
+    }
     const newFilter = filters
     newFilter['dateend'].selected = dateToISO(date)
     props.setFilters({ ...newFilter })
     setEndDate(date)
   }
 
+  // const handleStartClear = (e) => {
+  //   e.stopPropagation()
+  //   const newFilter = filters
+  //   newFilter['datestart'].selected = null
+  //   props.setFilters({ ...newFilter })
+  //   setStartDate(null)
+  // }
+  // const handleEndClear = (e) => {
+  //   e.stopPropagation()
+  //   const newFilter = filters
+  //   newFilter['datestart'].selected = null
+  //   props.setFilters({ ...newFilter })
+  //   setEndDate(null)
+  // }
   useEffect(() => {
     if (props.filters['dateend'].range) {
       forceFiltersDateRange(
@@ -114,11 +145,11 @@ export function Tab1(props) {
   }, [props.filters, selectedStartDate, selectedEndDate])
 
   useEffect(() => {
-    setEndDate(filters.dateend.selected)
+    setEndDate(filters.dateend.selected ? new Date(filters.dateend.selected) : null)
   }, [filters.dateend.selected])
 
   useEffect(() => {
-    setStartDate(filters.datestart.selected)
+    setStartDate(filters.datestart.selected ? new Date(filters.datestart.selected) : null)
   }, [filters.datestart.selected])
 
   return (
@@ -128,9 +159,10 @@ export function Tab1(props) {
           <span>
             {/* Date pickers */}
             {filters.datestart ? (
-              <KeyboardDateTimePicker
+              <DateTimePicker
                 style={{ paddingTop: 0, marginTop: 0 }}
                 // disableToolbar
+
                 variant="inline"
                 format={dateFormat}
                 margin="normal"
@@ -142,14 +174,31 @@ export function Tab1(props) {
                 disableFuture={false}
                 autoOk={true}
                 ampm={false}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date'
-                }}
+                // KeyboardButtonProps={{
+                //   'aria-label': 'change date'
+                // }}
                 className={classes.datePicker}
+                // InputAdornmentProps={{}}
+                clearable
+                InputProps={{
+                  endAdornment:
+                    filters.datestart.clear && selectedStartDate != null ? (
+                      <IconButton
+                        onClick={(e) => handleStartDateChange(null, e)}
+                        className={classes.clearButton}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    ) : (
+                      <IconButton className={classes.clearButton}>
+                        <TodayIcon />
+                      </IconButton>
+                    )
+                }}
               />
             ) : null}
             {filters.dateend ? (
-              <KeyboardDateTimePicker
+              <DateTimePicker
                 style={{ paddingTop: 0, marginTop: 0 }}
                 // disableToolbar
                 variant="inline"
@@ -171,8 +220,20 @@ export function Tab1(props) {
                       )
                     : undefined
                 }
-                KeyboardButtonProps={{
-                  'aria-label': 'change date'
+                InputProps={{
+                  endAdornment:
+                    filters.dateend.clear && selectedEndDate != null ? (
+                      <IconButton
+                        onClick={(e) => handleEndDateChange(null, e)}
+                        className={classes.clearButton}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    ) : (
+                      <IconButton className={classes.clearButton}>
+                        <TodayIcon />
+                      </IconButton>
+                    )
                 }}
                 className={classes.datePicker}
               />
@@ -290,7 +351,7 @@ export function Tab1(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={filters[widget].selected || ''}
+                    value={t('labels:' + filters[widget].selected) || ''}
                     onChange={(event) => {
                       const newFilter = filters
                       newFilter[widget].selected = event.target.value as string

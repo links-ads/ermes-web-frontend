@@ -41,5 +41,7 @@
     "organizationName":"Organization",
     "status":"Status",
     "activityName":"Activity",
-    "timestamp":"Last update"
+    "timestamp":"Last update",
+    "tab1": "Lists",
+    "tab2": "Map"
 }

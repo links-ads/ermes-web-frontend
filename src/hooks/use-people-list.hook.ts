@@ -2,6 +2,8 @@ import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'r
 import { ActionsApiFactory, PersonActionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
+import { useMemoryState } from './use-memory-state.hook'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -42,16 +44,23 @@ export default function usePeopleList() {
   const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [filters, setFilters] = useState([])
+  // const [filters, setFilters] = useState([])
+  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    'memstate-map',
+    null,
+    false
+  )
   const mounted = useRef(false)
 
   const fetchPeople = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+
       repApiFactory
         .actionsGetActions(
-          undefined,
-          undefined,
-          undefined,
+          (filters?.datestart as any)?.selected,
+          (filters?.dateend as any)?.selected,
+          (filters?.persons as any).content[0].selected,
           undefined,
           undefined,
           undefined,
@@ -79,11 +88,11 @@ export default function usePeopleList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, filters, searchText]
+    [repApiFactory, displayErrorSnackbar, searchText]
   )
   const applyFilterReloadData = (newFilters) => {
     // dispatch(initialState)
-    setFilters(newFilters)
+    // setFilters(newFilters)
   }
   const applySearchFilterReloadData = (query: string) => {
     dispatch(initialState)

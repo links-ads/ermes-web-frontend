@@ -42,6 +42,7 @@ interface DateSelector {
   selected: string | null | undefined
   type: FilterType
   tab: AvailableTabs
+  clear?: boolean
 }
 
 interface Accordion {
