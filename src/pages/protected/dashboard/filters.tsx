@@ -11,10 +11,9 @@ import { useTranslation } from 'react-i18next'
 
 import filterReducer from '../../../common/filters/reducer'
 
-import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
+import { getFiltersStyle, _MS_PER_DAY, forceFiltersDateRange} from '../../../utils/utils.common'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { forceFiltersDateRange } from '../../../common/filters/filters';
 import useLanguage from '../../../hooks/use-language.hook';
 
 export const DashboardFilters = (props) => {

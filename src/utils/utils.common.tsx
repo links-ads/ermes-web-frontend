@@ -193,61 +193,46 @@ export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, ren
   return obj
 }
 
-const checkEqualArrays = (a, b) => {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-
-  a.sort()
-  b.sort()
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
+export const forceFiltersDateRange = (startDate, endDate, range, updateEndDate) => {
+  if (Math.abs(endDate - startDate) > range) {
+      updateEndDate(startDate + range)
   }
-  return true;
-}
-
-export const checkEqualArgs = (oldArgs, newArgs) => {
-  if (oldArgs === newArgs) return true
-  if (oldArgs == null || newArgs == null) return false
-  if (!checkEqualArrays(oldArgs.languages, newArgs.languages)) return false
-  if (oldArgs.informative !== newArgs.informative) return false
-  if (oldArgs.startDate !== newArgs.startDate) return false
-  if (oldArgs.endDate !== newArgs.endDate) return false
-  if (!checkEqualArrays(oldArgs.infoTypes, newArgs.infoTypes)) return false
-  if (!checkEqualArrays(oldArgs.hazardTypes, newArgs.hazardTypes)) return false
-  return true
 }
 
 export const parseTweetText = (tweetText) => {
-  const text = tweetText.replace(/\n/ig, '')
+  const text = tweetText.replace(/\n/ig, ' ')
+  const update = ()=>{
+    if(accumulated.length > 0)
+        elements.push({ text: accumulated, type: 'string' })
+  }
   let elements = [] as any[]
   let accumulated = ""
   let v = text.trim().split(' ')
   for (let word of v) {
     if (word.startsWith("@")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'tag' })
       accumulated = ""
       continue
     }
     if (word.startsWith("#")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'hash' })
       accumulated = ""
       continue
     }
     if (word.startsWith("http")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'link' })
       accumulated = ""
       continue
     }
     accumulated = accumulated + " " + word
   }
-  elements.push({ text: accumulated, type: 'string' })
+  update()
   return elements
 }
+
 
 export const ParsedTweet = (props) => {
 

@@ -145,100 +145,102 @@ export default function FloatingFilterContainer(props) {
               minConstraints={[500, 300]}
               maxConstraints={[1000, 800]}
             >
-              <AppBar
-                position="static"
-                color="default"
-                style={{
-                  backgroundColor: theme.palette.primary.dark,
-                  boxShadow: 'none',
-                  display: 'block'
-                }}
-                className="handle handleResize"
-              >
-                <span className={classes.titleContainer}>
-                  <Typography align="left" variant="h4">
-                    {t('labels:filters')}
-                  </Typography>
-                </span>
-                {props.filtersObj.tabs > 1 ? (
-                  <span className={classes.tabsContainer}>
-                    <Tabs
-                      value={tab}
-                      onChange={handleChange}
-                      indicatorColor="primary"
-                      classes={{ indicator: classes.indicator }}
-                      color="white"
-                      variant="scrollable"
-                      aria-label="full width tabs example"
-                    >
-                      <Tab label={t('labels:tab1')} {...a11yProps(0)} />
-                      <Tab label={t('labels:tab2')} {...a11yProps(1)} />
-                    </Tabs>
+              <React.Fragment>
+                <AppBar
+                  position="static"
+                  color="default"
+                  style={{
+                    backgroundColor: theme.palette.primary.dark,
+                    boxShadow: 'none',
+                    display: 'block'
+                  }}
+                  className="handle handleResize"
+                >
+                  <span className={classes.titleContainer}>
+                    <Typography align="left" variant="h4">
+                      {t('labels:filters')}
+                    </Typography>
                   </span>
-                ) : null}
-              </AppBar>
-              {/* </CardHeader> */}
-              <CardContent
-                style={{
-                  backgroundColor: theme.palette.primary.main,
-                  padding: '0px',
-                  overflowY: 'scroll',
-                  overflowX: 'hidden',
-                  height: dim.height - 100
-                }}
-              >
-                {props.filtersObj.filters ? (
-                  props.filtersObj.tabs > 1 ? (
-                    <SwipeableViews
-                      axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-                      index={tab}
-                      onChangeIndex={handleChangeIndex}
-                      component={'span'}
-                      style={{
-                        overflowX: 'hidden'
-                      }}
-                    >
-                      <Tab1 filters={filters} setFilters={setFilters} />
+                  {props.filtersObj.tabs > 1 ? (
+                    <span className={classes.tabsContainer}>
+                      <Tabs
+                        value={tab}
+                        onChange={handleChange}
+                        indicatorColor="primary"
+                        classes={{ indicator: classes.indicator }}
+                        color="white"
+                        variant="scrollable"
+                        aria-label="full width tabs example"
+                      >
+                        <Tab label={t('labels:tab1')} {...a11yProps(0)} />
+                        <Tab label={t('labels:tab2')} {...a11yProps(1)} />
+                      </Tabs>
+                    </span>
+                  ) : null}
+                </AppBar>
+                {/* </CardHeader> */}
+                <CardContent
+                  style={{
+                    backgroundColor: theme.palette.primary.main,
+                    padding: '0px',
+                    overflowY: 'scroll',
+                    overflowX: 'hidden',
+                    height: dim.height - 100
+                  }}
+                >
+                  {props.filtersObj.filters ? (
+                    props.filtersObj.tabs > 1 ? (
+                      <SwipeableViews
+                        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                        index={tab}
+                        onChangeIndex={handleChangeIndex}
+                        component={'span'}
+                        style={{
+                          overflowX: 'hidden'
+                        }}
+                      >
+                        <Tab1 filters={filters} setFilters={setFilters} />
 
-                      <Tab2 filters={filters} setFilters={setFilters} />
-                    </SwipeableViews>
+                        <Tab2 filters={filters} setFilters={setFilters} />
+                      </SwipeableViews>
+                    ) : (
+                      <Tab1 filters={filters} setFilters={setFilters} />
+                    )
                   ) : (
-                    <Tab1 filters={filters} setFilters={setFilters} />
-                  )
-                ) : (
-                  <div className={classes.circularProgressContainer}>
-                    <CircularProgress color="secondary" size={60} />
-                  </div>
-                )}
-              </CardContent>
-              <CardActions
-                className={classes.cardAction}
-                style={{ backgroundColor: theme.palette.primary.main }}
-              >
-                <Button
-                  variant="contained"
-                  size="small"
-                  className={classes.buttonAction}
-                  onClick={() => {
-                    props.resetFiltersObj()
-                  }}
+                    <div className={classes.circularProgressContainer}>
+                      <CircularProgress color="secondary" size={60} />
+                    </div>
+                  )}
+                </CardContent>
+                <CardActions
+                  className={classes.cardAction}
+                  style={{ backgroundColor: theme.palette.primary.main }}
                 >
-                  Reset
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  className={classes.buttonAction}
-                  size="small"
-                  onClick={() => {
-                    const newObj = props.filtersObj
-                    newObj.filters = filters
-                    props.applyFiltersObj(newObj)
-                  }}
-                >
-                  Apply
-                </Button>
-              </CardActions>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    className={classes.buttonAction}
+                    onClick={() => {
+                      props.resetFiltersObj()
+                    }}
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    className={classes.buttonAction}
+                    size="small"
+                    onClick={() => {
+                      const newObj = props.filtersObj
+                      newObj.filters = filters
+                      props.applyFiltersObj(newObj)
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </CardActions>
+              </React.Fragment>
             </ResizableBox>
           </Card>
         </div>

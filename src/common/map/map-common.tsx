@@ -109,6 +109,7 @@ export const parseEvent = (features) => {
     hazard_id: features['hazard'],
     updated_at: features['updated_at'] === 'null' ? null : features['updated_at'],
     ended_at: features['ended_at'] === 'null' ? null : features['ended_at'],
+    last_impact_estimation_at: features['last_impact_estimation_at'] === 'null' ? null : features['last_impact_estimation_at'],
     impact_estimation : JSON.parse(features['impact_estimation'])
   }
 }
@@ -118,6 +119,7 @@ export const parseTweet = (features) => {
     ...features,
     hazard_types: JSON.parse(features['hazard_types']),
     information_types: JSON.parse(features['information_types']),
+    informative: features['informative'] === 'null' ? null : features['informative'],
     author:JSON.parse(features['author'])
   }
   return tweet
