@@ -29,6 +29,9 @@
     "map_button_label":"Cerca qui",
     "tweets_label":"Tweet",
     "events_label":"Eventi",
-    "stats_label":"Statistiche"
+    "stats_label":"Statistiche",
+    "category":"Categoria",
+    "estimate":"Stima",
+    "impact_estimation":"Impatto"
     
 }

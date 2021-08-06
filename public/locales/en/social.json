@@ -29,5 +29,8 @@
     "map_button_label":"Search here",
     "tweets_label":"Tweets",
     "events_label":"Events",
-    "stats_label":"Statistics"
+    "stats_label":"Statistics",
+    "category":"Category",
+    "estimate":"Estimate",
+    "impact_estimation":"Impact"
 }

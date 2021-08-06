@@ -1,5 +1,5 @@
 import { Avatar, CardContent, CardHeader, Chip, Grid, Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next'
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common';
@@ -8,6 +8,9 @@ import useLanguage from '../../../../hooks/use-language.hook';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import { clearEventMap } from '../../../../common/map/map-common';
 import { IconButton } from '@material-ui/core';
+import MaterialTable from 'material-table'
+import { localizeMaterialTable } from '../../../../common/localize-material-table'
+
 
 
 
@@ -33,10 +36,26 @@ const EventContent = (props) => {
             }
         }));
 
+    const impactEstimation = useMemo(() => {
+        if (!props.item.impact_estimation) return null
+        return Object.entries(props.item.impact_estimation).flatMap((e: any) => Object.entries(e[1]))
+            .filter((e: any) => e[1]['impacted'])
+            .map((e: any) => {
+                return { "category": e[0], "estimate": e[1]['count'] }
+            })
+    }, [props.item.impact_estimation])
+
+    const impactEstimationColumn = useMemo(() => {
+        return [
+            { title: t('category'), field: 'category', render: (rowData) => t(rowData.category) },
+            { title: t('estimate'), field: 'estimate' }
+        ]
+    }, [])
+
     const classes = useStyles();
 
     const textSizes = props.textSizes
-    
+
     const cardChips = (
         <React.Fragment>
             {
@@ -74,7 +93,7 @@ const EventContent = (props) => {
             <LocationOnIcon />
         </IconButton>
     ) : (
-        <div style={{marginTop:8}}>
+        <div style={{ marginTop: 8 }}>
             {cardChips}
         </div>
     )
@@ -89,7 +108,7 @@ const EventContent = (props) => {
                     {props.expandButton}
                 </Grid>
             </Grid>
-        </CardContent>) 
+        </CardContent>)
 
     return (
         <React.Fragment>
@@ -102,7 +121,7 @@ const EventContent = (props) => {
                 <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_start") + ' : '}</Typography>
                 <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.started_at))}</Typography>
                 <br />
-                {props.item.updatet_at  && (
+                {props.item.updatet_at && (
                     <React.Fragment>
                         <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_update") + ' : '}</Typography>
                         <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.updated_at))}</Typography>
@@ -116,15 +135,32 @@ const EventContent = (props) => {
                         <br />
                     </React.Fragment>
                 )}
-                {props.item.last_impact_estimation_at  && (
-                    <React.Fragment>
-                        <Typography align="left" variant={textSizes.body} display='inline'>{t("social:event_impact") + ' : '}</Typography>
-                        <Typography align="left" variant={textSizes.body} display='inline'>{' ' + formatter.format(new Date(props.item.last_impact_estimation_at))}</Typography>
-                        <br />
-                    </React.Fragment>
-                )}
             </CardContent>
             {chipSection}
+            {
+                (impactEstimation && !props.renderLocation) && (
+                    <React.Fragment>
+                        <Typography align="center" variant={textSizes.title} display='inline'>{t("social:impact_estimation")}</Typography>
+                        <MaterialTable
+                            data={impactEstimation}
+                            columns={impactEstimationColumn}
+                            options={{
+                                search: false,
+                                toolbar: false,
+                                showTitle: false,
+                                paging: false,
+                                emptyRowsWhenPaging: false,
+                                doubleHorizontalScroll: false,
+                                exportButton: false,
+                                exportAllData: false
+                            }}
+                            localization={{
+                                ...localizeMaterialTable(t),
+                            }}
+                        />
+                    </React.Fragment>
+                )
+            }
         </React.Fragment >
     )
 }
