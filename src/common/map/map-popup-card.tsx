@@ -13,8 +13,10 @@ class MapSlide extends React.Component<MapSlideProps,MapSlideState> {
     render() {
         return (
             <div style={{
-                position: 'absolute', width: '50%', height: '90%',
-                left: '50%', top: '10%', float: 'right', opacity: 0.9,zIndex:10, overflow:'auto'
+                position: 'absolute', 
+                height: '90%',
+                right: 0, 
+                top: '10%', float: 'right', opacity: 0.9,zIndex:10, overflow:'auto'
             }}>
                     {
                         this.props.children

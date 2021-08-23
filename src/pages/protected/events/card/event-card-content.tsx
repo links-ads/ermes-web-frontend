@@ -38,16 +38,19 @@ const EventContent = (props) => {
 
     const impactEstimation = useMemo(() => {
         if (!props.item.impact_estimation) return null
-        return Object.entries(props.item.impact_estimation).flatMap((e: any) => Object.entries(e[1]))
+        const impact =  Object.entries(props.item.impact_estimation).flatMap((e: any) => Object.entries(e[1]))
             .filter((e: any) => e[1]['impacted'])
             .map((e: any) => {
                 return { "category": e[0], "estimate": e[1]['count'] }
             })
+        return impact.length === 0 ? null : impact
     }, [props.item.impact_estimation])
 
     const impactEstimationColumn = useMemo(() => {
         return [
-            { title: t('category'), field: 'category', render: (rowData) => t(rowData.category) },
+            {
+                title: t('category'), field: 'category', render: (rowData) => t("labels:" + rowData.category)
+            },
             { title: t('estimate'), field: 'estimate' }
         ]
     }, [])
@@ -139,7 +142,7 @@ const EventContent = (props) => {
             {chipSection}
             {
                 (impactEstimation && !props.renderLocation) && (
-                    <React.Fragment>
+                    <div style={{ margin: 5, padding: 5, overflowY: 'auto' }}>
                         <Typography align="center" variant={textSizes.title} display='inline'>{t("social:impact_estimation")}</Typography>
                         <MaterialTable
                             data={impactEstimation}
@@ -158,7 +161,7 @@ const EventContent = (props) => {
                                 ...localizeMaterialTable(t),
                             }}
                         />
-                    </React.Fragment>
+                    </div>
                 )
             }
         </React.Fragment >

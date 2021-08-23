@@ -191,7 +191,7 @@ const EventMap = (props) => {
                   mapIdsToHazards={props.filtersState.mapIdsToHazards}
                   item={props.leftClickState.pointFeatures}
                   chipSize={'small'}
-                  textSizes={{ title: 'body1', body: 'caption' }}
+                  textSizes={{ title: 'body1', body: 'subtitle2' }}
                 />
               </Card>
             </MapSlide>
