@@ -4,6 +4,8 @@ import {
   ContainerSize
 } from '../../../common/size-aware-container.component'
 import { once } from '../../../utils/function.utils'
+import { useMemoryState } from '../../../hooks/use-memory-state.hook'
+import { initObjectState } from './map-filters-init.state'
 
 export interface PointLocation {
   longitude: number
@@ -104,13 +106,18 @@ export function MapStateContextProvider<T extends object = object>({
 }) {
   const MapStateContext = createMapStateContext() as MapStateContexType<T>
   const containerSize = useContext<ContainerSize>(ContainerSizeContext)
-
+  let [storedFilters,] = useMemoryState(
+    'memstate-map',
+    JSON.stringify(JSON.parse(JSON.stringify(initObjectState))),
+    false
+  )
+  const mapBounds = JSON.parse(storedFilters!).filters!.mapBounds
   const [viewport, setViewport] = useState<MapViewportState>({
     width: containerSize.width,
     height: containerSize.height,
-    latitude: 45.3, //0, - TODO from user last known location
-    longitude: 7.23, //0, - TODO from user last known location
-    zoom: 8
+    latitude: (((mapBounds.northEast[1] as number) + (mapBounds.southWest[1] as number))/2), //0, - TODO from user last known location
+    longitude: (((mapBounds.northEast[0] as number) + (mapBounds.southWest[0] as number))/2), //0, - TODO from user last known location
+    zoom: 3.5
   })
 
   const [mapMode, setMapMode] = useState<MapMode>('browse')

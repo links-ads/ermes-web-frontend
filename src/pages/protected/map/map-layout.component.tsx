@@ -47,7 +47,8 @@ import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
-
+import { getMapBounds } from '../../../common/map/map-common'
+import { filterApplyHandler } from '../../../utils/utils.common'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -83,7 +84,7 @@ export function MapLayout(props) {
   // Used to hide-show functionalities
   const { isMobileDevice } = useContext(AppConfigContext)
   // Translation
-  const { t } = useTranslation(['maps'])
+  const { t } = useTranslation(['maps', 'labels'])
   // Preferences
   const { mapTheme, transformRequest } = useMapPreferences()
   // Map view ref
@@ -328,6 +329,13 @@ export function MapLayout(props) {
     [mapMode]
   )
 
+  const filterApplyBoundsHandler = () => {
+    const newFilterObj = JSON.parse(JSON.stringify(props.filtersObj))
+    newFilterObj.filters.mapBounds = getMapBounds(mapViewRef)
+    props.changeItem(JSON.stringify(newFilterObj))
+    props.setFiltersObj(newFilterObj)
+    props.forceUpdate()
+  }
   // Update viewport state
   useEffect(
     () => setViewport({ ...viewport, ...containerSize }),
@@ -336,8 +344,6 @@ export function MapLayout(props) {
   )
   // Empty array ensures that effect is only run on mount and unmount
   useEffect(() => {
-    // console.log('filter list', props.filterList)
-    // console.log('prep geo json', props.prepGeoJson.features)
     if (props.isGeoJsonPrepared) {
       let filteredList = props.prepGeoJson.features.filter(
         (a) =>
@@ -411,7 +417,7 @@ export function MapLayout(props) {
     <>
       <MapHeadDrawer
         mapRef={mapViewRef}
-        filterApplyHandler={() => {}} //props.filterApplyHandler
+        filterApplyHandler={() => filterApplyBoundsHandler()} //props.filterApplyHandler
         mapViewport={viewport}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}

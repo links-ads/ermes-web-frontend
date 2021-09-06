@@ -2,6 +2,8 @@ import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'r
 import { CommunicationsApiFactory, DTResultOfCommunicationDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
+import { useMemoryState } from './use-memory-state.hook'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -47,16 +49,24 @@ export default function useCommList() {
     () => CommunicationsApiFactory(backendAPIConfig),
     [backendAPIConfig]
   )
+  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    'memstate-map',
+    null,
+    false
+  )
+
   const fetchCommunications = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+
       commApiFactory
         .communicationsGetCommunications(
-          undefined, //startDate
-          undefined, //endDate
-          undefined,
-          undefined,
-          undefined,
-          undefined,
+          (filters?.datestart as any)?.selected,
+          (filters?.dateend as any)?.selected,
+          (filters?.mapBounds as any).northEast[1],
+          (filters?.mapBounds as any).northEast[0],
+          (filters?.mapBounds as any).southWest[1],
+          (filters?.mapBounds as any).southWest[0],
           MAX_RESULT_COUNT,
           tot,
           undefined,

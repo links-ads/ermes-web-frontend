@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useReducer } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
 import { MapStateContextProvider } from './map.contest'
-import { useTranslation } from 'react-i18next'
+
 import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import FloatingFilterContainer from '../../../common/floating-filters-tab/floating-filter-container.component'
-import { GetApiGeoJson } from '../../../hooks/get-apigeojson.hook'
+import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
@@ -16,15 +17,10 @@ import { initObjectState } from './map-filters-init.state'
 type MapFeature = CulturalProps
 
 export function Map() {
-  // Retrieve json data, and the function to make the call to filter by date
-  const { prepGeoData, isGeoJsonPrepared, filterByDate } = GetApiGeoJson()
   // translate library
-  const { t } = useTranslation(['common'])
+  // const { t } = useTranslation(['common', 'labels'])
 
-  // //states which will keep track of the start and end dates
-  // const [selectedStartDate, setStartDate] = useState<Date | null | undefined>(null)
-  // const [selectedEndDate, setEndDate] = useState<Date | null | undefined>(null)
-
+  const [fakeKey, forceUpdate] = useReducer(x => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
 
@@ -36,9 +32,9 @@ export function Map() {
     'Report'
   ])
 
-  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+  let [storedFilters, changeItem, removeStoredFilters, getStoredItems] = useMemoryState(
     'memstate-map',
-    JSON.stringify(initObjectState),
+    JSON.stringify(JSON.parse(JSON.stringify(initObjectState))),
     false
   )
 
@@ -47,54 +43,12 @@ export function Map() {
   )
 
   const resetFiltersObj = () => {
-    // let newFilterList: Array<string> = []
-    // Object.keys((filtersObj?.filters?.multicheckCategories as any).options).map((key) => {
-    //   if ((filtersObj?.filters?.multicheckCategories as any).options[key]) {
-    //     newFilterList.push(key)
-    //   }
-    // })
-    // Object.keys((filtersObj?.filters?.multicheckPersons as any).options).map((key) => {
-    //   if ((filtersObj?.filters?.multicheckPersons as any).options[key]) {
-    //     newFilterList.push(key)
-    //   }
-    // })
-    // Object.keys((filtersObj?.filters?.multicheckActivities as any)?.options).map((key) => {
-    //   if ((filtersObj?.filters?.multicheckActivities as any)?.options[key]) {
-    //     newFilterList.push(key)
-    //   }
-    // })
-    // setFilterList(newFilterList)
-    // if (
-    //   filtersObj?.filters !== undefined &&
-    //   filtersObj?.filters !== null &&
-    //   activitiesList.length > 0
-    // ) {
-    //   const activitiesObj = {}
-    //   activitiesList.map((elem) => {
-    //     activitiesObj[elem!.name!] = true
-    //   })
-    //   const newFilterObj = {
-    //     ...initObjectState,
-    //     filters: {
-    //       ...initObjectState!.filters,
-    //       multicheckActivities: {
-    //         title: 'multicheck_activities',
-    //         type: 'checkboxlist',
-    //         options: activitiesObj,
-    //         tab: 2
-    //       }
-    //     }
-    //   } as unknown as FiltersDescriptorType
-
-    //   changeItem(JSON.stringify(newFilterObj))
-    //   setFiltersObj(newFilterObj)
-    // } else {
-      // changeItem(JSON.stringify(initObjectState))
-      // setFiltersObj(initObjectState)
-    // }
+    setFiltersObj(JSON.parse(JSON.stringify(initObjectState)))
     changeItem(JSON.stringify(initObjectState))
-    setFiltersObj(initObjectState)
+    // setTimeout(applyFiltersObj(),500)
+
   }
+
   const applyFiltersObj = () => {
     let newFilterList: Array<string> = []
     Object.keys((filtersObj?.filters?.multicheckCategories as any).options).map((key) => {
@@ -107,17 +61,28 @@ export function Map() {
         newFilterList.push(key)
       }
     })
-    Object.keys((filtersObj?.filters?.multicheckActivities as any)?.options).map((key) => {
-      if ((filtersObj?.filters?.multicheckActivities as any).options[key]) {
-        newFilterList.push(key)
-      }
-    })
+    if (filtersObj?.filters?.multicheckActivities) {
+      Object.keys((filtersObj?.filters?.multicheckActivities as any)?.options).map((key) => {
+        if (filtersObj?.filters?.multicheckActivities) {
+          if ((filtersObj?.filters?.multicheckActivities as any).options[key]) {
+            newFilterList.push(key)
+          }
+        }
+
+      })
+    }
+
     setFilterList(newFilterList)
     changeItem(JSON.stringify(filtersObj))
-    setToggleActiveFilterTab(false)
-    const startDate = (filtersObj?.filters?.datestart as any).selected? new Date((filtersObj?.filters?.datestart as any).selected) : null
-    const endDate = (filtersObj?.filters?.dateend as any).selected? new Date((filtersObj?.filters?.dateend as any).selected) : null
-    filterByDate(startDate, endDate)
+    setFiltersObj(JSON.parse(JSON.stringify(filtersObj)))
+    if(!toggleSideDrawer){
+      setToggleActiveFilterTab(false)
+    }
+    
+    // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
+    // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
+    forceUpdate()
+    
   }
 
   // Toggle for the side drawer
@@ -133,6 +98,8 @@ export function Map() {
   const [spiderifierRef, setSpiderifierRef] = useState<Spiderifier | null>(null)
 
   const { data: activitiesList } = useActivitiesList()
+  // Retrieve json data, and the function to make the call to filter by date
+  const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
 
   useEffect(() => {
     if (
@@ -153,14 +120,20 @@ export function Map() {
             title: 'multicheck_activities',
             type: 'checkboxlist',
             options: activitiesObj,
-            tab: 2
+            tab: 2,
+
           }
         }
       } as unknown as FiltersDescriptorType
       setFiltersObj(newFilterObj)
       changeItem(JSON.stringify(newFilterObj))
     }
-  }, [activitiesList])
+  }, [activitiesList, filtersObj])
+
+  useEffect(() => {
+    console.log('CHANGED FILTER OBJ', filtersObj)
+    fetchGeoJson()
+  }, [filtersObj])
   return (
     <>
       <MapDrawer
@@ -171,6 +144,8 @@ export function Map() {
         spiderLayerIds={spiderLayerIds}
         spiderifierRef={spiderifierRef}
         setToggleDrawerTab={setToggleSideDrawer}
+        filtersObj={filtersObj}
+        rerenderKey={fakeKey}
       />
       <MapContainer initialHeight={window.innerHeight - 112}>
         {/* Hidden filter tab */}
@@ -190,8 +165,8 @@ export function Map() {
             toggleDrawerTab={toggleSideDrawer}
             setToggleDrawerTab={setToggleSideDrawer}
             filterList={filterList}
-            prepGeoJson={prepGeoData}
-            isGeoJsonPrepared={isGeoJsonPrepared}
+            prepGeoJson={prepGeoData.data}
+            isGeoJsonPrepared={!prepGeoData.isLoading}
             setGoToCoord={setGoToCoord}
             goToCoord={goToCoord}
             setMap={setMap}
@@ -199,6 +174,10 @@ export function Map() {
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
             setSpiderifierRef={setSpiderifierRef}
+            filtersObj={filtersObj}
+            setFiltersObj={setFiltersObj}
+            changeItem={changeItem}
+            forceUpdate={forceUpdate}
           />
         </MapStateContextProvider>
       </MapContainer>

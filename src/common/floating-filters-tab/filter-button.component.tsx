@@ -3,6 +3,8 @@ import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import styled from 'styled-components'
 import FilterListIcon from '@material-ui/icons/FilterList'
+import { FilterTooltip } from './filter-button-tooltip.component'
+
 
 const FilterButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
@@ -17,7 +19,7 @@ const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 // Button which enables the filter on the top left part of the map to filter the types
 export function FilterButton(props) {
 
-  const color = props.toggleActiveFilterTab? 'secondary' : 'inherit'
+  const color = props.toggleActiveFilterTab ? 'secondary' : 'inherit'
 
 
   function onClick(e: React.MouseEvent) {
@@ -32,12 +34,13 @@ export function FilterButton(props) {
             onClick={onClick}
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
-            // disabled={disabled}
+          // disabled={disabled}
           >
             <FilterListIcon style={ICON_STYLE} color={color} />
           </IconButton>
         </span>
       </Tooltip>
+      <FilterTooltip /> 
     </FilterButtonContainer>
   )
 }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   MuiPickersUtilsProvider,
   KeyboardDateTimePicker,
   DateTimePicker
 } from '@material-ui/pickers'
-import { useTranslation } from 'react-i18next'
+
 import useLanguage from '../../hooks/use-language.hook'
 import DateFnsUtils from '@date-io/date-fns'
 import Accordion from '@material-ui/core/Accordion'
@@ -81,7 +82,7 @@ export function Tab1(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
-  const { t } = useTranslation(['common', 'labels', 'maps'])
+  const { t } = useTranslation(['labels'])
   //  props.filters
   const filters = props.filters
   //states which will keep track of the start and end dates
@@ -179,7 +180,7 @@ export function Tab1(props) {
                 // }}
                 className={classes.datePicker}
                 // InputAdornmentProps={{}}
-                clearable
+                clearable={true}
                 InputProps={{
                   endAdornment:
                     filters.datestart.clear && selectedStartDate != null ? (
@@ -414,7 +415,7 @@ export function Tab2(props) {
   // const classes = useStyles()
   const filters = props.filters
   const { t } = useTranslation(['labels'])
-  const [selectAll, setSelectAll] = useState<boolean>(true)
+
 
   const handleSelectAll = () => {
     for (let elem of Object.keys(filters?.multicheckCategories.options)) {
@@ -429,7 +430,7 @@ export function Tab2(props) {
       }
     }
 
-    for (let elem of Object.keys(filters?.multicheckActivities.options)) {
+    for (let elem of Object.keys(filters?.multicheckActivities?.options || {})) {
       if (!filters?.multicheckActivities.options[elem]) {
         return false
       }
@@ -437,6 +438,8 @@ export function Tab2(props) {
     return true
   }
 
+  const [selectAll, setSelectAll] = useState<boolean>(handleSelectAll())
+  
   const handleClickSelectAll = () => {
     const newFilters = filters
     if (!selectAll) {
@@ -447,7 +450,7 @@ export function Tab2(props) {
       for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
         newFilters!.multicheckPersons!.options[elem] = true
       }
-      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+      for (let elem of Object.keys(newFilters?.multicheckActivities?.options || {})) {
         newFilters!.multicheckActivities!.options[elem] = true
       }
     } else {
@@ -458,13 +461,17 @@ export function Tab2(props) {
       for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
         newFilters!.multicheckPersons!.options[elem] = false
       }
-      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+      for (let elem of Object.keys(newFilters?.multicheckActivities?.options || {})) {
         newFilters!.multicheckActivities!.options[elem] = false
       }
     }
     props.setFilters({ ...newFilters })
     setSelectAll(!selectAll)
   }
+
+  // useEffect(()=>{
+  //   handleSelectAll()
+  // }, [filters?.multicheckActivities])
 
   return (
     <>
@@ -551,11 +558,11 @@ export function Tab2(props) {
                       !filters?.multicheckPersons.options[key]
                     if (key === 'Active') {
                       if (newFilter!.multicheckPersons.options[key]) {
-                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                           newFilter!.multicheckActivities!.options[elem] = true
                         }
                       } else {
-                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                           newFilter!.multicheckActivities!.options[elem] = false
                         }
                       }
@@ -576,11 +583,11 @@ export function Tab2(props) {
                           !filters?.multicheckPersons.options[key]
                         if (key === 'Active') {
                           if (newFilter!.multicheckPersons.options[key]) {
-                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                               newFilter!.multicheckActivities!.options[elem] = true
                             }
                           } else {
-                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                               newFilter!.multicheckActivities!.options[elem] = false
                             }
                           }

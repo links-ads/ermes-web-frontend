@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FloatingFilterContainer(props) {
   // function for translation (we load map json)
-  const { t } = useTranslation(['filters'])
+  const { t } = useTranslation(['filters', 'labels'])
   const theme = useTheme()
   const classes = useStyles()
   const [tab, setTab] = React.useState(0)
