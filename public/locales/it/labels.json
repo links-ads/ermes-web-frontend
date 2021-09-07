@@ -57,5 +57,9 @@
     "all": "Tutti",
     "filter_by_type": "Filtra per tipo",
     "tab1": "Elenchi",
-    "tab2": "Mappa"
+    "tab2": "Mappa",
+    "set_filters": "Filtri impostati",
+    "any": "qualsiasi",
+    "from_date": "Da",
+    "to_date": " a"
 }

@@ -17,8 +17,8 @@ export const initObjectState = {
       clear: true
     },
     mapBounds: {
-      northEast: [52.3, 7.23],
-      southWest: [52.3, 7.23]
+      northEast: [88.35279541161259, 71.55729162065575],
+      southWest: [-45.13191515177377, 23.84492207919945]
     },
     report: {
       title: 'report',

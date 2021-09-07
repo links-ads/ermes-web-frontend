@@ -131,7 +131,7 @@ export function Map() {
   }, [activitiesList, filtersObj])
 
   useEffect(() => {
-    console.log('CHANGED FILTER OBJ', filtersObj)
+    // console.log('CHANGED FILTER OBJ', filtersObj)
     fetchGeoJson()
   }, [filtersObj])
   return (
