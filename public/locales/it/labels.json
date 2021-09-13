@@ -104,5 +104,8 @@
     "deleted": "Cancellato",
     "ready": "Pronto",
     "filter_apply":"Applica",
-    "filter_reset":"Reset"
+    "filter_reset":"Reset",
+    "filter_by_language": "Filtra per lingua",	
+    "filter_by_hazard": "Filtra per tipo di evento",
+    "filter_by_information": "Filtra per tipo di informazione"
 }

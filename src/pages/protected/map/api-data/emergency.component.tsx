@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
@@ -38,8 +38,9 @@ import useCommById from '../../../../hooks/use-comm-by-id.hook'
 import useMissionsById from '../../../../hooks/use-missions-by-id.hooks'
 import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
+import Modal from '@material-ui/core/Modal'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     minWidth: 275
   },
@@ -64,8 +65,16 @@ const useStyles = makeStyles({
   card: {
     width: '400px',
     height: 'auto'
+  },
+  paper: {
+    position: 'absolute',
+    width: 800,
+    backgroundColor: theme.palette.background.paper,
+    border: '2px solid #000',
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3)
   }
-})
+}))
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
   console.log(extensionData)
@@ -325,6 +334,7 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
 }
 const commCard = (data, classes, t, formatter, latitude, longitude) => {
   if (!data.isLoading) {
+    console.log('COMM DATA', data)
     return (
       <>
         <Card elevation={0}>
@@ -332,6 +342,20 @@ const commCard = (data, classes, t, formatter, latitude, longitude) => {
             <div style={{ marginBottom: 10 }}>
               <Typography component={'span'} variant="h5">
                 {data.data?.feature?.properties?.message}
+              </Typography>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <Typography
+                component={'span'}
+                variant="caption"
+                color="textSecondary"
+                style={{ textTransform: 'uppercase' }}
+              >
+                {t('maps:organization')}:&nbsp;
+                {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+              </Typography>
+              <Typography component={'span'} variant="body1">
+                {/* {details[type]} */}
               </Typography>
             </div>
             <Typography color="textSecondary">
@@ -360,10 +384,22 @@ const commCard = (data, classes, t, formatter, latitude, longitude) => {
   )
 }
 
-const reportCard = (data, t, classes, catDetails, formatter) => {
+const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal) => {
+  function getModalStyle() {
+    const top = 50
+    const left = 50
+
+    return {
+      top: `${top}%`,
+      left: `${left}%`,
+      transform: `translate(-${top}%, -${left}%)`
+    }
+  }
+
   const details = data?.data?.feature?.properties
 
   if (!data.isLoading) {
+    console.log('REPORT DATA', data)
     return (
       <>
         <Card elevation={0}>
@@ -380,10 +416,53 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                   className={classes.media}
                   image={media.mediaURI}
                   style={{ borderRadius: 6 }}
+                  onClick={() => {
+                    setOpenModal(true)
+                  }}
                 />
               )
             })}
           </Carousel>
+          <Modal
+            open={openModal}
+            onClose={() => setOpenModal(false)}
+            aria-labelledby="simple-modal-title"
+            aria-describedby="simple-modal-description"
+          >
+            {
+              <div
+                style={{
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)'
+                }}
+                className={classes.paper}
+              >
+                <Carousel
+                  animation="slide"
+                  autoPlay={false}
+                  // timeout={800}
+                  
+                  fullHeightHover={false}
+                >
+                  {details.mediaURIs.map((media, idx) => {
+                    return (
+                      <CardMedia
+                        key={idx}
+                        // className={classes.media}
+                        image={media.mediaURI}
+                        style={{ maxHeight: '750px' }}
+                        component="img"
+                        onClick={() => {
+                          setOpenModal(true)
+                        }}
+                      />
+                    )
+                  })}
+                </Carousel>
+              </div>
+            }
+          </Modal>
           <CardContent style={{ paddingTop: '0px' }}>
             <div style={{ marginBottom: 10 }}>
               <Typography component={'span'} variant="h5">
@@ -427,14 +506,15 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                 <TableHead>
                   <TableRow>
                     <TableCell align="left">
+                      <b>{t('maps:group')}</b>
+                    </TableCell>
+                    <TableCell align="left">
                       <b>{t('maps:name')}</b>
                     </TableCell>
                     <TableCell align="left">
                       <b>{t('maps:target')}</b>
                     </TableCell>
-                    <TableCell align="left">
-                      <b>{t('maps:status')}</b>
-                    </TableCell>
+
                     <TableCell align="left">
                       <b>{t('maps:value')}</b>
                     </TableCell>
@@ -443,8 +523,11 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                 <TableBody>
                   {details!.extensionData.map((row) => (
                     <TableRow key={row.name}>
-                      <TableCell component="th" align="left" scope="row">
+                      <TableCell align="left">
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
+                      </TableCell>
+
+                      <TableCell component="th" align="left" scope="row">
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                       </TableCell>
                       <TableCell align="center">
@@ -453,9 +536,8 @@ const reportCard = (data, t, classes, catDetails, formatter) => {
                             catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target
                         )}
                       </TableCell>
-                      <TableCell align="left">{t('maps:' + row.status.toLowerCase())}</TableCell>
                       <TableCell align="left">
-                        {row.value}
+                        {row.value}{' '}
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
                           ?.unitOfMeasure
                           ? catDetails?.data?.find((x) => x.categoryId === row.categoryId)
@@ -620,6 +702,8 @@ export function EmergencyContent({
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
 
+  const [openModal, setOpenModal] = useState(false)
+
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -702,7 +786,7 @@ export function EmergencyContent({
   switch (type) {
     // Report request
     case 'Report': {
-      todisplay = reportCard(repDetails, t, classes, catDetails, formatter)
+      todisplay = reportCard(repDetails, t, classes, catDetails, formatter, openModal, setOpenModal)
       break
     }
     case 'Person': {

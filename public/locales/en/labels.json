@@ -92,5 +92,8 @@
     "deleted": "Deleted",
     "ready": "Ready",
     "filter_apply":"Apply",
-    "filter_reset":"Reset"
+    "filter_reset":"Reset",
+    "filter_by_language": "Filter by language",	
+    "filter_by_hazard": "Filter by hazard type",
+    "filter_by_information": "Filter by information"
 }
