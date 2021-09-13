@@ -48,7 +48,6 @@ import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.componen
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
-import { filterApplyHandler } from '../../../utils/utils.common'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
