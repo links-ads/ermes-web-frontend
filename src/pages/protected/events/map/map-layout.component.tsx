@@ -30,9 +30,9 @@ import { AppConfig, AppConfigContext } from '../../../../config'
 import { MapHeadDrawer } from '../../../../common/map/map-drawer'
 import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
 import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
-import { FiltersDescriptorType } from '../../../../common/floating-filters-tab/floating-filter.interface'
 import { MapContainer } from '../../map/common.components';
-import { extractFilters, getDefaultFilterArgs, getDefaultSocialFilters, _MS_PER_DAY } from '../../../../utils/utils.common'
+import { getDefaultFilterArgs, getFilterObjFromFilters, _MS_PER_DAY } from '../../../../utils/utils.common'
+import mapboxgl from 'mapbox-gl'
 
 const DEBOUNCE_TIME = 200 //ms
 
@@ -48,9 +48,16 @@ const EventMap = (props) => {
     features: []
   })
 
-  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
-
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
+
+  const filtersObj = useMemo(()=>{
+    return getFilterObjFromFilters(props.eventFilters, props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos, false)
+  },[props.eventFilters, props.filtersState])
+  
+  const initObj = useMemo(()=>{
+    return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos, false)
+  },[props.filtersState])
+
 
   const updateMarkers = useCallback((map) => {
     if (map) {
@@ -66,21 +73,10 @@ const EventMap = (props) => {
   )
 
 
-
-  useEffect(() => {
-    setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
-  }, [props.filtersState])
-
-
-  const resetFiltersObj = () => {
-    setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames, false))
-  }
-
   const applyFilters = (filtersObj) => {
-    props.filterApplyHandler(extractFilters(filtersObj.filters, props.filtersState.mapHazardsToIds, props.filtersState.mapInfosToIds))
+    props.filterObjApplyHandler(filtersObj)
     setToggleActiveFilterTab(false)
   }
-
 
   // update markers as soon as the hover state changes
   useEffect(() => {
@@ -109,7 +105,7 @@ const EventMap = (props) => {
 
       <MapHeadDrawer
         mapRef={props.mapRef}
-        filterApplyHandler={() => props.filterApplyHandler()}
+        filterApplyHandler={() => props.filterObjApplyHandler(filtersObj)}
         mapViewport={mapViewport}
         isLoading={props.isLoading}
       />
@@ -117,7 +113,7 @@ const EventMap = (props) => {
         toggleActiveFilterTab={toggleActiveFilterTab}
         filtersObj={filtersObj}
         applyFiltersObj={applyFilters}
-        resetFiltersObj={resetFiltersObj}
+        initObj={initObj}
       ></FloatingFilterContainer>
       <MapContainer>
         <MapLoadingDiv
@@ -165,6 +161,7 @@ const EventMap = (props) => {
                     updateMarkers(map)
                   }
                 })
+                map.fitBounds(new mapboxgl.LngLatBounds(props.eventFilters['southWest'],props.eventFilters['northEast']),{},{how: 'fly'})
               } catch (err) {
                 console.error('Map Load Error', err)
               }

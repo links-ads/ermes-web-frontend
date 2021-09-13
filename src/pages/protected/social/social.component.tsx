@@ -13,14 +13,13 @@ import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
-import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
+import { filterObjApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
 import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook';
 import useTweetsAnnotations from '../../../hooks/use-tweet-annotation.hook';
 
-import { FiltersType } from '../../../common/filters/reducer';
 import { CardsList } from '../../../common/cards-list.components';
 
 import { TweetCard } from './card/tweet-card-component';
@@ -31,6 +30,7 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { TabPanel, a11yProps, handleTabChange } from '../../../common/common.components';
+import { useMemoryState } from '../../../hooks/use-memory-state.hook';
 
 const PAGE_SIZE = 30000
 const MINI_PAGE_SIZE = 20
@@ -49,20 +49,22 @@ const SocialComponent = (props) => {
     const [mapLeftClickState, setMapLeftClickState] = useState({ showPoint: false, clickedPoint: null as any, pointFeatures: {} })
     const [tweetsStats, fetchTweetsStat] = useSocialStat('TWEETS')
     const [tweetAnnotations, fetchTweetAnnotations] = useTweetsAnnotations()
-    const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
-
     const [filtersState, fetchFilters] = useFilters()
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
     const [tabValue, setTabValue] = React.useState(0);
+    
+    const [socialFiltersMem, setSocialFiltersMem, removeSocialFiltersMem, getSocialFiltersMem] = useMemoryState('memstate-social',JSON.stringify(getDefaultFilterArgs(mapConfig)))
+    const [socialFiltersState, setSocialFiltersState] = useState(JSON.parse(socialFiltersMem!))
+
 
     useEffect(() => {
         fetchFilters()
     }, [fetchFilters])
     
     useEffect(() => {
-        fetchTweetsStat(filterArgs)
-        fetchTweetAnnotations(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
-    }, [filterArgs])
+        fetchTweetsStat(socialFiltersState)
+        fetchTweetAnnotations(socialFiltersState, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
+    }, [socialFiltersState])
 
     useEffect(() => {
         setShownData({ size: MINI_PAGE_SIZE, data: [...tweetAnnotations.data].splice(0, MINI_PAGE_SIZE) })
@@ -181,6 +183,7 @@ const SocialComponent = (props) => {
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
                     <Grid style={{ flex: 1, width: '100%'}} container justify='space-evenly'>
                         <SocialMap
+                            socialFilters={socialFiltersState}
                             filtersState={filtersState}
                             mapRef={mapRef}
                             fetchTweetsStat={fetchTweetsStat}
@@ -190,7 +193,7 @@ const SocialComponent = (props) => {
                             data={tweetAnnotations.data}
                             isLoading={tweetAnnotations.isLoading}
                             isError={tweetAnnotations.error}
-                            filterApplyHandler={(filters)=>filterApplyHandler(filters,filterArgs,setFilterArgs,mapRef)}
+                            filterObjApplyHandler={(filtersObj) => filterObjApplyHandler(filtersObj, filtersState.mapHazardsToIds, filtersState.mapInfosToIds, socialFiltersState, mapRef, setSocialFiltersMem, setSocialFiltersState)}
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}
                             setSpiderLayerIds={setSpiderLayerIds}

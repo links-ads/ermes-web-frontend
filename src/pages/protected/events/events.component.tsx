@@ -10,19 +10,19 @@ import { PieChartStats, VolumeCard, parseStats } from '../../../common/stats-car
 import { useTranslation } from 'react-i18next'
 import useEventsAnnotations from '../../../hooks/use-event-annotation.hook';
 import EventMap from './map/map-layout.component';
-import { FiltersType } from '../../../common/filters/reducer';
 import { CardsList } from '../../../common/cards-list.components';
 import { EventCard } from './card/event-card.component';
 import InteractiveMap from 'react-map-gl';
 import React from 'react';
 import { AppConfig, AppConfigContext } from '../../../config';
-import { filterApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
+import { filterObjApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
 import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { TabPanel, a11yProps, handleTabChange } from '../../../common/common.components';
+import { useMemoryState } from '../../../hooks/use-memory-state.hook';
 
 const PAGE_SIZE = 1000
 const MINI_PAGE_SIZE = 20
@@ -46,17 +46,19 @@ const EventsComponent = (props) => {
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
     const spiderifierRef = useRef<Spiderifier | null>(null)
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
-    const [filterArgs, setFilterArgs] = useState<FiltersType>(getDefaultFilterArgs(mapConfig))
     const [tabValue, setTabValue] = React.useState(0);
+
+    const [eventFiltersMem, setEventFiltersMem, removeEventFiltersMem, getEventFiltersMem] = useMemoryState('memstate-event', JSON.stringify(getDefaultFilterArgs(mapConfig)))
+    const [eventFiltersState, setEventFiltersState] = useState(JSON.parse(eventFiltersMem!))
 
     useEffect(() => {
         fetchFilters()
     }, [fetchFilters])
 
     useEffect(() => {
-        fetchEventsStat(filterArgs)
-        fetchEvents(filterArgs, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
-    }, [filterArgs])
+        fetchEventsStat(eventFiltersState)
+        fetchEvents(eventFiltersState, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
+    }, [eventFiltersState])
 
     useEffect(() => {
         setShownData({ size: MINI_PAGE_SIZE, data: [...eventAnnotations.data].splice(0, MINI_PAGE_SIZE) })
@@ -175,15 +177,15 @@ const EventsComponent = (props) => {
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
                     <Grid style={{ flex: 1, width: '100%' }} container justify='space-evenly'>
                         <EventMap
+                            eventFilters={eventFiltersState}
                             filtersState={filtersState}
-                            filterArgs={filterArgs}
                             mapRef={mapRef}
                             leftClickState={mapLeftClickState}
                             setLeftClickState={setMapLeftClickState}
                             data={eventAnnotations.data}
                             isLoading={eventAnnotations.isLoading}
                             isError={eventAnnotations.error}
-                            filterApplyHandler={(filters)=>filterApplyHandler(filters,filterArgs,setFilterArgs,mapRef)}
+                            filterObjApplyHandler={(filtersObj) => filterObjApplyHandler(filtersObj, filtersState.mapHazardsToIds, filtersState.mapInfosToIds, eventFiltersState, mapRef, setEventFiltersMem, setEventFiltersState)}
                             mapHoverState={mapHoverState}
                             spiderifierRef={spiderifierRef}
                             spiderLayerIds={spiderLayerIds}

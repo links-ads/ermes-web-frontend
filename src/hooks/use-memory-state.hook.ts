@@ -14,6 +14,8 @@ export function useMemoryState(key: string, initialState: any, overwrite: boolea
     localStorage.removeItem(key)
     return
   }
-
-  return [localStorage.getItem(key), changeItem, removeItem] as const
+  const getItem = () =>{
+    return localStorage.getItem(key)
+  }
+  return [getItem(), changeItem, removeItem, getItem] as const
 }

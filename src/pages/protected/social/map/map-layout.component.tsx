@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { InteractiveMap, Source, Layer, NavigationControl } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
@@ -18,9 +18,9 @@ import { MapHeadDrawer } from '../../../../common/map/map-drawer';
 
 
 import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
-import { FiltersDescriptorType } from '../../../../common/floating-filters-tab/floating-filter.interface'
 import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
-import { extractFilters, getDefaultFilterArgs, getDefaultSocialFilters, _MS_PER_DAY } from '../../../../utils/utils.common';
+import { getDefaultFilterArgs, getFilterObjFromFilters, _MS_PER_DAY } from '../../../../utils/utils.common';
+import mapboxgl from 'mapbox-gl';
 
 const tweetImage = new Image(50, 50);
 tweetImage.src = require('../../../../assets/twitterIcon/twitter.png');
@@ -46,8 +46,14 @@ const SocialMap = (props) => {
     })
 
     const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
-    const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
+    const filtersObj = useMemo(() => {
+        return getFilterObjFromFilters(props.socialFilters, props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos)
+    }, [props.socialFilters, props.filtersState])
 
+    const initObj = useMemo(() => {
+        return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos)
+    }, [props.filtersState])
+    
     useEffect(() => {
         let map = props.mapRef?.current?.getMap()
         if (props.leftClickState.showPoint)
@@ -59,17 +65,9 @@ const SocialMap = (props) => {
     }, [props.mapRef, props.data])
 
 
-    useEffect(() => {
-        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
-    }, [props.filtersState])
-
-
-    const resetFiltersObj = () => {
-        setFiltersObj(getDefaultSocialFilters(getDefaultFilterArgs(mapConfig), props.filtersState.hazardNames, props.filtersState.infoNames))
-    }
 
     const applyFilters = (filtersObj) => {
-        props.filterApplyHandler(extractFilters(filtersObj.filters, props.filtersState.mapHazardsToIds, props.filtersState.mapInfosToIds))
+        props.filterObjApplyHandler(filtersObj)
         setToggleActiveFilterTab(false)
     }
 
@@ -77,7 +75,7 @@ const SocialMap = (props) => {
         <div style={{ display: 'flex', width: '100%', minHeight: 400, position: 'relative' }}>
             <MapHeadDrawer
                 mapRef={props.mapRef}
-                filterApplyHandler={() => props.filterApplyHandler()}
+                filterApplyHandler={() => props.filterObjApplyHandler(filtersObj)}
                 mapViewport={mapViewport}
                 isLoading={props.isLoading}
             />
@@ -85,7 +83,7 @@ const SocialMap = (props) => {
                 toggleActiveFilterTab={toggleActiveFilterTab}
                 filtersObj={filtersObj}
                 applyFiltersObj={applyFilters}
-                resetFiltersObj={resetFiltersObj}
+                initObj={initObj}
             ></FloatingFilterContainer>
             <MapContainer>
                 <MapLoadingDiv
@@ -126,6 +124,7 @@ const SocialMap = (props) => {
                                     TWEETS_LAYER_PROPS.type,
                                     undefined,
                                     { paint: HOVER_TWEETS_LAYER_PROPS.paint as mapboxgl.SymbolPaint, layout: HOVER_TWEETS_LAYER_PROPS.layout as mapboxgl.AnyLayout })
+                                map.fitBounds(new mapboxgl.LngLatBounds(props.socialFilters['southWest'], props.socialFilters['northEast']), {}, { how: 'fly' })
                             }
                             catch (err) {
                                 console.error('Map Load Error', err)

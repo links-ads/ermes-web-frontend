@@ -146,18 +146,18 @@ export const getDefaultFilterArgs = (mapConfig) => {
   } as FiltersType
 }
 
-export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, renderInformative = true) => {
+export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoNames, renderInformative = true) => {
   const obj = {
     tabs: 1,
     xystart: [60, 60],
     filters: {
       datestart: {
-        selected: defaultArgs.datestart.toISOString(),
+        selected: typeof defaultArgs.datestart == 'string' ? defaultArgs.datestart : defaultArgs.datestart.toISOString(),
         type: 'date',
         tab: 1
       },
       dateend: {
-        selected: defaultArgs.dateend.toISOString(),
+        selected: typeof defaultArgs.dateend == 'string' ? defaultArgs.dateend : defaultArgs.dateend.toISOString(),
         type: 'date',
         tab: 1,
         range: 4
@@ -170,15 +170,15 @@ export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, ren
       },
       hazardSelect: {
         name: 'hazard',
-        options: hazardNames,
+        options: Object.values(id2hazardNames),
         type: 'multipleselect',
-        selected: defaultArgs.hazardSelect
+        selected: defaultArgs.hazardSelect.map(id => id2hazardNames[id])
       },
       infoTypeSelect: {
         name: 'information',
-        options: infoNames,
+        options: Object.values(id2infoNames),
         type: 'multipleselect',
-        selected: defaultArgs.infoTypeSelect
+        selected: defaultArgs.infoTypeSelect.map(id => id2infoNames[id])
       },
     }
   } as FiltersDescriptorType
@@ -195,15 +195,15 @@ export const getDefaultSocialFilters = (defaultArgs, hazardNames, infoNames, ren
 
 export const forceFiltersDateRange = (startDate, endDate, range, updateEndDate) => {
   if (Math.abs(endDate - startDate) > range) {
-      updateEndDate(startDate + range)
+    updateEndDate(startDate + range)
   }
 }
 
 export const parseTweetText = (tweetText) => {
   const text = tweetText.replace(/\n/ig, ' ')
-  const update = ()=>{
-    if(accumulated.length > 0)
-        elements.push({ text: accumulated, type: 'string' })
+  const update = () => {
+    if (accumulated.length > 0)
+      elements.push({ text: accumulated, type: 'string' })
   }
   let elements = [] as any[]
   let accumulated = ""
@@ -278,12 +278,19 @@ export const ParsedTweet = (props) => {
 }
 
 
-export const filterApplyHandler = (newArgs = {}, stateArgs, setArgs, mapRef) => {
-  setArgs({
-    ...stateArgs,
+export const filterObjApplyHandler = (filtersObj, mapHazards, mapInfos, oldArgs, mapRef, setStorage, setState) => {
+  const filters = extractFilters(filtersObj.filters, mapHazards, mapInfos)
+  const newFilters = mergeFilters(oldArgs, filters, mapRef)
+  setStorage(JSON.stringify(newFilters))
+  setState(newFilters)
+}
+
+export const mergeFilters = (oldArgs, newArgs, mapRef) => {
+  return {
+    ...oldArgs,
     ...newArgs,
     ...getMapBounds(mapRef)
-  })
+  }
 }
 
 export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
@@ -291,7 +298,7 @@ export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
   Object.entries(filtersObj).forEach((e: [string, any]) => selectedFilters[e[0]] = e[1].selected)
   selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map(h => mapHazards[h])
   selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map(i => mapInfos[i])
-  if(selectedFilters['informativeSelect'] !== undefined)
-    selectedFilters['informativeSelect'] = selectedFilters['informativeSelect'] === 'none' ? undefined : selectedFilters['informativeSelect'] === 'true'
-    return selectedFilters
+  if (selectedFilters['informativeSelect'] !== undefined)
+    selectedFilters['informativeSelect'] = String(selectedFilters['informativeSelect']) === 'none' ? undefined : String(selectedFilters['informativeSelect']) === 'true'
+  return selectedFilters
 }
