@@ -1,75 +1,96 @@
-import {
-  GeoJsonApiAxiosParamCreator,
-  GetGeoJsonCollectionOutput,
-  GeoJsonApiFactory
-} from 'ermes-backoffice-ts-sdk'
-import { useAxiosWithParamCreator, APIAxiosHookOpts, useAPIConfiguration } from './api-hooks'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { GeoJsonApiFactory, FeatureDtoOfGeoJsonItem } from 'ermes-backoffice-ts-sdk'
+import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
-import { useState, useEffect } from 'react'
+import { useMemoryState } from './use-memory-state.hook'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
-// Get the correct type of the call as a name
-type GeoJsonApiPC = typeof GeoJsonApiAxiosParamCreator
-type KRGeoJsonApiPC = keyof ReturnType<GeoJsonApiPC>
-
-export function GetApiGeoJson() {
-  const { displayErrorSnackbar } = useSnackbars() // Display error on page
-
-  const methodName: KRGeoJsonApiPC = 'geoJsonGetFeatureCollection' // Method name
-
-  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const geoJsonAPIFactory = GeoJsonApiFactory(backendAPIConfig) 
-  const [isGeoJsonPrepared, setIsGeoJsonPrepared] = useState(false) // boolean to define if data is ready
-  const [prepGeoData, setPrepGeoData] = useState<GeoJSON.FeatureCollection>({
-    type: 'FeatureCollection',
-    features: []
-  }) // empty object
-  const opts: APIAxiosHookOpts<GeoJsonApiPC> = {
-    type: 'backoffice',
-    paramCreator: GeoJsonApiAxiosParamCreator,
-    methodName
-  }
-
-  const [
-    { data: result, loading: geojsonLoading, error: geojsonError },
-  ] = useAxiosWithParamCreator<GeoJsonApiPC, GetGeoJsonCollectionOutput>(opts, false) // Retrieve of the first data
-
-  // If some errors in the request, show them
-  useEffect(() => {
-    if (geojsonError) {
-      displayErrorSnackbar(geojsonError.response?.data.error)
-    }
-  }, [geojsonError, displayErrorSnackbar])
-
-  // Prepare the recieved data into a state ready to be used
-  useEffect(() => {
-    if (!geojsonLoading) {
-      setIsGeoJsonPrepared(false)
-      setPrepGeoData({
+const MAX_RESULT_COUNT = 9
+const initialState = {
+    error: false, isLoading: true, data: {
         type: 'FeatureCollection',
-        features: (result?.features || []).map((e, i) => {
-          return (e as unknown) as GeoJSON.Feature
-        })
-      })
-      setIsGeoJsonPrepared(true)
-    }
-  }, [geojsonLoading, result]) 
+        features: []
+    }, tot: 0
+}
 
-  // Function to filter (by an API call) 
-  const filterByDate = async function (start: Date | null, end: Date | null) {
-    setIsGeoJsonPrepared(false)
-    await geoJsonAPIFactory
-      .geoJsonGetFeatureCollection(start?.toISOString(), end?.toISOString())
-      .then((res) => {
-        setPrepGeoData({
-          type: 'FeatureCollection',
-          features: (res.data?.features || []).map((e, i) => {
-            return (e as unknown) as GeoJSON.Feature
-          })
-        })
-        setIsGeoJsonPrepared(true)
-      }).catch((err) => {
-        displayErrorSnackbar(err)
-      })
-  }
-  return { prepGeoData, isGeoJsonPrepared, filterByDate }
+const reducer = (currentState, action) => {
+    switch (action.type) {
+        case 'FETCH':
+            return {
+                ...currentState,
+                isLoading: true,
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                },
+                error: false
+            }
+        case 'RESULT':
+            return {
+                ...currentState,
+                isLoading: false,
+                data: { ...action.value },
+                error: false
+            }
+        case 'ERROR':
+            return {
+                ...currentState,
+                isLoading: false,
+                data: {
+                    type: 'FeatureCollection',
+                    features: []
+                },
+                hasMore: false,
+                error: true
+            }
+    }
+    return initialState
+}
+
+export default function GetApiGeoJson() {
+    const [dataState, dispatch] = useReducer(reducer, initialState)
+    const { displayErrorSnackbar } = useSnackbars()
+    const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+    const repApiFactory = useMemo(() => GeoJsonApiFactory(backendAPIConfig), [backendAPIConfig])
+    const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+        'memstate-map',
+        null,
+        false
+    )
+
+    const fetchGeoJson = useCallback(
+        (tot, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { }) => {
+            const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+            repApiFactory.geoJsonGetFeatureCollection(
+                (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
+                (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
+                (filters?.mapBounds as any).northEast[1],
+                (filters?.mapBounds as any).northEast[0],
+                (filters?.mapBounds as any).southWest[1],
+                (filters?.mapBounds as any).southWest[0],
+                undefined,
+                (filters?.persons as any).content[0].selected,
+                (filters?.report as any).content[0].selected,
+                (filters?.report as any).content[1].selected,
+                (filters?.mission as any).content[0].selected,
+            )
+                .then((result) => {
+                    dispatch({
+                        type: 'RESULT',
+                        value: {
+                            type: 'FeatureCollection',
+                            features: (result?.data.features || []).map((e, i) => {
+                                return (e as unknown) as GeoJSON.Feature
+                            })
+                        }
+                    })
+                })
+                .catch((err) => {
+                    displayErrorSnackbar(err)
+                    dispatch({ type: 'ERROR', value: errorData })
+                })
+        },
+        [repApiFactory, displayErrorSnackbar]
+    )
+    return [dataState, fetchGeoJson] //, filterByDate
 }

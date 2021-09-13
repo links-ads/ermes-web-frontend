@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function FloatingFilterContainer(props) {
   // function for translation (we load map json)
-  const { t } = useTranslation(['filters'])
+  const { t } = useTranslation(['filters', 'labels'])
   const theme = useTheme()
   const classes = useStyles()
   const [tab, setTab] = React.useState(0)
@@ -103,6 +103,7 @@ export default function FloatingFilterContainer(props) {
     width: props.width ? props.width : 500,
     height: props.height ? props.height : 400
   })
+  const [keyCounter, setKeyCunter] = useState(0)
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue)
@@ -113,11 +114,22 @@ export default function FloatingFilterContainer(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
+
   const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
+
+  const resetFilters = () => {
+    setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)
+  }
 
   useEffect(() => {
     setFilters(props.filtersObj.filters)
   }, [props.filtersObj])
+
+  useEffect(() => {
+    if (props.toggleActiveFilterTab) {
+      setFilters(props.filtersObj ? JSON.parse(JSON.stringify(props.filtersObj.filters)) : null)
+    }
+  }, [props.toggleActiveFilterTab, props.filtersObj])
 
   return (
     <>
@@ -134,6 +146,7 @@ export default function FloatingFilterContainer(props) {
       >
         <div
           style={{ display: props.toggleActiveFilterTab ? undefined : 'none' }}
+          // key={keyCounter}
           className={classes.floatingFilter}
         >
           <Card>
@@ -145,102 +158,98 @@ export default function FloatingFilterContainer(props) {
               minConstraints={[500, 300]}
               maxConstraints={[1000, 800]}
             >
-              <React.Fragment>
-                <AppBar
-                  position="static"
-                  color="default"
-                  style={{
-                    backgroundColor: theme.palette.primary.dark,
-                    boxShadow: 'none',
-                    display: 'block'
-                  }}
-                  className="handle handleResize"
-                >
-                  <span className={classes.titleContainer}>
-                    <Typography align="left" variant="h4">
-                      {t('labels:filters')}
-                    </Typography>
+              <AppBar
+                position="static"
+                color="default"
+                style={{
+                  backgroundColor: theme.palette.primary.dark,
+                  boxShadow: 'none',
+                  display: 'block'
+                }}
+                className="handle handleResize"
+              >
+                <span className={classes.titleContainer}>
+                  <Typography align="left" variant="h4">
+                    {t('labels:filters')}
+                  </Typography>
+                </span>
+                {props.filtersObj.tabs > 1 ? (
+                  <span className={classes.tabsContainer}>
+                    <Tabs
+                      value={tab}
+                      onChange={handleChange}
+                      indicatorColor="primary"
+                      classes={{ indicator: classes.indicator }}
+                      color="white"
+                      variant="scrollable"
+                      aria-label="full width tabs example"
+                    >
+                      <Tab label={t('labels:tab1')} {...a11yProps(0)} />
+                      <Tab label={t('labels:tab2')} {...a11yProps(1)} />
+                    </Tabs>
                   </span>
-                  {props.filtersObj.tabs > 1 ? (
-                    <span className={classes.tabsContainer}>
-                      <Tabs
-                        value={tab}
-                        onChange={handleChange}
-                        indicatorColor="primary"
-                        classes={{ indicator: classes.indicator }}
-                        color="white"
-                        variant="scrollable"
-                        aria-label="full width tabs example"
-                      >
-                        <Tab label={t('labels:tab1')} {...a11yProps(0)} />
-                        <Tab label={t('labels:tab2')} {...a11yProps(1)} />
-                      </Tabs>
-                    </span>
-                  ) : null}
-                </AppBar>
-                {/* </CardHeader> */}
-                <CardContent
-                  style={{
-                    backgroundColor: theme.palette.primary.main,
-                    padding: '0px',
-                    overflowY: 'scroll',
-                    overflowX: 'hidden',
-                    height: dim.height - 100
+                ) : null}
+              </AppBar>
+              {/* </CardHeader> */}
+              <CardContent
+                style={{
+                  backgroundColor: theme.palette.primary.main,
+                  padding: '0px',
+                  overflowY: 'scroll',
+                  overflowX: 'hidden',
+                  height: dim.height - 100
+                }}
+              >
+                {props.filtersObj.filters ? (
+                  props.filtersObj.tabs > 1 ? (
+                    <SwipeableViews
+                      axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                      index={tab}
+                      onChangeIndex={handleChangeIndex}
+                      component={'span'}
+                      style={{
+                        overflowX: 'hidden'
+                      }}
+                    >
+                      <Tab1 filters={filters} setFilters={setFilters} />
+
+                      <Tab2 filters={filters} setFilters={setFilters} />
+                    </SwipeableViews>
+                  ) : (
+                    <Tab1 filters={filters} setFilters={setFilters} />
+                  )
+                ) : (
+                  <div className={classes.circularProgressContainer}>
+                    <CircularProgress color="secondary" size={60} />
+                  </div>
+                )}
+              </CardContent>
+              <CardActions
+                className={classes.cardAction}
+                style={{ backgroundColor: theme.palette.primary.main }}
+              >
+                <Button
+                  variant="contained"
+                  size="small"
+                  className={classes.buttonAction}
+                  onClick={() => resetFilters()}
+                >
+                  {t('labels:filter_reset')}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  className={classes.buttonAction}
+                  size="small"
+                  onClick={() => {
+                    const newObj = props.filtersObj
+                    newObj.filters = filters
+                    props.applyFiltersObj(newObj)
                   }}
                 >
-                  {props.filtersObj.filters ? (
-                    props.filtersObj.tabs > 1 ? (
-                      <SwipeableViews
-                        axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-                        index={tab}
-                        onChangeIndex={handleChangeIndex}
-                        component={'span'}
-                        style={{
-                          overflowX: 'hidden'
-                        }}
-                      >
-                        <Tab1 filters={filters} setFilters={setFilters} />
-
-                        <Tab2 filters={filters} setFilters={setFilters} />
-                      </SwipeableViews>
-                    ) : (
-                      <Tab1 filters={filters} setFilters={setFilters} />
-                    )
-                  ) : (
-                    <div className={classes.circularProgressContainer}>
-                      <CircularProgress color="secondary" size={60} />
-                    </div>
-                  )}
-                </CardContent>
-                <CardActions
-                  className={classes.cardAction}
-                  style={{ backgroundColor: theme.palette.primary.main }}
-                >
-                  <Button
-                    variant="contained"
-                    size="small"
-                    className={classes.buttonAction}
-                    onClick={() => {
-                      props.resetFiltersObj()
-                    }}
-                  >
-                    Reset
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    className={classes.buttonAction}
-                    size="small"
-                    onClick={() => {
-                      const newObj = props.filtersObj
-                      newObj.filters = filters
-                      props.applyFiltersObj(newObj)
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </CardActions>
-              </React.Fragment>
+                  {t('labels:filter_apply')}
+                </Button>
+              </CardActions>
             </ResizableBox>
           </Card>
         </div>

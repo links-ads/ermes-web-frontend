@@ -14,14 +14,25 @@ export interface FiltersDescriptorType {
   // - An object with `left, top, right, and bottom` properties.
   //   These indicate how far in each direction the draggable
   //   can be moved.
-  bounds?: { left?: number; top?: number; right?: number; bottom?: number } | string
+  bounds?: {
+    left?: number
+    top?: number
+    right?: number
+    bottom?: number
+  } | string
 
   filters:
-    | {
-        [key: string]: MultipleSelect | Select | DateSelector | Accordion | CheckboxList
-      }
-    | null
-    | undefined
+  | {
+    [key: string]: MultipleSelect | Select | DateSelector | Accordion | CheckboxList | MapBounds
+  }
+  | null
+  | undefined
+}
+
+interface MapBounds {
+  northEast: [number, number]
+  southWest: [number, number]
+  zoom: number
 }
 
 interface MultipleSelect {
