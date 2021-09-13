@@ -103,6 +103,7 @@ export default function FloatingFilterContainer(props) {
     width: props.width ? props.width : 500,
     height: props.height ? props.height : 400
   })
+  const [keyCounter, setKeyCunter] = useState(0)
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue)
@@ -113,11 +114,22 @@ export default function FloatingFilterContainer(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
+
   const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
+
+  const resetFilters = () => {
+    setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)
+  }
 
   useEffect(() => {
     setFilters(props.filtersObj.filters)
   }, [props.filtersObj])
+
+  useEffect(() => {
+    if (props.toggleActiveFilterTab) {
+      setFilters(props.filtersObj ? JSON.parse(JSON.stringify(props.filtersObj.filters)) : null)
+    }
+  }, [props.toggleActiveFilterTab, props.filtersObj])
 
   return (
     <>
@@ -134,6 +146,7 @@ export default function FloatingFilterContainer(props) {
       >
         <div
           style={{ display: props.toggleActiveFilterTab ? undefined : 'none' }}
+          // key={keyCounter}
           className={classes.floatingFilter}
         >
           <Card>
@@ -219,11 +232,9 @@ export default function FloatingFilterContainer(props) {
                   variant="contained"
                   size="small"
                   className={classes.buttonAction}
-                  onClick={() => {
-                    props.resetFiltersObj()
-                  }}
+                  onClick={() => resetFilters()}
                 >
-                  Reset
+                  {t('labels:filter_reset')}
                 </Button>
                 <Button
                   variant="contained"
@@ -236,7 +247,7 @@ export default function FloatingFilterContainer(props) {
                     props.applyFiltersObj(newObj)
                   }}
                 >
-                  Apply
+                  {t('labels:filter_apply')}
                 </Button>
               </CardActions>
             </ResizableBox>

@@ -72,5 +72,7 @@
     "closed": "Concluso",
     "takenincharge": "Preso a carico",
     "deleted": "Cancellato",
-    "ready": "Pronto"
+    "ready": "Pronto",
+    "filter_apply":"Applica",
+    "filter_reset":"Reset"
 }

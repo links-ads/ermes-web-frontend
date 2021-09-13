@@ -58,5 +58,7 @@
     "closed": "Closed",
     "takenincharge": "Taken in charge",
     "deleted": "Deleted",
-    "ready": "Ready"
+    "ready": "Ready",
+    "filter_apply":"Apply",
+    "filter_reset":"Reset"
 }

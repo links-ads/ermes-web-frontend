@@ -469,9 +469,9 @@ export function Tab2(props) {
     setSelectAll(!selectAll)
   }
 
-  // useEffect(()=>{
-  //   handleSelectAll()
-  // }, [filters?.multicheckActivities])
+  useEffect(()=>{
+    setSelectAll(handleSelectAll())
+  }, [filters?.multicheckActivities])
 
   return (
     <>
