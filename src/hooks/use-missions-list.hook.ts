@@ -2,6 +2,8 @@ import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'r
 import { MissionsApiFactory, MissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
+import { useMemoryState } from './use-memory-state.hook'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -44,14 +46,19 @@ export default function useMissionsList() {
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)
-
+  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    'memstate-map',
+    null,
+    false
+  )
   const fetchMissions = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       missionsApiFactory
         .missionsGetMissions(
-          undefined,
-          undefined,
-          undefined,
+          (filters?.datestart as any)?.selected,
+          (filters?.dateend as any)?.selected,
+          (filters?.mission as any).content[0].selected,
           undefined,
           undefined,
           undefined,

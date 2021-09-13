@@ -1,6 +1,8 @@
 import { Typography } from '@material-ui/core';
+import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import React from 'react';
 import { FiltersType } from '../common/filters/reducer';
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface';
 import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
 
 export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -133,8 +135,8 @@ export const showMoreSocialData = (shownData, annotationData, pageSize, setShown
 export const getDefaultFilterArgs = (mapConfig) => {
   const currentDate = new Date()
   return {
-    startDate: new Date(currentDate.valueOf() - _MS_PER_DAY),
-    endDate: currentDate,
+    datestart: new Date(currentDate.valueOf() - _MS_PER_DAY),
+    dateend: currentDate,
     languageSelect: [],
     hazardSelect: [],
     infoTypeSelect: [],
@@ -143,61 +145,94 @@ export const getDefaultFilterArgs = (mapConfig) => {
     northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
   } as FiltersType
 }
-const checkEqualArrays = (a, b) => {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
 
-  a.sort()
-  b.sort()
-
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
+export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoNames, renderInformative = true) => {
+  const obj = {
+    tabs: 1,
+    xystart: [60, 60],
+    filters: {
+      datestart: {
+        selected: typeof defaultArgs.datestart == 'string' ? defaultArgs.datestart : defaultArgs.datestart.toISOString(),
+        type: 'date',
+        tab: 1
+      },
+      dateend: {
+        selected: typeof defaultArgs.dateend == 'string' ? defaultArgs.dateend : defaultArgs.dateend.toISOString(),
+        type: 'date',
+        tab: 1,
+        range: 4
+      },
+      languageSelect: {
+        name: 'language',
+        options: Object.values(SocialModuleLanguageType),
+        type: 'multipleselect',
+        selected: defaultArgs.languageSelect
+      },
+      hazardSelect: {
+        name: 'hazard',
+        options: Object.values(id2hazardNames),
+        type: 'multipleselect',
+        selected: defaultArgs.hazardSelect.map(id => id2hazardNames[id])
+      },
+      infoTypeSelect: {
+        name: 'information',
+        options: Object.values(id2infoNames),
+        type: 'multipleselect',
+        selected: defaultArgs.infoTypeSelect.map(id => id2infoNames[id])
+      },
+    }
+  } as FiltersDescriptorType
+  if (renderInformative) {
+    obj.filters!['informativeSelect'] = {
+      name: 'Informative',
+      options: ['none', 'true', 'false'],
+      type: 'select',
+      selected: defaultArgs.informativeSelect
+    }
   }
-  return true;
+  return obj
 }
 
-export const checkEqualArgs = (oldArgs, newArgs) => {
-  if (oldArgs === newArgs) return true
-  if (oldArgs == null || newArgs == null) return false
-  if (!checkEqualArrays(oldArgs.languages, newArgs.languages)) return false
-  if (oldArgs.informative !== newArgs.informative) return false
-  if (oldArgs.startDate !== newArgs.startDate) return false
-  if (oldArgs.endDate !== newArgs.endDate) return false
-  if (!checkEqualArrays(oldArgs.infoTypes, newArgs.infoTypes)) return false
-  if (!checkEqualArrays(oldArgs.hazardTypes, newArgs.hazardTypes)) return false
-  return true
+export const forceFiltersDateRange = (startDate, endDate, range, updateEndDate) => {
+  if (Math.abs(endDate - startDate) > range) {
+    updateEndDate(startDate + range)
+  }
 }
 
 export const parseTweetText = (tweetText) => {
-  const text = tweetText.replace(/\n/ig, '')
+  const text = tweetText.replace(/\n/ig, ' ')
+  const update = () => {
+    if (accumulated.length > 0)
+      elements.push({ text: accumulated, type: 'string' })
+  }
   let elements = [] as any[]
   let accumulated = ""
   let v = text.trim().split(' ')
   for (let word of v) {
     if (word.startsWith("@")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'tag' })
       accumulated = ""
       continue
     }
     if (word.startsWith("#")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'hash' })
       accumulated = ""
       continue
     }
     if (word.startsWith("http")) {
-      elements.push({ text: accumulated, type: 'string' })
+      update()
       elements.push({ text: word, type: 'link' })
       accumulated = ""
       continue
     }
     accumulated = accumulated + " " + word
   }
-  elements.push({ text: accumulated, type: 'string' })
+  update()
   return elements
 }
+
 
 export const ParsedTweet = (props) => {
 
@@ -243,10 +278,27 @@ export const ParsedTweet = (props) => {
 }
 
 
-export const filterApplyHandler = (newArgs = {}, stateArgs, setArgs, mapRef) => {
-  setArgs({
-    ...stateArgs,
+export const filterObjApplyHandler = (filtersObj, mapHazards, mapInfos, oldArgs, mapRef, setStorage, setState) => {
+  const filters = extractFilters(filtersObj.filters, mapHazards, mapInfos)
+  const newFilters = mergeFilters(oldArgs, filters, mapRef)
+  setStorage(JSON.stringify(newFilters))
+  setState(newFilters)
+}
+
+export const mergeFilters = (oldArgs, newArgs, mapRef) => {
+  return {
+    ...oldArgs,
     ...newArgs,
     ...getMapBounds(mapRef)
-  })
+  }
+}
+
+export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
+  const selectedFilters = {}
+  Object.entries(filtersObj).forEach((e: [string, any]) => selectedFilters[e[0]] = e[1].selected)
+  selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map(h => mapHazards[h])
+  selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map(i => mapInfos[i])
+  if (selectedFilters['informativeSelect'] !== undefined)
+    selectedFilters['informativeSelect'] = String(selectedFilters['informativeSelect']) === 'none' ? undefined : String(selectedFilters['informativeSelect']) === 'true'
+  return selectedFilters
 }

@@ -11,10 +11,9 @@ import { useTranslation } from 'react-i18next'
 
 import filterReducer from '../../../common/filters/reducer'
 
-import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
+import { getFiltersStyle, _MS_PER_DAY, forceFiltersDateRange} from '../../../utils/utils.common'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { forceFiltersDateRange } from '../../../common/filters/filters';
 import useLanguage from '../../../hooks/use-language.hook';
 
 export const DashboardFilters = (props) => {
@@ -26,7 +25,7 @@ export const DashboardFilters = (props) => {
     const classes = useStyles();
 
     const applyFilters = () => {
-        props.onFilterApply({ startDate: filters.startDate.toISOString(), endDate: filters.endDate.toISOString() })
+        props.onFilterApply({ startDate: filters.datestart.toISOString(), dateend: filters.dateend.toISOString() })
     }
 
     const { dateFormat } = useLanguage()
@@ -34,8 +33,8 @@ export const DashboardFilters = (props) => {
     useEffect(() => console.log('LANGUAGE', i18n.language), [i18n.language])
 
     useEffect(() => {
-        forceFiltersDateRange(filters.startDate.getTime(), filters.endDate.getTime(), _MS_PER_DAY * 30, (newDate) => dispatch({ type: 'END_DATE', value: new Date(newDate) }))
-    }, [filters.startDate,filters.endDate])
+        forceFiltersDateRange(filters.datestart.getTime(), filters.dateend.getTime(), _MS_PER_DAY * 30, (newDate) => dispatch({ type: 'END_DATE', value: new Date(newDate) }))
+    }, [filters.datestart,filters.dateend])
 
     return (
         <Grid container direction={'row'} justify='space-around' className={classes.filterContainer}>
@@ -49,7 +48,7 @@ export const DashboardFilters = (props) => {
                             format={dateFormat}
                             id="starting-date"
                             label={t("social:starting_date")}
-                            value={filters.startDate}
+                            value={filters.datestart}
                             autoOk={true}
                             ampm={false}
                             onChange={(date) => dispatch({ type: 'START_DATE', value: date })}
@@ -74,9 +73,9 @@ export const DashboardFilters = (props) => {
                             format={dateFormat}
                             id="end-date"
                             label={t("social:end_date")}
-                            value={filters.endDate}
-                            minDate={new Date(filters.startDate)}
-                            maxDate={new Date(new Date(filters.startDate).valueOf() + _MS_PER_DAY * 30)}
+                            value={filters.dateend}
+                            minDate={new Date(filters.datestart)}
+                            maxDate={new Date(new Date(filters.datestart).valueOf() + _MS_PER_DAY * 30)}
                             autoOk={true}
                             onChange={(date) => dispatch({ type: 'END_DATE', value: date })}
                             ampm={false}

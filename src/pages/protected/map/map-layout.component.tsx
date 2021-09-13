@@ -39,13 +39,15 @@ import {
 } from './map-event-handlers'
 import { SelectionToggle } from './selection-toggle.component'
 import { DrawerToggle } from './map-drawer/drawer-toggle.component'
-import { FilterType } from './filter-type.component'
+import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
+import { FilterButton } from '../../../common/floating-filters-tab/filter-button.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
+
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -334,6 +336,8 @@ export function MapLayout(props) {
   )
   // Empty array ensures that effect is only run on mount and unmount
   useEffect(() => {
+    // console.log('filter list', props.filterList)
+    // console.log('prep geo json', props.prepGeoJson.features)
     if (props.isGeoJsonPrepared) {
       let filteredList = props.prepGeoJson.features.filter(
         (a) =>
@@ -427,6 +431,8 @@ export function MapLayout(props) {
         // onDblClick={onDoubleClick}
         onContextMenu={onContextMenu}
         ref={mapViewRef}
+        width="100%"
+        height="calc(100% + 30px)"
       >
         <MapDraw
           ref={mapDrawRef}
@@ -529,10 +535,10 @@ export function MapLayout(props) {
         ></DrawerToggle>
       )}
       {!isMobileDevice && (
-        <FilterType
+        <FilterButton
           setToggleActiveFilterTab={props.setToggleActiveFilterTab}
           toggleActiveFilterTab={props.toggleActiveFilterTab}
-        ></FilterType>
+        ></FilterButton>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
 

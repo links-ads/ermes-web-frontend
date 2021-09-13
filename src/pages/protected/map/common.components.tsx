@@ -3,7 +3,7 @@ import { SizeAwareContainer } from '../../../common/size-aware-container.compone
 
 export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-container' })`
   width: 100%;
-  height: 108%;
+  height: 104% !important;
   flex-grow: 1;
   position: relative;
 
@@ -135,7 +135,7 @@ export const ImageContainer = styled.div<ImgContainerProps>`
   background-repeat: no-repeat;
   background-size: contain;
   width: ${(props) => props.imgWidth}px;
-  height: ${(props) => props.imgHeight}px;
+  // height: ${(props) => props.imgHeight}px;
   max-width: 100%;
-  max-height: 100%;
+  // max-height: 100%;
 `

@@ -15,12 +15,12 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
 import ListItemText from '@material-ui/core/ListItemText'
 import Divider from '@material-ui/core/Divider'
 import Checkbox from '@material-ui/core/Checkbox'
-import { EmergencyColorMap } from './api-data/emergency.component'
+import { EmergencyColorMap } from '../../pages/protected/map/api-data/emergency.component'
 import Typography from '@material-ui/core/Typography'
 import { useTranslation } from 'react-i18next'
 
 // Define the style of the widget
-const FloatingFilterContainer = styled.div.attrs({
+const FloatingFilter = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
@@ -36,7 +36,7 @@ const statusTypesModel = {
   Active: true
 }
 
-export default function FloatingFilterTab(props) {
+export default function FloatingFilterContainer(props) {
   // function for translation (we load map json)
   const { t } = useTranslation(['maps'])
 
@@ -217,7 +217,7 @@ export default function FloatingFilterTab(props) {
       onDrag={(e) => e.preventDefault()}
       onStop={(e) => e.preventDefault()}
     >
-      <FloatingFilterContainer
+      <FloatingFilter
         style={{ display: props.toggleActiveFilterTab ? undefined : 'none' }}
       >
         <Card>
@@ -351,7 +351,7 @@ export default function FloatingFilterTab(props) {
             </div>
           </CardContent>
         </Card>
-      </FloatingFilterContainer>
+      </FloatingFilter>
     </Draggable>
   )
 }

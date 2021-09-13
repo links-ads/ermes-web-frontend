@@ -1,4 +1,4 @@
-import { useCallback, useReducer,useMemo } from 'react';
+import { useCallback, useReducer, useMemo } from 'react';
 import {
     SocialApiFactory
 } from 'ermes-backoffice-ts-sdk';
@@ -6,7 +6,7 @@ import {
     useAPIConfiguration
 } from './api-hooks';
 
-const initialState = {error:false, isLoading: true, hazardNames: [], mapHazardsToIds: {}, mapIdsToHazards: {}, infoNames: [], mapInfosToIds: {}, mapIdsToInfos: {} }
+const initialState = { error: false, isLoading: true, hazardNames: [], mapHazardsToIds: {}, mapIdsToHazards: {}, infoNames: [], mapInfosToIds: {}, mapIdsToInfos: {} }
 
 const reducer = (currentState, action) => {
     switch (action.type) {
@@ -14,19 +14,19 @@ const reducer = (currentState, action) => {
             return {
                 ...currentState,
                 isLoading: true,
-                error:false
+                error: false
             }
         case 'RESULT':
             return {
                 isLoading: false,
                 ...action.value,
-                error:false
+                error: false
             }
         case 'ERROR':
             return {
                 ...initialState,
                 isLoading: false,
-                error:true
+                error: true
             }
         default:
             throw new Error("Not handled case")
@@ -35,7 +35,7 @@ const reducer = (currentState, action) => {
 const useFilters = () => {
     const [filtersState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const socialApiFactory = useMemo(()=> SocialApiFactory(backendAPIConfig),[backendAPIConfig])
+    const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig), [backendAPIConfig])
     const fetchData = useCallback(() => {
         dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetLabels().then((result) => {
@@ -60,7 +60,7 @@ const useFilters = () => {
             dispatch({ type: 'ERROR' })
         })
     }, [socialApiFactory])
-    return [filtersState,fetchData]
+    return [filtersState, fetchData]
 }
 
 export default useFilters;

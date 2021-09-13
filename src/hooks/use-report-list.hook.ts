@@ -2,6 +2,8 @@ import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'r
 import { ReportsApiFactory, DTResultOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
+import { useMemoryState } from './use-memory-state.hook'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -39,21 +41,27 @@ const reducer = (currentState, action) => {
 export default function useReportList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
 
-  const [filters, setFilters] = useState([])
+  // const [filters, setFilters] = useState([])
   const [querySearch, setQuerySearch] = useState<undefined | string>(undefined)
   const { displayErrorSnackbar } = useSnackbars()
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    'memstate-map',
+    null,
+    false
+  )
 
   const fetchReports = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       repApiFactory
         .reportsGetReports(
-          filters,
-          undefined,
-          undefined,
-          undefined,
+          (filters?.report as any).content[0].selected,
+          (filters?.report as any).content[1].selected,
+          (filters?.datestart as any)?.selected,
+          (filters?.dateend as any)?.selected,
           undefined,
           undefined,
           undefined,
@@ -81,12 +89,12 @@ export default function useReportList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, filters]
+    [repApiFactory, displayErrorSnackbar]
   )
 
   const applyFilterReloadData = (newFilters) => {
     dispatch(initialState)
-    setFilters(newFilters)
+    // setFilters(newFilters)
   }
   const applySearchFilterReloadData = (query: string) => {
     dispatch(initialState)
@@ -107,7 +115,7 @@ export default function useReportList() {
     } else {
       mounted.current = true
     }
-  }, [filters, querySearch])
+  }, [querySearch])
 
   return [dataState, fetchReports, applyFilterReloadData, applySearchFilterReloadData]
 }

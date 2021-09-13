@@ -31,9 +31,7 @@ export const parseDataToGeoJson = (data) => {
   let featuresList = [] as GeoJSON.Feature[]
   for (let item of data) {
     let properties = {
-      author_display_name: item.author.display_name,
-      author_user_name: item.author.user_name,
-      author_profile_image: item.author.profile_image,
+      author:item.author,
       created_at: item.created_at,
       text: item.text,
       information_types: item.information_types,
@@ -73,6 +71,8 @@ export const parseEventDataToGeoJson = (items) => {
       started_at: item.started_at,
       updated_at: item.updated_at,
       ended_at: item.ended_at,
+      last_impact_estimation_at : item.last_impact_estimation_at, 
+      impact_estimation : item.impact_estimation, 
       total_area: item.hotspots.coordinates
         .map((arr) => getPolygonArea(arr[0]))
         .reduce((acc, current) => acc + current)
@@ -105,27 +105,22 @@ export const clearEventMap = (map: mapboxgl.Map, setLeftClickState, leftClickSta
 
 export const parseEvent = (features) => {
   return {
-    name: features['name'],
+    ...features,
     hazard_id: features['hazard'],
-    started_at: features['started_at'],
     updated_at: features['updated_at'] === 'null' ? null : features['updated_at'],
-    ended_at: features['ended_at'] === 'null' ? null : features['ended_at']
+    ended_at: features['ended_at'] === 'null' ? null : features['ended_at'],
+    last_impact_estimation_at: features['last_impact_estimation_at'] === 'null' ? null : features['last_impact_estimation_at'],
+    impact_estimation : JSON.parse(features['impact_estimation'])
   }
 }
 
 export const parseTweet = (features) => {
   const tweet = {
-    id_str: features['id_str'],
-    created_at: features['created_at'],
-    text: features['text'],
+    ...features,
     hazard_types: JSON.parse(features['hazard_types']),
     information_types: JSON.parse(features['information_types']),
-    author: {
-      display_name: features['author_display_name'],
-      user_name: features['author_user_name'],
-      profile_image: features['author_profile_image']
-    },
-    informative: features['informative']
+    informative: features['informative'] === 'null' ? null : features['informative'],
+    author:JSON.parse(features['author'])
   }
   return tweet
 }
@@ -329,13 +324,14 @@ export const drawPolyToMap = (
 
 export const MapLoadingDiv = (props) => {
   return props.isLoading && (
-    <Grid style={{
-      position: 'absolute', zIndex: 10, width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.65
-    }}
-      container justify='center' alignItems='center'>
-      <Grid item style={{ top: '40%', left: '40%' }}>
-        <CircularProgress size={100} thickness={4} />
+      <Grid style={{
+        position: 'absolute', zIndex: 10, height:'100%', backgroundColor: 'black', opacity: 0.65
+      }}
+        container justify='center' alignItems='center'>
+        <Grid item style={{ top: '40%', left: '40%' }}>
+          <CircularProgress size={100} thickness={4} />
+        </Grid>
       </Grid>
-    </Grid>)
+  )
 }
 
