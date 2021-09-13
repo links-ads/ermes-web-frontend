@@ -117,11 +117,10 @@ export function MapStateContextProvider<T extends object = object>({
     height: containerSize.height,
     latitude: (((mapBounds.northEast[1] as number) + (mapBounds.southWest[1] as number))/2), //0, - TODO from user last known location
     longitude: (((mapBounds.northEast[0] as number) + (mapBounds.southWest[0] as number))/2), //0, - TODO from user last known location
-    zoom: 3.5
+    zoom: mapBounds.zoom as number
   })
-
   const [mapMode, setMapMode] = useState<MapMode>('browse')
-
+  
   const [{ type, id, area }, setEditingFeature] = useState<{
     type: ProvisionalFeatureType | null
     id: string | number | null
@@ -250,3 +249,4 @@ export function useMapStateContext<T extends object = object>() {
   ]
   return context
 }
+

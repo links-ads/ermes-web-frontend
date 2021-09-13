@@ -32,6 +32,7 @@ export interface FiltersDescriptorType {
 interface MapBounds {
   northEast: [number, number]
   southWest: [number, number]
+  zoom: number
 }
 
 interface MultipleSelect {

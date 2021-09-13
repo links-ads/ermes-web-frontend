@@ -40,7 +40,7 @@ export function FilterButton(props) {
           </IconButton>
         </span>
       </Tooltip>
-      <FilterTooltip /> 
+      {/* <FilterTooltip />  */}
     </FilterButtonContainer>
   )
 }

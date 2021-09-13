@@ -18,7 +18,8 @@ export const initObjectState = {
     },
     mapBounds: {
       northEast: [88.35279541161259, 71.55729162065575],
-      southWest: [-45.13191515177377, 23.84492207919945]
+      southWest: [-45.13191515177377, 23.84492207919945],
+      zoom: 2.5
     },
     report: {
       title: 'report',
@@ -35,7 +36,7 @@ export const initObjectState = {
           ]
         },
         {
-          name: 'status',
+          name: 'hazard_status',
           options: ['Unknown', 'Notified', 'Managed', 'Closed'],
           type: 'multipleselect',
           selected: []
@@ -48,7 +49,7 @@ export const initObjectState = {
       tab: 1,
       content: [
         {
-          name: 'status',
+          name: 'mission_status',
           options: ['Created', 'TakenInCharge', 'Completed', 'Deleted'],
           type: 'multipleselect',
           selected: []
@@ -61,7 +62,7 @@ export const initObjectState = {
       tab: 1,
       content: [
         {
-          name: 'status',
+          name: 'persons_status',
           options: ['Off', 'Ready', 'Moving', 'Active'],
           type: 'multipleselect',
           selected: []

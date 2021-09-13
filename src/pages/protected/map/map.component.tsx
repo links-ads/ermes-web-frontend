@@ -42,12 +42,11 @@ export function Map() {
     JSON.parse(storedFilters!) as unknown as FiltersDescriptorType
   )
 
-  const resetFiltersObj = () => {
-    setFiltersObj(JSON.parse(JSON.stringify(initObjectState)))
-    changeItem(JSON.stringify(initObjectState))
-    // setTimeout(applyFiltersObj(),500)
+  // const resetFiltersObj = () => {
+  //   setFiltersObj(JSON.parse(JSON.stringify(initObjectState)))
+  //   changeItem(JSON.stringify(initObjectState))
 
-  }
+  // }
 
   const applyFiltersObj = () => {
     let newFilterList: Array<string> = []
@@ -154,7 +153,8 @@ export function Map() {
           toggleActiveFilterTab={toggleActiveFilterTab}
           filtersObj={filtersObj}
           applyFiltersObj={applyFiltersObj}
-          resetFiltersObj={resetFiltersObj}
+          // resetFiltersObj={resetFiltersObj}
+          initObj={initObjectState}
         ></FloatingFilterContainer>
         {/* ) : null} */}
 

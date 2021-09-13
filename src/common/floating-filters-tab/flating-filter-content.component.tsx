@@ -275,7 +275,7 @@ export function Tab1(props) {
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                value={t('labels:' + elem.selected) || ''}
+                                value={t('labels:' + elem.selected.toLowerCase()) || ''}
                                 onChange={(event) => {
                                   const newFilter = filters
                                   newFilter[widget].content[i].selected = event.target
@@ -295,7 +295,7 @@ export function Tab1(props) {
                           <div className={classes.block}>
                             <FormControl className={classes.formControl}>
                               <InputLabel id="demo-mutiple-checkbox-label">
-                                {t('labels:' + elem.name)}
+                                {t('labels:' + elem.name.toLowerCase())}
                               </InputLabel>
                               <Select
                                 labelId="demo-mutiple-checkbox-label"
@@ -327,7 +327,7 @@ export function Tab1(props) {
                                 {elem.options.map((value, key) => (
                                   <MenuItem key={'report-select-' + key} value={value}>
                                     <Checkbox checked={elem.selected.indexOf(value) > -1} />
-                                    <ListItemText primary={t('labels:' + value)} />
+                                    <ListItemText primary={t('labels:' + value.toLowerCase())} />
                                     {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                                   </MenuItem>
                                 ))}
@@ -352,7 +352,7 @@ export function Tab1(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={t('labels:' + filters[widget].selected) || ''}
+                    value={t('labels:' + filters[widget].selected).toLowerCase() || ''}
                     onChange={(event) => {
                       const newFilter = filters
                       newFilter[widget].selected = event.target.value as string
@@ -360,7 +360,7 @@ export function Tab1(props) {
                     }}
                   >
                     {filters[widget].options.map((e) => {
-                      return <MenuItem value={e}>{t('labels:' + e)}</MenuItem>
+                      return <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
                     })}
                   </Select>
                 </FormControl>
@@ -398,7 +398,7 @@ export function Tab1(props) {
                   {filters[widget].options.map((value, key) => (
                     <MenuItem key={'report-select-' + key} value={value}>
                       <Checkbox checked={filters[widget].selected.indexOf(value) > -1} />
-                      <ListItemText primary={t('labels:' + value)} />
+                      <ListItemText primary={t('labels:' + value.toLowerCase())} />
                       {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                     </MenuItem>
                   ))}

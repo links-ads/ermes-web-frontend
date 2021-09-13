@@ -61,5 +61,16 @@
     "set_filters": "Filtri impostati",
     "any": "qualsiasi",
     "from_date": "Da",
-    "to_date": " a"
+    "to_date": " a",
+    "hazard_select": "Seleziona evento",
+    "hazard_status": "Stato dell'evento",
+    "mission_status": "Stato delle missioni",
+    "persons_status": "Stato delle persone",
+    "unknown": "Sconosciuto",
+    "notified": "Notificato",
+    "managed": "Gestito",
+    "closed": "Concluso",
+    "takenincharge": "Preso a carico",
+    "deleted": "Cancellato",
+    "ready": "Pronto"
 }

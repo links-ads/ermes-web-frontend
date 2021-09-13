@@ -47,7 +47,7 @@ import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
-import { getMapBounds } from '../../../common/map/map-common'
+import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import { filterApplyHandler } from '../../../utils/utils.common'
 
 // Style for the geolocation controls
@@ -331,7 +331,7 @@ export function MapLayout(props) {
 
   const filterApplyBoundsHandler = () => {
     const newFilterObj = JSON.parse(JSON.stringify(props.filtersObj))
-    newFilterObj.filters.mapBounds = getMapBounds(mapViewRef)
+    newFilterObj.filters.mapBounds = { ...getMapBounds(mapViewRef), zoom: getMapZoom(mapViewRef) }
     props.changeItem(JSON.stringify(newFilterObj))
     props.setFiltersObj(newFilterObj)
     props.forceUpdate()
