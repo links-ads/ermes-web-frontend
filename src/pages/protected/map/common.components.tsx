@@ -121,6 +121,9 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
       color: ${(props) => props.theme.palette.secondary.main};
     }
   }
+  .mapboxgl-ctrl-popupfilter {
+    background: ${(props) => props.theme.palette.background.paper} !important;
+  }
 `
 
 interface ImgContainerProps {

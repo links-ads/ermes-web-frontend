@@ -3,5 +3,9 @@
     "report" : "Reports",
     "mission" : "Missions",
     "persons" : "People",
-    "fire": "Incendio"
+    "fire": "Incendio",
+    "set_filters": "Selected filters",
+    "any": "any",
+    "from_date": "From",
+    "to_date": " to"
 }

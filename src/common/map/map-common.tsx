@@ -175,6 +175,12 @@ export const getMapBounds = (mapRef) => {
     northEast: clipBounds(bounds[1]) as [number, number]
   }
 }
+export const getMapZoom = (mapRef) => {
+  let map = mapRef?.current?.getMap()
+  if (!map)
+    return undefined
+  return map.getZoom()
+}
 export const queryHoveredFeature = (
   map,
   coord,

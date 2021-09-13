@@ -3,5 +3,9 @@
     "report" : "Segnalazioni",
     "mission" : "Missioni",
     "persons" : "Persone",
-    "fire": "Incendio"
+    "fire": "Incendio",
+    "set_filters": "Filtri impostati",
+    "any": "qualsiasi",
+    "from_date": "Da",
+    "to_date": " a"
 }

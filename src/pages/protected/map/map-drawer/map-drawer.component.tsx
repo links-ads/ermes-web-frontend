@@ -118,7 +118,7 @@ export default function MapDrawer(props) {
           component={'span'}
         >
           {/* REPORTS */}
-          <TabPanel value={value} index={0}>
+          <TabPanel value={value} index={0} key={'report-'+props.rerenderKey}>
             <ReportPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -129,7 +129,7 @@ export default function MapDrawer(props) {
           </TabPanel>
 
           {/* COMMUNICATION */}
-          <TabPanel value={value} index={1}>
+          <TabPanel value={value} index={1} key={'comm-'+props.rerenderKey}>
             <CommunicationPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -139,7 +139,7 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={2}>
+          <TabPanel value={value} index={2} key={'mission-'+props.rerenderKey}>
             <MissionsPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -149,7 +149,7 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={3}>
+          <TabPanel value={value} index={3} key={'people-'+props.rerenderKey}>
             <PeoplePanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}

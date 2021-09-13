@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { makeStyles } from '@material-ui/core/styles'
 import {
   MuiPickersUtilsProvider,
   DateTimePicker
 } from '@material-ui/pickers'
-import { useTranslation } from 'react-i18next'
+
 import useLanguage from '../../hooks/use-language.hook'
 import DateFnsUtils from '@date-io/date-fns'
 import Accordion from '@material-ui/core/Accordion'
@@ -74,7 +75,7 @@ export function Tab1(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
-  const { t } = useTranslation(['common', 'labels', 'maps'])
+  const { t } = useTranslation(['labels'])
   //  props.filters
   const filters = props.filters
   //states which will keep track of the start and end dates
@@ -177,7 +178,7 @@ export function Tab1(props) {
                 // }}
                 className={classes.datePicker}
                 // InputAdornmentProps={{}}
-                clearable
+                clearable={true}
                 InputProps={{
                   endAdornment:
                     filters.datestart.clear && selectedStartDate != null ? (
@@ -271,9 +272,9 @@ export function Tab1(props) {
                             <FormControl key={i} className={classes.formControl}>
                               <InputLabel id={"demo-simple-select-label_" + i}>{elem.name}</InputLabel>
                               <Select
-                                labelId={"demo-simple-select-label_" + i}
-                                id={"demo-simple-select_" + i}
-                                value={t('labels:' + elem.selected) || ''}
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={t('labels:' + elem.selected.toLowerCase()) || ''}
                                 onChange={(event) => {
                                   const newFilter = filters
                                   newFilter[widget].content[i].selected = event.target
@@ -290,10 +291,10 @@ export function Tab1(props) {
                         )
                       case 'multipleselect':
                         return (
-                          <div key={i} className={classes.block}>
-                            <FormControl key={i} className={classes.formControl}>
-                              <InputLabel id={"demo-mutiple-checkbox-label_" + i}>
-                                {t('labels:' + elem.name)}
+                          <div className={classes.block}>
+                            <FormControl className={classes.formControl}>
+                              <InputLabel id="demo-mutiple-checkbox-label">
+                                {t('labels:' + elem.name.toLowerCase())}
                               </InputLabel>
                               <Select
                                 labelId={"demo-mutiple-checkbox-label_" + i}
@@ -325,7 +326,7 @@ export function Tab1(props) {
                                 {elem.options.map((value, key) => (
                                   <MenuItem key={'report-select-' + key} value={value}>
                                     <Checkbox checked={elem.selected.indexOf(value) > -1} />
-                                    <ListItemText primary={t('labels:' + value)} />
+                                    <ListItemText primary={t('labels:' + value.toLowerCase())} />
                                     {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                                   </MenuItem>
                                 ))}
@@ -348,10 +349,9 @@ export function Tab1(props) {
                 <FormControl  className={classes.formControl}>
                   <InputLabel id={"demo-simple-select-label_" + i}>{filters[widget].name}</InputLabel>
                   <Select
-                    labelId={"demo-simple-select-label_" + i}
-                    id={"demo-simple-select_" + i}
-                    value={filters[widget].selected}
-                    renderValue={(v) => t('labels:' + v) || ''}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={t('labels:' + filters[widget].selected).toLowerCase() || ''}
                     onChange={(event) => {
                       const newFilter = filters
                       newFilter[widget].selected = event.target.value as string
@@ -359,7 +359,7 @@ export function Tab1(props) {
                     }}
                   >
                     {filters[widget].options.map((e) => {
-                      return <MenuItem key={e} value={e}>{t('labels:' + e)}</MenuItem>
+                      return <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
                     })}
                   </Select>
                 </FormControl>
@@ -398,7 +398,7 @@ export function Tab1(props) {
                   {filters[widget].options.map((value, key) => (
                     <MenuItem key={'report-select-' + key} value={value}>
                       <Checkbox checked={filters[widget].selected.indexOf(value) > -1} />
-                      <ListItemText primary={t('labels:' + value)} />
+                      <ListItemText primary={t('labels:' + value.toLowerCase())} />
                       {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                     </MenuItem>
                   ))}
@@ -415,7 +415,7 @@ export function Tab2(props) {
   // const classes = useStyles()
   const filters = props.filters
   const { t } = useTranslation(['labels'])
-  const [selectAll, setSelectAll] = useState<boolean>(true)
+
 
   const handleSelectAll = () => {
     for (let elem of Object.keys(filters?.multicheckCategories.options)) {
@@ -430,7 +430,7 @@ export function Tab2(props) {
       }
     }
 
-    for (let elem of Object.keys(filters?.multicheckActivities.options)) {
+    for (let elem of Object.keys(filters?.multicheckActivities?.options || {})) {
       if (!filters?.multicheckActivities.options[elem]) {
         return false
       }
@@ -438,6 +438,8 @@ export function Tab2(props) {
     return true
   }
 
+  const [selectAll, setSelectAll] = useState<boolean>(handleSelectAll())
+  
   const handleClickSelectAll = () => {
     const newFilters = filters
     if (!selectAll) {
@@ -448,7 +450,7 @@ export function Tab2(props) {
       for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
         newFilters!.multicheckPersons!.options[elem] = true
       }
-      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+      for (let elem of Object.keys(newFilters?.multicheckActivities?.options || {})) {
         newFilters!.multicheckActivities!.options[elem] = true
       }
     } else {
@@ -459,13 +461,17 @@ export function Tab2(props) {
       for (let elem of Object.keys(newFilters?.multicheckPersons.options)) {
         newFilters!.multicheckPersons!.options[elem] = false
       }
-      for (let elem of Object.keys(newFilters?.multicheckActivities.options)) {
+      for (let elem of Object.keys(newFilters?.multicheckActivities?.options || {})) {
         newFilters!.multicheckActivities!.options[elem] = false
       }
     }
     props.setFilters({ ...newFilters })
     setSelectAll(!selectAll)
   }
+
+  useEffect(()=>{
+    setSelectAll(handleSelectAll())
+  }, [filters?.multicheckActivities])
 
   return (
     <>
@@ -552,11 +558,11 @@ export function Tab2(props) {
                       !filters?.multicheckPersons.options[key]
                     if (key === 'Active') {
                       if (newFilter!.multicheckPersons.options[key]) {
-                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                           newFilter!.multicheckActivities!.options[elem] = true
                         }
                       } else {
-                        for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                        for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                           newFilter!.multicheckActivities!.options[elem] = false
                         }
                       }
@@ -577,11 +583,11 @@ export function Tab2(props) {
                           !filters?.multicheckPersons.options[key]
                         if (key === 'Active') {
                           if (newFilter!.multicheckPersons.options[key]) {
-                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                               newFilter!.multicheckActivities!.options[elem] = true
                             }
                           } else {
-                            for (let elem of Object.keys(newFilter?.multicheckActivities.options)) {
+                            for (let elem of Object.keys(newFilter?.multicheckActivities?.options || {})) {
                               newFilter!.multicheckActivities!.options[elem] = false
                             }
                           }

@@ -75,5 +75,22 @@
     "rescued": "Rescued",
     "infected": "Infected",
     "hospitalized": "Hospitalized",
-    "recovered": "Recovered"
+    "recovered": "Recovered",
+    "set_filters": "Selected filters",
+    "any": "any",
+    "from_date": "From",
+    "to_date": " to",
+    "hazard_select": "Select hazard",
+    "hazard_status": "Hazard status",
+    "mission_status": "Mission status",
+    "persons_status": "Persons status",
+    "unknown": "Unknown",
+    "notified": "Notified",
+    "managed": "Managed",
+    "closed": "Closed",
+    "takenincharge": "Taken in charge",
+    "deleted": "Deleted",
+    "ready": "Ready",
+    "filter_apply":"Apply",
+    "filter_reset":"Reset"
 }
