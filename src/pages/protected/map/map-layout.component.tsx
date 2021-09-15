@@ -27,7 +27,7 @@ import debounce from 'lodash.debounce'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { EmergencyHoverPopup, EmergencyDetailsCard } from './api-data/emergency.popups'
 import { ContextMenu } from './context-menu.component'
-import { useMapDialog } from './map-dialog.hooks'
+import { DialogResponseType, useMapDialog } from './map-dialog.hooks'
 import { MapDraw, MapDrawRefProps } from './map-draw.components'
 import { useMapStateContext, ItemWithLatLng, ProvisionalFeatureType } from './map.contest'
 import {
@@ -37,9 +37,7 @@ import {
   onMapLeftClickHandler,
   onMapRightClickHandler
 } from './map-event-handlers'
-import { SelectionToggle } from './selection-toggle.component'
 import { DrawerToggle } from './map-drawer/drawer-toggle.component'
-import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import { FilterButton } from '../../../common/floating-filters-tab/filter-button.component'
 import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
@@ -131,10 +129,14 @@ export function MapLayout(props) {
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
-    (status: string) => {
+    (status: DialogResponseType) => {
       console.debug('onFeatureDialogClose', status)
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
+      if(status == 'confirm')
+      {
+        props.fetchGeoJson()
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -150,7 +152,7 @@ export function MapLayout(props) {
     () => {
       if (editingFeatureType !== null) {
         const operation = editingFeatureId === null ? 'create' : 'update'
-        if (editingFeatureType === 'report') {
+        if (editingFeatureType === 'Report') {
           showFeaturesDialog(
             operation,
             editingFeatureType,
@@ -161,7 +163,8 @@ export function MapLayout(props) {
             showFeaturesDialog(
               operation,
               editingFeatureType,
-              editingFeatureId ? editingFeatureId + '' : ''
+              editingFeatureId ? editingFeatureId + '' : '',
+              editingFeatureArea
             )
           } else {
             // TODO change cursor
@@ -234,7 +237,7 @@ export function MapLayout(props) {
     (
       evt: any,
       operation?: 'create' | 'update' | 'delete',
-      type?: string /*use ProvisionalFeatureType*/,
+      type?: ProvisionalFeatureType,
       itemId?: string
     ) => {
       // Open modal with creation/update/delete wizards
@@ -245,7 +248,7 @@ export function MapLayout(props) {
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
-        if (type && ['report', 'report_request', 'mission', 'communication'].includes(type)) {
+        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication'].includes(type)) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
           displayWarningSnackbar('Cannot create feature of type ' + type)

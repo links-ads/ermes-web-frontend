@@ -47,5 +47,14 @@
   "target" : "Target",
   "coord_person" : "Coordinator person",
   "coord_team": "Coordinator team",
-  "coord_org": "Coordinator organization"
+  "coord_org": "Coordinator organization",
+  "operation_create":"Create",
+  "operation_update":"Update",
+  "operation_delete":"Delete",
+  "operation_close":"Close",
+  "description_label":"Description",
+  "description_placeholder":"Insert description here",
+  "description_error":"Mandatory field",
+  "dialog_confirm":"Confirm",
+  "dialog_cancel":"Cancel"
 }

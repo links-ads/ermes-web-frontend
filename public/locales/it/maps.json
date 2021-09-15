@@ -47,6 +47,15 @@
   "target" : "Target",
   "coord_person" : "Persona coordinatrice",
   "coord_team": "Team coordinatore",
-  "coord_org": "Organizzazione coordinatrice"
+  "coord_org": "Organizzazione coordinatrice",
+  "operation_create":"Crea",
+  "operation_update":"Aggiorna",
+  "operation_delete":"Elimina",
+  "operation_close":"Chiudi",
+  "description_label":"Descrizione",
+  "description_placeholder":"Aggiungi descrizione qui",
+  "description_error":"Campo obbligatorio",
+  "dialog_confirm":"Conferma",
+  "dialog_cancel":"Annulla"
 
 }

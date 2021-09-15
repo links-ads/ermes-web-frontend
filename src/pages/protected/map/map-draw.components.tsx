@@ -49,13 +49,13 @@ export type deleteFeaturesFn = (index: number | number[]) => void
 function featureStyle(editingFeatureType: ProvisionalFeatureType | null) {
   let color: any = blueGrey
   switch (editingFeatureType) {
-    case 'report_request':
+    case 'ReportRequest':
       color = blue
       break
-    case 'mission':
+    case 'Mission':
       color = purple
       break
-    case 'communication':
+    case 'Communication':
       color = pink
       break
     default:
