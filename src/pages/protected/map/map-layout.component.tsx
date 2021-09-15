@@ -48,7 +48,10 @@ import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.componen
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
-
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import { makeStyles } from '@material-ui/styles'
+import { createStyles } from '@material-ui/core'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -72,7 +75,33 @@ const GEOJSON_LAYER_IDS = ['clusters', 'unclustered-point']
 // TODO check if memoization is more efficient
 const DEBOUNCE_TIME = 200 // ms
 
+const useStyles = makeStyles(() =>
+  createStyles({
+    legend_container: { 
+      zIndex: 99, 
+      position: 'absolute', 
+      bottom: 25, 
+      right: 12 
+    },
+    legend_row: {
+      height: 30
+    },
+    legend_dot: {
+      width: 20,
+      height: 20,
+      display: 'inline-block',
+      borderRadius: '50%',
+      verticalAlign: 'middle',
+      marginTop: '-3px'
+    },
+    legend_text: {
+      display: 'inline-block'
+    }
+  })
+)
+
 export function MapLayout(props) {
+  const classes = useStyles()
   const [jsonData, setJsonData] = useState<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
     features: []
@@ -330,7 +359,22 @@ export function MapLayout(props) {
 
   const filterApplyBoundsHandler = () => {
     const newFilterObj = JSON.parse(JSON.stringify(props.filtersObj))
-    newFilterObj.filters.mapBounds = { ...getMapBounds(mapViewRef), zoom: getMapZoom(mapViewRef) }
+    const bounds = getMapBounds(mapViewRef)
+    // Keep the current filter if it is already a bounding box
+    // This is to prevent a backend bug which returned null
+    if (bounds!.northEast && bounds!.northEast[0] > 86.77324846555354) {
+      bounds!.northEast[0] = 86.77324846555354
+    }
+    if (bounds!.northEast && bounds!.northEast[1] > 65.33058858672266) {
+      bounds!.northEast[1] = 65.33058858672266
+    }
+    if (bounds!.southWest && bounds!.southWest[0] < -76.77652791830207) {
+      bounds!.southWest[0] = -76.77652791830207
+    }
+    if (bounds!.southWest && bounds!.southWest[1] < -29.94539308554898) {
+      bounds!.southWest[1] = -29.94539308554898
+    }
+    newFilterObj.filters.mapBounds = { ...bounds, zoom: getMapZoom(mapViewRef) }
     props.changeItem(JSON.stringify(newFilterObj))
     props.setFiltersObj(newFilterObj)
     props.forceUpdate()
@@ -546,6 +590,23 @@ export function MapLayout(props) {
         ></FilterButton>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
+      <Card className={classes.legend_container}>
+        <CardContent style={{padding: 12}}>
+          {Object.keys(EmergencyColorMap).map((key) => {
+            return (
+              <div className={classes.legend_row}>
+                <div
+                  style={{
+                    backgroundColor: EmergencyColorMap[key]
+                  }}
+                  className={classes.legend_dot}
+                ></div>
+                <div className={classes.legend_text}>&nbsp; {t('maps:' + key)} </div>
+              </div>
+            )
+          })}
+        </CardContent>
+      </Card>
 
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent

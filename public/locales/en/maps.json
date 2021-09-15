@@ -47,5 +47,6 @@
   "target" : "Target",
   "coord_person" : "Coordinator person",
   "coord_team": "Coordinator team",
-  "coord_org": "Coordinator organization"
+  "coord_org": "Coordinator",
+  "mission_state": "Mission state"
 }

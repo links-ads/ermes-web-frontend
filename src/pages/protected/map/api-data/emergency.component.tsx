@@ -69,15 +69,14 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     position: 'absolute',
     width: 800,
-    backgroundColor: theme.palette.background.paper,
-    border: '2px solid #000',
-    boxShadow: theme.shadows[5],
+    // backgroundColor: theme.palette.background.paper,
+    // border: '2px solid #000',
+    // boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3)
   }
 }))
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
-  console.log(extensionData)
   return (
     <>
       <Card elevation={0}>
@@ -249,65 +248,72 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
               <br />
             </div>
             <div>
+              <Typography
+                component={'span'}
+                variant="caption"
+                color="textSecondary"
+                style={{ textTransform: 'uppercase' }}
+              >
+                {t('maps:mission_state')}:&nbsp;
+                {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+              </Typography>
+              <Typography component={'span'} variant="body1">
+                {t('labels:' + data.data.feature.properties.currentStatus)}
+              </Typography>
+              <br />
+            </div>
+            <div>
               {data.data?.feature?.properties?.reports?.length > 0 ? (
-                <Typography
-                  component={'span'}
-                  variant="caption"
-                  color="textSecondary"
-                  style={{ textTransform: 'uppercase' }}
-                >
-                  {t('maps:reports')}:&nbsp;
+                <Typography component={'span'} variant="body1">
+                  {/* {'\t' + String(extensionData[key])} */}
+                  <TableContainer component={Paper}>
+                    <Table className={classes.table} size="small" aria-label="a dense table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align="left">
+                            <b>{t('maps:hazard')}</b>
+                          </TableCell>
+                          <TableCell align="left">
+                            <b>{t('maps:organizationName')}</b>
+                          </TableCell>
+                          <TableCell align="left">
+                            <b>{t('maps:timestamp')}</b>
+                          </TableCell>
+                          <TableCell align="left"></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {data.data?.feature?.properties?.reports.map((elem) => {
+                          return (
+                            <TableRow>
+                              <TableCell component="th" align="left" scope="row">
+                                {elem.hazard}
+                              </TableCell>
+                              <TableCell align="center">{elem.organizationName}</TableCell>
+                              <TableCell align="center">
+                                {formatter.format(new Date(elem.timestamp as string))}
+                              </TableCell>
+                              <TableCell align="center">
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    flyToCoords({
+                                      latitude: elem?.location?.latitude as number,
+                                      longitude: elem?.location?.longitude as number
+                                    })
+                                  }
+                                >
+                                  <LocationOnIcon />
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                          )
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
                 </Typography>
               ) : null}
-              <Typography component={'span'} variant="body1">
-                {/* {'\t' + String(extensionData[key])} */}
-                <TableContainer component={Paper}>
-                  <Table className={classes.table} size="small" aria-label="a dense table">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="left">
-                          <b>{t('maps:hazard')}</b>
-                        </TableCell>
-                        <TableCell align="left">
-                          <b>{t('maps:organizationName')}</b>
-                        </TableCell>
-                        <TableCell align="left">
-                          <b>{t('maps:timestamp')}</b>
-                        </TableCell>
-                        <TableCell align="left"></TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {data.data?.feature?.properties?.reports.map((elem) => {
-                        return (
-                          <TableRow>
-                            <TableCell component="th" align="left" scope="row">
-                              {elem.hazard}
-                            </TableCell>
-                            <TableCell align="center">{elem.organizationName}</TableCell>
-                            <TableCell align="center">
-                              {formatter.format(new Date(elem.timestamp as string))}
-                            </TableCell>
-                            <TableCell align="center">
-                              <IconButton
-                                size="small"
-                                onClick={() =>
-                                  flyToCoords({
-                                    latitude: elem?.location?.latitude as number,
-                                    longitude: elem?.location?.longitude as number
-                                  })
-                                }
-                              >
-                                <LocationOnIcon />
-                              </IconButton>
-                            </TableCell>
-                          </TableRow>
-                        )
-                      })}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Typography>
             </div>
           </CardContent>
 
@@ -315,6 +321,10 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
             <Typography color="textSecondary">
               {formatter.format(
                 new Date(data.data?.feature?.properties?.duration?.lowerBound as string)
+              ) + ' - '}
+              <br />
+              {formatter.format(
+                new Date(data.data?.feature?.properties?.duration?.upperBound as string)
               )}
             </Typography>
 
@@ -332,9 +342,8 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
     </div>
   )
 }
-const commCard = (data, classes, t, formatter, latitude, longitude) => {
+const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) => {
   if (!data.isLoading) {
-    console.log('COMM DATA', data)
     return (
       <>
         <Card elevation={0}>
@@ -355,7 +364,7 @@ const commCard = (data, classes, t, formatter, latitude, longitude) => {
                 {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
               </Typography>
               <Typography component={'span'} variant="body1">
-                {/* {details[type]} */}
+                {commInfo.organizationName}
               </Typography>
             </div>
             <Typography color="textSecondary">
@@ -399,7 +408,6 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
   const details = data?.data?.feature?.properties
 
   if (!data.isLoading) {
-    console.log('REPORT DATA', data)
     return (
       <>
         <Card elevation={0}>
@@ -430,7 +438,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
             aria-describedby="simple-modal-description"
           >
             {
-              <div
+              <Card
+                elevation={0}
                 style={{
                   top: '50%',
                   left: '50%',
@@ -442,7 +451,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                   animation="slide"
                   autoPlay={false}
                   // timeout={800}
-                  
+
                   fullHeightHover={false}
                 >
                   {details.mediaURIs.map((media, idx) => {
@@ -460,7 +469,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                     )
                   })}
                 </Carousel>
-              </div>
+              </Card>
             }
           </Modal>
           <CardContent style={{ paddingTop: '0px' }}>
@@ -505,7 +514,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
               <Table className={classes.table} size="small" aria-label="a dense table">
                 <TableHead>
                   <TableRow>
-                    <TableCell align="left">
+                    <TableCell align="left" width="35%">
                       <b>{t('maps:group')}</b>
                     </TableCell>
                     <TableCell align="left">
@@ -523,10 +532,10 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                 <TableBody>
                   {details!.extensionData.map((row) => (
                     <TableRow key={row.name}>
-                      <TableCell align="left">
-                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}
+                      <TableCell align="left" width="35%">
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.groupIcon}{' '}
+                        {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.group}
                       </TableCell>
-
                       <TableCell component="th" align="left" scope="row">
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                       </TableCell>
@@ -696,7 +705,7 @@ export function EmergencyContent({
   ...rest
 }: EmergencyPropsWithLocation) {
   const classes = useStyles()
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'labels'])
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
@@ -795,7 +804,7 @@ export function EmergencyContent({
     }
     case 'Communication': {
       // data, classes, t, formatter, latitude, longitude
-      todisplay = commCard(commDetails, classes, t, formatter, latitude, longitude)
+      todisplay = commCard(commDetails, classes, t, formatter, latitude, longitude, rest)
       break
     }
     case 'Mission':
