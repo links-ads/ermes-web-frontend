@@ -178,6 +178,7 @@ export function Map() {
             setFiltersObj={setFiltersObj}
             changeItem={changeItem}
             forceUpdate={forceUpdate}
+            fetchGeoJson={fetchGeoJson}
           />
         </MapStateContextProvider>
       </MapContainer>

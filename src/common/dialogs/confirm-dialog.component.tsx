@@ -10,6 +10,7 @@ import { ModalProps } from '@material-ui/core'
 export interface ConfirmDialogProps extends DialogProps {
   title: string
   confirmLabel: string
+  cancelLabel?: string
   onConfirm: ModalProps['onClose'] & MouseEventHandler<any>
   onCancel: MouseEventHandler<any>
 }
@@ -17,6 +18,7 @@ export interface ConfirmDialogProps extends DialogProps {
 export function ConfirmDialog({
   title,
   confirmLabel,
+  cancelLabel='Cancel',
   children,
   onConfirm,
   onCancel,
@@ -35,7 +37,7 @@ export function ConfirmDialog({
         {/* <DialogContentText id="confirm-dialog-slide-description">{children}</DialogContentText> */}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel}>Cancel</Button>
+        <Button onClick={onCancel}>{cancelLabel}</Button>
         <Button onClick={onConfirm} color="primary">
           {confirmLabel}
         </Button>
