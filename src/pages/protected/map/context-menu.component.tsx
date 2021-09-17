@@ -70,7 +70,7 @@ export const ContextMenu = memo(
                   <ListItemIcon>
                     <CloseOutlined />
                   </ListItemIcon>
-                  <ListItemText primary="Close Menu" />
+                  <ListItemText primary={t("maps:operation_close")+" "+"Menu"} />
                 </ListItem>
               ]
               : [

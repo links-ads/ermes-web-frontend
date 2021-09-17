@@ -245,6 +245,7 @@ export function MapLayout(props) {
         console.debug(operation, type)
       }
       setRightClickedPoint(null)
+      if(!operation) return
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
