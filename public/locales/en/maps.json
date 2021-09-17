@@ -48,5 +48,6 @@
   "coord_person" : "Coordinator person",
   "coord_team": "Coordinator team",
   "coord_org": "Coordinator",
-  "mission_state": "Mission state"
+  "mission_state": "Mission state",
+  "associated_report_list": "List of associated reports"
 }

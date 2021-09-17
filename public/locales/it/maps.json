@@ -48,7 +48,7 @@
   "coord_person" : "Persona coordinatrice",
   "coord_team": "Team coordinatore",
   "coord_org": "Coordinatore",
-  "mission_state": "Stato missione"	
-
+  "mission_state": "Stato missione",	
+  "associated_report_list": "Lista segnalazioni associate"
 
 }

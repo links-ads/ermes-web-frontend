@@ -264,55 +264,67 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
             </div>
             <div>
               {data.data?.feature?.properties?.reports?.length > 0 ? (
-                <Typography component={'span'} variant="body1">
-                  {/* {'\t' + String(extensionData[key])} */}
-                  <TableContainer component={Paper}>
-                    <Table className={classes.table} size="small" aria-label="a dense table">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell align="left">
-                            <b>{t('maps:hazard')}</b>
-                          </TableCell>
-                          <TableCell align="left">
-                            <b>{t('maps:organizationName')}</b>
-                          </TableCell>
-                          <TableCell align="left">
-                            <b>{t('maps:timestamp')}</b>
-                          </TableCell>
-                          <TableCell align="left"></TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {data.data?.feature?.properties?.reports.map((elem) => {
-                          return (
-                            <TableRow>
-                              <TableCell component="th" align="left" scope="row">
-                                {elem.hazard}
-                              </TableCell>
-                              <TableCell align="center">{elem.organizationName}</TableCell>
-                              <TableCell align="center">
-                                {formatter.format(new Date(elem.timestamp as string))}
-                              </TableCell>
-                              <TableCell align="center">
-                                <IconButton
-                                  size="small"
-                                  onClick={() =>
-                                    flyToCoords({
-                                      latitude: elem?.location?.latitude as number,
-                                      longitude: elem?.location?.longitude as number
-                                    })
-                                  }
-                                >
-                                  <LocationOnIcon />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                          )
-                        })}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Typography>
+                <>
+                  <Typography
+                    component={'span'}
+                    variant="caption"
+                    color="textSecondary"
+                    style={{ textTransform: 'uppercase' }}
+                  >
+                    {t('maps:associated_report_list')}:&nbsp;
+                    {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                  </Typography>
+
+                  <Typography component={'span'} variant="body1">
+                    {/* {'\t' + String(extensionData[key])} */}
+                    <TableContainer component={Paper}>
+                      <Table className={classes.table} size="small" aria-label="a dense table">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell align="left">
+                              <b>{t('maps:hazard')}</b>
+                            </TableCell>
+                            <TableCell align="left">
+                              <b>{t('maps:organizationName')}</b>
+                            </TableCell>
+                            <TableCell align="left">
+                              <b>{t('maps:timestamp')}</b>
+                            </TableCell>
+                            <TableCell align="left"></TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {data.data?.feature?.properties?.reports.map((elem) => {
+                            return (
+                              <TableRow>
+                                <TableCell component="th" align="left" scope="row">
+                                  {elem.hazard}
+                                </TableCell>
+                                <TableCell align="center">{elem.organizationName}</TableCell>
+                                <TableCell align="center">
+                                  {formatter.format(new Date(elem.timestamp as string))}
+                                </TableCell>
+                                <TableCell align="center">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() =>
+                                      flyToCoords({
+                                        latitude: elem?.location?.latitude as number,
+                                        longitude: elem?.location?.longitude as number
+                                      })
+                                    }
+                                  >
+                                    <LocationOnIcon />
+                                  </IconButton>
+                                </TableCell>
+                              </TableRow>
+                            )
+                          })}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Typography>
+                </>
               ) : null}
             </div>
           </CardContent>
