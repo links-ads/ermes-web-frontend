@@ -49,7 +49,10 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles } from '@material-ui/styles'
-import { createStyles } from '@material-ui/core'
+import { Box, Collapse, createStyles, Fab, IconButton } from '@material-ui/core'
+import SpeedDial from '@material-ui/lab/SpeedDial'
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
+import InfoIcon from '@material-ui/icons/Info'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -75,11 +78,12 @@ const DEBOUNCE_TIME = 200 // ms
 
 const useStyles = makeStyles(() =>
   createStyles({
-    legend_container: { 
-      zIndex: 99, 
-      position: 'absolute', 
-      bottom: 25, 
-      right: 12 
+    fab: { position: 'absolute', bottom: '25px', right: '15px', zIndex: 99 },
+    legend_container: {
+      zIndex: 98,
+      position: 'absolute',
+      bottom: 20,
+      right: 10
     },
     legend_row: {
       height: 30
@@ -132,6 +136,9 @@ export function MapLayout(props) {
 
   // Snackbars
   const { displayMessage, displayWarningSnackbar } = useSnackbars()
+
+  // Legend toggle
+  const [legendToggle, setLegendToggle] = useState(false)
 
   // Map state
   const [
@@ -594,23 +601,39 @@ export function MapLayout(props) {
         ></FilterButton>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
-      <Card className={classes.legend_container}>
-        <CardContent style={{padding: 12}}>
-          {Object.keys(EmergencyColorMap).map((key) => {
-            return (
-              <div className={classes.legend_row}>
-                <div
-                  style={{
-                    backgroundColor: EmergencyColorMap[key]
-                  }}
-                  className={classes.legend_dot}
-                ></div>
-                <div className={classes.legend_text}>&nbsp; {t('maps:' + key)} </div>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
+      <Collapse in={legendToggle}>
+        <Card className={classes.legend_container}>
+          <CardContent style={{ padding: 12 }}>
+            {Object.keys(EmergencyColorMap).map((key) => {
+              return (
+                <div className={classes.legend_row}>
+                  <div
+                    style={{
+                      backgroundColor: EmergencyColorMap[key]
+                    }}
+                    className={classes.legend_dot}
+                  ></div>
+                  <div className={classes.legend_text}>&nbsp; {t('maps:' + key)} </div>
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
+      </Collapse>
+      <Fab
+        size="small"
+        color="primary"
+        aria-label="add"
+        className={classes.fab}
+        onMouseEnter={() => {
+          setLegendToggle(true)
+        }}
+        onMouseLeave={() => {
+          setLegendToggle(false)
+        }}
+      >
+        <InfoIcon />
+      </Fab>
 
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent

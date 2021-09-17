@@ -45,9 +45,9 @@
   "no": "No",
   "on": "Active",
   "target" : "Target",
-  "coord_person" : "Coordinator person",
-  "coord_team": "Coordinator team",
-  "coord_org": "Coordinator organization",
+  "coord_person" : "Coordinator",
+  "coord_team": "Coordinator",
+  "coord_org": "Coordinator",
   "operation_create":"Create",
   "operation_update":"Update",
   "operation_delete":"Delete",
@@ -57,5 +57,6 @@
   "description_error":"Mandatory field",
   "dialog_confirm":"Confirm",
   "dialog_cancel":"Cancel",
-  "mission_state": "Mission state"
+  "mission_state": "Mission state",
+  "associated_report_list": "List of associated reports"
 }
