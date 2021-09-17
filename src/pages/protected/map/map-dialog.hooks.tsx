@@ -164,6 +164,8 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
                     disableFuture={false}
                     autoOk={true}
                     ampm={false}
+                    error={editError&&!editState.endDate}
+                    helperText={t("maps:description_error")}
                     minDate={editState.startDate}
                     InputProps={{
                       endAdornment: endAdornment
@@ -230,7 +232,11 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
   }
 
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType):boolean => {
-    return editState.description.length > 0
+    if (editState.description.length === 0)
+      return false
+    if(!editState.endDate)
+      return false
+    return true
   }
 
   const applyHandler = (editState: EditStateType, dialogState: DialogStateType) => {
