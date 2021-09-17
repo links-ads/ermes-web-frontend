@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react'
+import React, { useState, useEffect, useReducer, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
@@ -15,6 +15,7 @@ import useLanguage from '../../../hooks/use-language.hook'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 import { initObjectState } from './map-filters-init.state'
+import { AppConfig, AppConfigContext, loadConfig } from '../../../config'
 
 type MapFeature = CulturalProps
 
@@ -33,22 +34,22 @@ export function Map() {
     'Mission',
     'Report'
   ])
+  const initObject = JSON.parse(JSON.stringify(initObjectState))
+  
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
+  initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
+  initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
 
   let [storedFilters, changeItem, removeStoredFilters, getStoredItems] = useMemoryState(
     'memstate-map',
-    JSON.stringify(JSON.parse(JSON.stringify(initObjectState))),
+    JSON.stringify(JSON.parse(JSON.stringify(initObject))),
     false
   )
 
   const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(
     JSON.parse(storedFilters!) as unknown as FiltersDescriptorType
   )
-
-  // const resetFiltersObj = () => {
-  //   setFiltersObj(JSON.parse(JSON.stringify(initObjectState)))
-  //   changeItem(JSON.stringify(initObjectState))
-
-  // }
 
   const applyFiltersObj = () => {
     let newFilterList: Array<string> = []
@@ -152,11 +153,12 @@ export function Map() {
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
         <FloatingFilterContainer
+          setToggleActiveFilterTab={setToggleActiveFilterTab}
           toggleActiveFilterTab={toggleActiveFilterTab}
           filtersObj={filtersObj}
           applyFiltersObj={applyFiltersObj}
           // resetFiltersObj={resetFiltersObj}
-          initObj={initObjectState}
+          initObj={initObject}
         ></FloatingFilterContainer>
         {/* ) : null} */}
 

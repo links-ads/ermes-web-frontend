@@ -8,7 +8,14 @@ import Draggable from 'react-draggable'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
-import { Button, CardActions, CircularProgress, makeStyles, useTheme } from '@material-ui/core'
+import {
+  Button,
+  CardActions,
+  CircularProgress,
+  IconButton,
+  makeStyles,
+  useTheme
+} from '@material-ui/core'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
@@ -27,7 +34,8 @@ import Box from '@material-ui/core/Box'
 import { ResizableBox } from 'react-resizable'
 import { FiltersDescriptorType } from './floating-filter.interface'
 // import { useController, useForm } from 'react-hook-form'
-
+import CloseIcon from '@material-ui/icons/Close'
+import { useDispatch, useSelector } from 'react-redux'
 function a11yProps(index: any) {
   return {
     id: `full-width-tab-${index}`,
@@ -189,6 +197,16 @@ export default function FloatingFilterContainer(props) {
                     </Tabs>
                   </span>
                 ) : null}
+                <span>
+                  <IconButton
+                    style={{ marginTop: '10px', position: 'absolute' , right: '10px'}}
+                    onClick={() => {
+                      props.setToggleActiveFilterTab(false)
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </span>
               </AppBar>
               {/* </CardHeader> */}
               <CardContent

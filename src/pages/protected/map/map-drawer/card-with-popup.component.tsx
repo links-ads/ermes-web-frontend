@@ -63,7 +63,6 @@ export default function CardWithPopup(props) {
                 }
                 break
               case 'cluster':
-                console.log('CLUSTER')
                 map.setFeatureState(
                   {
                     source: SOURCE_ID,

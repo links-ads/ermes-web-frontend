@@ -77,7 +77,6 @@ export default function useReportList() {
           let newData: DTResultOfReportDto[] = transformData(result.data.data) || []
 
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          console.log('REPORT', newData)
           dispatch({
             type: 'RESULT',
             value: newData,

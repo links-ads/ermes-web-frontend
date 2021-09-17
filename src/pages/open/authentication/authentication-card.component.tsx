@@ -14,6 +14,10 @@ import Grid from '@material-ui/core/Grid'
 export function AuthenticationCard() {
   const { t } = useTranslation(['privacy', 'termsofuse'])
   const login = useLogin()
+
+  // Clear storage if not authenticated on login page
+  // localStorage.clear()
+
   // const { login /* , logoutHandle, closeLogoutWindow  */ } = useAuth()
   return (
     <div className="full column centered">

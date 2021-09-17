@@ -105,13 +105,6 @@ export default function CommunicationPanel(props) {
     return () => window.removeEventListener('resize', resizeHeight)
   })
 
-  // useEffect(() => {
-  //   setStartDate(props.selectedStartDate)
-  // }, [props.selectedStartDate, setStartDate])
-
-  // useEffect(() => {
-  //   setEndDate(props.selectedEndDate)
-  // }, [props.selectedEndDate, setEndDate])
 
   return (
     <div className="container">

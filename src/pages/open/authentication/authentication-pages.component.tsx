@@ -21,6 +21,11 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
     match ? match.url : '',
     destination
   )
+  if(!isAuthenticated){
+    localStorage.removeItem('memstate-map')
+    localStorage.removeItem('memstate-social')
+    localStorage.removeItem('memstate-event')
+  }
   return isAuthenticated ? (
     <Redirect to={destination} from={match ? match.url : undefined} />
   ) : (

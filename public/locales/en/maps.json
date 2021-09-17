@@ -56,5 +56,6 @@
   "description_placeholder":"Insert description here",
   "description_error":"Mandatory field",
   "dialog_confirm":"Confirm",
-  "dialog_cancel":"Cancel"
+  "dialog_cancel":"Cancel",
+  "mission_state": "Mission state"
 }

@@ -62,10 +62,10 @@ const useStyles = makeStyles((theme) => ({
     display: 'block'
   },
   topCard: {
-    paddingBottom: 16
+    paddingBottom: 0
   },
   pos: {
-    marginTop: 12
+    marginTop: 8
   },
   viewInMap: {
     textAlign: 'right',
@@ -213,7 +213,10 @@ export default function PeoplePanel(props) {
                             </Typography>
                           </Box>
                           <Box component="div" display="inline-block">
-                            <Typography color="textSecondary">
+                            <Typography
+                              color="textSecondary"
+                              style={{ fontSize: '14px', paddingTop: '6px' }}
+                            >
                               {formatter.format(new Date(elem.timestamp as string))}
                             </Typography>
                           </Box>
