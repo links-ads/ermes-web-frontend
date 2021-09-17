@@ -51,7 +51,7 @@ export type FeatureSelectionUpdater<T extends object = object> = (
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
 ) => void
 
-export type ProvisionalFeatureType = 'report' | 'report_request' | 'mission' | 'communication'
+export type ProvisionalFeatureType = 'Report' | 'ReportRequest' | 'Mission' | 'Communication'
 
 // The Map State
 interface MapStateVariables<T extends object = object> {
@@ -218,7 +218,7 @@ export function useMapStateContext<T extends object = object>() {
     id: string | number | null = null,
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null = null
   ) {
-    if (type !== 'report') {
+    if (type !== 'Report') {
       setMapMode('edit')
     }
     setEditingFeature({ type, id, area })

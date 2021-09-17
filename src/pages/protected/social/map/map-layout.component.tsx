@@ -80,6 +80,7 @@ const SocialMap = (props) => {
                 isLoading={props.isLoading}
             />
             <FloatingFilterContainer
+                setToggleActiveFilterTab={setToggleActiveFilterTab}
                 toggleActiveFilterTab={toggleActiveFilterTab}
                 filtersObj={filtersObj}
                 applyFiltersObj={applyFilters}

@@ -45,7 +45,6 @@
   "user_mobile_phone": "Mobile: {{mobilePhone}}",
   "user_role": "Role: {{role}}",
   "org_name": "Organization: {{organizationName}}",
-  "page_social":"Social",
   "page_events":"Events",
   "date_picker_test_start":"Starting date",
   "date_picker_test_end":"Ending date",

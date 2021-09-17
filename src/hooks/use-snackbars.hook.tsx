@@ -85,9 +85,26 @@ export function useSnackbars() {
     })
   }
 
+  const displaySuccessSnackbar = (message: string, options: OptionsObject = { variant: 'success', autoHideDuration: 4000}) => {
+    console.debug('Snackbar message', message)
+    enqueueSnackbar(t(message), {
+      ...options,
+      action: (key) => (
+        <IconButton
+          onClick={() => {
+            closeSnackbar(key)
+          }}
+        >
+          <Close />
+        </IconButton>
+      )
+    })
+  }
+
   return {
     displayErrorSnackbar,
     displayWarningSnackbar,
-    displayMessage
+    displayMessage,
+    displaySuccessSnackbar
   }
 }

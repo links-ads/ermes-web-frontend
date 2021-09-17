@@ -50,13 +50,13 @@ const EventMap = (props) => {
 
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
 
-  const filtersObj = useMemo(()=>{
+  const filtersObj = useMemo(() => {
     return getFilterObjFromFilters(props.eventFilters, props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos, false)
-  },[props.eventFilters, props.filtersState])
-  
-  const initObj = useMemo(()=>{
+  }, [props.eventFilters, props.filtersState])
+
+  const initObj = useMemo(() => {
     return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos, false)
-  },[props.filtersState])
+  }, [props.filtersState])
 
 
   const updateMarkers = useCallback((map) => {
@@ -110,6 +110,7 @@ const EventMap = (props) => {
         isLoading={props.isLoading}
       />
       <FloatingFilterContainer
+        setToggleActiveFilterTab={setToggleActiveFilterTab}
         toggleActiveFilterTab={toggleActiveFilterTab}
         filtersObj={filtersObj}
         applyFiltersObj={applyFilters}
@@ -161,7 +162,7 @@ const EventMap = (props) => {
                     updateMarkers(map)
                   }
                 })
-                map.fitBounds(new mapboxgl.LngLatBounds(props.eventFilters['southWest'],props.eventFilters['northEast']),{},{how: 'fly'})
+                map.fitBounds(new mapboxgl.LngLatBounds(props.eventFilters['southWest'], props.eventFilters['northEast']), {}, { how: 'fly' })
               } catch (err) {
                 console.error('Map Load Error', err)
               }

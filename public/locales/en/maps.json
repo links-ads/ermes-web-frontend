@@ -49,5 +49,14 @@
   "coord_team": "Coordinator team",
   "coord_org": "Coordinator",
   "mission_state": "Mission state",
-  "associated_report_list": "List of associated reports"
+  "associated_report_list": "List of associated reports",
+  "operation_create":"Create",
+  "operation_update":"Update",
+  "operation_delete":"Delete",
+  "operation_close":"Close",
+  "description_label":"Description",
+  "description_placeholder":"Insert description here",
+  "description_error":"Mandatory field",
+  "dialog_confirm":"Confirm",
+  "dialog_cancel":"Cancel"
 }
