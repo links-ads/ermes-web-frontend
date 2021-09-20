@@ -144,7 +144,7 @@ const ImportComponent = (props) => {
                 </h1>
             </Grid>
             <Grid container>
-                <Grid container direction='column' style={{ flex: 1 }}>
+                <Grid container direction='column' style={{ flex: 2 }}>
                     <Grid item className={classes.section}>
                         <FormControl className={classes.selectOption}>
                             <InputLabel id={'import-label'}>{t("import:select_label")}</InputLabel>
@@ -211,7 +211,7 @@ const ImportComponent = (props) => {
                         </Button>
                     </Grid>
                 </Grid>
-                <Grid container direction='column' style={{ flex: 2 }}>
+                <Grid container direction='column' style={{ flex: 3 }}>
                     <Grid container direction='column' style={{ padding: 16 }} justify='center' alignContent='center'>
                         {
                             (importState.isLoading) ? (

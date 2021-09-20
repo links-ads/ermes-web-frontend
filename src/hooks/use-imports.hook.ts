@@ -10,7 +10,11 @@ import { useSnackbars } from './use-snackbars.hook';
 export enum ImportEnum {
     ACTIVITIES = "activities",
     USERS = "users",
-    CATEGORIES = "categories"
+    CATEGORIES = "categories",
+    TIPS = 'tips',
+    QUIZZES = 'quizzes',
+    ANSWERS = 'answers'
+
 }
 
 const initialState = { isError: false, errorMsg: '', isLoading: false, data: {} }
@@ -49,18 +53,18 @@ const useImports = () => {
     const [importState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const importApiFactory = useMemo(() => ImportApiFactory(backendAPIConfig), [backendAPIConfig])
-    const {displayErrorSnackbar} = useSnackbars()
+    const { displayErrorSnackbar } = useSnackbars()
 
     const handleSuccess = useCallback((response) => {
         dispatch({
-            type:'RESULT',
-            data:response.data,
+            type: 'RESULT',
+            data: response.data,
         })
     }, [])
-    
+
     const handleFailure = useCallback((response) => {
         dispatch({
-            type:'ERROR',
+            type: 'ERROR',
         })
         displayErrorSnackbar(response['response'].statusText)
     }, [displayErrorSnackbar])
@@ -75,12 +79,24 @@ const useImports = () => {
                 importApiFactory.importImportUsers(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
                 break;
             case ImportEnum.CATEGORIES:
-                importApiFactory.importImportActivities(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
+                importApiFactory.importImportCategories(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
+                break;
+            case ImportEnum.TIPS:
+                importApiFactory.importImportTips(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
+                break;
+            case ImportEnum.QUIZZES:
+                importApiFactory.importImportQuizzes(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
+                break;
+            case ImportEnum.ANSWERS:
+                importApiFactory.importImportAnswers(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
                 break;
             default:
+                dispatch({
+                    type: 'ERROR',
+                })
                 console.error('ERROR')
         }
-    }, [importApiFactory,handleSuccess,handleFailure])
+    }, [importApiFactory, handleSuccess, handleFailure])
 
     return { importState, sendFile }
 }
