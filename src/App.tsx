@@ -72,8 +72,8 @@ function AppInner({
           }
         }}
       >
-        <ModalProvider rootComponent={TransitionGroup}>
-          <SnackbarProvider>
+        <SnackbarProvider>
+          <ModalProvider rootComponent={TransitionGroup}>
             <CssBaseline />
             <Suspense
               fallback={
@@ -84,8 +84,8 @@ function AppInner({
             >
               <Root axiosHooksConfiguration={axiosHooksConfiguration} />
             </Suspense>
-          </SnackbarProvider>
-        </ModalProvider>
+          </ModalProvider>
+        </SnackbarProvider>
       </MUIRoot>
     </StyledComponentThemeProvider>
   )

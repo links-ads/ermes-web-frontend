@@ -37,6 +37,9 @@
   "address": "Indirizzo",
   "notes": "Note",
   "organizationName": "Nome organizzazione",
+  "organization":"Organizzazione",
+  "team":"Team",
+  "user":"Utente",
   "username": "Username",
   "timestamp": "Orario",
   "heartbeat": "Battito",
@@ -55,8 +58,10 @@
   "operation_delete":"Elimina",
   "operation_close":"Chiudi",
   "description_label":"Descrizione",
+  "title_label":"Titolo",
   "description_placeholder":"Aggiungi descrizione qui",
-  "description_error":"Campo obbligatorio",
+  "title_placeholder":"Aggiungi titolo qui",
+  "mandatory_field":"Campo obbligatorio",
   "dialog_confirm":"Conferma",
   "dialog_cancel":"Annulla"
 }
