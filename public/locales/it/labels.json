@@ -107,5 +107,18 @@
     "filter_reset":"Reset",
     "filter_by_language": "Filtra per lingua",	
     "filter_by_hazard": "Filtra per tipo di evento",
-    "filter_by_information": "Filtra per tipo di informazione"
+    "filter_by_information": "Filtra per tipo di informazione",
+    "requestsubmitted": "Richiesta inoltrata", 
+    "contentavailable": "Contenuto disponibile", 
+    "contentnotavailable": "Contenuto non disponibile", 
+    "canceled": "Cancellato",
+    "burnedarea": "Area bruciata", 
+    "delineation": "Delineazione", 
+    "forecast" : "Previsione", 
+    "nowcast": "Previsione a breve termine", 
+    "riskmap": "Mappa di rischio",
+    "map_request": "Richiesta su mappa",
+    "map_request_status": "Stato",
+    "map_request_layer": "Layer",
+    "map_request_hazards": "Evento"
 }

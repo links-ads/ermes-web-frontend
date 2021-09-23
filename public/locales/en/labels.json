@@ -95,5 +95,20 @@
     "filter_reset":"Reset",
     "filter_by_language": "Filter by language",	
     "filter_by_hazard": "Filter by hazard type",
-    "filter_by_information": "Filter by information"
+    "filter_by_information": "Filter by information",
+    "requestsubmitted": "Request submitted", 
+    "contentavailable": "Content available", 
+    "contentnotavailable": "Content not available", 
+    "canceled": "Canceled",
+    "burnedarea": "Burned area", 
+    "delineation": "Delineation", 
+    "forecast" : "Forecast", 
+    "nowcast": "Nowcast", 
+    "riskmap": "Risk map",
+    "map_request": "Map request",
+    "map_request_status": "State",
+    "map_request_layer": "Layer",
+    "map_request_hazards": "Event"
+
+
 }
