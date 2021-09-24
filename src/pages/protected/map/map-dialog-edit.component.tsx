@@ -17,6 +17,7 @@ import DateFnsUtils from '@date-io/date-fns'
 import { MissionStatusType } from 'ermes-ts-sdk';
 import useAPIHandler from '../../../hooks/use-api-handler';
 import { useAPIConfiguration } from '../../../hooks/api-hooks';
+import ClearIcon from '@material-ui/icons/Clear'
 
 interface DialogEditProps {
     itemType: ProvisionalFeatureType
@@ -34,7 +35,7 @@ export function DialogEdit({
     editError
 }: React.PropsWithChildren<DialogEditProps>) {
     const { dateFormat } = useLanguage()
-    const { t } = useTranslation(['maps','labels'])
+    const { t } = useTranslation(['maps', 'labels'])
     const missionStatusOptions = Object.values(MissionStatusType)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -66,7 +67,7 @@ export function DialogEdit({
 
     const usersOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.teamId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] == editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e=>e[1]?true:false))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] == editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
             : {}
     }, [teamsApiHandlerState, editState.teamId])
 
@@ -90,7 +91,7 @@ export function DialogEdit({
                         placeholder={t("maps:title_placeholder")}
                         color='primary'
                         fullWidth={true}
-                        inputProps={{maxLength:255}}
+                        inputProps={{ maxLength: 255 }}
                     />
                 </Grid>
             )}
@@ -195,6 +196,17 @@ export function DialogEdit({
                                     onChange={(event) => {
                                         dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.TEAM, coordId: event.target.value as number } })
                                     }}
+                                    startAdornment={
+                                        editState.teamId !== -1 && (
+                                        <IconButton
+                                            size='small'
+                                            disabled={editState.teamId === -1}
+                                            onClick={(e) => dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.TEAM, coordId: -1 } })}
+                                        >
+                                            <ClearIcon />
+                                        </IconButton>
+                                        )
+                                    }
                                 >
                                     {Object.entries(teamsOptions).map((e) => {
                                         return (
@@ -217,6 +229,17 @@ export function DialogEdit({
                                     onChange={(event) => {
                                         dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.USER, coordId: event.target.value as number } })
                                     }}
+                                    startAdornment={
+                                        editState.userId !== -1 && (
+                                        <IconButton
+                                            size='small'
+                                            disabled={editState.userId === -1}
+                                            onClick={(e) => dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.USER, coordId: -1 } })}
+                                        >
+                                            <ClearIcon />
+                                        </IconButton>
+                                        )
+                                    }
                                 >
                                     {Object.entries(usersOptions).map((e) => {
                                         return (
@@ -231,7 +254,7 @@ export function DialogEdit({
                     </Grid>
                 )
             }
-            <Grid style={{marginTop:8}}>
+            <Grid style={{ marginTop: 8 }}>
                 <TextField
                     id="description"
                     label={t("maps:description_label")}
@@ -246,7 +269,7 @@ export function DialogEdit({
                     rowsMax={4}
                     rows={4}
                     fullWidth={true}
-                    inputProps={{maxLength:1000}}
+                    inputProps={{ maxLength: 1000 }}
                 />
             </Grid>
         </Grid >
