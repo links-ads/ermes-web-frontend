@@ -88,14 +88,14 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         case CoordinatorType.TEAM:
           return {
             ...currentState,
-            coordinatorType: CoordinatorType.TEAM,
+            coordinatorType:action.value.coordId as number !== -1 ? CoordinatorType.TEAM : CoordinatorType.ORGANIZATION,
             teamId: action.value.coordId as number,
             userId: -1
           }
         case CoordinatorType.USER:
           return {
             ...currentState,
-            coordinatorType: CoordinatorType.USER,
+            coordinatorType:action.value.coordId as number !== -1 ? CoordinatorType.USER : CoordinatorType.TEAM,
             userId: action.value.coordId as number
           }
         default: return currentState
