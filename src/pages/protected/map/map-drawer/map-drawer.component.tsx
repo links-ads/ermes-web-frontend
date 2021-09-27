@@ -10,6 +10,7 @@ import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
 import MissionsPanel from './missions-panel.component'
+import MapRequestsPanel from './map-requests-panel.component'
 import { useTranslation } from 'react-i18next'
 import { IconButton } from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
@@ -91,7 +92,7 @@ export default function MapDrawer(props) {
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
             style={{ width: '60px', marginLeft: '25px' }}
-            // disabled={disabled}
+          // disabled={disabled}
           >
             <ArrowBackIcon />
           </IconButton>
@@ -108,6 +109,7 @@ export default function MapDrawer(props) {
             <Tab label={t('maps:Communication')} {...a11yProps(1)} />
             <Tab label={t('maps:Mission')} {...a11yProps(2)} />
             <Tab label={t('maps:Person')} {...a11yProps(3)} />
+            <Tab label={t('maps:MapRequest')} {...a11yProps(4)} />
           </Tabs>
         </AppBar>
 
@@ -118,7 +120,7 @@ export default function MapDrawer(props) {
           component={'span'}
         >
           {/* REPORTS */}
-          <TabPanel value={value} index={0} key={'report-'+props.rerenderKey}>
+          <TabPanel value={value} index={0} key={'report-' + props.rerenderKey}>
             <ReportPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -129,7 +131,7 @@ export default function MapDrawer(props) {
           </TabPanel>
 
           {/* COMMUNICATION */}
-          <TabPanel value={value} index={1} key={'comm-'+props.rerenderKey}>
+          <TabPanel value={value} index={1} key={'comm-' + props.rerenderKey}>
             <CommunicationPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -139,7 +141,7 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={2} key={'mission-'+props.rerenderKey}>
+          <TabPanel value={value} index={2} key={'mission-' + props.rerenderKey}>
             <MissionsPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -149,7 +151,7 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={3} key={'people-'+props.rerenderKey}>
+          <TabPanel value={value} index={3} key={'people-' + props.rerenderKey}>
             <PeoplePanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -158,6 +160,15 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
+          <TabPanel value={value} index={4} key={'map-request-' + props.rerenderKey}>
+            <MapRequestsPanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef} />
+          </TabPanel>
+
         </SwipeableViews>
         <AppBar
           position="static"

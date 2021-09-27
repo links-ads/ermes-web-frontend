@@ -63,5 +63,8 @@
   "title_placeholder":"Aggiungi titolo qui",
   "mandatory_field":"Campo obbligatorio",
   "dialog_confirm":"Conferma",
-  "dialog_cancel":"Annulla"
+  "dialog_cancel":"Annulla",
+  "MapRequest": "Richieste mappatura",
+  "mapRequestLayerFilter": "Layer",
+  "details": "Codice"
 }

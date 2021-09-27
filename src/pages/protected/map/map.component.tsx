@@ -27,15 +27,34 @@ export function Map() {
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
 
-  // set list of wanted type of emergencies (for filter)
-  const [filterList, setFilterList] = useState<String[]>([
-    'ReportRequest',
-    'Communication',
-    'Mission',
-    'Report'
-  ])
+
+  const getFilterList = (obj) => {
+    let newFilterList: Array<string> = []
+    Object.keys((obj?.filters?.multicheckCategories as any).options).map((key) => {
+      if ((obj?.filters?.multicheckCategories as any).options[key]) {
+        newFilterList.push(key)
+      }
+    })
+    Object.keys((obj?.filters?.multicheckPersons as any).options).map((key) => {
+      if ((obj?.filters?.multicheckPersons as any).options[key]) {
+        newFilterList.push(key)
+      }
+    })
+    if (obj?.filters?.multicheckActivities) {
+      Object.keys((obj?.filters?.multicheckActivities as any)?.options).map((key) => {
+        if (obj?.filters?.multicheckActivities) {
+          if ((obj?.filters?.multicheckActivities as any).options[key]) {
+            newFilterList.push(key)
+          }
+        }
+
+      })
+    }
+    return newFilterList
+  }
+
   const initObject = JSON.parse(JSON.stringify(initObjectState))
-  
+
   const appConfig = useContext<AppConfig>(AppConfigContext)
   initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
@@ -51,40 +70,23 @@ export function Map() {
     JSON.parse(storedFilters!) as unknown as FiltersDescriptorType
   )
 
-  const applyFiltersObj = () => {
-    let newFilterList: Array<string> = []
-    Object.keys((filtersObj?.filters?.multicheckCategories as any).options).map((key) => {
-      if ((filtersObj?.filters?.multicheckCategories as any).options[key]) {
-        newFilterList.push(key)
-      }
-    })
-    Object.keys((filtersObj?.filters?.multicheckPersons as any).options).map((key) => {
-      if ((filtersObj?.filters?.multicheckPersons as any).options[key]) {
-        newFilterList.push(key)
-      }
-    })
-    if (filtersObj?.filters?.multicheckActivities) {
-      Object.keys((filtersObj?.filters?.multicheckActivities as any)?.options).map((key) => {
-        if (filtersObj?.filters?.multicheckActivities) {
-          if ((filtersObj?.filters?.multicheckActivities as any).options[key]) {
-            newFilterList.push(key)
-          }
-        }
+  // set list of wanted type of emergencies (for filter)
+  const [filterList, setFilterList] = useState<String[]>(getFilterList(filtersObj))
 
-      })
-    }
+  const applyFiltersObj = () => {
+    const newFilterList = getFilterList(filtersObj)
 
     setFilterList(newFilterList)
     changeItem(JSON.stringify(filtersObj))
     setFiltersObj(JSON.parse(JSON.stringify(filtersObj)))
-    if(!toggleSideDrawer){
+    if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
-    
+
     // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
     // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
     forceUpdate()
-    
+
   }
 
   // Toggle for the side drawer
@@ -136,6 +138,9 @@ export function Map() {
     // console.log('CHANGED FILTER OBJ', filtersObj)
     fetchGeoJson()
   }, [filtersObj])
+  useEffect(() => {
+    console.log('GEO DATA!!', prepGeoData)
+  }, [prepGeoData])
   return (
     <>
       <MapDrawer
