@@ -59,5 +59,7 @@
   "description_error":"Campo obbligatorio",
   "dialog_confirm":"Conferma",
   "dialog_cancel":"Annulla",
-  "MapRequest": "Richieste mappatura"
+  "MapRequest": "Richieste mappatura",
+  "mapRequestLayerFilter": "Layer",
+  "details": "Codice"
 }

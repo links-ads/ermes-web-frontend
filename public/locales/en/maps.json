@@ -59,5 +59,7 @@
   "description_error":"Mandatory field",
   "dialog_confirm":"Confirm",
   "dialog_cancel":"Cancel",
-  "MapRequest": "Map request"
+  "MapRequest": "Map request",
+  "mapRequestLayerFilter": "Layer",
+  "details": "Codice"
 }

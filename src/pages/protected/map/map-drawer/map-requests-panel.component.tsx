@@ -179,8 +179,8 @@ export default function MapRequestsPanel(props) {
                             {mapRequestsData.data.map((elem, i) => {
                                 return (
                                     <CardWithPopup
-                                        key={'report' + String(elem.id)}
-                                        keyID={'report' + String(elem.id)}
+                                        key={'map-request' + String(elem.id)}
+                                        keyID={'map-request' + String(elem.id)}
                                         latitude={elem!.centroid!.latitude as number}
                                         longitude={elem!.centroid!.longitude as number}
                                         className={classes.card}

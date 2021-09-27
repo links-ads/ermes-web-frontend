@@ -97,7 +97,7 @@ export const initObjectState = {
     multicheckCategories: {
       title: 'multicheck_categories',
       type: 'checkboxlist',
-      options: { ReportRequest: true, Communication: true, Mission: true, Report: true },
+      options: { ReportRequest: true, MapRequest:true, Communication: true, Mission: true, Report: true },
       tab: 2
     },
     multicheckPersons: {
