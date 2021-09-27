@@ -289,10 +289,8 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
         baseObj['feature']['properties']['title'] = editState.title 
         baseObj['feature']['properties']['description'] = editState.description 
         baseObj['feature']['properties']['currentStatus'] = editState.status as string
+        baseObj['feature']['properties']['organizationId'] = editState.orgId as number
         switch (editState.coordinatorType) {
-          case CoordinatorType.ORGANIZATION:
-            baseObj['feature']['properties']['organizationId'] = editState.orgId as number
-            break
           case CoordinatorType.TEAM:
             baseObj['feature']['properties']['coordinatorTeamId'] = editState.teamId as number
             break
