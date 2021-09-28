@@ -28,7 +28,7 @@
   "none": "Non definito",
   "name": "Nome",
   "group": "Gruppo",
-  "status": "Status",
+  "status": "Stato",
   "value": "Valore",
   "unknown": "Sconosciuta",
   "notified": "Notificata",
@@ -65,6 +65,6 @@
   "dialog_confirm":"Conferma",
   "dialog_cancel":"Annulla",
   "MapRequest": "Richieste mappatura",
-  "mapRequestLayerFilter": "Layer",
+  "mapRequestLayerFilter": "Livello",
   "details": "Codice"
 }
