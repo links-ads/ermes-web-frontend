@@ -110,12 +110,12 @@ export function Tab1(props) {
   }
 
   const renderValues = (selected, prefix) => {
-    if (selected.length <= 2) return selected.map((key) => t(prefix + key) || key).join(', ')
+    if (selected.length <= 2) return selected.map((key) => t(prefix + key.toLowerCase()) || key).join(', ')
     else
       return (
         selected
           .slice(0, 2)
-          .map((key) => t(prefix + key) || key)
+          .map((key) => t(prefix + key.toLowerCase()) || key)
           .join(', ') + ', ...'
       )
   }
@@ -307,6 +307,7 @@ export function Tab1(props) {
                                 id={'demo-mutiple-checkbox_' + i}
                                 multiple
                                 value={elem.selected || ''}
+                                renderValue={(v) => renderValues(v, 'labels:')}
                                 onChange={(event) => {
                                   const newFilter = filters
                                   if (
@@ -325,9 +326,9 @@ export function Tab1(props) {
                                   props.setFilters({ ...newFilter })
                                 }}
                                 input={<Input />}
-                                renderValue={(selected) => {
-                                  return elem.selected.join(', ')
-                                }}
+                                // renderValue={(selected) => {
+                                //   return elem.selected.join(', ')
+                                // }}
                               >
                                 {elem.options.map((value, key) => (
                                   <MenuItem key={'report-select-' + key} value={value}>

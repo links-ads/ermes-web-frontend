@@ -117,9 +117,9 @@
     "forecast": "Previsione",
     "nowcast": "Previsione a breve termine",
     "riskmap": "Mappa di rischio",
-    "map_request": "Richiesta su mappa",
+    "map_request": "Richieste mappatura",
     "map_request_status": "Stato",
-    "map_request_layer": "Layer",
+    "map_request_layer": "Livello",
     "map_request_hazards": "Evento",
-    "MapRequest": "Richiesta di mappatura"
+    "MapRequest": "Richieste mappatura"
 }

@@ -73,6 +73,9 @@ export default function GetApiGeoJson() {
                 (filters?.report as any).content[0].selected,
                 (filters?.report as any).content[1].selected,
                 (filters?.mission as any).content[0].selected,
+                (filters?.mapRequests as any).content[2].selected,
+                (filters?.mapRequests as any).content[1].selected,
+                (filters?.mapRequests as any).content[0].selected,
             )
                 .then((result) => {
                     dispatch({

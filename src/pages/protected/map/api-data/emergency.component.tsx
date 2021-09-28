@@ -109,7 +109,7 @@ const mapRequestCard = (details, classes, formatter, t, description, creator, la
                 {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
               </Typography>
               <Typography component={'span'} variant="body1">
-                {details[type]}
+                {t('labels:' + details[type].toLowerCase())}
               </Typography>
               <br />
             </>
