@@ -172,22 +172,22 @@ export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoName
         name: 'hazard',
         options: Object.values(id2hazardNames),
         type: 'multipleselect',
-        selected: defaultArgs.hazardSelect.map(id => id2hazardNames[id])
+        selected: Object.entries(id2hazardNames).length > 0 ? defaultArgs.hazardSelect.map(id => id2hazardNames[id]) : ''
       },
       infoTypeSelect: {
         name: 'information',
         options: Object.values(id2infoNames),
         type: 'multipleselect',
-        selected: defaultArgs.infoTypeSelect.map(id => id2infoNames[id])
+        selected: Object.entries(id2infoNames).length > 0 ? defaultArgs.infoTypeSelect.map(id => id2infoNames[id]) : ''
       },
     }
   } as FiltersDescriptorType
   if (renderInformative) {
     obj.filters!['informativeSelect'] = {
       name: 'Informative',
-      options: ['none', 'true', 'false'],
+      options: ['all', 'true', 'false'],
       type: 'select',
-      selected: defaultArgs.informativeSelect
+      selected: defaultArgs.informativeSelect === undefined ?  'all' : defaultArgs.informativeSelect
     }
   }
   return obj
@@ -299,6 +299,6 @@ export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
   selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map(h => mapHazards[h])
   selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map(i => mapInfos[i])
   if (selectedFilters['informativeSelect'] !== undefined)
-    selectedFilters['informativeSelect'] = String(selectedFilters['informativeSelect']) === 'none' ? undefined : String(selectedFilters['informativeSelect']) === 'true'
+    selectedFilters['informativeSelect'] = String(selectedFilters['informativeSelect']) === 'all' ? undefined : String(selectedFilters['informativeSelect']) === 'true'
   return selectedFilters
 }

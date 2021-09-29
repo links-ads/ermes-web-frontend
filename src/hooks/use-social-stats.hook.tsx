@@ -61,7 +61,7 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
                     hazard_count:result.data['hazards_count'],
                     info_count:result.data['infotypes_count'],
                     languages_count:result.data['languages_count'] ? parseStats(result.data['languages_count']) : 0 ,
-                    informativeness_ratio:result.data['informativeness_ratio'] || null
+                    informativeness_ratio:(result.data['informativeness_ratio'] === 0 && result.data['tweets_count'] === 0) ? null : result.data['informativeness_ratio']
                 }})
             }).catch(() => {
                 dispatch({type:'ERROR'})
