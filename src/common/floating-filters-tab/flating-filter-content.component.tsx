@@ -360,7 +360,8 @@ export function Tab1(props) {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={t('labels:' + filters[widget].selected).toLowerCase() || ''}
+                    value={filters[widget].selected}
+                    renderValue={(v)=>t('labels:' + v)}
                     onChange={(event) => {
                       const newFilter = filters
                       newFilter[widget].selected = event.target.value as string
