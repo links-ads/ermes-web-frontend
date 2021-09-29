@@ -69,10 +69,35 @@ export const initObjectState = {
         }
       ]
     },
+    mapRequests: {
+      title: 'map_request',
+      type: 'accordion',
+      tab: 1,
+      content: [
+        {
+          name: 'map_request_status',
+          options: ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable', 'Canceled'],
+          type: 'multipleselect',
+          selected: []
+        },
+        {
+          name: 'map_request_layer',
+          options: ['BurnedArea', 'Delineation', 'Forecast', 'Nowcast', 'RiskMap'],
+          type: 'multipleselect',
+          selected: []
+        },
+        {
+          name: 'map_request_hazards',
+          options: ['None', 'Avalanche', 'Earthquake', 'Fire', 'Flood', 'Landslide', 'Storm', 'Weather', 'Subsidence'],
+          type: 'multipleselect',
+          selected: []
+        }
+      ]
+    },
     multicheckCategories: {
       title: 'multicheck_categories',
       type: 'checkboxlist',
-      options: { ReportRequest: true, Communication: true, Mission: true, Report: true },
+      options: { ReportRequest: true, MapRequest:true, Communication: true, Mission: true, Report: true },
       tab: 2
     },
     multicheckPersons: {

@@ -109,7 +109,7 @@ export default function PeoplePanel(props) {
       props.setGoToCoord({ latitude: latitude, longitude: longitude })
     }
   }
-  const { t } = useTranslation(['common', 'maps', 'social'])
+  const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
 
   useEffect(() => {
     getPeopData(
@@ -236,7 +236,7 @@ export default function PeoplePanel(props) {
                                     {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
                                   </Typography>
                                   <Typography component={'span'} variant="body1">
-                                    {elem[type]}
+                                    {t('maps:' +elem[type])}
                                   </Typography>
                                   <br />
                                 </>

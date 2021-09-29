@@ -399,6 +399,8 @@ export function MapLayout(props) {
   // Empty array ensures that effect is only run on mount and unmount
   useEffect(() => {
     if (props.isGeoJsonPrepared) {
+      console.log('FILTERED LIST', props.prepGeoJson.features)
+      console.log('FILTER LIST', props.filterList)
       let filteredList = props.prepGeoJson.features.filter(
         (a) =>
           props.filterList.includes(a?.properties?.type) ||
