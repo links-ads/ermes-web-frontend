@@ -158,7 +158,7 @@ const SocialMap = (props) => {
                         timeout={800}
                     >
                         <MapSlide>
-                            <Card raised={false}>
+                            <Card raised={false} style={{width:'30%',float:'right',minWidth:300}}>
                                 <TweetContent
                                     tweet={props.leftClickState.pointFeatures}
                                     mapIdsToHazards={props.filtersState.mapIdsToHazards}
