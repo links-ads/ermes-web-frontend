@@ -184,7 +184,7 @@ const EventMap = (props) => {
             timeout={800}
           >
             <MapSlide>
-              <Card raised={false}>
+              <Card raised={false} style={{width:'30%',float:'right',minWidth:300}}>
                 <EventContent
                   mapIdsToHazards={props.filtersState.mapIdsToHazards}
                   item={props.leftClickState.pointFeatures}
