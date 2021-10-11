@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Typography from '@material-ui/core/Typography'
-import MaterialTable, { Column } from 'material-table'
+
+/*
+Replaced material-table with material-table/core for teams, organization and users pages because of this bug:
+https://github.com/mbrn/material-table/issues/2650 which was causing random crashes and in general poor performance. 
+
+For the table present in the dashboard, the original material-table is used because it contains the export functionality, not available in the materia-table-core library.
+*/
+// import MaterialTable, { Column } from 'material-table'
+import MaterialTable, { Column } from '@material-table/core' 
+
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
@@ -214,9 +223,9 @@ export function Teams() {
   useEffect(() => {
     if (!teamsLoading) {
       setData(teams)
-      if (selectedRow !== -1) {
-        setMembersData(teams[selectedRow])
-      }
+      // if (selectedRow !== -1) {
+      //   setMembersData(teams[selectedRow])
+      // }
     }
   }, [teamsLoading, selectedRow, teams])
   
@@ -271,7 +280,7 @@ export function Teams() {
             columns={columns}
             onRowClick={(e, rowData: any) => {
               setMembersData(rowData!)
-              setSelectedRow(rowData.tableData.id!)
+              setSelectedRow(rowData.id!)
             }}
             editable={{
               onRowAdd: async (newData) => {
