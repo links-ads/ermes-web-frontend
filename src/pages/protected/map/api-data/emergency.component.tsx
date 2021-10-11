@@ -39,6 +39,7 @@ import useMissionsById from '../../../../hooks/use-missions-by-id.hooks'
 import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
+import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -75,60 +76,66 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 4, 3)
   }
 }))
-const mapRequestCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
+const mapRequestCard = (
+  details,
+  classes,
+  formatter,
+  t,
+  description,
+  creator,
+  latitude,
+  longitude
+) => {
   console.log(details)
-  return (<Card elevation={0}>
-    <CardContent style={{ paddingTop: '10px' }}>
-      <div className={classes.headerBlock}>
-        <Box component="div" display="inline-block">
-          <Typography
-            gutterBottom
-            variant="h5"
-            component="h2"
-            style={{ marginBottom: '0px' }}
-          >
-            {HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
-              ? HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
-              : null}
-            {details['mapRequestHazardFilter']}
-          </Typography>
-        </Box>
-      </div>
-      <br />
-      {['details', 'status', 'mapRequestLayerFilter', 'organizationName'].map((type) => {
-        if (details[type]) {
-          return (
-            <>
-              <Typography
-                component={'span'}
-                variant="caption"
-                color="textSecondary"
-                style={{ textTransform: 'uppercase' }}
-              >
-                {t('maps:' + type)}:&nbsp;
-                {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
-              </Typography>
-              <Typography component={'span'} variant="body1">
-                {t('labels:' + details[type].toLowerCase())}
-              </Typography>
-              <br />
-            </>
-          )
-        }
-        return null
-      })}
+  return (
+    <Card elevation={0}>
+      <CardContent style={{ paddingTop: '10px' }}>
+        <div className={classes.headerBlock}>
+          <Box component="div" display="inline-block">
+            <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
+              {HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
+                ? HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
+                : null}
+              {details['mapRequestHazardFilter']}
+            </Typography>
+          </Box>
+        </div>
+        <br />
+        {['details', 'status', 'mapRequestLayerFilter', 'organizationName'].map((type) => {
+          if (details[type]) {
+            return (
+              <>
+                <Typography
+                  component={'span'}
+                  variant="caption"
+                  color="textSecondary"
+                  style={{ textTransform: 'uppercase' }}
+                >
+                  {t('maps:' + type)}:&nbsp;
+                  {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                </Typography>
+                <Typography component={'span'} variant="body1">
+                  {t('labels:' + details[type].toLowerCase())}
+                </Typography>
+                <br />
+              </>
+            )
+          }
+          return null
+        })}
+      </CardContent>
+      <CardActions className={classes.cardAction}>
+        <Typography color="textSecondary">
+          {formatter.format(new Date(details.startDate as string))} - <br />{' '}
+          {formatter.format(new Date(details.endDate as string))}
+        </Typography>
 
-    </CardContent>
-    <CardActions className={classes.cardAction}>
-      <Typography color="textSecondary">
-        {formatter.format(new Date(details.startDate as string))} - <br /> {formatter.format(new Date(details.endDate as string))}
-      </Typography>
-
-      <Typography color="textSecondary">
-        {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
-      </Typography>
-    </CardActions>
-  </Card>)
+        <Typography color="textSecondary">
+          {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+        </Typography>
+      </CardActions>
+    </Card>
+  )
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
@@ -610,7 +617,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                       <TableCell align="center">
                         {t(
                           'maps:' +
-                          catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target
+                            catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.target
                         )}
                       </TableCell>
                       <TableCell align="left">
@@ -618,7 +625,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                         {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
                           ?.unitOfMeasure
                           ? catDetails?.data?.find((x) => x.categoryId === row.categoryId)
-                            ?.unitOfMeasure
+                              ?.unitOfMeasure
                           : null}
                       </TableCell>
                     </TableRow>
@@ -665,7 +672,13 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 Different types of ["ReportRequest", "Communication", "Mission", "Report", "Person"]
  */
 
-export type EmergencyType = 'ReportRequest' | 'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person'
+export type EmergencyType =
+  | 'ReportRequest'
+  | 'MapRequest'
+  | 'Communication'
+  | 'Mission'
+  | 'Report'
+  | 'Person'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -779,7 +792,7 @@ export function EmergencyContent({
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
-
+  const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
 
   const dateOptions = {
@@ -836,6 +849,18 @@ export function EmergencyContent({
           }
         )
         break
+      case 'MapRequest':
+        fetchMapReqDetails(
+          rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
       default:
         break
     }
@@ -859,6 +884,14 @@ export function EmergencyContent({
       })
     }
   }, [commDetails])
+
+  useEffect(() => {
+    if (!mapReqDetails.isLoading) {
+      rest.setPolyToMap({
+        feature: mapReqDetails.data.feature
+      })
+    }
+  }, [mapReqDetails])
 
   let todisplay = <></>
   switch (type) {
@@ -888,7 +921,17 @@ export function EmergencyContent({
       )
       break
     case 'MapRequest':
-      todisplay = mapRequestCard(rest, classes, formatter, t, description, creator, latitude, longitude)
+      console.log('MAP REQUEST DETAILS', mapReqDetails)
+      todisplay = mapRequestCard(
+        rest,
+        classes,
+        formatter,
+        t,
+        description,
+        creator,
+        latitude,
+        longitude
+      )
       break
     default: {
       todisplay = <div>Work in progress...</div>

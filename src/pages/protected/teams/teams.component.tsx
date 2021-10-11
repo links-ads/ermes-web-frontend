@@ -23,7 +23,7 @@ import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const MAX_RESULT_COUNT = 1000
+const MAX_RESULT_COUNT = 100
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
 type KRTmsApiPC = keyof ReturnType<TmsApiPC>
 
@@ -105,8 +105,9 @@ const RenderMembersTables = (
       await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput)
       await loadTeams() // refresh
     } catch (err) {
-      displayErrorSnackbar(err.response?.data.error)
+      displayErrorSnackbar((err as any)?.response?.data.error as String)
     } finally {
+      console.log('DOWNLOAD TEAMS, HERE WE GO: ', rowData)
       // loading OFF
       setUpdating(false)
     }
@@ -229,6 +230,9 @@ export function Teams() {
   
   const localization = useMemo(() => localizeMaterialTable(t), [t])
   
+  useEffect(() => {
+    console.log('DATA TEAMS LIST', data)
+  })
   return (
     <AdministrationContainer>
       <div className="not-column-centered">
@@ -283,7 +287,7 @@ export function Teams() {
                   await teamAPIFactory.teamsCreateOrUpdateTeam(newTeamInput)
                   await loadTeams() // refresh
                 } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
+                  displayErrorSnackbar((err as any)?.response?.data.error as String)
                 } finally {
                   // loading OFF
                   setUpdating(false)
@@ -299,7 +303,7 @@ export function Teams() {
                   await teamAPIFactory.teamsCreateOrUpdateTeam(newTeamInput)
                   await loadTeams() // refresh
                 } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
+                  displayErrorSnackbar((err as any)?.response?.data.error as String)
                 } finally {
                   // loading OFF
                   setUpdating(false)
@@ -314,7 +318,7 @@ export function Teams() {
                     await teamAPIFactory.teamsDeleteTeam(id)
                     await loadTeams() // refresh
                   } catch (err) {
-                    displayErrorSnackbar(err.response?.data.error)
+                    displayErrorSnackbar((err as any)?.response?.data.error as String)
                   } finally {
                     // loading OFF
                     setUpdating(false)
