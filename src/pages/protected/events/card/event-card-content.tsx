@@ -8,7 +8,8 @@ import useLanguage from '../../../../hooks/use-language.hook';
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import { clearEventMap } from '../../../../common/map/map-common';
 import { IconButton } from '@material-ui/core';
-import MaterialTable from 'material-table'
+// import MaterialTable from 'material-table'
+import MaterialTable from '@material-table/core'
 import { localizeMaterialTable } from '../../../../common/localize-material-table'
 
 
@@ -154,7 +155,7 @@ const EventContent = (props) => {
                                 paging: false,
                                 emptyRowsWhenPaging: false,
                                 doubleHorizontalScroll: false,
-                                exportButton: false,
+                                // exportButton: false,
                                 exportAllData: false
                             }}
                             localization={{

@@ -8,7 +8,7 @@ import { useAxiosWithParamCreator, APIAxiosHookOpts } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useState, useEffect } from 'react'
 
-const MAX_RESULT_COUNT = 1000
+const MAX_RESULT_COUNT = 100
 
 type OrgApiPC = typeof OrganizationsApiAxiosParamCreator
 type KROrgApiPC = keyof ReturnType<OrgApiPC>
