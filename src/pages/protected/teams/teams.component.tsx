@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import Typography from '@material-ui/core/Typography'
-import MaterialTable, { Column } from 'material-table'
+
+/*
+Replaced material-table with material-table/core for teams, organization and users pages because of this bug:
+https://github.com/mbrn/material-table/issues/2650 which was causing random crashes and in general poor performance. 
+
+For the table present in the dashboard, the original material-table is used because it contains the export functionality, not available in the materia-table-core library.
+*/
+// import MaterialTable, { Column } from 'material-table'
+import MaterialTable, { Column } from '@material-table/core' 
+
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
@@ -23,7 +32,7 @@ import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const MAX_RESULT_COUNT = 1000
+const MAX_RESULT_COUNT = 100
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
 type KRTmsApiPC = keyof ReturnType<TmsApiPC>
 
@@ -105,8 +114,9 @@ const RenderMembersTables = (
       await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput)
       await loadTeams() // refresh
     } catch (err) {
-      displayErrorSnackbar(err.response?.data.error)
+      displayErrorSnackbar((err as any)?.response?.data.error as String)
     } finally {
+      console.log('DOWNLOAD TEAMS, HERE WE GO: ', rowData)
       // loading OFF
       setUpdating(false)
     }
@@ -213,9 +223,9 @@ export function Teams() {
   useEffect(() => {
     if (!teamsLoading) {
       setData(teams)
-      if (selectedRow !== -1) {
-        setMembersData(teams[selectedRow])
-      }
+      // if (selectedRow !== -1) {
+      //   setMembersData(teams[selectedRow])
+      // }
     }
   }, [teamsLoading, selectedRow, teams])
   
@@ -229,6 +239,9 @@ export function Teams() {
   
   const localization = useMemo(() => localizeMaterialTable(t), [t])
   
+  useEffect(() => {
+    console.log('DATA TEAMS LIST', data)
+  })
   return (
     <AdministrationContainer>
       <div className="not-column-centered">
@@ -267,7 +280,7 @@ export function Teams() {
             columns={columns}
             onRowClick={(e, rowData: any) => {
               setMembersData(rowData!)
-              setSelectedRow(rowData.tableData.id!)
+              setSelectedRow(rowData.id!)
             }}
             editable={{
               onRowAdd: async (newData) => {
@@ -283,7 +296,7 @@ export function Teams() {
                   await teamAPIFactory.teamsCreateOrUpdateTeam(newTeamInput)
                   await loadTeams() // refresh
                 } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
+                  displayErrorSnackbar((err as any)?.response?.data.error as String)
                 } finally {
                   // loading OFF
                   setUpdating(false)
@@ -299,7 +312,7 @@ export function Teams() {
                   await teamAPIFactory.teamsCreateOrUpdateTeam(newTeamInput)
                   await loadTeams() // refresh
                 } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
+                  displayErrorSnackbar((err as any)?.response?.data.error as String)
                 } finally {
                   // loading OFF
                   setUpdating(false)
@@ -314,7 +327,7 @@ export function Teams() {
                     await teamAPIFactory.teamsDeleteTeam(id)
                     await loadTeams() // refresh
                   } catch (err) {
-                    displayErrorSnackbar(err.response?.data.error)
+                    displayErrorSnackbar((err as any)?.response?.data.error as String)
                   } finally {
                     // loading OFF
                     setUpdating(false)

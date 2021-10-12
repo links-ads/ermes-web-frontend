@@ -1,5 +1,6 @@
 import { TFunction } from 'i18next'
-import { Localization } from 'material-table'
+// import { Localization } from 'material-table'
+import { Localization } from '@material-table/core'
 
 export function localizeMaterialTable(t: TFunction): Localization {
   return {

@@ -5,7 +5,8 @@ import {
   UpdateProfileInput
 } from 'ermes-backoffice-ts-sdk'
 import { TFunction } from 'i18next'
-import MaterialTable, { Column, Options } from 'material-table'
+// import MaterialTable, { Column, Options } from 'material-table'
+import MaterialTable, { Column, Options } from '@material-table/core'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
