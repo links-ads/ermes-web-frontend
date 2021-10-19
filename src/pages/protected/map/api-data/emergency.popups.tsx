@@ -29,6 +29,7 @@ function comparePropertiesWithPoly(prevProps, nextProps) {
 
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {
+    console.log('Point info look at me', point)
     return point ? (
       <Popup
         tipSize={5}

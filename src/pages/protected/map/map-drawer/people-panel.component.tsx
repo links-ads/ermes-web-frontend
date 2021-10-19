@@ -222,7 +222,7 @@ export default function PeoplePanel(props) {
                           </Box>
                         </div>
                         <div className={classes.pos}>
-                          {['status', 'activityName'].map((type) => {
+                          {['status', 'activityName', 'organizationName'].map((type) => {
                             if (elem[type]) {
                               return (
                                 <>

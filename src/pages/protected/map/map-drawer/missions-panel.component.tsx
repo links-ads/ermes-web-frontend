@@ -168,6 +168,7 @@ export default function CommunicationPanel(props) {
               // className={classes.cardList}
             >
               {missionsData.data.map((elem, i) => {
+                console.log('ELEM', elem)
                 return (
                   <CardWithPopup
                     key={'report' + String(elem.id)}
@@ -185,6 +186,20 @@ export default function CommunicationPanel(props) {
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.title}
                       </Typography>
+                      <>
+                          <Typography
+                            component={'span'}
+                            variant="caption"
+                            color="textSecondary"
+                            style={{ textTransform: 'uppercase' }}
+                          >
+                            {t('maps:organization')}:&nbsp;
+                            {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                          </Typography>
+                          <Typography component={'span'} variant="body1">
+                            {elem.organization.name}
+                          </Typography>
+                        </>
                       <Typography color="textSecondary">
                         {' '}
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
