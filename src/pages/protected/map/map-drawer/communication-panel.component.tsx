@@ -176,6 +176,20 @@ export default function CommunicationPanel(props) {
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.message}
                       </Typography>
+                      <>
+                          <Typography
+                            component={'span'}
+                            variant="caption"
+                            color="textSecondary"
+                            style={{ textTransform: 'uppercase' }}
+                          >
+                            {t('maps:organization')}:&nbsp;
+                            {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                          </Typography>
+                          <Typography component={'span'} variant="body1">
+                            {elem.organizationName}
+                          </Typography>
+                        </>
                       <Typography color="textSecondary">
                         {' '}
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}

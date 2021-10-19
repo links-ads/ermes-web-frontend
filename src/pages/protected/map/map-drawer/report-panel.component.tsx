@@ -233,6 +233,20 @@ export default function ReportPanel(props) {
                             : elem.description}
                           {/* {elem.notes ? ' - ' + elem.notes : null} */}
                         </Typography>
+                        <>
+                          <Typography
+                            component={'span'}
+                            variant="caption"
+                            color="textSecondary"
+                            style={{ textTransform: 'uppercase' }}
+                          >
+                            {t('maps:organization')}:&nbsp;
+                            {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                          </Typography>
+                          <Typography component={'span'} variant="body1">
+                            {elem.organizationName}
+                          </Typography>
+                        </>
                       </CardContent>
                       <CardActions className={classes.cardAction}>
                         <Typography variant="body2" color="textSecondary">
