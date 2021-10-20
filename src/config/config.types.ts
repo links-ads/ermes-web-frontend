@@ -1,4 +1,5 @@
 import { Theme } from '@material-ui/core/styles/createMuiTheme'
+import InteractiveMap from 'react-map-gl'
 
 interface FusionAuthConfig {
   url: string
@@ -59,6 +60,24 @@ export interface MapboxGlConfig {
   }
 }
 
+export interface GeoServerConfig {
+  baseUrl?:string
+  suffix?:string
+  params?:{
+
+    service?:string
+    request?:string
+    version?:string
+    format?:string
+    bbox?:string
+    srs?:string
+    height?:number
+    width?:number
+    transparent?:boolean
+  }
+
+}
+
 export interface AppConfig {
   // Identifies the env tag (local, test, dev...) to be displayed
   envTag?: string
@@ -75,6 +94,8 @@ export interface AppConfig {
   i18n?: i18NextConfig
   // Map configuration
   mapboxgl?: MapboxGlConfig
+  // GeoServer configuration to retrieve layers
+  geoServer?:GeoServerConfig
   // FusionAuth connection paramters
   fusionAuth?: FusionAuthConfig
   // API connection parameters

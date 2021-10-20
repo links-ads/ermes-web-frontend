@@ -14,7 +14,7 @@ import { ContainerSize, ContainerSizeContext } from '../../../common/size-aware-
 
 import bbox from '@turf/bbox'
 import { BottomDrawerComponent } from './bottom-drawer.component'
-import { AppConfigContext } from '../../../config'
+import { AppConfig, AppConfigContext } from '../../../config'
 import {
   emergencyClusterProperties,
   clusterLayer,
@@ -53,6 +53,8 @@ import { Box, Collapse, createStyles, Fab, IconButton } from '@material-ui/core'
 import SpeedDial from '@material-ui/lab/SpeedDial'
 import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
 import InfoIcon from '@material-ui/icons/Info'
+import { LayersButton } from './map-layers/layers-button.component'
+import { tileJSONIfy } from '../../../utils/map.utils'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -108,6 +110,8 @@ export function MapLayout(props) {
     type: 'FeatureCollection',
     features: []
   })
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const geoServerConfig = appConfig.geoServer
   // const convData FeatureCollection<geometry,
   // Container size
   const containerSize = useContext<ContainerSize>(ContainerSizeContext)
@@ -169,8 +173,7 @@ export function MapLayout(props) {
       console.debug('onFeatureDialogClose', status)
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
-      if(status == 'confirm')
-      {
+      if (status == 'confirm') {
         props.fetchGeoJson()
       }
     },
@@ -183,6 +186,34 @@ export function MapLayout(props) {
 
   // Variable checked to draw polygons to the map
   const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)
+
+  const [mapTileId,setMapTileId] = useState<string|null>(null)
+
+  useEffect(() => {
+    if (props.selectedLayerId !== "-1") {
+      const tileId = props.layerId2Tiles[props.selectedLayerId][0]
+      const source = tileJSONIfy(props.layerId2Tiles[props.selectedLayerId][0],geoServerConfig)
+      const map = mapViewRef.current?.getMap()!
+      if(mapTileId !== null)
+      {
+        map.removeLayer(mapTileId)
+        map.removeSource(mapTileId)
+      }
+      map.addLayer(
+        {
+          id: tileId,
+          type: 'raster',
+          source: {
+            type: 'raster',
+            ...source,
+            tileSize: 256
+          } as mapboxgl.RasterSource
+        },
+        'clusters'
+      );
+      setMapTileId(tileId)
+    }
+  }, [props.selectedLayerId])
 
   useEffect(
     () => {
@@ -281,7 +312,7 @@ export function MapLayout(props) {
         console.debug(operation, type)
       }
       setRightClickedPoint(null)
-      if(!operation) return
+      if (!operation) return
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
@@ -561,6 +592,24 @@ export function MapLayout(props) {
           <Layer {...unclusteredPointLayerPins} />
           <Layer {...hoveredPointPin} />
         </Source>
+        {/* {layerConfig !== null && (<Source
+          type='raster'
+          tileSize={256}
+          bounds={layerConfig.bounds}
+          maxzoom={layerConfig.maxzoom}
+          minzoom={layerConfig.minzoom}
+          scheme={layerConfig.scheme}
+          tiles={[layerConfig.url]}
+          // tilejson='2.2.0'
+          // description='layer description...'
+          // version='1.0.0'
+        >
+          <Layer
+          id='prova'
+          type='raster'
+          paint={{}}
+          />
+        </Source>)} */}
         {/* Map controls */}
         <GeolocateControl
           // ref={geolocationControlsRef}
@@ -601,6 +650,12 @@ export function MapLayout(props) {
           setToggleActiveFilterTab={props.setToggleActiveFilterTab}
           toggleActiveFilterTab={props.toggleActiveFilterTab}
         ></FilterButton>
+      )}
+      {!isMobileDevice && (
+        <LayersButton
+          visibility={props.layersSelectVisibility}
+          setVisibility={props.setLayersSelectVisibility}
+        />
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
       <Collapse in={legendToggle}>

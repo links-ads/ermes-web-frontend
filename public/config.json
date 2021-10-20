@@ -1,15 +1,27 @@
 {
   "envTag": "",
   "ui": {
-    "availableThemes": ["dark", "light"],
+    "availableThemes": [
+      "dark",
+      "light"
+    ],
     "defaultTheme": "dark"
   },
   "i18n": {
-    "ns": ["common", "errors"],
+    "ns": [
+      "common",
+      "errors"
+    ],
     "defaultNS": "common",
     "fallbackNS": "common",
-    "whitelist": ["en", "it"],
-    "preload": ["en", "it"],
+    "whitelist": [
+      "en",
+      "it"
+    ],
+    "preload": [
+      "en",
+      "it"
+    ],
     "fallbackLng": "en"
   },
   "mapboxgl": {
@@ -22,8 +34,29 @@
       "zoom": 4.5
     },
     "mapBounds": {
-      "southWest": [-47.7766,24.9285],
-      "northEast": [61.2366,60.3175]
+      "southWest": [
+        -47.7766,
+        24.9285
+      ],
+      "northEast": [
+        61.2366,
+        60.3175
+      ]
+    }
+  },
+  "geoServer": {
+    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "suffix": "wms",
+    "params": {
+      "service": "WMS",
+      "version": "1.1.0",
+      "request": "GetMap",
+      "bbox": "{bbox-epsg-3857}",
+      "width": 768,
+      "height": 549,
+      "srs": "EPSG:4326",
+      "format": "image/jpeg",
+      "transparent": true
     }
   },
   "fusionAuth": {
