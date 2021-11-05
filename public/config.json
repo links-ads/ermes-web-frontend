@@ -49,7 +49,7 @@
     "suffix": "wms",
     "params": {
       "service": "WMS",
-      "version": "1.1.0",
+      "version": "1.3.0",
       "request": "GetMap",
       "srs": "EPSG:3857",
       "bbox":"{bbox-epsg-3857}",

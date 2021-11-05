@@ -13,7 +13,8 @@ export enum ImportEnum {
     CATEGORIES = "categories",
     TIPS = 'tips',
     QUIZZES = 'quizzes',
-    ANSWERS = 'answers'
+    ANSWERS = 'answers',
+    LAYERS = 'layers'
 
 }
 
@@ -89,6 +90,9 @@ const useImports = () => {
                 break;
             case ImportEnum.ANSWERS:
                 importApiFactory.importImportAnswers(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
+                break;
+            case ImportEnum.LAYERS:
+                importApiFactory.importImportLayers(file).then((response) => handleSuccess(response)).catch(err => handleFailure(err))
                 break;
             default:
                 dispatch({

@@ -5,6 +5,7 @@
     "label_tips":"Tips",
     "label_quizzes":"Quiz",
     "label_answers":"Risposte",
+    "label_layers":"Layers",
     "label_users":"Utenti",
     "select_label":"Tipo di import",
     "extension_error":"Estensione del file deve essere .xls o .xlsx",
