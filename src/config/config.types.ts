@@ -1,6 +1,4 @@
 import { Theme } from '@material-ui/core/styles/createMuiTheme'
-import InteractiveMap from 'react-map-gl'
-
 interface FusionAuthConfig {
   url: string
   clientId: string

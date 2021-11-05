@@ -192,22 +192,19 @@ export function MapLayout(props) {
   useEffect(() => {
     if (props.selectedLayerId !== "-1") {
       const tileId = props.layerId2Tiles[props.selectedLayerId][0]
-      const source = tileJSONIfy(props.layerId2Tiles[props.selectedLayerId][0],geoServerConfig)
       const map = mapViewRef.current?.getMap()!
+      const source = tileJSONIfy(map,props.layerId2Tiles[props.selectedLayerId][0],geoServerConfig,map.getBounds())
       if(mapTileId !== null)
       {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
+      map.addSource(tileId,source as mapboxgl.RasterSource )
       map.addLayer(
         {
           id: tileId,
           type: 'raster',
-          source: {
-            type: 'raster',
-            ...source,
-            tileSize: 256
-          } as mapboxgl.RasterSource
+          source: tileId
         },
         'clusters'
       );
@@ -592,24 +589,6 @@ export function MapLayout(props) {
           <Layer {...unclusteredPointLayerPins} />
           <Layer {...hoveredPointPin} />
         </Source>
-        {/* {layerConfig !== null && (<Source
-          type='raster'
-          tileSize={256}
-          bounds={layerConfig.bounds}
-          maxzoom={layerConfig.maxzoom}
-          minzoom={layerConfig.minzoom}
-          scheme={layerConfig.scheme}
-          tiles={[layerConfig.url]}
-          // tilejson='2.2.0'
-          // description='layer description...'
-          // version='1.0.0'
-        >
-          <Layer
-          id='prova'
-          type='raster'
-          paint={{}}
-          />
-        </Source>)} */}
         {/* Map controls */}
         <GeolocateControl
           // ref={geolocationControlsRef}

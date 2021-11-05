@@ -51,11 +51,9 @@
       "service": "WMS",
       "version": "1.1.0",
       "request": "GetMap",
-      "bbox": "{bbox-epsg-3857}",
-      "width": 768,
-      "height": 549,
-      "srs": "EPSG:4326",
-      "format": "image/jpeg",
+      "srs": "EPSG:3857",
+      "bbox":"{bbox-epsg-3857}",
+      "format": "image/png",
       "transparent": true
     }
   },
