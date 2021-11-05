@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import CardMedia from '@material-ui/core/CardMedia'
 
-import { IconButton, TextField } from '@material-ui/core'
+import { Chip, IconButton, TextField, useTheme } from '@material-ui/core'
 
 import useReportList from '../../../../hooks/use-report-list.hook'
 import List from '@material-ui/core/List'
@@ -57,12 +57,13 @@ const useStyles = makeStyles((theme) => ({
     width: '70%'
   },
   cover: {
-    width: '30%',
-    height: 154,
-    display: 'inline-block'
+    width: '100%',
+    height: 178,
+    position: 'absolute'
+    // display: 'inline-block'
   },
   topCard: {
-    paddingBottom: 16
+    paddingBottom: 5
   },
   viewInMap: {
     textAlign: 'right',
@@ -79,10 +80,36 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     padding: 9,
     marginLeft: 6
+  },
+  chipContainer: {
+    width: '100%',
+    position: 'absolute',
+    // width: '30%',
+    bottom: '5px',
+    zIndex: 2
+  },
+  chipStyle: {
+    marginBottom: 3,
+    left: '5px',
+    position: 'relative',
+    float: 'left',
+    clear: 'left'
+  },
+  chipPlusImageContainer: {
+    position: 'relative',
+    width: '30%',
+    padding: '0px',
+    height: 178,
+    display: 'inline-block'
+  },
+  blurredBackground: {
+    filter: 'blur(8px)'
   }
 }))
 
 export default function ReportPanel(props) {
+  const theme = useTheme()
+
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -130,6 +157,11 @@ export default function ReportPanel(props) {
       applyFilterByText(searchText)
     }
   }
+  useEffect(() => {
+    if (repsData) {
+      console.log('REPS DATA', repsData)
+    }
+  }, [repsData])
 
   return (
     <div className="container_without_search">
@@ -199,18 +231,40 @@ export default function ReportPanel(props) {
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
                   >
-                    <CardMedia
-                      className={classes.cover}
-                      image={
-                        elem.mediaURIs &&
-                        elem.mediaURIs?.length > 0 &&
-                        elem.mediaURIs[0].thumbnailURI
-                          ? elem.mediaURIs[0].thumbnailURI
-                          : 'https://via.placeholder.com/400x200.png?text=' +
-                            t('common:image_not_available')
-                      }
-                      title="Contemplative Reptile"
-                    />
+                    <div className={classes.chipPlusImageContainer}>
+                      <div className={classes.chipContainer}>
+                        <Chip
+                          label={elem.isPublic ? t('common:public') : t('common:private')}
+                          color="primary"
+                          size="small"
+                          className={classes.chipStyle}
+
+                        />
+                        <Chip
+                          label={t('common:' + elem.content.toLowerCase())}
+                          color="primary"
+                          size="small"
+                          className={classes.chipStyle}
+                          style={{
+                            backgroundColor: theme.palette.primary.contrastText,
+                            borderColor: theme.palette.primary.dark ,
+                            color: theme.palette.primary.dark
+                          }}
+                        />
+                      </div>
+                      <CardMedia
+                        className={classes.cover}
+                        image={
+                          elem.mediaURIs &&
+                          elem.mediaURIs?.length > 0 &&
+                          elem.mediaURIs[0].thumbnailURI
+                            ? elem.mediaURIs[0].thumbnailURI
+                            : 'https://via.placeholder.com/400x200.png?text=' +
+                              t('common:image_not_available')
+                        }
+                        title="Contemplative Reptile"
+                      />
+                    </div>
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>
                         <Typography

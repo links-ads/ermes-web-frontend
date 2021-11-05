@@ -110,7 +110,8 @@ export function Tab1(props) {
   }
 
   const renderValues = (selected, prefix) => {
-    if (selected.length <= 2) return selected.map((key) => t(prefix + key.toLowerCase()) || key).join(', ')
+    if (selected.length <= 2)
+      return selected.map((key) => t(prefix + key.toLowerCase()) || key).join(', ')
     else
       return (
         selected
@@ -276,19 +277,19 @@ export function Tab1(props) {
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                value={t('labels:' + elem.selected.toLowerCase()) || ''}
+                                value={elem.selected}
+                                renderValue={(v) =>  t('labels:' + (v as String).toLowerCase()) }
                                 onChange={(event) => {
                                   const newFilter = filters
                                   newFilter[widget].content[i].selected = event.target
                                     .value as string
                                   props.setFilters({ ...newFilter })
                                 }}
+                                style={{textAlign: 'start'}}
                               >
                                 {elem.options.map((e) => {
                                   return (
-                                    <MenuItem key={e} value={e}>
-                                      {e}
-                                    </MenuItem>
+                                    <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
                                   )
                                 })}
                               </Select>
@@ -361,12 +362,13 @@ export function Tab1(props) {
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={filters[widget].selected}
-                    renderValue={(v)=>t('labels:' + v)}
+                    renderValue={(v) => t('labels:' + v)}
                     onChange={(event) => {
                       const newFilter = filters
                       newFilter[widget].selected = event.target.value as string
                       props.setFilters({ ...newFilter })
                     }}
+                    style={{textAlign: 'start'}}
                   >
                     {filters[widget].options.map((e) => {
                       return <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>

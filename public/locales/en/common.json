@@ -53,5 +53,11 @@
   "loading": "Loading",
   "end_of_list": "End of list",
   "view_in_map": "View in map",
-  "image_not_available": "Image not available"
+  "image_not_available": "Image not available",
+  "private": "Private",
+  "public": "Public",
+  "submitted": "Submitted",
+  "inaccurate": "Inaccurate", 
+  "inappropriate": "Inappropriate", 
+  "validated": "Validated"
 }

@@ -94,6 +94,8 @@
     "to_date": " a",
     "hazard_select": "Seleziona evento",
     "hazard_status": "Stato dell'evento",
+    "hazard_visibility": "Visibilità dell'evento",
+    "hazard_content": "Contenuto dell'evento",
     "mission_status": "Stato delle missioni",
     "persons_status": "Stato delle persone",
     "unknown": "Sconosciuto",
