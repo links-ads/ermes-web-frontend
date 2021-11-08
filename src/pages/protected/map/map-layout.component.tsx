@@ -55,6 +55,7 @@ import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
+import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -190,9 +191,9 @@ export function MapLayout(props) {
   const [mapTileId,setMapTileId] = useState<string|null>(null)
 
   useEffect(() => {
-    if (props.selectedLayerId !== "-1") {
+    const map = mapViewRef.current?.getMap()!
+    if (props.selectedLayerId !== NO_LAYER_SELECTED) {
       const tileId = props.layerId2Tiles[props.selectedLayerId][0]
-      const map = mapViewRef.current?.getMap()!
       const source = tileJSONIfy(map,props.layerId2Tiles[props.selectedLayerId][0],geoServerConfig,map.getBounds())
       if(mapTileId !== null)
       {
@@ -209,6 +210,15 @@ export function MapLayout(props) {
         'clusters'
       );
       setMapTileId(tileId)
+    }
+    else
+    {
+      if(mapTileId !== null)
+      {
+        map.removeLayer(mapTileId)
+        map.removeSource(mapTileId)
+        setMapTileId(null)
+      }
     }
   }, [props.selectedLayerId])
 

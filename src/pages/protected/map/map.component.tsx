@@ -13,8 +13,8 @@ import MapDrawer from './map-drawer/map-drawer.component'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 import { initObjectState } from './map-filters-init.state'
-import { AppConfig, AppConfigContext, loadConfig } from '../../../config'
-import { LayersSelectContainer } from './map-layers/layers-select.component'
+import { AppConfig, AppConfigContext } from '../../../config'
+import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
@@ -108,7 +108,7 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [selectedLayerId, setSelectedLayerId] = React.useState("-1")
+  const [selectedLayerId, setSelectedLayerId] = React.useState(NO_LAYER_SELECTED)
   const [getLayersState, handleGetLayersCall, resetGetLayersState] = useAPIHandler(false)
 
   const layerId2Tiles = useMemo(()=>{

@@ -66,5 +66,6 @@
   "dialog_cancel":"Annulla",
   "MapRequest": "Richieste mappatura",
   "mapRequestLayerFilter": "Livello",
-  "details": "Codice"
+  "details": "Codice",
+  "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca"
 }

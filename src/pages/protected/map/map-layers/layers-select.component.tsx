@@ -21,7 +21,9 @@ import { ResizableBox } from 'react-resizable';
 import CloseIcon from '@material-ui/icons/Close';
 import CardContent from '@material-ui/core/CardContent'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { useTranslation } from 'react-i18next';
 
+export const NO_LAYER_SELECTED = "-1"
 
 
 const useStyles = makeStyles((theme) => ({
@@ -67,6 +69,7 @@ const useStyles = makeStyles((theme) => ({
 export function LayersSelectContainer(props) {
 
     const classes = useStyles()
+    const { t } = useTranslation(['maps'])
     const theme = useTheme()
     const [dim, setDim] = useState({
         width: 500,
@@ -90,6 +93,14 @@ export function LayersSelectContainer(props) {
                 setExpanded(!isSubOpen ? accordionOpens[0] + "_" + panel : accordionOpens[1] === panel ? accordionOpens[0] : accordionOpens[0] + "_" + panel)
             }
         }
+
+    const handleRadioClick = (event:any) => {
+        if (event.target.value === props.selectedLayerId) {
+            props.setSelectedLayerId(NO_LAYER_SELECTED);
+          } else {
+            props.setSelectedLayerId(event.target.value);
+          }
+    }
     return (
         <>
             <Draggable
@@ -144,15 +155,16 @@ export function LayersSelectContainer(props) {
                                 </span>
                             </AppBar>
                             <CardContent style={{ height: '90%', overflowY: "auto" }}>
-                                <FormControl component="fieldset">
+                            {props.loading ? (<Grid container justify='center'><CircularProgress /> </Grid>) :
+                                    (props.data === undefined || props.data['layerGroups'] === undefined || Object.entries(props.data['layerGroups']).length === 0) ?
+                                        (<Grid container justify='center'><Typography align="center" variant="h6">{t("maps:no_layers")}</Typography></Grid>) :
+                                (<FormControl component="fieldset">
                                     <RadioGroup
                                         aria-label="gender"
                                         name="controlled-radio-buttons-group"
                                         value={props.selectedLayerId}
-                                        onChange={event => props.setSelectedLayerId(event.target.value)}
                                     >
-                                        {props.loading ? (<Grid container justify='center'><CircularProgress /> </Grid>) :
-                                            props.data !== undefined && props.data['layerGroups'] !== undefined && props.data['layerGroups'].map(group => {
+                                             {props.data['layerGroups'].map(group => {
                                                 return (
                                                     <Accordion
                                                         key={group['groupKey']}
@@ -172,7 +184,7 @@ export function LayersSelectContainer(props) {
                                                         <AccordionDetails className={classes.accordionDetails}>
                                                             {
                                                                 group['subGroups'].map(subGroup => {
-                                                                    const layers = subGroup['layers'].map((layer, i) => (<FormControlLabel key={layer['dataTypeId']} value={String(layer['dataTypeId'])} control={<Radio />} label={layer['name']} /> ))
+                                                                    const layers = subGroup['layers'].map((layer, i) => (<FormControlLabel key={layer['dataTypeId']} value={String(layer['dataTypeId'])} control={<Radio onClick={handleRadioClick} />} label={layer['name']} /> ))
                                                                     return subGroup['subGroupKey'] !== null ? (
                                                                         <Accordion
                                                                             key={subGroup['subGroupKey']}
@@ -201,7 +213,7 @@ export function LayersSelectContainer(props) {
                                                 )
                                             })}
                                     </RadioGroup>
-                                </FormControl>
+                                </FormControl>)}
                             </CardContent>
                         </Card>
                     </ResizableBox>
