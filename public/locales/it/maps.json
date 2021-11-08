@@ -70,5 +70,6 @@
   "category": "Categoria",
   "description" : "Descrizione",
   "author" : "Autore",
-  "activityName" : "Nome attività"
+  "activityName" : "Nome attività",
+  "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca"
 }

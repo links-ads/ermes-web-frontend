@@ -17,3 +17,54 @@ export function updatePointFeatureLayerIdFilter(
     map.setFilter(layerId, filter)
   }
 }
+
+function makeLayerURL(canvas,layerNames, geoServerConfig) {
+  const { baseUrl, suffix, params } = geoServerConfig
+  const layerName = Array.isArray(layerNames) ? layerNames.join(',') : layerNames;
+  let urlParams = `${composeParams(params)}&layers=${layerName}&width=${canvas.clientWidth}&height=${canvas.clientHeight}`
+  urlParams = urlParams.replace(':', '%3A')
+  return `${baseUrl}/${suffix}?${urlParams}`
+}
+
+
+function composeParams(params) {
+  return Object.keys(params)
+    .reduce<string[]>(
+      (par: string[], key: string) => {
+        par = par.concat([`${key}=${params[key]}`]);
+        return par;
+      }, [])
+    .join('&');
+}
+
+
+function toBBoxString(lngLatBound) {
+  const _southWest = lngLatBound.getSouthWest();
+  const _northEast = lngLatBound.getNorthEast();
+  return [_southWest.lng, _southWest.lat, _northEast.lng, _northEast.lat]
+}
+
+export function tileJSONIfy(
+  map,
+  name,
+  geoServerConfig: any | null = null,
+  mapBounds,
+  scheme = 'tms',
+) {
+  const bounds = toBBoxString(mapBounds)
+  return {
+    type: 'raster',
+    tilejson: '2.2.0',
+    name: name,
+    description: 'layer description...',
+    version: '1.0.0',
+    scheme: scheme, //xyz or tms
+    tiles: [makeLayerURL(map.getCanvas(),name, geoServerConfig)],
+    data:[],
+    minzoom: map.getMinZoom(),
+    maxzoom: map.getMaxZoom(),
+    bounds: bounds,
+    center: [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2],
+    tileSize: 256
+  };
+}

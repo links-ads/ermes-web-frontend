@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react'
+import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
@@ -15,7 +15,12 @@ import useLanguage from '../../../hooks/use-language.hook'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 import { initObjectState } from './map-filters-init.state'
-import { AppConfig, AppConfigContext, loadConfig } from '../../../config'
+import { AppConfig, AppConfigContext } from '../../../config'
+import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-select.component'
+import useAPIHandler from '../../../hooks/use-api-handler'
+import { useAPIConfiguration } from '../../../hooks/api-hooks'
+
+import {LayersApiFactory} from 'ermes-backoffice-ts-sdk';
 
 type MapFeature = CulturalProps
 
@@ -26,6 +31,7 @@ export function Map() {
   const [fakeKey, forceUpdate] = useReducer(x => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
+  const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
 
 
   const getFilterList = (obj) => {
@@ -101,9 +107,29 @@ export function Map() {
   const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
   const [spiderifierRef, setSpiderifierRef] = useState<Spiderifier | null>(null)
 
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+
+  const [selectedLayerId, setSelectedLayerId] = React.useState(NO_LAYER_SELECTED)
+  const [getLayersState, handleGetLayersCall, resetGetLayersState] = useAPIHandler(false)
+
+  const layerId2Tiles = useMemo(()=>{
+    if(Object.keys(getLayersState.result).length == 0)
+      return {}
+    let data2Tiles = {}
+    getLayersState.result.data['layerGroups'].map(group=>{
+      group['subGroups'].map(subGroup => {
+        subGroup['layers'].map((layer) => data2Tiles[layer['dataTypeId']] = layer['tiles'])
+    })
+  })
+  return data2Tiles
+  },[getLayersState])
+
+
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
+
 
   useEffect(() => {
     if (
@@ -137,6 +163,7 @@ export function Map() {
   useEffect(() => {
     // console.log('CHANGED FILTER OBJ', filtersObj)
     fetchGeoJson()
+    handleGetLayersCall(() => {return layersApiFactory.layersGetLayers(undefined,undefined,filtersObj!.filters!.datestart['selected'],filtersObj!.filters!.dateend['selected'])})
   }, [filtersObj])
   useEffect(() => {
     console.log('GEO DATA!!', prepGeoData)
@@ -166,11 +193,21 @@ export function Map() {
           initObj={initObject}
         ></FloatingFilterContainer>
         {/* ) : null} */}
-
+        <LayersSelectContainer
+          selectedLayerId={selectedLayerId}
+          setSelectedLayerId={setSelectedLayerId}
+          visibility={layersSelectVisibility}
+          setVisibility={setLayersSelectVisibility}
+          loading={getLayersState.loading}
+          error={getLayersState.error}
+          data={getLayersState.result.data}
+        />
         <MapStateContextProvider<MapFeature>>
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
+            layersSelectVisibility={layersSelectVisibility}
+            setLayersSelectVisibility={setLayersSelectVisibility}
             toggleDrawerTab={toggleSideDrawer}
             setToggleDrawerTab={setToggleSideDrawer}
             filterList={filterList}
@@ -188,6 +225,8 @@ export function Map() {
             changeItem={changeItem}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
+            selectedLayerId={selectedLayerId}
+            layerId2Tiles={layerId2Tiles}
           />
         </MapStateContextProvider>
       </MapContainer>
