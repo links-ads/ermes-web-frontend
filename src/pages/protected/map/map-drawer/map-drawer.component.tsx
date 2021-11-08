@@ -1,4 +1,10 @@
+// Page which manages the tabs in the left drawer
+
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { IconButton } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
@@ -6,14 +12,12 @@ import AppBar from '@material-ui/core/AppBar'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import Box from '@material-ui/core/Box'
+
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
 import MissionsPanel from './missions-panel.component'
 import MapRequestsPanel from './map-requests-panel.component'
-import { useTranslation } from 'react-i18next'
-import { IconButton } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,18 +68,20 @@ export default function MapDrawer(props) {
   const theme = useTheme()
   const { t } = useTranslation('maps')
 
-  const [value, setValue] = React.useState(0)
-
+  // Value to track which tab is selected + functions to handle changes
+  const [tabValue, setTabValue] = React.useState(0)
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setValue(newValue)
+    setTabValue(newValue)
+  }
+  const handleChangeIndex = (index: number) => {
+    setTabValue(index)
   }
 
-  const handleChangeIndex = (index: number) => {
-    setValue(index)
-  }
+  // toggle on off drawer
   const onClick = function () {
     props.setToggleDrawerTab(false)
   }
+
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
@@ -97,7 +103,7 @@ export default function MapDrawer(props) {
             <ArrowBackIcon />
           </IconButton>
           <Tabs
-            value={value}
+            value={tabValue}
             onChange={handleChange}
             indicatorColor="primary"
             classes={{ indicator: classes.indicator }}
@@ -115,12 +121,12 @@ export default function MapDrawer(props) {
 
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={value}
+          index={tabValue}
           onChangeIndex={handleChangeIndex}
           component={'span'}
         >
           {/* REPORTS */}
-          <TabPanel value={value} index={0} key={'report-' + props.rerenderKey}>
+          <TabPanel value={tabValue} index={0} key={'report-' + props.rerenderKey}>
             <ReportPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -131,7 +137,7 @@ export default function MapDrawer(props) {
           </TabPanel>
 
           {/* COMMUNICATION */}
-          <TabPanel value={value} index={1} key={'comm-' + props.rerenderKey}>
+          <TabPanel value={tabValue} index={1} key={'comm-' + props.rerenderKey}>
             <CommunicationPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -141,7 +147,8 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={2} key={'mission-' + props.rerenderKey}>
+          {/* MISSIONS */}
+          <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
             <MissionsPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -151,7 +158,8 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          <TabPanel value={value} index={3} key={'people-' + props.rerenderKey}>
+          {/* PEOPLE */}
+          <TabPanel value={tabValue} index={3} key={'people-' + props.rerenderKey}>
             <PeoplePanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
@@ -160,7 +168,9 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
             />
           </TabPanel>
-          <TabPanel value={value} index={4} key={'map-request-' + props.rerenderKey}>
+
+          {/* MAP REQUESTS */}
+          <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
             <MapRequestsPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}

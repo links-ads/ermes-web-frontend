@@ -82,6 +82,8 @@
     "to_date": " to",
     "hazard_select": "Select hazard",
     "hazard_status": "Hazard status",
+    "hazard_visibility": "Hazard visibility",
+    "hazard_content": "Hazard content",
     "mission_status": "Mission status",
     "persons_status": "Persons status",
     "unknown": "Unknown",
