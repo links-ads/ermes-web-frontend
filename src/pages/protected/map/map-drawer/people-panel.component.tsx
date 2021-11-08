@@ -1,20 +1,20 @@
 import React, { useEffect } from 'react'
-import { makeStyles } from '@material-ui/core/styles'
-import usePeopleList from '../../../../hooks/use-people-list.hook'
-import useUsersList from '../../../../hooks/use-users-list.hook'
-import List from '@material-ui/core/List'
+
 import InfiniteScroll from 'react-infinite-scroll-component'
-import Card from '@material-ui/core/Card'
+import { useTranslation } from 'react-i18next'
+
+import CardWithPopup from './card-with-popup.component'
+import List from '@material-ui/core/List'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
-import { useTranslation } from 'react-i18next'
-import Box from '@material-ui/core/Box'
 import SearchIcon from '@material-ui/icons/Search'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import CardWithPopup from './card-with-popup.component'
+import Box from '@material-ui/core/Box'
 import { TextField, IconButton, CircularProgress } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core/styles'
+
+import usePeopleList from '../../../../hooks/use-people-list.hook'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -32,9 +32,6 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
     height: '90%'
   },
-  container_without_search: {
-    overflowY: 'scroll'
-  },
   card: {
     marginBottom: 15
   },
@@ -45,19 +42,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 8,
     paddingRight: 16
   },
-  margin: {
-    margin: theme.spacing(1),
-    width: '70%',
-    marginBottom: 25,
-    paddingRight: 15
-  },
-  applyButton: {
-    margin: theme.spacing(1),
-    marginTop: 23,
-    marginBottom: 25,
-    paddingRight: 15
-  },
-
   details: {
     display: 'block'
   },
@@ -79,6 +63,9 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function PeoplePanel(props) {
+  const classes = useStyles()
+
+  // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -86,9 +73,11 @@ export default function PeoplePanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const [peopData, getPeopData, applyFilterReloadData, applyFilterByText] = usePeopleList()
+  // Main data + search text field text
+  const [peopData, getPeopData, , applyFilterByText] = usePeopleList()
   const [searchText, setSearchText] = React.useState('')
 
+  // Search text field management functions
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
@@ -97,13 +86,14 @@ export default function PeoplePanel(props) {
       applyFilterByText(searchText)
     }
   }
-  const classes = useStyles()
 
+  // function which takes care of fixing the list height for windows resize
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
 
+  // calls the passed function to fly in the map to the desired point
   const flyToCoords = function (latitude, longitude) {
     if (latitude && longitude) {
       props.setGoToCoord({ latitude: latitude, longitude: longitude })
@@ -111,6 +101,7 @@ export default function PeoplePanel(props) {
   }
   const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
 
+  // Calls the data only the first time is needed
   useEffect(() => {
     getPeopData(
       0,
@@ -124,6 +115,7 @@ export default function PeoplePanel(props) {
     )
   }, [])
 
+  // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
@@ -131,6 +123,7 @@ export default function PeoplePanel(props) {
 
   return (
     <div className="container_without_search">
+      {/* Search box */}
       <span>
         <TextField
           id="outlined-basic"
@@ -155,7 +148,7 @@ export default function PeoplePanel(props) {
       </span>
       {!peopData.isLoading ? (
         <div
-          className={classes.container_without_search}
+          className="container_without_search"
           id="scrollableElem"
           style={{ height: height - 280 }}
         >
@@ -232,11 +225,10 @@ export default function PeoplePanel(props) {
                                     color="textSecondary"
                                     style={{ textTransform: 'uppercase' }}
                                   >
-                                    {t('maps:' + type)}:&nbsp;
-                                    {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                                    {t('maps:' + type)}:&nbsp;{' '}
                                   </Typography>
                                   <Typography component={'span'} variant="body1">
-                                    {t('maps:' +elem[type])}
+                                    {t('maps:' + elem[type])}
                                   </Typography>
                                   <br />
                                 </>

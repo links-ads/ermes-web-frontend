@@ -1,3 +1,4 @@
+// Toggle button to get the left drawer
 import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import ViewCompactIcon from '@material-ui/icons/ViewCompact'

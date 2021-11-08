@@ -1,3 +1,7 @@
+/*  
+This component is meant to render dynamically the content 
+in src\pages\protected\map\map-filters-init.state.ts
+ */
 import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { makeStyles } from '@material-ui/core/styles'
@@ -21,6 +25,7 @@ import {
   ListItemText,
   useTheme
 } from '@material-ui/core'
+
 import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
 import FormControl from '@material-ui/core/FormControl'
@@ -33,7 +38,6 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     margin: '15px',
     marginRight: '0px'
-    // height: 'auto',
   },
   datePicker: {
     width: '48%',
@@ -45,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: theme.typography.fontWeightRegular
   },
   formControl: {
-    // margin: theme.spacing(1),
     width: '100%',
     paddingLeft: 0,
     paddingRight: 10
@@ -67,28 +70,33 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+// Content part for the first tab in the floating filter
 export function Tab1(props) {
+  // Import temi and i18n
   const classes = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
   const { t } = useTranslation(['labels'])
-  //  props.filters
+
+  // Filter state from the parent component
   const filters = props.filters
-  //states which will keep track of the start and end dates
+
+  //inside states which will keep track of the start and end dates
   const [selectedStartDate, setStartDate] = useState<Date | null>(
     filters.datestart.selected ? new Date(filters.datestart.selected) : null
   )
   const [selectedEndDate, setEndDate] = useState<Date | null>(
     filters.dateend.selected ? new Date(filters.dateend.selected) : null
   )
-  const [expanded, setExpanded] = React.useState<string | false>(false)
 
+  // manage the open and close of the accordion. When one is open, the others get all closed (open only one per time)
+  const [expanded, setExpanded] = React.useState<string | false>(false)
   const handleAccordionChange =
     (panel: string) => (event: React.ChangeEvent<{}>, newExpanded: boolean) => {
       setExpanded(newExpanded ? panel : false)
     }
 
-  // data filter logic
+  // Date filter logic to handle the date range
   const handleStartDateChange = async (date: Date | null, e: null | React.MouseEvent = null) => {
     if (e) {
       e.stopPropagation()
@@ -109,6 +117,7 @@ export function Tab1(props) {
     setEndDate(date)
   }
 
+  // function that renders in the dropdown menu the names, if 3+ it adds dots to avoid cluttering
   const renderValues = (selected, prefix) => {
     if (selected.length <= 2)
       return selected.map((key) => t(prefix + key.toLowerCase()) || key).join(', ')
@@ -120,20 +129,8 @@ export function Tab1(props) {
           .join(', ') + ', ...'
       )
   }
-  // const handleStartClear = (e) => {
-  //   e.stopPropagation()
-  //   const newFilter = filters
-  //   newFilter['datestart'].selected = null
-  //   props.setFilters({ ...newFilter })
-  //   setStartDate(null)
-  // }
-  // const handleEndClear = (e) => {
-  //   e.stopPropagation()
-  //   const newFilter = filters
-  //   newFilter['datestart'].selected = null
-  //   props.setFilters({ ...newFilter })
-  //   setEndDate(null)
-  // }
+
+  // if it has range, compute dateend
   useEffect(() => {
     if (props.filters['dateend'].range) {
       forceFiltersDateRange(
@@ -145,6 +142,7 @@ export function Tab1(props) {
     }
   }, [props.filters, selectedStartDate, selectedEndDate])
 
+  // if exists date end|start set it, otherwhise set null
   useEffect(() => {
     setEndDate(filters.dateend.selected ? new Date(filters.dateend.selected) : null)
   }, [filters.dateend.selected])
@@ -174,11 +172,7 @@ export function Tab1(props) {
                 disableFuture={false}
                 autoOk={true}
                 ampm={false}
-                // KeyboardButtonProps={{
-                //   'aria-label': 'change date'
-                // }}
                 className={classes.datePicker}
-                // InputAdornmentProps={{}}
                 clearable={true}
                 InputProps={{
                   endAdornment:
@@ -244,6 +238,7 @@ export function Tab1(props) {
       <br />
       {Object.keys(filters).map((widget, i) => {
         switch (filters[widget].type) {
+          // if the element required is an accordion, render it with the correct components inside
           case 'accordion':
             return (
               <Accordion
@@ -267,6 +262,7 @@ export function Tab1(props) {
                 <AccordionDetails className={classes.accordionDetails}>
                   {filters[widget].content.map((elem, i) => {
                     switch (elem.type) {
+                      //render select within accordion
                       case 'select':
                         return (
                           <div key={i} className={classes.block}>
@@ -278,14 +274,14 @@ export function Tab1(props) {
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 value={elem.selected}
-                                renderValue={(v) =>  t('labels:' + (v as String).toLowerCase()) }
+                                renderValue={(v) => t('labels:' + (v as String).toLowerCase())}
                                 onChange={(event) => {
                                   const newFilter = filters
                                   newFilter[widget].content[i].selected = event.target
                                     .value as string
                                   props.setFilters({ ...newFilter })
                                 }}
-                                style={{textAlign: 'start'}}
+                                style={{ textAlign: 'start' }}
                               >
                                 {elem.options.map((e) => {
                                   return (
@@ -297,6 +293,7 @@ export function Tab1(props) {
                           </div>
                         )
                       case 'multipleselect':
+                        //render multipleselect within accordion
                         return (
                           <div className={classes.block}>
                             <FormControl className={classes.formControl}>
@@ -327,15 +324,11 @@ export function Tab1(props) {
                                   props.setFilters({ ...newFilter })
                                 }}
                                 input={<Input />}
-                                // renderValue={(selected) => {
-                                //   return elem.selected.join(', ')
-                                // }}
                               >
                                 {elem.options.map((value, key) => (
                                   <MenuItem key={'report-select-' + key} value={value}>
                                     <Checkbox checked={elem.selected.indexOf(value) > -1} />
                                     <ListItemText primary={t('labels:' + value.toLowerCase())} />
-                                    {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                                   </MenuItem>
                                 ))}
                               </Select>
@@ -344,14 +337,11 @@ export function Tab1(props) {
                         )
                     }
                   })}
-                  {/* <Typography>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada
-                  lacus ex, sit amet blandit leo lobortis eget.
-                </Typography> */}
                 </AccordionDetails>
               </Accordion>
             )
           case 'select':
+            //render select outside accordion
             return (
               <div key={i} className={classes.block}>
                 <FormControl className={classes.formControl}>
@@ -368,7 +358,7 @@ export function Tab1(props) {
                       newFilter[widget].selected = event.target.value as string
                       props.setFilters({ ...newFilter })
                     }}
-                    style={{textAlign: 'start'}}
+                    style={{ textAlign: 'start' }}
                   >
                     {filters[widget].options.map((e) => {
                       return <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
@@ -379,6 +369,7 @@ export function Tab1(props) {
               </div>
             )
           case 'multipleselect':
+            //render multipleselect outside accordion
             return (
               <FormControl key={i} className={classes.formControl}>
                 <InputLabel id={'demo-mutiple-checkbox-label_' + i}>
@@ -403,15 +394,11 @@ export function Tab1(props) {
                     props.setFilters({ ...newFilter })
                   }}
                   input={<Input />}
-                  // renderValue={(selected) => {
-                  //   return filters[widget].selected.join(', ')
-                  // }}
                 >
                   {filters[widget].options.map((value, key) => (
                     <MenuItem key={'report-select-' + key} value={value}>
                       <Checkbox checked={filters[widget].selected.indexOf(value) > -1} />
                       <ListItemText primary={t('labels:' + value.toLowerCase())} />
-                      {/* {t('maps:' + HazardType[key].toLowerCase())} */}
                     </MenuItem>
                   ))}
                 </Select>
@@ -423,11 +410,13 @@ export function Tab1(props) {
   )
 }
 
+// Content part for the second tab in the floating filter
 export function Tab2(props) {
-  // const classes = useStyles()
+
   const filters = props.filters
   const { t } = useTranslation(['labels'])
 
+  // return true if all the filters are selected, otherwise false
   const handleSelectAll = () => {
     for (let elem of Object.keys(filters?.multicheckCategories.options)) {
       if (!filters?.multicheckCategories.options[elem]) {
@@ -449,8 +438,11 @@ export function Tab2(props) {
     return true
   }
 
+  // create a varaible to track the selected objects
   const [selectAll, setSelectAll] = useState<boolean>(handleSelectAll())
 
+  // if select all, either set everything to true if any false, 
+  // or set everything to false if all true
   const handleClickSelectAll = () => {
     const newFilters = filters
     if (!selectAll) {
@@ -482,10 +474,11 @@ export function Tab2(props) {
 
   useEffect(() => {
     setSelectAll(handleSelectAll())
-  }, [filters?.multicheckActivities])
+  }, [filters?.multicheckActivities, handleSelectAll])
 
   return (
     <>
+    {/* Checkbox for select all */}
       <List style={{ paddingRight: 7 }}>
         <ListItem
           disableRipple
@@ -511,6 +504,7 @@ export function Tab2(props) {
       </List>
       <Divider />
       <div>
+        {/* Checks for the categories filtering for everything but people */}
         <List>
           {Object.keys(filters?.multicheckCategories?.options).map((key) => {
             const labelId = `checkbox-list-label-${key}`
@@ -549,6 +543,7 @@ export function Tab2(props) {
             )
           })}
 
+          {/* Checks for subfiltering the people */}
           <ListItem key={'people'} role={undefined} dense button>
             <ListItemText id={'checkbox-list-label-people'} primary={t('labels:Person')} />
           </ListItem>

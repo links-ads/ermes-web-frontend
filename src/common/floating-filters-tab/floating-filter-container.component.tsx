@@ -1,12 +1,10 @@
-// This script takes care of the floating widget containing all the filter the
-// user can decide to select or deselect by clicking the third button on the top left list
-// in the map page
+/* This script takes care of the floating widget containing all the filter the
+user can decide to select or deselect by clicking the third button on the top left list
+in the map page */
 
 import React, { useState, useEffect } from 'react'
-import styled from 'styled-components'
 import Draggable from 'react-draggable'
 import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
 import CardContent from '@material-ui/core/CardContent'
 import {
   Button,
@@ -16,13 +14,6 @@ import {
   makeStyles,
   useTheme
 } from '@material-ui/core'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction'
-import ListItemText from '@material-ui/core/ListItemText'
-import Divider from '@material-ui/core/Divider'
-import Checkbox from '@material-ui/core/Checkbox'
-import { EmergencyColorMap } from '../../pages/protected/map/api-data/emergency.component'
 import Typography from '@material-ui/core/Typography'
 import SwipeableViews from 'react-swipeable-views'
 import AppBar from '@material-ui/core/AppBar'
@@ -30,12 +21,10 @@ import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import { useTranslation } from 'react-i18next'
 import { Tab1, Tab2 } from './flating-filter-content.component'
-import Box from '@material-ui/core/Box'
 import { ResizableBox } from 'react-resizable'
-import { FiltersDescriptorType } from './floating-filter.interface'
-// import { useController, useForm } from 'react-hook-form'
 import CloseIcon from '@material-ui/icons/Close'
-import { useDispatch, useSelector } from 'react-redux'
+
+// tab properties for the single panels of floating filters
 function a11yProps(index: any) {
   return {
     id: `full-width-tab-${index}`,
@@ -102,33 +91,38 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function FloatingFilterContainer(props) {
-  // function for translation (we load map json)
+  // function for translation (we load map json) an theming
   const { t } = useTranslation(['filters', 'labels'])
   const theme = useTheme()
   const classes = useStyles()
+
+  // state and function for for selected tab and dynamic dimensions (for resizing)
   const [tab, setTab] = React.useState(0)
   const [dim, setDim] = useState({
     width: props.width ? props.width : 500,
     height: props.height ? props.height : 400
   })
-  const [keyCounter, setKeyCunter] = useState(0)
-
+  // handle change with swipe 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue)
   }
+  // handle change by clicking the tab
   const handleChangeIndex = (index: number) => {
     setTab(index)
   }
+  // handle floating filter resize
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
 
+  // init filters object and reset function
   const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
 
   const resetFilters = () => {
     setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)
   }
 
+  // when filters change, update the filters object
   useEffect(() => {
     setFilters(props.filtersObj.filters)
   }, [props.filtersObj])
@@ -154,7 +148,6 @@ export default function FloatingFilterContainer(props) {
       >
         <div
           style={{ display: props.toggleActiveFilterTab ? undefined : 'none' }}
-          // key={keyCounter}
           className={classes.floatingFilter}
         >
           <Card>
@@ -208,7 +201,6 @@ export default function FloatingFilterContainer(props) {
                   </IconButton>
                 </span>
               </AppBar>
-              {/* </CardHeader> */}
               <CardContent
                 style={{
                   backgroundColor: theme.palette.primary.main,
