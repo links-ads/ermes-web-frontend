@@ -116,6 +116,7 @@ export function Map() {
   const layerId2Tiles = useMemo(()=>{
     if(Object.keys(getLayersState.result).length == 0)
       return {}
+    if(!getLayersState.result.data['layerGroups']) return {}
     let data2Tiles = {}
     getLayersState.result.data['layerGroups'].map(group=>{
       group['subGroups'].map(subGroup => {
