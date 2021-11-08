@@ -26,6 +26,19 @@
       "northEast": [61.2366,60.3175]
     }
   },
+  "geoServer": {
+    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "suffix": "wms",
+    "params": {
+      "service": "WMS",
+      "version": "1.3.0",
+      "request": "GetMap",
+      "srs": "EPSG:3857",
+      "bbox":"{bbox-epsg-3857}",
+      "format": "image/png",
+      "transparent": true
+    }
+  },
   "fusionAuth": {
     "url": "",
     "clientId": "",
