@@ -77,7 +77,6 @@ export function LayersSelectContainer(props) {
     })
     const [expanded, setExpanded] = React.useState<string>("")
 
-    
 
     const onResize = (event, data) => {
         setDim({ height: data.size.height, width: data.size.width })
@@ -156,7 +155,7 @@ export function LayersSelectContainer(props) {
                             </AppBar>
                             <CardContent style={{ height: '90%', overflowY: "auto" }}>
                             {props.loading ? (<Grid container justify='center'><CircularProgress /> </Grid>) :
-                                    (props.data === undefined || props.data['layerGroups'] === undefined || Object.entries(props.data['layerGroups']).length === 0) ?
+                                    (props.data === undefined || !props.data['layerGroups'] || Object.entries(props.data['layerGroups']).length === 0) ?
                                         (<Grid container justify='center'><Typography align="center" variant="h6">{t("maps:no_layers")}</Typography></Grid>) :
                                 (<FormControl component="fieldset">
                                     <RadioGroup
