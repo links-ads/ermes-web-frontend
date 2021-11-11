@@ -118,12 +118,19 @@ export function Map() {
     let data2Tiles = {}
     getLayersState.result.data['layerGroups'].map(group=>{
       group['subGroups'].map(subGroup => {
-        subGroup['layers'].map((layer) => data2Tiles[layer['dataTypeId']] = layer['tiles'])
+        subGroup['layers'].map((layer) => {
+          let names = [] as any[]
+          let times = [] as any[]
+          layer['details'].map(detail =>{
+            names.push(...Array(detail['timestamps'].length).fill(detail['name']))
+            times.push(...detail['timestamps'])
+          })
+          data2Tiles[layer['dataTypeId']] = {'names':names,'timestamps':times}
+        })
     })
   })
   return data2Tiles
   },[getLayersState])
-
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date

@@ -17,7 +17,7 @@ export default function useOrgList () {
   const methodName: KROrgApiPC = 'organizationsGetOrganizations'
   const opts: APIAxiosHookOpts<OrgApiPC> = {
     type: 'backoffice',
-    args: [MAX_RESULT_COUNT], // TODO ADD PAGING PARAMS AND FILTERS
+    args: [undefined,MAX_RESULT_COUNT], // TODO ADD PAGING PARAMS AND FILTERS
     paramCreator: OrganizationsApiAxiosParamCreator,
     methodName
   }

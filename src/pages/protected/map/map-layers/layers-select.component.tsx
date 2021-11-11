@@ -157,7 +157,7 @@ export function LayersSelectContainer(props) {
                             {props.loading ? (<Grid container justify='center'><CircularProgress /> </Grid>) :
                                     (props.data === undefined || !props.data['layerGroups'] || Object.entries(props.data['layerGroups']).length === 0) ?
                                         (<Grid container justify='center'><Typography align="center" variant="h6">{t("maps:no_layers")}</Typography></Grid>) :
-                                (<FormControl component="fieldset">
+                                (<FormControl component="fieldset" fullWidth={true}>
                                     <RadioGroup
                                         aria-label="gender"
                                         name="controlled-radio-buttons-group"
@@ -183,7 +183,16 @@ export function LayersSelectContainer(props) {
                                                         <AccordionDetails className={classes.accordionDetails}>
                                                             {
                                                                 group['subGroups'].map(subGroup => {
-                                                                    const layers = subGroup['layers'].map((layer, i) => (<FormControlLabel key={layer['dataTypeId']} value={String(layer['dataTypeId'])} control={<Radio onClick={handleRadioClick} />} label={layer['name']} /> ))
+                                                                    const layers = subGroup['layers'].map((layer, i) => (
+                                                                    <div>
+                                                                        <FormControlLabel 
+                                                                            key={layer['dataTypeId']}
+                                                                            value={String(layer['dataTypeId'])}
+                                                                            control={<Radio onClick={handleRadioClick} />}
+                                                                            label={layer['name']} 
+                                                                        />
+                                                                        <br />
+                                                                    </div> ))
                                                                     return subGroup['subGroupKey'] !== null ? (
                                                                         <Accordion
                                                                             key={subGroup['subGroupKey']}
