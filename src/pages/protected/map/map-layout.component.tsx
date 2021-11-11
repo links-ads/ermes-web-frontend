@@ -193,23 +193,25 @@ export function MapLayout(props) {
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-      const tileId = props.layerId2Tiles[props.selectedLayerId][0]
-      const source = tileJSONIfy(map,props.layerId2Tiles[props.selectedLayerId][0],geoServerConfig,map.getBounds())
+      const debugIndex = 0
+      const layerProps = props.layerId2Tiles[props.selectedLayerId]
+      const layerName = layerProps['names'][debugIndex]
+      const source = tileJSONIfy(map,layerName,layerProps['timestamps'][debugIndex],geoServerConfig,map.getBounds())
       if(mapTileId !== null)
       {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
-      map.addSource(tileId,source as mapboxgl.RasterSource )
+      map.addSource(layerName,source as mapboxgl.RasterSource )
       map.addLayer(
         {
-          id: tileId,
+          id: layerName,
           type: 'raster',
-          source: tileId
+          source: layerName
         },
         'clusters'
       );
-      setMapTileId(tileId)
+      setMapTileId(layerName)
     }
     else
     {

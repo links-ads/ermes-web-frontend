@@ -18,10 +18,10 @@ export function updatePointFeatureLayerIdFilter(
   }
 }
 
-function makeLayerURL(canvas,layerNames, geoServerConfig) {
+function makeLayerURL(canvas,layerNames,layerTime, geoServerConfig) {
   const { baseUrl, suffix, params } = geoServerConfig
   const layerName = Array.isArray(layerNames) ? layerNames.join(',') : layerNames;
-  let urlParams = `${composeParams(params)}&layers=${layerName}&width=${canvas.clientWidth}&height=${canvas.clientHeight}`
+  let urlParams = `${composeParams(params)}&layers=${layerName}&time=${layerTime}&width=${canvas.clientWidth}&height=${canvas.clientHeight}`
   urlParams = urlParams.replace(':', '%3A')
   return `${baseUrl}/${suffix}?${urlParams}`
 }
@@ -46,7 +46,8 @@ function toBBoxString(lngLatBound) {
 
 export function tileJSONIfy(
   map,
-  name,
+  tileName,
+  tileTime,
   geoServerConfig: any | null = null,
   mapBounds,
   scheme = 'tms',
@@ -55,11 +56,11 @@ export function tileJSONIfy(
   return {
     type: 'raster',
     tilejson: '2.2.0',
-    name: name,
+    name: tileName,
     description: 'layer description...',
     version: '1.0.0',
     scheme: scheme, //xyz or tms
-    tiles: [makeLayerURL(map.getCanvas(),name, geoServerConfig)],
+    tiles: [makeLayerURL(map.getCanvas(),tileName,tileTime, geoServerConfig)],
     data:[],
     minzoom: map.getMinZoom(),
     maxzoom: map.getMaxZoom(),
