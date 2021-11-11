@@ -207,7 +207,10 @@ export function MapLayout(props) {
         {
           id: layerName,
           type: 'raster',
-          source: layerName
+          source: layerName,
+          paint:{
+            'raster-opacity':0.8
+          }
         },
         'clusters'
       );
