@@ -18,7 +18,8 @@ import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-se
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
-import {LayersApiFactory} from 'ermes-backoffice-ts-sdk';
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import { LayersPlayer } from './map-player/player.component'
 
 type MapFeature = CulturalProps
 
@@ -26,11 +27,11 @@ export function Map() {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])
 
-  const [fakeKey, forceUpdate] = useReducer(x => x + 1, 0)
+  const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
-
+  const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
@@ -51,7 +52,6 @@ export function Map() {
             newFilterList.push(key)
           }
         }
-
       })
     }
     return newFilterList
@@ -90,7 +90,6 @@ export function Map() {
     // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
     // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
     forceUpdate()
-
   }
 
   // Toggle for the side drawer
@@ -111,31 +110,36 @@ export function Map() {
   const [selectedLayerId, setSelectedLayerId] = React.useState(NO_LAYER_SELECTED)
   const [getLayersState, handleGetLayersCall, resetGetLayersState] = useAPIHandler(false)
 
-  const layerId2Tiles = useMemo(()=>{
-    if(Object.keys(getLayersState.result).length == 0)
-      return {}
-    if(!getLayersState.result.data['layerGroups']) return {}
+  const layerId2Tiles = useMemo(() => {
+    if (Object.keys(getLayersState.result).length == 0) return {}
+    if (!getLayersState.result.data['layerGroups']) return {}
     let data2Tiles = {}
-    getLayersState.result.data['layerGroups'].map(group=>{
-      group['subGroups'].map(subGroup => {
+
+    getLayersState.result.data['layerGroups'].map((group) => {
+      group['subGroups'].map((subGroup) => {
         subGroup['layers'].map((layer) => {
           let names = [] as any[]
           let times = [] as any[]
-          layer['details'].map(detail =>{
+
+          layer['details'].map((detail) => {
             names.push(...Array(detail['timestamps'].length).fill(detail['name']))
             times.push(...detail['timestamps'])
           })
-          data2Tiles[layer['dataTypeId']] = {'names':names,'timestamps':times}
+          data2Tiles[layer['dataTypeId']] = {
+            names: names,
+            timestamps: times,
+            subGroup: layer['name']
+          }
         })
+      })
     })
-  })
-  return data2Tiles
-  },[getLayersState])
+    return data2Tiles
+  }, [getLayersState])
 
+  console.log('getLayersState.result.data', getLayersState.result.data)
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
-
 
   useEffect(() => {
     if (
@@ -156,8 +160,7 @@ export function Map() {
             title: 'multicheck_activities',
             type: 'checkboxlist',
             options: activitiesObj,
-            tab: 2,
-
+            tab: 2
           }
         }
       } as unknown as FiltersDescriptorType
@@ -169,11 +172,18 @@ export function Map() {
   useEffect(() => {
     // console.log('CHANGED FILTER OBJ', filtersObj)
     fetchGeoJson()
-    handleGetLayersCall(() => {return layersApiFactory.layersGetLayers(undefined,undefined,filtersObj!.filters!.datestart['selected'],filtersObj!.filters!.dateend['selected'])})
+    handleGetLayersCall(() => {
+      return layersApiFactory.layersGetLayers(
+        undefined,
+        undefined,
+        filtersObj!.filters!.datestart['selected'],
+        filtersObj!.filters!.dateend['selected']
+      )
+    })
   }, [filtersObj])
-  useEffect(() => {
-    console.log('GEO DATA!!', prepGeoData)
-  }, [prepGeoData])
+  // useEffect(() => {
+  //   console.log('GEO DATA!!', prepGeoData)
+  // }, [prepGeoData])
   return (
     <>
       <MapDrawer
@@ -199,6 +209,12 @@ export function Map() {
           initObj={initObject}
         ></FloatingFilterContainer>
         {/* ) : null} */}
+        <LayersPlayer
+          visibility={togglePlayer}
+          setVisibility={setTogglePlayer}
+          layerId2Tiles={layerId2Tiles}
+          selectedLayerId={selectedLayerId}
+        />
         <LayersSelectContainer
           selectedLayerId={selectedLayerId}
           setSelectedLayerId={setSelectedLayerId}
@@ -214,6 +230,8 @@ export function Map() {
             setToggleActiveFilterTab={setToggleActiveFilterTab}
             layersSelectVisibility={layersSelectVisibility}
             setLayersSelectVisibility={setLayersSelectVisibility}
+            togglePlayer={togglePlayer}
+            setTogglePlayer={setTogglePlayer}
             toggleDrawerTab={toggleSideDrawer}
             setToggleDrawerTab={setToggleSideDrawer}
             filterList={filterList}
