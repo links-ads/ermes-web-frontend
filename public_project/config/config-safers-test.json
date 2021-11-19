@@ -27,11 +27,11 @@
     }
   },
   "fusionAuth": {
-    "url": "",
-    "clientId": "",
-    "tenantId": ""
+    "url": "https://auth.safers-project.cloud/",
+    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
+    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
   },
   "backend": {
-    "url": ""
+    "url": "https://api-test.safers-project.cloud"
   }
 }
