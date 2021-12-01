@@ -194,13 +194,12 @@ export function MapLayout(props) {
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-      const debugIndex = 0
       const layerProps = props.layerId2Tiles[props.selectedLayerId]
-      const layerName = layerProps['names'][debugIndex]
+      const layerName = layerProps['names'][props.dateIndex]
       const source = tileJSONIfy(
         map,
         layerName,
-        layerProps['timestamps'][debugIndex],
+        layerProps['timestamps'][props.dateIndex],
         geoServerConfig,
         map.getBounds()
       )
@@ -208,6 +207,7 @@ export function MapLayout(props) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
+
       map.addSource(layerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
@@ -228,7 +228,40 @@ export function MapLayout(props) {
         setMapTileId(null)
       }
     }
-  }, [props.selectedLayerId])
+  }, [props.selectedLayerId, props.dateIndex])
+
+  // useEffect(() => {
+  //   const map = mapViewRef.current?.getMap()!
+  //   if (props.selectedLayerId !== NO_LAYER_SELECTED) {
+  //     const newLayerProps = props.layerId2Tiles[props.selectedLayerId]
+  //     const newLayerName = newLayerProps['names'][props.dateIndex]
+  //     const newSource = tileJSONIfy(
+  //       map,
+  //       newLayerName,
+  //       newLayerProps['timestamps'][props.dateIndex],
+  //       geoServerConfig,
+  //       map.getBounds()
+  //     )
+  //     map.addSource(newLayerName, newSource as mapboxgl.RasterSource)
+  //     map.addLayer(
+  //       {
+  //         id: newLayerName,
+  //         type: 'raster',
+  //         source: newLayerName,
+  //         paint: {
+  //           'raster-opacity': 0.8
+  //         }
+  //       },
+  //       'clusters'
+  //     )
+  //     if (mapTileId !== null) {
+  //       map.removeLayer(mapTileId)
+  //       map.removeSource(mapTileId)
+
+  //     }
+
+  //   }
+  // }, [props.dateIndex])
 
   useEffect(
     () => {
@@ -650,10 +683,9 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          <PlayerButton
-            visibility={props.togglePlayer}
-            setVisibility={props.setTogglePlayer}
-          />
+          {props.selectedLayerId !== NO_LAYER_SELECTED ? (
+            <PlayerButton visibility={props.togglePlayer} setVisibility={props.setTogglePlayer} />
+          ) : null}
         </>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>

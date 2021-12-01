@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Card,
   makeStyles,
@@ -13,6 +13,7 @@ import {
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 
 const useStyles = makeStyles((theme) => ({
@@ -80,6 +81,9 @@ const useStyles = makeStyles((theme) => ({
 export function LayersPlayer(props) {
   const classes = useStyles()
   const theme = useTheme()
+  const layerProps = props.layerId2Tiles[props.selectedLayerId]
+
+  const [playing, setPlaying] = useState(false)
 
   const insideData = {
     subGroup: props.layerId2Tiles[props.selectedLayerId]
@@ -97,12 +101,32 @@ export function LayersPlayer(props) {
 
   function valuetext(value) {
     console.log('valuetext', insideData.labels[value])
-    return insideData.timestamps[value];
+    return insideData.timestamps[value]
   }
+
+  async function skipNext() {
+    if (props.dateIndex < insideData.timestamps.length - 1) {
+      props.setDateIndex(props.dateIndex + 1)
+    } else {
+      props.setDateIndex(0)
+    }
+  }
+
+  async function playPause() {
+    setPlaying(!playing)
+  }
+
+  useEffect(() => {
+    if (playing) {
+      let timer = setTimeout(() => skipNext(), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [playing, props.dateIndex])
+
   return (
     <FloatingCardContainer
       bounds={'parent'}
-      defaultPosition={{ x: 90, y: 90 }}
+      defaultPosition={{ x: 140, y: 500 }}
       toggleActiveFilterTab={props.visibility}
       dim={{
         width: 400,
@@ -149,7 +173,7 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          Current timestamp
+          {layerProps ? layerProps['timestamps'][props.dateIndex] : null}
         </Typography>
         <div className={classes.playerContainer}>
           <div className={classes.sliderContainer}>
@@ -158,20 +182,27 @@ export function LayersPlayer(props) {
               aria-label="Temperature"
               defaultValue={0}
               getAriaValueText={valuetext}
-              
               valueLabelDisplay="on"
               step={1}
+              value={props.dateIndex}
               // marks
               min={0}
               max={insideData.timestamps.length}
               color="secondary"
+              onChange={(event, value) => {
+                props.setDateIndex(value)
+              }}
             />
           </div>
           <div className={classes.buttonsContainer}>
-            <IconButton aria-label="play/pause">
-              <PlayArrowIcon style={{ height: 45, width: 45 }} />
+            <IconButton aria-label="play/pause" onClick={playPause}>
+              {playing ? (
+                <PauseIcon style={{ height: 45, width: 45 }} />
+              ) : (
+                <PlayArrowIcon style={{ height: 45, width: 45 }} />
+              )}
             </IconButton>
-            <IconButton aria-label="next">
+            <IconButton aria-label="next" onClick={skipNext}>
               <SkipNextIcon />
             </IconButton>
           </div>

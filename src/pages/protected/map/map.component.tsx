@@ -32,6 +32,7 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
+  const [dateIndex, setDateIndex] = useState<number>(0)
 
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
@@ -181,9 +182,16 @@ export function Map() {
       )
     })
   }, [filtersObj])
-  // useEffect(() => {
-  //   console.log('GEO DATA!!', prepGeoData)
-  // }, [prepGeoData])
+
+  useEffect(() => {
+    if (selectedLayerId !== NO_LAYER_SELECTED) {
+      setDateIndex(0)
+      setTogglePlayer(true)
+    } else {
+      setTogglePlayer(false)
+    }
+  }, [selectedLayerId])
+
   return (
     <>
       <MapDrawer
@@ -209,12 +217,16 @@ export function Map() {
           initObj={initObject}
         ></FloatingFilterContainer>
         {/* ) : null} */}
+
         <LayersPlayer
           visibility={togglePlayer}
           setVisibility={setTogglePlayer}
           layerId2Tiles={layerId2Tiles}
           selectedLayerId={selectedLayerId}
+          setDateIndex={setDateIndex}
+          dateIndex={dateIndex}
         />
+
         <LayersSelectContainer
           selectedLayerId={selectedLayerId}
           setSelectedLayerId={setSelectedLayerId}
@@ -251,6 +263,7 @@ export function Map() {
             fetchGeoJson={fetchGeoJson}
             selectedLayerId={selectedLayerId}
             layerId2Tiles={layerId2Tiles}
+            dateIndex={dateIndex}
           />
         </MapStateContextProvider>
       </MapContainer>
