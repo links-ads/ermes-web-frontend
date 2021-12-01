@@ -9,11 +9,11 @@ const useLanguage = () => {
         switch(language)
         {
             case 'it':
-                return {dateFormat:"dd/MM/yyyy - HH:mm",dateLocale:"en-GB"}
+                return {dateFormat:"dd/MM/yyyy - HH:mm", dateLocale:"en-GB"}
             case 'en':
-                return {dateFormat:"MM/dd/yyyy - HH:mm",dateLocale:"en-US"}
+                return {dateFormat:"MM/dd/yyyy - HH:mm", dateLocale:"en-US"}
             default:
-                return {dateFormat:"dd/MM/yyyy - HH:mm",dateLocale:"en-GB"}
+                return {dateFormat:"dd/MM/yyyy - HH:mm", dateLocale:"en-GB"}
         }
     },[])
     return getLanguageSettings(i18n.language)

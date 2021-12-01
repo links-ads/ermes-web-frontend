@@ -11,6 +11,7 @@ import {
   Box
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
+import useLanguage from '../../../../hooks/use-language.hook'
 import CloseIcon from '@material-ui/icons/Close'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
@@ -81,6 +82,13 @@ const useStyles = makeStyles((theme) => ({
 export function LayersPlayer(props) {
   const classes = useStyles()
   const theme = useTheme()
+  const dateOptions = {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    hour12: false
+  } as Intl.DateTimeFormatOptions
+  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+
   const layerProps = props.layerId2Tiles[props.selectedLayerId]
 
   const [playing, setPlaying] = useState(false)
@@ -114,6 +122,11 @@ export function LayersPlayer(props) {
 
   async function playPause() {
     setPlaying(!playing)
+  }
+  
+  function formatDate(date: string){
+    
+    return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
   }
 
   useEffect(() => {
@@ -173,7 +186,7 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps ? layerProps['timestamps'][props.dateIndex] : null}
+          {layerProps ?  formatDate(layerProps['timestamps'][props.dateIndex]) : null}
         </Typography>
         <div className={classes.playerContainer}>
           <div className={classes.sliderContainer}>
