@@ -56,6 +56,7 @@ import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
+import { PlayerButton } from './map-player/player-button.component'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -188,41 +189,79 @@ export function MapLayout(props) {
   // Variable checked to draw polygons to the map
   const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)
 
-  const [mapTileId,setMapTileId] = useState<string|null>(null)
+  const [mapTileId, setMapTileId] = useState<string | null>(null)
 
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-      const debugIndex = 0
       const layerProps = props.layerId2Tiles[props.selectedLayerId]
-      const layerName = layerProps['names'][debugIndex]
-      const source = tileJSONIfy(map,layerName,layerProps['timestamps'][debugIndex],geoServerConfig,map.getBounds())
-      if(mapTileId !== null)
-      {
+      const layerName = layerProps['names'][props.dateIndex]
+      const source = tileJSONIfy(
+        map,
+        layerName,
+        layerProps['timestamps'][props.dateIndex],
+        geoServerConfig,
+        map.getBounds()
+      )
+      if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
-      map.addSource(layerName,source as mapboxgl.RasterSource )
+
+      map.addSource(layerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
           id: layerName,
           type: 'raster',
-          source: layerName
+          source: layerName,
+          paint: {
+            'raster-opacity': 0.8
+          }
         },
         'clusters'
-      );
+      )
       setMapTileId(layerName)
-    }
-    else
-    {
-      if(mapTileId !== null)
-      {
+    } else {
+      if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
         setMapTileId(null)
       }
     }
-  }, [props.selectedLayerId])
+  }, [props.selectedLayerId, props.dateIndex])
+
+  // useEffect(() => {
+  //   const map = mapViewRef.current?.getMap()!
+  //   if (props.selectedLayerId !== NO_LAYER_SELECTED) {
+  //     const newLayerProps = props.layerId2Tiles[props.selectedLayerId]
+  //     const newLayerName = newLayerProps['names'][props.dateIndex]
+  //     const newSource = tileJSONIfy(
+  //       map,
+  //       newLayerName,
+  //       newLayerProps['timestamps'][props.dateIndex],
+  //       geoServerConfig,
+  //       map.getBounds()
+  //     )
+  //     map.addSource(newLayerName, newSource as mapboxgl.RasterSource)
+  //     map.addLayer(
+  //       {
+  //         id: newLayerName,
+  //         type: 'raster',
+  //         source: newLayerName,
+  //         paint: {
+  //           'raster-opacity': 0.8
+  //         }
+  //       },
+  //       'clusters'
+  //     )
+  //     if (mapTileId !== null) {
+  //       map.removeLayer(mapTileId)
+  //       map.removeSource(mapTileId)
+
+  //     }
+
+  //   }
+  // }, [props.dateIndex])
 
   useEffect(
     () => {
@@ -631,22 +670,23 @@ export function MapLayout(props) {
       </InteractiveMap>
       {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
       {!isMobileDevice && (
-        <DrawerToggle
-          toggleDrawerTab={props.toggleDrawerTab}
-          setToggleDrawerTab={props.setToggleDrawerTab}
-        ></DrawerToggle>
-      )}
-      {!isMobileDevice && (
-        <FilterButton
-          setToggleActiveFilterTab={props.setToggleActiveFilterTab}
-          toggleActiveFilterTab={props.toggleActiveFilterTab}
-        ></FilterButton>
-      )}
-      {!isMobileDevice && (
-        <LayersButton
-          visibility={props.layersSelectVisibility}
-          setVisibility={props.setLayersSelectVisibility}
-        />
+        <>
+          <DrawerToggle
+            toggleDrawerTab={props.toggleDrawerTab}
+            setToggleDrawerTab={props.setToggleDrawerTab}
+          ></DrawerToggle>
+          <FilterButton
+            setToggleActiveFilterTab={props.setToggleActiveFilterTab}
+            toggleActiveFilterTab={props.toggleActiveFilterTab}
+          ></FilterButton>
+          <LayersButton
+            visibility={props.layersSelectVisibility}
+            setVisibility={props.setLayersSelectVisibility}
+          />
+          {props.selectedLayerId !== NO_LAYER_SELECTED ? (
+            <PlayerButton visibility={props.togglePlayer} setVisibility={props.setTogglePlayer} />
+          ) : null}
+        </>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
       <Collapse in={legendToggle}>
