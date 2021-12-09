@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
+import { Chip, IconButton, TextField, useTheme } from '@material-ui/core'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
@@ -24,12 +25,10 @@ import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardMedia from '@material-ui/core/CardMedia'
-import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import useReportById from '../../../../hooks/use-report-by-id.hook'
 import Carousel from 'react-material-ui-carousel'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Chip from '@material-ui/core/Chip'
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@material-ui/core'
@@ -74,6 +73,17 @@ const useStyles = makeStyles((theme) => ({
     // border: '2px solid #000',
     // boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3)
+  },
+  chipContainer: {
+    display: 'block',
+    height: '12px',
+    marginTop: '10px'
+  },
+  chipStyle: {
+    marginBottom: 3,
+    position: 'relative',
+    float: 'left',
+    marginRight: '5px'
   }
 }))
 const mapRequestCard = (
@@ -470,7 +480,7 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
   )
 }
 
-const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal) => {
+const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal, theme) => {
   function getModalStyle() {
     const top = 50
     const left = 50
@@ -501,7 +511,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
       return 'audio'
     }
   }
-
+  console.log('REP DATA DATUM', data)
+  console.log('REP DATA DATUM DETA', catDetails)
   if (!data.isLoading) {
     return (
       <>
@@ -608,6 +619,25 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
               }
               return null
             })}
+            <div className={classes.chipContainer}>
+              <Chip
+                label={details.isPublic ? t('common:public') : t('common:private')}
+                color="primary"
+                size="small"
+                className={classes.chipStyle}
+              />
+              <Chip
+                label={t('common:' + details.content.toLowerCase())}
+                color="primary"
+                size="small"
+                className={classes.chipStyle}
+                style={{
+                  backgroundColor: theme.palette.primary.contrastText,
+                  borderColor: theme.palette.primary.dark,
+                  color: theme.palette.primary.dark
+                }}
+              />
+            </div>
           </CardContent>
           {details?.extensionData.length > 0 ? (
             <TableContainer component={Paper}>
@@ -699,11 +729,7 @@ Different types of ["ReportRequest", "Communication", "Mission", "Report", "Pers
 
 export type EmergencyType =
   // | 'ReportRequest'
-  | 'MapRequest'
-  | 'Communication'
-  | 'Mission'
-  | 'Report'
-  | 'Person'
+  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -839,6 +865,7 @@ export function EmergencyContent({
   ...rest
 }: EmergencyPropsWithLocation) {
   const classes = useStyles()
+  const theme = useTheme()
   const { t } = useTranslation(['common', 'maps', 'labels'])
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
@@ -949,7 +976,16 @@ export function EmergencyContent({
   switch (type) {
     // Report request
     case 'Report': {
-      todisplay = reportCard(repDetails, t, classes, catDetails, formatter, openModal, setOpenModal)
+      todisplay = reportCard(
+        repDetails,
+        t,
+        classes,
+        catDetails,
+        formatter,
+        openModal,
+        setOpenModal,
+        theme
+      )
       break
     }
     case 'Person': {
