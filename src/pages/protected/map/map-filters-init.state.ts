@@ -40,7 +40,19 @@ export const initObjectState = {
           options: ['Unknown', 'Notified', 'Managed', 'Closed'],
           type: 'multipleselect',
           selected: []
-        }
+        },
+        {
+          name: 'hazard_visibility',
+          options: ['Private', 'Public', 'All'],
+          type: 'select',
+          selected: 'Private'
+        },        
+        {
+          name: 'hazard_content',
+          options: ['Submitted', 'Inaccurate', 'Inappropriate', 'Validated'],
+          type: 'multipleselect',
+          selected: []
+        },
       ]
     },
     mission: {

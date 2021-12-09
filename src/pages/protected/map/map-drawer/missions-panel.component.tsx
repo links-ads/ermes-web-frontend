@@ -1,22 +1,23 @@
 import React, { useEffect } from 'react'
+
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { useTranslation } from 'react-i18next'
+
+import useMissionsList from '../../../../hooks/use-missions-list.hook'
+import CardWithPopup from './card-with-popup.component'
+
 import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { useTranslation } from 'react-i18next'
-import useMissionsList from '../../../../hooks/use-missions-list.hook'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import CardWithPopup from './card-with-popup.component'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   searchField: {
     marginTop: 20,
     width: '88%',
@@ -33,14 +34,12 @@ const useStyles = makeStyles((theme) => ({
     width: '10%',
     marginRight: '8px'
   },
-
-  container: {
+  resizedContainer: {
     height: window.innerHeight - 270,
     overflowY: 'scroll'
   },
   card: {
     marginBottom: 15
-    // display: 'flex'
   },
   cardAction: {
     justifyContent: 'space-between',
@@ -49,7 +48,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 8,
     paddingRight: 0
   },
-
   cardList: {
     overflowY: 'scroll',
     height: '90%'
@@ -57,6 +55,11 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function CommunicationPanel(props) {
+  
+  const classes = useStyles()
+  const { t } = useTranslation(['common', 'maps'])
+
+  // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -64,16 +67,21 @@ export default function CommunicationPanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const classes = useStyles()
-  const { t } = useTranslation(['common', 'maps'])
+
   const [searchText, setSearchText] = React.useState('')
   const [missionsData, getMissionsData, applyFilterByText] = useMissionsList()
+  
   const [height, setHeight] = React.useState(window.innerHeight)
-
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
 
+  // calls the passed function to fly in the map to the desired point
+  const flyToCoords = function (latitude, longitude) {
+    props.setGoToCoord({ latitude: latitude, longitude: longitude })
+  }
+
+  // handle the text changes in the search field
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
@@ -83,10 +91,8 @@ export default function CommunicationPanel(props) {
       applyFilterByText(searchText)
     }
   }
-  const flyToCoords = function (latitude, longitude) {
-    props.setGoToCoord({ latitude: latitude, longitude: longitude })
-  }
 
+  // Calls the data only the first time is needed
   useEffect(() => {
     getMissionsData(
       0,
@@ -100,21 +106,11 @@ export default function CommunicationPanel(props) {
     )
   }, [])
 
+  // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-
-  // useEffect(() => {
-  //   setStartDate(props.selectedStartDate)
-  // }, [props.selectedStartDate, setStartDate])
-
-  // useEffect(() => {
-  //   setEndDate(props.selectedEndDate)
-  // }, [props.selectedEndDate, setEndDate])
-  // useEffect(() => {
-  //   console.log('MISSION DATA', missionsData)
-  // }, [missionsData])
 
   return (
     <div className="container">
@@ -141,7 +137,11 @@ export default function CommunicationPanel(props) {
         )}
       </span>
       {!missionsData.isLoading ? (
-        <div className={classes.container} id="scrollableElem" style={{ height: height - 270 }}>
+        <div
+          className={classes.resizedContainer}
+          id="scrollableElem"
+          style={{ height: height - 270 }}
+        >
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -165,9 +165,9 @@ export default function CommunicationPanel(props) {
                 </div>
               }
               scrollableTarget="scrollableElem"
-              // className={classes.cardList}
             >
               {missionsData.data.map((elem, i) => {
+                console.log('ELEM', elem)
                 return (
                   <CardWithPopup
                     key={'report' + String(elem.id)}
@@ -185,11 +185,23 @@ export default function CommunicationPanel(props) {
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.title}
                       </Typography>
+                      <>
+                        <Typography
+                          component={'span'}
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ textTransform: 'uppercase' }}
+                        >
+                          {t('maps:organization')}:&nbsp;
+                        </Typography>
+                        <Typography component={'span'} variant="body1">
+                          {elem.organization.name}
+                        </Typography>
+                      </>
                       <Typography color="textSecondary">
                         {' '}
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
                         {formatter.format(new Date(elem.duration?.upperBound as string))}
-                        {/* {elem.duration?.lowerBound} - {elem.duration?.upperBound} */}
                       </Typography>
                     </CardContent>
                     <CardActions className={classes.cardAction}>

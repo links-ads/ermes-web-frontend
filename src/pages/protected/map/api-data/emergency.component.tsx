@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
+import { Chip, IconButton, TextField, useTheme } from '@material-ui/core'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
@@ -24,12 +25,10 @@ import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardMedia from '@material-ui/core/CardMedia'
-import IconButton from '@material-ui/core/IconButton'
 import CloseIcon from '@material-ui/icons/Close'
 import useReportById from '../../../../hooks/use-report-by-id.hook'
 import Carousel from 'react-material-ui-carousel'
 import CircularProgress from '@material-ui/core/CircularProgress'
-import Chip from '@material-ui/core/Chip'
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import { useTranslation } from 'react-i18next'
 import { Avatar } from '@material-ui/core'
@@ -74,6 +73,17 @@ const useStyles = makeStyles((theme) => ({
     // border: '2px solid #000',
     // boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3)
+  },
+  chipContainer: {
+    display: 'block',
+    height: '12px',
+    marginTop: '10px'
+  },
+  chipStyle: {
+    marginBottom: 3,
+    position: 'relative',
+    float: 'left',
+    marginRight: '5px'
   }
 }))
 const mapRequestCard = (
@@ -139,6 +149,8 @@ const mapRequestCard = (
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
+  console.log('DETTAGLI', details)
+  console.log('DETTAGLI', description)
   return (
     <>
       <Card elevation={0}>
@@ -153,8 +165,8 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
               {description}
             </Typography>
           </div>
-          {['status', 'activityName', 'organizationName'].map((type) => {
-            if (details[type]) {
+          {['status', 'details', 'organizationName'].map((type) => {
+            if (details[type] && details[type] !== 'null') {
               return (
                 <>
                   <Typography
@@ -163,7 +175,7 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
                     color="textSecondary"
                     style={{ textTransform: 'uppercase' }}
                   >
-                    {t('maps:' + type)}:&nbsp;
+                    {t('maps:' + (type !== 'details' ? type : 'activityName'))}:&nbsp;
                     {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
                   </Typography>
                   <Typography component={'span'} variant="body1">
@@ -468,7 +480,7 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
   )
 }
 
-const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal) => {
+const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal, theme) => {
   function getModalStyle() {
     const top = 50
     const left = 50
@@ -482,6 +494,25 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 
   const details = data?.data?.feature?.properties
 
+  function guessMediaType(mediaType) {
+    const extension = mediaType.split('.').pop()
+    console.log('MEDIA TYPE', extension)
+    if (
+      extension === 'jpeg' ||
+      extension === 'jpg' ||
+      extension === 'png' ||
+      extension === 'gif' ||
+      extension === 'PNG'
+    ) {
+      return 'img'
+    } else if (extension === 'mp4' || extension === 'webm') {
+      return 'video'
+    } else {
+      return 'audio'
+    }
+  }
+  console.log('REP DATA DATUM', data)
+  console.log('REP DATA DATUM DETA', catDetails)
   if (!data.isLoading) {
     return (
       <>
@@ -497,8 +528,11 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                 <CardMedia
                   key={idx}
                   className={classes.media}
-                  image={media.mediaURI}
-                  style={{ borderRadius: 6 }}
+                  src={media.mediaURI}
+                  component={guessMediaType(media.mediaURI)}
+                  style={{ minHeight: '250px', borderRadius: 6 }}
+                  // autoPlay={true}
+                  controls={true}
                   onClick={() => {
                     setOpenModal(true)
                   }}
@@ -534,9 +568,11 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                       <CardMedia
                         key={idx}
                         // className={classes.media}
-                        image={media.mediaURI}
-                        style={{ maxHeight: '750px' }}
-                        component="img"
+                        autoPlay={true}
+                        controls={true}
+                        src={media.mediaURI} //media.mediaURI
+                        style={{ maxHeight: '750px', minHeight: '250px' }}
+                        component={guessMediaType(media.mediaURI)}
                         onClick={() => {
                           setOpenModal(true)
                         }}
@@ -583,6 +619,25 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
               }
               return null
             })}
+            <div className={classes.chipContainer}>
+              <Chip
+                label={details.isPublic ? t('common:public') : t('common:private')}
+                color="primary"
+                size="small"
+                className={classes.chipStyle}
+              />
+              <Chip
+                label={t('common:' + details.content.toLowerCase())}
+                color="primary"
+                size="small"
+                className={classes.chipStyle}
+                style={{
+                  backgroundColor: theme.palette.primary.contrastText,
+                  borderColor: theme.palette.primary.dark,
+                  color: theme.palette.primary.dark
+                }}
+              />
+            </div>
           </CardContent>
           {details?.extensionData.length > 0 ? (
             <TableContainer component={Paper}>
@@ -673,19 +728,15 @@ Different types of ["ReportRequest", "Communication", "Mission", "Report", "Pers
  */
 
 export type EmergencyType =
-  | 'ReportRequest'
-  | 'MapRequest'
-  | 'Communication'
-  | 'Mission'
-  | 'Report'
-  | 'Person'
+  // | 'ReportRequest'
+  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person'
 
 type ColorMapType = {
   [k in EmergencyType]: string
 }
 
 export const EmergencyColorMap: ColorMapType = {
-  ReportRequest: green[800],
+  // ReportRequest: green[800],
   MapRequest: orange[800],
   Communication: blueGrey[800],
   Mission: green[400],
@@ -723,8 +774,14 @@ const Dot = styled.div<DotProps>`
   box-sizing: border-box;
 `
 
-export function EmergencyHoverCardContent({ creator, details, type }: EmergencyProps) {
+export function EmergencyHoverCardContent({
+  creator,
+  details,
+  type,
+  organizationName
+}: EmergencyProps) {
   const classes = useStyles()
+  const { t } = useTranslation(['maps'])
   return (
     // <Card className={classes.root} variant="outlined">
     <CardContent>
@@ -735,43 +792,64 @@ export function EmergencyHoverCardContent({ creator, details, type }: EmergencyP
           color="textSecondary"
           style={{ textTransform: 'uppercase' }}
         >
-          Categoria:
+          {t('maps:category')}
         </Typography>
         <br />
         <Typography variant="h6" color="inherit" component={'span'}>
           {type} <Dot type={type} />
         </Typography>
       </div>
-      <div style={{ marginBottom: 10 }}>
-        <Typography
-          component={'span'}
-          variant="caption"
-          className={classes.pos}
-          color="textSecondary"
-          style={{ textTransform: 'uppercase' }}
-        >
-          Descrizione:
-        </Typography>
-        <br />
-        <Typography component={'span'} variant="body1">
-          {details}
-        </Typography>
-      </div>
-      <div>
-        <Typography
-          component={'span'}
-          variant="caption"
-          className={classes.pos}
-          color="textSecondary"
-          style={{ textTransform: 'uppercase' }}
-        >
-          Autore:
-        </Typography>
-        <br />
-        <Typography component={'span'} variant="body1">
-          {creator}
-        </Typography>
-      </div>
+
+      {details !== 'null' && details ? (
+        <div style={{ marginBottom: 10 }}>
+          <Typography
+            component={'span'}
+            variant="caption"
+            className={classes.pos}
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {t('maps:description')}
+          </Typography>
+          <br />
+          <Typography component={'span'} variant="body1">
+            {details}
+          </Typography>
+        </div>
+      ) : null}
+      {creator !== 'null' && creator ? (
+        <div style={{ marginBottom: 10 }}>
+          <Typography
+            component={'span'}
+            variant="caption"
+            className={classes.pos}
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {t('maps:author')}
+          </Typography>
+          <br />
+          <Typography component={'span'} variant="body1">
+            {creator}
+          </Typography>
+        </div>
+      ) : null}
+      {organizationName !== 'null' && organizationName ? (
+        <div>
+          <Typography
+            component={'span'}
+            variant="caption"
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {t('maps:organization')}
+          </Typography>
+          <br />
+          <Typography component={'span'} variant="body1">
+            {organizationName}
+          </Typography>
+        </div>
+      ) : null}
     </CardContent>
   )
 }
@@ -787,6 +865,7 @@ export function EmergencyContent({
   ...rest
 }: EmergencyPropsWithLocation) {
   const classes = useStyles()
+  const theme = useTheme()
   const { t } = useTranslation(['common', 'maps', 'labels'])
   const [repDetails, fetchRepDetails] = useReportById()
   const [catDetails, fetchCategoriesList] = useCategoriesList()
@@ -897,7 +976,16 @@ export function EmergencyContent({
   switch (type) {
     // Report request
     case 'Report': {
-      todisplay = reportCard(repDetails, t, classes, catDetails, formatter, openModal, setOpenModal)
+      todisplay = reportCard(
+        repDetails,
+        t,
+        classes,
+        catDetails,
+        formatter,
+        openModal,
+        setOpenModal,
+        theme
+      )
       break
     }
     case 'Person': {

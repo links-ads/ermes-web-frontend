@@ -68,5 +68,11 @@
   "breadcrumb_import": "Importa Dati",
   "breadcrumb_about": "Informazioni",
   "breadcrumb_social":"Social",
-  "breadcrumb_events":"Eventi"
+  "breadcrumb_events":"Eventi",
+  "private": "Privato",
+  "public": "Pubblico",
+  "submitted": "Inviato",
+  "inaccurate": "Inaccurato", 
+  "inappropriate": "Inappropriato", 
+  "validated": "Validato"
 }

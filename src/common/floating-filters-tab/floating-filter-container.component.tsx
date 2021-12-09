@@ -1,6 +1,6 @@
-// This script takes care of the floating widget containing all the filter the
-// user can decide to select or deselect by clicking the third button on the top left list
-// in the map page
+/* This script takes care of the floating widget containing all the filter the
+user can decide to select or deselect by clicking the third button on the top left list
+in the map page */
 
 import React, { useState, useEffect } from 'react'
 import CardContent from '@material-ui/core/CardContent'
@@ -76,6 +76,7 @@ export default function FloatingFilterContainer(props) {
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue)
   }
+  // handle change by clicking the tab
   const handleChangeIndex = (index: number) => {
     setTab(index)
   }
@@ -96,6 +97,7 @@ export default function FloatingFilterContainer(props) {
     setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)
   }
 
+  // when filters change, update the filters object
   useEffect(() => {
     setFilters(props.filtersObj.filters)
   }, [props.filtersObj])

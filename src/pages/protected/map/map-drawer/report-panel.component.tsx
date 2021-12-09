@@ -1,8 +1,9 @@
+// Panel displaying the list of reports (segnalazioni) on the left side Drawer.
 import React, { useEffect, useState } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import CardMedia from '@material-ui/core/CardMedia'
 
-import { IconButton, TextField } from '@material-ui/core'
+import { Chip, IconButton, TextField, useTheme } from '@material-ui/core'
 
 import useReportList from '../../../../hooks/use-report-list.hook'
 import List from '@material-ui/core/List'
@@ -11,7 +12,6 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
 
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import { useTranslation } from 'react-i18next'
@@ -25,9 +25,6 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
     height: '90%'
   },
-  container_without_search: {
-    overflowY: 'scroll'
-  },
   card: {
     marginBottom: 15,
     display: 'flex'
@@ -39,35 +36,23 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 0,
     paddingRight: 0
   },
-  margin: {
-    margin: theme.spacing(1),
-    width: '70%',
-    marginBottom: 25,
-    paddingRight: 15
-  },
-  applyButton: {
-    margin: theme.spacing(1),
-    marginTop: 23,
-    marginBottom: 25,
-    paddingRight: 15
-  },
-
   details: {
     display: 'inline-block',
     width: '70%'
   },
   cover: {
     width: '30%',
-    height: 154,
-    display: 'inline-block'
+    height: 183
   },
   topCard: {
-    paddingBottom: 16
+    paddingBottom: 5
   },
   viewInMap: {
     textAlign: 'right',
     width: '10%',
-    marginRight: '8px'
+    display: 'inline-block',
+    top: '-3px',
+    right: '-14px'
   },
   searchField: {
     marginTop: 20,
@@ -79,10 +64,30 @@ const useStyles = makeStyles((theme) => ({
     marginTop: 20,
     padding: 9,
     marginLeft: 6
+  },
+  chipContainer: {
+    width: '100%'
+  },
+  chipStyle: {
+    marginBottom: 10,
+    marginRight: '10px',
+    position: 'relative',
+    float: 'left'
+  },
+  chipPlusImageContainer: {
+    position: 'relative',
+    width: '30%',
+    padding: '0px',
+    height: 178,
+    display: 'inline-block'
   }
 }))
 
 export default function ReportPanel(props) {
+  const theme = useTheme()
+  const classes = useStyles()
+
+  // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -90,8 +95,7 @@ export default function ReportPanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const classes = useStyles()
-  const [repsData, getRepsData, applyFilterReloadData, applyFilterByText] = useReportList()
+  const [repsData, getRepsData, , applyFilterByText] = useReportList()
   const { t } = useTranslation(['common', 'maps', 'social'])
   const [searchText, setSearchText] = useState('')
 
@@ -100,10 +104,23 @@ export default function ReportPanel(props) {
     setHeight(window.innerHeight)
   }
 
+  // calls the passed function to fly in the map to the desired point
   const flyToCoords = function (latitude, longitude) {
     props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
+  // handle the text changes in the search field
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value)
+  }
+  // on click of the search button
+  const searchInComm = () => {
+    if (searchText !== undefined) {
+      applyFilterByText(searchText)
+    }
+  }
+
+  // Calls the data only the first time is needed
   useEffect(() => {
     getRepsData(
       0,
@@ -117,22 +134,15 @@ export default function ReportPanel(props) {
     )
   }, [])
 
+  // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-  const handleSearchTextChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const searchInComm = () => {
-    if (searchText !== undefined) {
-      applyFilterByText(searchText)
-    }
-  }
 
   return (
-    <div className="container_without_search">
+    <div className="containerWithSearch">
+      {/* Search field  */}
       <span>
         <TextField
           id="outlined-basic"
@@ -155,12 +165,9 @@ export default function ReportPanel(props) {
           <CircularProgress color="secondary" size={30} className={classes.searchButton} />
         )}
       </span>
+      {/* List of reports */}
       {!repsData.isLoading ? (
-        <div
-          className={classes.container_without_search}
-          id="scrollableElem"
-          style={{ height: height - 280 }}
-        >
+        <div className="containerWithSearch" id="scrollableElem" style={{ height: height - 280 }}>
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -213,17 +220,31 @@ export default function ReportPanel(props) {
                     />
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>
-                        <Typography
-                          gutterBottom
-                          variant="h5"
-                          component="h2"
-                          style={{ marginBottom: '0px' }}
-                        >
-                          {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                            ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                            : null}
-                          {' ' + t('maps:' + elem.hazard.toLowerCase())}
-                        </Typography>
+                        <div>
+                          <Typography
+                            gutterBottom
+                            variant="h5"
+                            component="h2"
+                            style={{ marginBottom: '0px', width: '85%', display: 'inline-block' }}
+                          >
+                            {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                              ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                              : null}
+                            {' ' + t('maps:' + elem.hazard.toLowerCase())}
+                          </Typography>
+                          <IconButton
+                            size="small"
+                            onClick={() =>
+                              flyToCoords(
+                                elem!.location!.latitude as number,
+                                elem!.location!.longitude as number
+                              )
+                            }
+                            className={classes.viewInMap}
+                          >
+                            <LocationOnIcon />
+                          </IconButton>
+                        </div>
                         <Typography color="textSecondary">
                           {formatter.format(new Date(elem.timestamp as string))}
                         </Typography>
@@ -231,27 +252,41 @@ export default function ReportPanel(props) {
                           {elem.description.length > 40
                             ? elem.description.substring(0, 37) + '...'
                             : elem.description}
-                          {/* {elem.notes ? ' - ' + elem.notes : null} */}
                         </Typography>
+                        <>
+                          <Typography
+                            component={'span'}
+                            variant="caption"
+                            color="textSecondary"
+                            style={{ textTransform: 'uppercase' }}
+                          >
+                            {t('maps:organization')}:&nbsp;
+                          </Typography>
+                          <Typography component={'span'} variant="body1">
+                            {elem.organizationName}
+                          </Typography>
+                        </>
                       </CardContent>
                       <CardActions className={classes.cardAction}>
-                        <Typography variant="body2" color="textSecondary">
-                          {(elem!.location!.latitude as number).toFixed(4) +
-                            ' , ' +
-                            (elem!.location!.longitude as number).toFixed(4)}
-                        </Typography>
-                        <IconButton
-                          size="small"
-                          onClick={() =>
-                            flyToCoords(
-                              elem!.location!.latitude as number,
-                              elem!.location!.longitude as number
-                            )
-                          }
-                          className={classes.viewInMap}
-                        >
-                          <LocationOnIcon />
-                        </IconButton>
+                        <div className={classes.chipContainer}>
+                          <Chip
+                            label={elem.isPublic ? t('common:public') : t('common:private')}
+                            color="primary"
+                            size="small"
+                            className={classes.chipStyle}
+                          />
+                          <Chip
+                            label={t('common:' + elem.content.toLowerCase())}
+                            color="primary"
+                            size="small"
+                            className={classes.chipStyle}
+                            style={{
+                              backgroundColor: theme.palette.primary.contrastText,
+                              borderColor: theme.palette.primary.dark,
+                              color: theme.palette.primary.dark
+                            }}
+                          />
+                        </div>
                       </CardActions>
                     </div>
                   </CardWithPopup>

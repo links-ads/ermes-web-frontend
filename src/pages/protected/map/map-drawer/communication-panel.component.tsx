@@ -1,20 +1,21 @@
 import React, { useEffect } from 'react'
+
+import InfiniteScroll from 'react-infinite-scroll-component'
+import { useTranslation } from 'react-i18next'
+
+import CardWithPopup from './card-with-popup.component'
+import useCommList from '../../../../hooks/use-comm-list.hook'
+
 import { makeStyles } from '@material-ui/core/styles'
-import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
 import IconButton from '@material-ui/core/IconButton'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { useTranslation } from 'react-i18next'
-import CardWithPopup from './card-with-popup.component'
-import useCommList from '../../../../hooks/use-comm-list.hook'
 
 const useStyles = makeStyles((theme) => ({
   viewInMap: {
@@ -34,13 +35,12 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 6
   },
 
-  container: {
+  fixHeightContainer: {
     height: window.innerHeight - 270,
     overflowY: 'scroll'
   },
   card: {
     marginBottom: 15
-    // display: 'flex'
   },
   cardAction: {
     justifyContent: 'space-between',
@@ -49,7 +49,6 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 8,
     paddingRight: 0
   },
-
   cardList: {
     overflowY: 'scroll',
     height: '90%'
@@ -57,6 +56,10 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function CommunicationPanel(props) {
+  const classes = useStyles()
+  const { t } = useTranslation(['common', 'maps'])
+
+  // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
     timeStyle: 'short',
@@ -64,29 +67,32 @@ export default function CommunicationPanel(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const classes = useStyles()
-  const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
   const [commsData, getCommsData, applyFilterByText] = useCommList()
-  const [height, setHeight] = React.useState(window.innerHeight)
 
+  const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
 
+  // handle the text changes in the search field
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
 
+  // on click of the search button
   const searchInComm = () => {
     if (searchText !== undefined) {
       applyFilterByText(searchText)
     }
   }
+
+  // calls the passed function to fly in the map to the desired point
   const flyToCoords = function (latitude, longitude) {
     props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
+  // Calls the data only the first time is needed
   useEffect(() => {
     getCommsData(
       0,
@@ -100,11 +106,11 @@ export default function CommunicationPanel(props) {
     )
   }, [])
 
+  // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-
 
   return (
     <div className="container">
@@ -131,7 +137,11 @@ export default function CommunicationPanel(props) {
         )}
       </span>
       {!commsData.isLoading ? (
-        <div className={classes.container} id="scrollableElem" style={{ height: height - 270 }}>
+        <div
+          className={classes.fixHeightContainer}
+          id="scrollableElem"
+          style={{ height: height - 270 }}
+        >
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -155,7 +165,6 @@ export default function CommunicationPanel(props) {
                 </div>
               }
               scrollableTarget="scrollableElem"
-              // className={classes.cardList}
             >
               {commsData.data.map((elem, i) => {
                 return (
@@ -176,11 +185,23 @@ export default function CommunicationPanel(props) {
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.message}
                       </Typography>
+                      <>
+                        <Typography
+                          component={'span'}
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ textTransform: 'uppercase' }}
+                        >
+                          {t('maps:organization')}:&nbsp;
+                        </Typography>
+                        <Typography component={'span'} variant="body1">
+                          {elem.organizationName}
+                        </Typography>
+                      </>
                       <Typography color="textSecondary">
                         {' '}
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
                         {formatter.format(new Date(elem.duration?.upperBound as string))}
-                        {/* {elem.duration?.lowerBound} - {elem.duration?.upperBound} */}
                       </Typography>
                     </CardContent>
                     <CardActions className={classes.cardAction}>

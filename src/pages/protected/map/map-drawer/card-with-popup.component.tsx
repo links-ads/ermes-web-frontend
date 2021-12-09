@@ -46,8 +46,7 @@ export default function CardWithPopup(props) {
             props.id,
             SOURCE_ID
           )
-          // console.log('IDS', props.id, result.id, SOURCE_ID)
-          // console.log(result)
+
           if (result.type) {
             switch (result.type) {
               case 'point':

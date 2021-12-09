@@ -3,7 +3,6 @@ import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import styled from 'styled-components'
 import FilterListIcon from '@material-ui/icons/FilterList'
-import { FilterTooltip } from './filter-button-tooltip.component'
 
 
 const FilterButtonContainer = styled.div.attrs({
