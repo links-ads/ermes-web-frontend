@@ -15,6 +15,7 @@ import { TextField, IconButton, CircularProgress } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
 import usePeopleList from '../../../../hooks/use-people-list.hook'
+import ItemCounter from './item-counter'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -152,6 +153,7 @@ export default function PeoplePanel(props) {
           id="scrollableElem"
           style={{ height: height - 280 }}
         >
+          <ItemCounter itemCount={peopData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {

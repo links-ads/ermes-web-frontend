@@ -74,5 +74,6 @@
   "submitted": "Inviato",
   "inaccurate": "Inaccurato", 
   "inappropriate": "Inappropriato", 
-  "validated": "Validato"
+  "validated": "Validato",
+  "number_of_items": "Numero di elementi"
 }
