@@ -18,6 +18,7 @@ import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
+import ItemCounter from './item-counter'
 
 const useStyles = makeStyles(() => ({
   searchField: {
@@ -150,6 +151,7 @@ export default function MapRequestsPanel(props) {
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
+          <ItemCounter itemCount={mapRequestsData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {

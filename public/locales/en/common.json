@@ -59,5 +59,6 @@
   "submitted": "Submitted",
   "inaccurate": "Inaccurate", 
   "inappropriate": "Inappropriate", 
-  "validated": "Validated"
+  "validated": "Validated",
+  "number_of_items": "Number of Items"
 }

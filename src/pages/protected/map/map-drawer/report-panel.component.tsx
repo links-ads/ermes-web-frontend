@@ -19,6 +19,7 @@ import CardWithPopup from './card-with-popup.component'
 import SearchIcon from '@material-ui/icons/Search'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import CircularProgress from '@material-ui/core/CircularProgress'
+import ItemCounter from './item-counter'
 
 const useStyles = makeStyles((theme) => ({
   cardList: {
@@ -80,6 +81,10 @@ const useStyles = makeStyles((theme) => ({
     padding: '0px',
     height: 178,
     display: 'inline-block'
+  },
+  fixHeightContainer: {
+    height: window.innerHeight - 270,
+    overflowY: 'scroll'
   }
 }))
 
@@ -167,7 +172,12 @@ export default function ReportPanel(props) {
       </span>
       {/* List of reports */}
       {!repsData.isLoading ? (
-        <div className="containerWithSearch" id="scrollableElem" style={{ height: height - 280 }}>
+        <div
+          className={classes.fixHeightContainer}
+          id="scrollableElem"
+          style={{ height: height - 280 }}
+        >
+          <ItemCounter itemCount={repsData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
