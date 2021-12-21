@@ -44,13 +44,14 @@
   "user_mobile_phone": "Cellulare: {{mobilePhone}}",
   "user_role": "Ruolo: {{role}}",
   "org_name": "Organizzazione: {{organizationName}}",
-  "date_picker_test_start":"Data di inizio",
-  "date_picker_test_end":"Data di fine",
-  "page_social":"Social",
+  "date_picker_test_start": "Data di inizio",
+  "date_picker_test_end": "Data di fine",
+  "page_social": "Social",
   "search": "Cerca",
   "loading": "Caricamento",
   "end_of_list": "Fine lista",
   "view_in_map": "Vedi in mappa",
   "image_not_available": "Immagine non disponibile",
-  "page_events":"Eventi"
+  "page_events": "Eventi",
+  "number_of_items": "Numero di elementi"
 }
