@@ -5,7 +5,7 @@ const ItemCounter = (props) => {
   const { t } = useTranslation(['common'])
   return (
     <h2>
-      {t('common:number_of_items')}: {props.itemCount}
+      {t('common:number_of_items')}: {props.itemCount && props.itemCount >= 0 ? props.itemCount : 0}
     </h2>
   )
 }
