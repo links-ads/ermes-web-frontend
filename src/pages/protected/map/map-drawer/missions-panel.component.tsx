@@ -16,6 +16,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
+import ItemCounter from './item-counter'
 
 const useStyles = makeStyles(() => ({
   searchField: {
@@ -142,6 +143,7 @@ export default function CommunicationPanel(props) {
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
+          <ItemCounter itemCount={missionsData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
