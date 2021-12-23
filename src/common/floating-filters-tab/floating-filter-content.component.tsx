@@ -265,8 +265,8 @@ export function Tab1(props) {
                       //render select within accordion
                       case 'select':
                         return (
-                          <div key={i} className={classes.block}>
-                            <FormControl key={i} className={classes.formControl}>
+                          <div key={elem.name} className={classes.block}>
+                            <FormControl className={classes.formControl}>
                               <InputLabel id={'demo-simple-select-label_' + i}>
                                 {elem.name}
                               </InputLabel>
@@ -283,9 +283,9 @@ export function Tab1(props) {
                                 }}
                                 style={{ textAlign: 'start' }}
                               >
-                                {elem.options.map((e) => {
+                                {elem.options.map(e => {
                                   return (
-                                    <MenuItem value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
+                                    <MenuItem key={e} value={e}>{t('labels:' + e.toLowerCase())}</MenuItem>
                                   )
                                 })}
                               </Select>
@@ -295,7 +295,7 @@ export function Tab1(props) {
                       case 'multipleselect':
                         //render multipleselect within accordion
                         return (
-                          <div className={classes.block}>
+                          <div key={elem.name} className={classes.block}>
                             <FormControl className={classes.formControl}>
                               <InputLabel id="demo-mutiple-checkbox-label">
                                 {t('labels:' + elem.name.toLowerCase())}
