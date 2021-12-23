@@ -249,7 +249,7 @@ export default function ReportPanel(props) {
                           {formatter.format(new Date(elem.timestamp as string))}
                         </Typography>
                         <Typography variant="body2" color="textSecondary" component="p">
-                          {elem.description.length > 40
+                          {elem?.description?.length > 40
                             ? elem.description.substring(0, 37) + '...'
                             : elem.description}
                         </Typography>
