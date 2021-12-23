@@ -115,7 +115,7 @@ export const initObjectState = {
     multicheckPersons: {
       title: 'multicheck_persons',
       type: 'checkboxlist',
-      options: { Off: true, Moving: true, Active: true },
+      options: { Off: true, Ready:true, Moving: true, Active: true },
       tab: 2
     }
   }

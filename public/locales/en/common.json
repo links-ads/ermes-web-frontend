@@ -45,10 +45,10 @@
   "user_mobile_phone": "Mobile: {{mobilePhone}}",
   "user_role": "Role: {{role}}",
   "org_name": "Organization: {{organizationName}}",
-  "page_events":"Events",
-  "date_picker_test_start":"Starting date",
-  "date_picker_test_end":"Ending date",
-  "page_social":"Social",
+  "page_events": "Events",
+  "date_picker_test_start": "Starting date",
+  "date_picker_test_end": "Ending date",
+  "page_social": "Social",
   "search": "Search",
   "loading": "Loading",
   "end_of_list": "End of list",
@@ -57,7 +57,8 @@
   "private": "Private",
   "public": "Public",
   "submitted": "Submitted",
-  "inaccurate": "Inaccurate", 
-  "inappropriate": "Inappropriate", 
-  "validated": "Validated"
+  "inaccurate": "Inaccurate",
+  "inappropriate": "Inappropriate",
+  "validated": "Validated",
+  "number_of_items": "Number of Items"
 }

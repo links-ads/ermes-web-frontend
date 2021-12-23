@@ -18,7 +18,7 @@ import AppBar from '@material-ui/core/AppBar'
 import Tabs from '@material-ui/core/Tabs'
 import Tab from '@material-ui/core/Tab'
 import { useTranslation } from 'react-i18next'
-import { Tab1, Tab2 } from './flating-filter-content.component'
+import { Tab1, Tab2 } from './floating-filter-content.component'
 import CloseIcon from '@material-ui/icons/Close'
 import FloatingCardContainer from './floating-card-container.component'
 
@@ -119,6 +119,7 @@ export default function FloatingFilterContainer(props) {
         onResize={onResize}
         resizable={true}
       >
+        <>
         <AppBar
           position="static"
           color="default"
@@ -221,6 +222,7 @@ export default function FloatingFilterContainer(props) {
             {t('labels:filter_apply')}
           </Button>
         </CardActions>
+        </>
       </FloatingCardContainer>
     </>
   )
