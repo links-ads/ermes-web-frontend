@@ -1,12 +1,7 @@
 import Typography from '@material-ui/core/Typography'
-import {
-  UsersApiFactory,
-  ProfileDto,
-  UpdateProfileInput
-} from 'ermes-backoffice-ts-sdk'
+import { UsersApiFactory, ProfileDto, UpdateProfileInput } from 'ermes-backoffice-ts-sdk'
 import { TFunction } from 'i18next'
-// import MaterialTable, { Column, Options } from 'material-table'
-import MaterialTable, { Column, Options } from '@material-table/core'
+import MaterialTable, { Column, Options } from 'material-table'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
@@ -15,6 +10,10 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
+import { Box, Chip, MenuItem, OutlinedInput, Select } from '@material-ui/core'
+
+const UserRoles = ['first_responder', 'organization_manager', 'citizen'] as const
+type UserRolesType = typeof UserRoles[number]
 
 const options: Options<any> = {
   sorting: true,
@@ -33,34 +32,76 @@ function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
     {
       title: t('admin:user_avatar'),
       field: 'user.imageUrl',
-      render: (rowData) =>
-        rowData.user.imageUrl ? (
-          <img
-            alt="profile"
-            src={rowData.user.imageUrl}
-            style={{ width: 40, borderRadius: '50%' }}
-          />
-        ) : (
-          <span>-</span> // add default avatar?
-        ),
-        initialEditValue: '',
-        emptyValue: ''
+      render: (rowData) => (
+        <img
+          alt="profile"
+          src={
+            rowData.user.imageUrl
+              ? rowData.user.imageUrl
+              : 'https://via.placeholder.com/40x40.png?text=' + t('common:image_not_available')
+          }
+          style={{ width: 40, borderRadius: '50%' }}
+        />
+      ),
+      initialEditValue: ''
     },
     { title: t('admin:user_username'), field: 'user.username' },
     { title: t('admin:user_email'), field: 'user.email' },
-    { title: t('admin:user_first_name'), field: 'user.firstName' },
-    { title: t('admin:user_last_name'), field: 'user.lastName' },
+    {
+      title: t('admin:user_role'),
+      field: 'user.roles',
+      editable: 'always',
+      // lookup:  UserDto.roles
+      render: (rowData) => (
+        <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {rowData?.user?.roles?.map((value) => (
+            <Chip key={value} label={value} />
+          ))}
+        </Box>
+      ),
+      editComponent: (cellData) => {
+        return (
+          <Select
+            labelId="demo-multiple-name-label"
+            id="demo-multiple-name"
+            multiple
+            value={cellData.value}
+            onChange={(item) => {
+              cellData.value.splice(
+                0,
+                cellData.value.length,
+                ...(item.target.value as UserRolesType[])
+              )
+              console.log(cellData.value)
+            }}
+            input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+            renderValue={(selected) => (
+              <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {(selected as []).map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+          >
+            {UserRoles.map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+          </Select>
+        )
+      }
+    },
     {
       title: t('admin:user_org_name'),
       field: 'organization.id',
       editable: 'onAdd',
       lookup: orgLookup,
       emptyValue: empty,
-      initialEditValue: (lookupKeys.length > 1) ? undefined : empty,      
+      initialEditValue: lookupKeys.length > 1 ? undefined : empty
     }
   ]
 }
-
 
 export function Users() {
   const { isOrgLoading, orgLookup } = useOrgList()
@@ -71,30 +112,15 @@ export function Users() {
   const { displayErrorSnackbar } = useSnackbars()
   const { usersData, isUserLoading, loadUsers, setUserUpdating, updating } = useUsersList()
 
-  const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading 
-  // const lookupObject: any = {}
-
-  // useEffect(() => {
-  //   Object.entries(orgData).forEach(([key, value]: any) => {
-  //     lookupObject[value.id] = value.name
-  //   })
-  // }, [isOverallLoading])
-
-  // const columns = useMemo(
-  //   () => localizeColumns(t, orgLookup),
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [i18n.language]
-  // )
-  // eslint-enable-next-line react-hooks/exhaustive-deps
+  const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [i18n.language]
   )
-  // eslint-enable-next-line react-hooks/exhaustive-deps
 
-
+  console.log('Users', usersData)
   return (
     <AdministrationContainer>
       <div className="table-container">
@@ -122,7 +148,7 @@ export function Users() {
           //options={{ ...options, minBodyHeight: bodyHeight, maxBodyHeight: bodyHeight }}
           localization={localization}
           data={usersData}
-          columns={ localizeColumns(t, orgLookup)}
+          columns={localizeColumns(t, orgLookup)}
           editable={{
             onRowAdd: async (newData: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {

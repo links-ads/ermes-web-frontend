@@ -102,18 +102,22 @@ export default function MapRequestsPanel(props) {
   }
 
   // Calls the data only the first time is needed
-  useEffect(() => {
-    getMapRequestsData(
-      0,
-      (data) => {
-        return data
-      },
-      {},
-      (data) => {
-        return data
-      }
-    )
-  }, [])
+  useEffect(
+    () => {
+      getMapRequestsData(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        }
+      )
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
 
   // Fix height of the list when the window is resized
   useEffect(() => {
