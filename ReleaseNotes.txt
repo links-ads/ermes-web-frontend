@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Management of report visibility and report content in GetFeatureCollection API (#40) 
 
 Ver. 1.2.0 - 2021-12-23
 -----------------------
