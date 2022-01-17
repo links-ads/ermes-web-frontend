@@ -2,7 +2,7 @@ import Typography from '@material-ui/core/Typography'
 import { UsersApiFactory, ProfileDto, UpdateProfileInput } from 'ermes-backoffice-ts-sdk'
 import { TFunction } from 'i18next'
 import MaterialTable, { Column, Options } from 'material-table'
-import React, { useMemo } from 'react'
+import React, { useMemo, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
@@ -11,9 +11,8 @@ import { AdministrationContainer, RefreshButton } from '../../../common/common.c
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { Box, Chip, MenuItem, OutlinedInput, Select } from '@material-ui/core'
-
-const UserRoles = ['first_responder', 'organization_manager', 'citizen'] as const
-type UserRolesType = typeof UserRoles[number]
+import useRolesList from '../../../hooks/use-roles.hook'
+import { RoleDto } from 'ermes-backoffice-ts-sdk'
 
 const options: Options<any> = {
   sorting: true,
@@ -25,9 +24,12 @@ const options: Options<any> = {
   minBodyHeight: '63vh'
 }
 
-function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
+function localizeColumns(t: TFunction, orgLookup, rolesData: RoleDto[]): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
+  const UserRoles = rolesData.map((r) => r.name) as string[]
+  type UserRolesType = typeof UserRoles[number]
+
   return [
     {
       title: t('admin:user_avatar'),
@@ -83,7 +85,8 @@ function localizeColumns(t: TFunction, orgLookup): Column<ProfileDto>[] {
               </Box>
             )}
           >
-            {UserRoles.map((name) => (
+            {
+            UserRoles?.map((name) => (
               <MenuItem key={name} value={name}>
                 {name}
               </MenuItem>
@@ -108,6 +111,7 @@ export function Users() {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const userAPIFactory = UsersApiFactory(backendAPIConfig)
+  const [rolesData, fetchRoles] = useRolesList()
 
   const { displayErrorSnackbar } = useSnackbars()
   const { usersData, isUserLoading, loadUsers, setUserUpdating, updating } = useUsersList()
@@ -120,7 +124,18 @@ export function Users() {
     [i18n.language]
   )
 
-  console.log('Users', usersData)
+  useEffect(() => {
+    fetchRoles(
+      (data) => {
+        return data
+      },
+      {},
+      (data) => {
+        return data
+      }
+    )
+  }, [])
+
   return (
     <AdministrationContainer>
       <div className="table-container">
@@ -148,7 +163,7 @@ export function Users() {
           //options={{ ...options, minBodyHeight: bodyHeight, maxBodyHeight: bodyHeight }}
           localization={localization}
           data={usersData}
-          columns={localizeColumns(t, orgLookup)}
+          columns={localizeColumns(t, orgLookup, rolesData.data)}
           editable={{
             onRowAdd: async (newData: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
