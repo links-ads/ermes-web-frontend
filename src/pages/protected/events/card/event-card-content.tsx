@@ -54,7 +54,7 @@ const EventContent = (props) => {
             },
             { title: t('estimate'), field: 'estimate' }
         ]
-    }, [])
+    }, [t])
 
     const classes = useStyles();
 

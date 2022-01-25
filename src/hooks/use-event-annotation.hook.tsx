@@ -49,7 +49,7 @@ const useEventsAnnotations = () => {
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig), [backendAPIConfig])
 
-    const fetchAnnotations = useCallback((args, page_size, update, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { }) => {
+    const fetchAnnotations = useCallback((args, page_size, update, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { },annotationsState) => {
         let pageNumber = update ? annotationsState.nextPage : 1
         if (update)
             dispatch({ type: 'UPDATE' })
@@ -66,7 +66,7 @@ const useEventsAnnotations = () => {
                 sideEffect(errorData)
                 dispatch({ type: 'ERROR', value: errorData })
             })
-    }, [socialApiFactory, annotationsState])
+    }, [socialApiFactory])
 
     return [annotationsState, fetchAnnotations]
 }
