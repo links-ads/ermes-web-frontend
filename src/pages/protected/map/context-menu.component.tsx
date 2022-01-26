@@ -104,6 +104,12 @@ export const ContextMenu = memo(
                   </ListItemIcon>
                   <ListItemText primary={t("maps:operation_create") + " " + t("maps:Mission")} />
                 </ListItem>,
+                <ListItem key="cmp" onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}>
+                  <ListItemIcon>
+                    <Add />
+                  </ListItemIcon>
+                  <ListItemText primary={t("maps:operation_create") + " " + t("maps:MapRequest")} />
+                </ListItem>,
                 <Divider key="div" />,
                 <ListItem key="cls" onClick={(evt) => onListItemClick(evt)}>
                   <ListItemIcon>

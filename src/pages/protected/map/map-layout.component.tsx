@@ -364,7 +364,7 @@ export function MapLayout(props) {
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
-        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication'].includes(type)) {
+        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication','MapRequest'].includes(type)) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
           displayWarningSnackbar('Cannot create feature of type ' + type)
