@@ -112,23 +112,24 @@ export function Map() {
   const [getLayersState, handleGetLayersCall, resetGetLayersState] = useAPIHandler(false)
 
   const layerId2Tiles = useMemo(() => {
-    if (Object.keys(getLayersState.result).length == 0) return {}
+    if (Object.keys(getLayersState.result).length === 0) return {}
     if (!getLayersState.result.data['layerGroups']) return {}
     let data2Tiles = {}
+    
+    getLayersState.result.data['layerGroups'].forEach((group) => {
+      group['subGroups'].forEach((subGroup) => {
+        subGroup['layers'].forEach((layer) => {
+          let namestimesDict: { [key: string]: string } = {}
 
-    getLayersState.result.data['layerGroups'].map((group) => {
-      group['subGroups'].map((subGroup) => {
-        subGroup['layers'].map((layer) => {
-          let names = [] as any[]
-          let times = [] as any[]
-
-          layer['details'].map((detail) => {
-            names.push(...Array(detail['timestamps'].length).fill(detail['name']))
-            times.push(...detail['timestamps'])
+          layer['details'].forEach((detail) => {
+            detail['timestamps'].forEach((timestamp) => {
+              namestimesDict[timestamp + 'Z'] = detail['name']
+            })
           })
+          
           data2Tiles[layer['dataTypeId']] = {
-            names: names,
-            timestamps: times,
+            names: Object.values(namestimesDict),
+            timestamps: Object.keys(namestimesDict),
             subGroup: layer['name']
           }
         })

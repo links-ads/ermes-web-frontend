@@ -44,7 +44,11 @@ export default function useRolesList() {
       repApiFactory
         .rolesGetRoles()
         .then((result) => {
-          let newData: RoleDto[] = transformData(result.data.roles) || []
+          let newData: RoleDto[] =
+            transformData(result.data.roles).filter((elem) => {
+              return elem.name !== 'administrator'
+            }) || []
+
           dispatch({ type: 'RESULT', value: newData })
         })
         .catch((err) => {

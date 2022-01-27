@@ -2,7 +2,7 @@ import Typography from '@material-ui/core/Typography'
 import { UsersApiFactory, ProfileDto, UpdateProfileInput } from 'ermes-backoffice-ts-sdk'
 import { TFunction } from 'i18next'
 import MaterialTable, { Column, Options } from 'material-table'
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
@@ -12,7 +12,9 @@ import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { Box, Chip, MenuItem, OutlinedInput, Select } from '@material-ui/core'
 import useRolesList from '../../../hooks/use-roles.hook'
-import { RoleDto } from 'ermes-backoffice-ts-sdk'
+import { RoleDto, UserDto } from 'ermes-backoffice-ts-sdk'
+import { makeStyles } from '@material-ui/core/styles'
+import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 
 const options: Options<any> = {
   sorting: true,
@@ -23,11 +25,30 @@ const options: Options<any> = {
   maxBodyHeight: '63vh',
   minBodyHeight: '63vh'
 }
+const useStyles = makeStyles((theme) => ({
+  chipContainer: {
+    width: '100%'
+  },
+  chipStyle: {
+    marginBottom: 3,
+    marginRight: '3px',
+    position: 'relative',
+    float: 'left'
+  }
+}))
 
-function localizeColumns(t: TFunction, orgLookup, rolesData: RoleDto[]): Column<ProfileDto>[] {
+function localizeColumns(
+  t: TFunction,
+  orgLookup,
+  rolesData: RoleDto[],
+  classes: ClassNameMap,
+  isSelectorOpen: boolean,
+  setIsSelectorOpen: (elem: boolean) => void
+): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
   const UserRoles = rolesData.map((r) => r.name) as string[]
+
   type UserRolesType = typeof UserRoles[number]
 
   return [
@@ -53,41 +74,54 @@ function localizeColumns(t: TFunction, orgLookup, rolesData: RoleDto[]): Column<
       title: t('admin:user_role'),
       field: 'user.roles',
       editable: 'always',
-      // lookup:  UserDto.roles
+      // lookup:  UserDto.roles,
+      width: '30%',
       render: (rowData) => (
-        <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+        <div className={classes.chipContainer}>
           {rowData?.user?.roles?.map((value) => (
-            <Chip key={value} label={value} />
+            <Chip key={value} label={value} size="small" className={classes.chipStyle} />
           ))}
-        </Box>
+        </div>
       ),
+      initialEditValue: [],
       editComponent: (cellData) => {
         return (
           <Select
             labelId="demo-multiple-name-label"
             id="demo-multiple-name"
             multiple
-            value={cellData.value}
+            
+            open={isSelectorOpen}
+            defaultValue={['first_responder']}
+            value={cellData.value || ['first_responder']}
+            onClick={(e) => {
+              setIsSelectorOpen(true)
+            }}
             onChange={(item) => {
+              // Add the new value to the end array
               cellData.value.splice(
                 0,
                 cellData.value.length,
                 ...(item.target.value as UserRolesType[])
               )
-              console.log(cellData.value)
             }}
             input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
             renderValue={(selected) => (
-              <Box style={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              <div className={classes.chipContainer}>
                 {(selected as []).map((value) => (
-                  <Chip key={value} label={value} />
+                  <Chip key={value} label={value} size="small" className={classes.chipStyle} />
                 ))}
-              </Box>
+              </div>
             )}
           >
-            {
-            UserRoles?.map((name) => (
-              <MenuItem key={name} value={name}>
+            {UserRoles?.map((name) => (
+              <MenuItem
+                key={name}
+                value={name}
+                onClick={(e) => {
+                  setIsSelectorOpen(false)
+                }}
+              >
                 {name}
               </MenuItem>
             ))}
@@ -107,6 +141,7 @@ function localizeColumns(t: TFunction, orgLookup, rolesData: RoleDto[]): Column<
 }
 
 export function Users() {
+  const classes = useStyles()
   const { isOrgLoading, orgLookup } = useOrgList()
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -117,6 +152,7 @@ export function Users() {
   const { usersData, isUserLoading, loadUsers, setUserUpdating, updating } = useUsersList()
 
   const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading
+  const [isSelectorOpen, setisSelectorOpen] = useState(true)
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
@@ -163,11 +199,22 @@ export function Users() {
           //options={{ ...options, minBodyHeight: bodyHeight, maxBodyHeight: bodyHeight }}
           localization={localization}
           data={usersData}
-          columns={localizeColumns(t, orgLookup, rolesData.data)}
+          columns={localizeColumns(
+            t,
+            orgLookup,
+            rolesData.data,
+            classes,
+            isSelectorOpen,
+            setisSelectorOpen
+          )}
           editable={{
             onRowAdd: async (newData: ProfileDto) => {
               const newUserInput: UpdateProfileInput = {
-                user: newData.user,
+                user: {
+                  ...newData.user,
+                  roles: newData['user.roles'],
+                  imageUrl: newData['user.imageUrl']
+                },
                 organizationId: newData.organization?.id || newData['organization.id']
               }
               try {
