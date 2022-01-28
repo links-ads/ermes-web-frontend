@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 
 import { HazardType } from 'ermes-ts-sdk'
 import { GenericDialogProps } from '../map-dialog-edit.component';
+import { _MS_PER_DAY } from '../../../../utils/utils.common';
 
 
 
@@ -72,6 +73,7 @@ export function MapRequestDialog(
                         error={editError && !editState.endDate}
                         helperText={editError && !editState.endDate && t("maps:mandatory_field")}
                         minDate={editState.startDate}
+                        maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
                         InputProps={{
                             endAdornment: endAdornment
                         }}
@@ -113,7 +115,7 @@ export function MapRequestDialog(
                         variant='outlined'
                         color='primary'
                         fullWidth={true}
-                        inputProps={{ min: 0 }}
+                        inputProps={{ min: 0 , max:30}}
                 />
                 </Grid>
             </Grid>

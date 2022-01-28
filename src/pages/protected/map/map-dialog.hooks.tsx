@@ -113,9 +113,10 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         hazard: action.value as HazardType
       }
     case "FREQUENCY":
+      let number = parseInt(action.value)
       return {
         ...currentState,
-        frequency: isNaN(parseInt(action.value as string)) ? "" : action.value
+        frequency: (isNaN(number) || number < 0) ? "0" : (number > 30) ? "30" : number.toString()
       }
     case 'RESET':
       return {
