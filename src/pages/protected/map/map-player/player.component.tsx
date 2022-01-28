@@ -1,17 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
-  Card,
   makeStyles,
   AppBar,
   useTheme,
   Typography,
   IconButton,
   CardContent,
-  Slider,
-  Box
+  Slider
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
-import useLanguage from '../../../../hooks/use-language.hook'
 import CloseIcon from '@material-ui/icons/Close'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
@@ -112,13 +109,13 @@ export function LayersPlayer(props) {
     return insideData.timestamps[value]
   }
 
-  async function skipNext() {
-    if (props.dateIndex < insideData.timestamps.length - 1) {
-      props.setDateIndex(props.dateIndex + 1)
+  const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
+    if (dateIndex < timestampsLength - 1) {
+      setDateIndex(dateIndex + 1)
     } else {
-      props.setDateIndex(0)
+      setDateIndex(0)
     }
-  }
+  },[])
 
   async function playPause() {
     setPlaying(!playing)
@@ -131,10 +128,10 @@ export function LayersPlayer(props) {
 
   useEffect(() => {
     if (playing) {
-      let timer = setTimeout(() => skipNext(), 5000)
+      let timer = setTimeout(() => skipNext(props.dateIndex,insideData.timestamps.length,props.setDateIndex), 5000)
       return () => clearTimeout(timer)
     }
-  }, [playing, props.dateIndex])
+  }, [playing, props.dateIndex,props.setDateIndex,insideData.timestamps,skipNext])
 
   return (
     <FloatingCardContainer
@@ -215,7 +212,7 @@ export function LayersPlayer(props) {
                 <PlayArrowIcon style={{ height: 45, width: 45 }} />
               )}
             </IconButton>
-            <IconButton aria-label="next" onClick={skipNext}>
+            <IconButton aria-label="next" onClick={()=>skipNext(props.dateIndex,insideData.timestamps.length,props.setDateIndex)}>
               <SkipNextIcon />
             </IconButton>
           </div>

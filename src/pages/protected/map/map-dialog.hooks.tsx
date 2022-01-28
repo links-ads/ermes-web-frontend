@@ -224,7 +224,7 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     if (editState.description.length === 0) return false
     if (!editState.endDate) return false
-    if (dialogState.itemType == 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
+    if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
     return true
   }
 

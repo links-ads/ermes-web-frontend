@@ -178,7 +178,7 @@ const ImportComponent = (props) => {
                                     </Grid>
                                 ) : (
                                     <Grid container justify='center' direction='column' alignContent='center' >
-                                        <img src={excelIcon} style={{ objectFit: 'contain' }} />
+                                        <img src={excelIcon} style={{ objectFit: 'contain' }} alt=''/>
                                         <Typography style={{ margin: 5 }}>{fileState.currentFilename}</Typography>
                                     </Grid>
                                 )

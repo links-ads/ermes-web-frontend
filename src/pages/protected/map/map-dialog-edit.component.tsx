@@ -40,8 +40,8 @@ export function DialogEdit({
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig), [backendAPIConfig])
     const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
-    const [orgApiHandlerState, handleOrgAPICall, resetOrgApiHandlerState] = useAPIHandler(false)
-    const [teamsApiHandlerState, handleTeamsAPICall, resetTeamsApiHandlerState] = useAPIHandler(false)
+    const [orgApiHandlerState, handleOrgAPICall, ] = useAPIHandler(false)
+    const [teamsApiHandlerState, handleTeamsAPICall, ] = useAPIHandler(false)
     const endAdornment = useMemo(() => {
         return (<IconButton>
             <TodayIcon />
@@ -49,11 +49,11 @@ export function DialogEdit({
     }, [])
 
     useEffect(() => {
-        if (itemType == 'Mission') {
+        if (itemType === 'Mission') {
             handleOrgAPICall(() => { return orgApiFactory.organizationsGetOrganizations(1000) })
             handleTeamsAPICall(() => { return teamsApiFactory.teamsGetTeams(1000) })
         }
-    }, [])
+    }, [handleOrgAPICall,handleTeamsAPICall,itemType,orgApiFactory,teamsApiFactory])
 
     const orgOptions = useMemo(() => {
         return orgApiHandlerState.result.data ? Object.fromEntries(orgApiHandlerState.result.data.data.map(obj => [obj['id'], obj['name']])) : {}
@@ -61,24 +61,24 @@ export function DialogEdit({
 
     const teamsOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.orgId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] == editState.orgId as number).map(obj => [obj['id'], obj['name']]))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] === editState.orgId as number).map(obj => [obj['id'], obj['name']]))
             : {}
     }, [teamsApiHandlerState, editState.orgId])
 
     const usersOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.teamId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] == editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
             : {}
     }, [teamsApiHandlerState, editState.teamId])
 
     useEffect(() => {
-        if (Object.entries(orgOptions).length == 1)
+        if (Object.entries(orgOptions).length === 1)
             dispatchEditAction({ type: 'COORDINATOR', value: { coordType: CoordinatorType.ORGANIZATION, coordId: Object.entries(orgOptions)[0][0] } })
-    }, [orgOptions])
+    }, [orgOptions,dispatchEditAction])
 
     return (
         <Grid container direction='column'>
-            {itemType == 'Mission' && (
+            {itemType === 'Mission' && (
                 <Grid style={{ marginBottom: 8 }}>
                     <TextField
                         id="title"
@@ -134,9 +134,9 @@ export function DialogEdit({
                         }}
                     />
                 </MuiPickersUtilsProvider>
-                {itemType == 'Mission' && (
+                {itemType === 'Mission' && (
                     <Grid item style={{ marginLeft: 16, flex: 1 }} >
-                        <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={operationType == 'create'}>
+                        <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={operationType === 'create'}>
                             <InputLabel id='select-mission-status-label'>{t("labels:status")}</InputLabel>
                             <Select
                                 labelId='select-mission-status-label'
@@ -160,7 +160,7 @@ export function DialogEdit({
                 )}
             </Grid>
             {
-                itemType == 'Mission' && (
+                itemType === 'Mission' && (
                     <Grid container>
                         <Grid item style={{ flex: 1 }}>
                             <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={Object.entries(orgOptions).length < 2} error={editError && editState.coordinatorType === CoordinatorType.NONE}>
