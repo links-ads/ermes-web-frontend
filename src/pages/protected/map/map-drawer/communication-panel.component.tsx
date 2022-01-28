@@ -105,7 +105,7 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  }, [])
+  },[getCommsData]) // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Fix height of the list when the window is resized
   useEffect(() => {

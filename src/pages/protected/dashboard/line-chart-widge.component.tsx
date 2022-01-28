@@ -1,13 +1,11 @@
 import React, { useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line'
-import { useTranslation } from 'react-i18next'
 import { useTheme } from '@material-ui/core';
 import { ChartTooltip } from '../../../common/stats-cards.components';
 
 export const LineChartWidget = (
     props
 ) => {
-    const { t, i18n } = useTranslation(['labels', 'tables'])
     const theme = useTheme()
 
     const chartData = useMemo(() => {
@@ -27,7 +25,7 @@ export const LineChartWidget = (
             const newArr = (entry[1] as any[]).map(o=>o.y)
             values = values.concat(newArr)
         })
-        let maxValue = [...new Set(values)].reduce(function(a, b) { return Math. max(a, b); });
+        let maxValue = [...new Set(values)].reduce(function(a, b) { return Math.max(a, b); });
         values = [...Array(maxValue+1).keys()]
         return values
     },[props.data])

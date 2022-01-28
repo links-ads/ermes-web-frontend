@@ -70,7 +70,7 @@ export const ContextMenu = memo(
                   <ListItemIcon>
                     <CloseOutlined />
                   </ListItemIcon>
-                  <ListItemText primary={t("maps:operation_close")+" "+"Menu"} />
+                  <ListItemText primary={t("maps:operation_close")+" Menu"} />
                 </ListItem>
               ]
               : [
@@ -115,7 +115,7 @@ export const ContextMenu = memo(
                   <ListItemIcon>
                     <CloseOutlined />
                   </ListItemIcon>
-                  <ListItemText primary={t("maps:operation_close")+" "+"Menu"} />
+                  <ListItemText primary={t("maps:operation_close")+" Menu"} />
                 </ListItem>
               ]}
           </List>

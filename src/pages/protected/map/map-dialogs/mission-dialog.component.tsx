@@ -48,7 +48,7 @@ export function MissionDialog(
     useEffect(() => {
         handleOrgAPICall(() => { return orgApiFactory.organizationsGetOrganizations(1000) })
         handleTeamsAPICall(() => { return teamsApiFactory.teamsGetTeams(1000) })
-    }, [])
+    }, [orgApiFactory,teamsApiFactory,handleOrgAPICall,handleTeamsAPICall])
 
     const orgOptions = useMemo(() => {
         return orgApiHandlerState.result.data ? Object.fromEntries(orgApiHandlerState.result.data.data.map(obj => [obj['id'], obj['name']])) : {}
@@ -56,22 +56,22 @@ export function MissionDialog(
 
     const teamsOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.orgId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] == editState.orgId as number).map(obj => [obj['id'], obj['name']]))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] === editState.orgId as number).map(obj => [obj['id'], obj['name']]))
             : {}
     }, [teamsApiHandlerState, editState.orgId])
 
     const usersOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.teamId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] == editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
             : {}
     }, [teamsApiHandlerState, editState.teamId])
 
     console.log("ORG",orgOptions)
 
     useEffect(() => {
-        if (Object.entries(orgOptions).length == 1)
+        if (Object.entries(orgOptions).length === 1)
             dispatchEditAction({ type: 'COORDINATOR', value: { coordType: CoordinatorType.ORGANIZATION, coordId: Object.entries(orgOptions)[0][0] } })
-    }, [orgOptions])
+    }, [orgOptions,dispatchEditAction])
 
     return (
         <Grid container direction='column'>
@@ -130,7 +130,7 @@ export function MissionDialog(
                     />
                 </MuiPickersUtilsProvider>
                 <Grid item style={{ marginLeft: 16, flex: 1 }} >
-                    <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={operationType == 'create'}>
+                    <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={operationType === 'create'}>
                         <InputLabel id='select-mission-status-label'>{t("labels:status")}</InputLabel>
                         <Select
                             labelId='select-mission-status-label'

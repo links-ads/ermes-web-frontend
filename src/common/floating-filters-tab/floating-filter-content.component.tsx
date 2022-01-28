@@ -2,7 +2,7 @@
 This component is meant to render dynamically the content 
 in src\pages\protected\map\map-filters-init.state.ts
  */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { makeStyles } from '@material-ui/core/styles'
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
@@ -107,15 +107,15 @@ export function Tab1(props) {
     setStartDate(date)
   }
 
-  const handleEndDateChange = async (date: Date | null, e: null | React.MouseEvent = null) => {
+  const handleEndDateChange = useCallback( (date: Date | null, e: null | React.MouseEvent = null,filters:{},setFilters,setEndDate) => {
     if (e) {
       e.stopPropagation()
     }
     const newFilter = filters
     newFilter['dateend'].selected = date
-    props.setFilters({ ...newFilter })
+    setFilters({ ...newFilter })
     setEndDate(date)
-  }
+  },[])
 
   // function that renders in the dropdown menu the names, if 3+ it adds dots to avoid cluttering
   const renderValues = (selected, prefix) => {
@@ -137,10 +137,11 @@ export function Tab1(props) {
         selectedStartDate?.getTime(),
         selectedEndDate?.getTime(),
         props.filters['dateend'].range * _MS_PER_DAY,
-        (newDate) => handleEndDateChange(new Date(newDate))
+        (newDate) => handleEndDateChange(new Date(newDate),null,props.filters,
+                                          props.setFilters,setEndDate)
       )
     }
-  }, [props.filters, selectedStartDate, selectedEndDate])
+  }, [props.filters, selectedStartDate, selectedEndDate, handleEndDateChange, props.setFilters, setEndDate])
 
   // if exists date end|start set it, otherwhise set null
   useEffect(() => {
@@ -201,7 +202,8 @@ export function Tab1(props) {
                 id="end-date-picker-inline"
                 label={t('common:date_picker_test_end')}
                 value={selectedEndDate}
-                onChange={handleEndDateChange}
+                onChange={(d)=>handleEndDateChange(d,null,props.filters,
+                  props.setFilters,setEndDate)}
                 disableFuture={false}
                 autoOk={true}
                 ampm={false}
@@ -218,7 +220,8 @@ export function Tab1(props) {
                   endAdornment:
                     filters.dateend.clear && selectedEndDate != null ? (
                       <IconButton
-                        onClick={(e) => handleEndDateChange(null, e)}
+                        onClick={(e) => handleEndDateChange(null, e,props.filters,
+                          props.setFilters,setEndDate)}
                         className={classes.clearButton}
                       >
                         <ClearIcon />
@@ -335,6 +338,7 @@ export function Tab1(props) {
                             </FormControl>
                           </div>
                         )
+                      default: return (<div></div>)
                     }
                   })}
                 </AccordionDetails>
@@ -404,6 +408,7 @@ export function Tab1(props) {
                 </Select>
               </FormControl>
             )
+          default: return (<div></div>)
         }
       })}
     </div>
@@ -414,10 +419,12 @@ export function Tab1(props) {
 export function Tab2(props) {
 
   const filters = props.filters
+  const filtersMultiCheckActivities = useMemo(()=>filters?.multicheckActivities, [filters])
+  
   const { t } = useTranslation(['labels'])
 
   // return true if all the filters are selected, otherwise false
-  const handleSelectAll = () => {
+  const handleSelectAll = useCallback( () => {
     for (let elem of Object.keys(filters?.multicheckCategories.options)) {
       if (!filters?.multicheckCategories.options[elem]) {
         return false
@@ -436,7 +443,7 @@ export function Tab2(props) {
       }
     }
     return true
-  }
+  },[filters])
 
   // create a varaible to track the selected objects
   const [selectAll, setSelectAll] = useState<boolean>(handleSelectAll())
@@ -474,7 +481,7 @@ export function Tab2(props) {
 
   useEffect(() => {
     setSelectAll(handleSelectAll())
-  }, [filters?.multicheckActivities, handleSelectAll])
+  }, [filtersMultiCheckActivities, handleSelectAll])
 
   return (
     <>

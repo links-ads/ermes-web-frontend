@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from 'react'
+import { useCallback, useReducer, useState } from 'react'
 import { useSnackbars } from './use-snackbars.hook'
 
 type APIHandlerStateType = {
@@ -45,6 +45,7 @@ const reducer = (
 }
 
 const useAPIHandler = (withSnackbars: boolean = true) => {
+  const [withSnack] = useState(withSnackbars)
   const [apiHandlerState, dispatch] = useReducer(reducer, initialState)
   const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
 
@@ -54,16 +55,16 @@ const useAPIHandler = (withSnackbars: boolean = true) => {
       callable()
         .then((result) => {
           dispatch({ type: 'RESULT', value: result })
-          if (withSnackbars) displaySuccessSnackbar(successMessage)
+          if (withSnack) displaySuccessSnackbar(successMessage)
           successCallback()
         })
         .catch((error) => {
           dispatch({ type: 'ERROR' })
-          if (withSnackbars) displayErrorSnackbar(error)
+          if (withSnack) displayErrorSnackbar(error)
           errorCallback()
         })
     },
-    [displayErrorSnackbar, displaySuccessSnackbar]
+  [displayErrorSnackbar, displaySuccessSnackbar,withSnack]
   )
 
   const resetApiHandlerState = useCallback(() => dispatch({ type: 'RESET' }), [])

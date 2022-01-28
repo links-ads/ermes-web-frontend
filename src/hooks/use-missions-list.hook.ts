@@ -46,7 +46,7 @@ export default function useMissionsList() {
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)
-  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+  const [storedFilters, , ] = useMemoryState(
     'memstate-map',
     null,
     false

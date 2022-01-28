@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
-import { Chip, IconButton, TextField, useTheme } from '@material-ui/core'
+import { Chip, IconButton, useTheme } from '@material-ui/core'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
@@ -11,7 +11,6 @@ import blueGrey from '@material-ui/core/colors/blueGrey'
 // import pink from '@material-ui/core/colors/pink'
 // import purple from '@material-ui/core/colors/purple'
 import orange from '@material-ui/core/colors/orange'
-import { ItemWithLatLng } from '../map.contest'
 import { makeStyles } from '@material-ui/core/styles'
 import CardContent from '@material-ui/core/CardContent'
 import Table from '@material-ui/core/Table'
@@ -23,9 +22,7 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
-import CardActionArea from '@material-ui/core/CardActionArea'
 import CardMedia from '@material-ui/core/CardMedia'
-import CloseIcon from '@material-ui/icons/Close'
 import useReportById from '../../../../hooks/use-report-by-id.hook'
 import Carousel from 'react-material-ui-carousel'
 import CircularProgress from '@material-ui/core/CircularProgress'
@@ -481,16 +478,16 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
 }
 
 const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenModal, theme) => {
-  function getModalStyle() {
-    const top = 50
-    const left = 50
+  // function getModalStyle() {
+  //   const top = 50
+  //   const left = 50
 
-    return {
-      top: `${top}%`,
-      left: `${left}%`,
-      transform: `translate(-${top}%, -${left}%)`
-    }
-  }
+  //   return {
+  //     top: `${top}%`,
+  //     left: `${left}%`,
+  //     transform: `translate(-${top}%, -${left}%)`
+  //   }
+  // }
 
   const details = data?.data?.feature?.properties
 
@@ -943,7 +940,7 @@ export function EmergencyContent({
       default:
         break
     }
-  }, [rest.id, fetchRepDetails])
+  }, [rest.id, fetchRepDetails,fetchCategoriesList, fetchCommDetails, fetchMissDetails, fetchMapReqDetails,type])
 
   // useEffect(() => {
   //   console.log('REP DETAILS', repDetails)

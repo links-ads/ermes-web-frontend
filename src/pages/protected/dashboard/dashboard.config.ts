@@ -1,6 +1,5 @@
 // import { nanoid } from 'nanoid'
 import { customAlphabet } from 'nanoid'
-import { intInRange } from '../../../utils/number.utils'
 
 // Due to padding or whatever, breakpoints are determined slightly differently wrt MUI
 // even though MUI:xl = RGL:lg, MUI:lg = RGL:md,... with the follwing keys
@@ -33,7 +32,7 @@ export interface IDashboardWidgetLayoutConfig {
   description?: string
 }
 
-const wtypes: WidgetType[] = ['empty', 'test', 'piechart', 'barchart']
+// const wtypes: WidgetType[] = ['empty', 'test', 'piechart', 'barchart']
 
 /**
  * Generate a random config of empty widgets

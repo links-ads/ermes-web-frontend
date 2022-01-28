@@ -113,7 +113,7 @@ export default function MapRequestsPanel(props) {
         return data
       }
     )
-  }, [])
+  }, [getMapRequestsData])
 
   // Fix height of the list when the window is resized
   useEffect(() => {
