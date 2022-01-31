@@ -31,7 +31,7 @@ import { MapHeadDrawer } from '../../../../common/map/map-drawer'
 import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
 import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
 import { MapContainer } from '../../map/common.components';
-import { getDefaultFilterArgs, getFilterObjFromFilters, _MS_PER_DAY } from '../../../../utils/utils.common'
+import { getDefaultFilterArgs, getFilterObjFromFilters } from '../../../../utils/utils.common'
 import mapboxgl from 'mapbox-gl'
 
 const DEBOUNCE_TIME = 200 //ms
@@ -48,6 +48,9 @@ const EventMap = (props) => {
     features: []
   })
 
+  // Parse props
+  const {mapRef,leftClickState,setLeftClickState,data} = props
+
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
 
   const filtersObj = useMemo(() => {
@@ -56,7 +59,7 @@ const EventMap = (props) => {
 
   const initObj = useMemo(() => {
     return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos, false)
-  }, [props.filtersState])
+  }, [props.filtersState,mapConfig])
 
 
   const updateMarkers = useCallback((map) => {
@@ -80,18 +83,22 @@ const EventMap = (props) => {
 
   // update markers as soon as the hover state changes
   useEffect(() => {
-    let map = props.mapRef?.current?.getMap()
+    let map = mapRef?.current?.getMap()
     if (!map) return
     updateMarkers(map)
-  }, [props.mapHoverState, updateMarkers])
+  }, [props.mapHoverState,mapRef, updateMarkers])
 
   useEffect(() => {
-    let map = props.mapRef?.current?.getMap()
+    let map = mapRef?.current?.getMap()
     if (map) {
-      clearEventMap(map, props.setLeftClickState, props.leftClickState)
-      setGeoJsonData(parseEventDataToGeoJson(props.data))
+      if(leftClickState.showPoint)
+        clearEventMap(map, setLeftClickState, leftClickState)
     }
-  }, [props.data, props.mapRef])
+  }, [data, mapRef])
+
+  useEffect(() => {
+    setGeoJsonData(parseEventDataToGeoJson(data))
+  }, [data])
 
   return (
     <div
@@ -134,9 +141,9 @@ const EventMap = (props) => {
           onClick={(evt) =>
             mapClickHandler(
               evt,
-              props.mapRef,
-              props.leftClickState,
-              props.setLeftClickState,
+              mapRef,
+              leftClickState,
+              setLeftClickState,
               props.spiderifierRef
             )
           }
@@ -178,7 +185,7 @@ const EventMap = (props) => {
           </div>
           <Slide
             direction="left"
-            in={props.leftClickState.showPoint}
+            in={leftClickState.showPoint}
             mountOnEnter={true}
             unmountOnExit={true}
             timeout={800}
@@ -187,7 +194,7 @@ const EventMap = (props) => {
               <Card raised={false} style={{width:'30%',float:'right',minWidth:300}}>
                 <EventContent
                   mapIdsToHazards={props.filtersState.mapIdsToHazards}
-                  item={props.leftClickState.pointFeatures}
+                  item={leftClickState.pointFeatures}
                   chipSize={'small'}
                   textSizes={{ title: 'body1', body: 'subtitle2' }}
                 />
@@ -200,9 +207,9 @@ const EventMap = (props) => {
           toggleActiveFilterTab={toggleActiveFilterTab}
         ></FilterButton>
       </MapContainer>
-      {props.mapRef.current?.getMap() && (
+      {mapRef.current?.getMap() && (
         <MapStyleToggle
-          mapViewRef={props.mapRef}
+          mapViewRef={mapRef}
           spiderifierRef={props.spiderifierRef}
           direction="right"
         ></MapStyleToggle>

@@ -75,13 +75,6 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     float: 'left'
   },
-  chipPlusImageContainer: {
-    position: 'relative',
-    width: '30%',
-    padding: '0px',
-    height: 178,
-    display: 'inline-block'
-  },
   fixHeightContainer: {
     height: window.innerHeight - 270,
     overflowY: 'scroll'
@@ -137,7 +130,7 @@ export default function ReportPanel(props) {
         return data
       }
     )
-  }, [])
+  }, [getRepsData])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

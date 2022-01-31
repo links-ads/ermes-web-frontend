@@ -19,13 +19,13 @@ function compareProperties(prevProps: EmergencyCardProps, nextProps: EmergencyCa
   )
 }
 
-function comparePropertiesWithPoly(prevProps, nextProps) {
-  return (
-    (prevProps?.item === null && nextProps?.item === null) ||
-    // TODO better use a feature.id here!
-    (prevProps?.latitude === nextProps?.latitude && prevProps?.longitude === nextProps?.longitude)
-  )
-}
+// function comparePropertiesWithPoly(prevProps, nextProps) {
+//   return (
+//     (prevProps?.item === null && nextProps?.item === null) ||
+//     // TODO better use a feature.id here!
+//     (prevProps?.latitude === nextProps?.latitude && prevProps?.longitude === nextProps?.longitude)
+//   )
+// }
 
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {

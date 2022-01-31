@@ -105,7 +105,7 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  }, [])
+  },[getMissionsData])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

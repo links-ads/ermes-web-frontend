@@ -72,5 +72,7 @@
   "description" : "Descrizione",
   "author" : "Autore",
   "activityName" : "Nome attività",
-  "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca"
+  "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca",
+  "frequency_help":"Frequenza deve essere maggiore di 0",
+  "frequency_label":"Frequenza (Giorni)"
 }

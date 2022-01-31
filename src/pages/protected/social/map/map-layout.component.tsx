@@ -19,7 +19,7 @@ import { MapHeadDrawer } from '../../../../common/map/map-drawer';
 
 import FloatingFilterContainer from '../../../../common/floating-filters-tab/floating-filter-container.component'
 import { FilterButton } from '../../../../common/floating-filters-tab/filter-button.component'
-import { getDefaultFilterArgs, getFilterObjFromFilters, _MS_PER_DAY } from '../../../../utils/utils.common';
+import { getDefaultFilterArgs, getFilterObjFromFilters } from '../../../../utils/utils.common';
 import mapboxgl from 'mapbox-gl';
 
 const tweetImage = new Image(50, 50);
@@ -44,25 +44,27 @@ const SocialMap = (props) => {
         type: 'FeatureCollection',
         features: []
     })
+    // Parse props
+    const { mapRef, data,socialFilters,filtersState,leftClickState,setLeftClickState,spiderifierRef } = props
 
     const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState(false)
     const filtersObj = useMemo(() => {
-        return getFilterObjFromFilters(props.socialFilters, props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos)
-    }, [props.socialFilters, props.filtersState])
+        return getFilterObjFromFilters(socialFilters, filtersState.mapIdsToHazards, filtersState.mapIdsToInfos)
+    }, [socialFilters, filtersState])
 
     const initObj = useMemo(() => {
-        return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), props.filtersState.mapIdsToHazards, props.filtersState.mapIdsToInfos)
-    }, [props.filtersState])
-    
+        return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), filtersState.mapIdsToHazards, filtersState.mapIdsToInfos)
+    }, [filtersState, mapConfig])
+
     useEffect(() => {
-        let map = props.mapRef?.current?.getMap()
-        if (props.leftClickState.showPoint)
-            props.setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...props.leftClickState.pointFeatures } })
+        let map = mapRef?.current?.getMap()
+        if (leftClickState.showPoint)
+            setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...leftClickState.pointFeatures } })
         if (map) {
-            props.spiderifierRef.current?.clearSpiders(map)
-            setGeoJsonData(parseDataToGeoJson(props.data))
+            spiderifierRef.current?.clearSpiders(map)
+            setGeoJsonData(parseDataToGeoJson(data))
         }
-    }, [props.mapRef, props.data])
+    }, [mapRef, data,leftClickState,setLeftClickState,spiderifierRef])
 
 
 
@@ -101,7 +103,7 @@ const SocialMap = (props) => {
                     onViewportChange={(nextViewport) => setMapViewport(nextViewport)}
                     ref={props.mapRef}
                     interactiveLayerIds={[TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
-                    onClick={(evt) => mapClickHandler(evt, props.mapRef, props.leftClickState, props.setLeftClickState, mapViewport, props.spiderifierRef)}
+                    onClick={(evt) => mapClickHandler(evt, props.mapRef, leftClickState, setLeftClickState, mapViewport, spiderifierRef)}
                     onLoad={() => {
                         if (props.mapRef.current) {
                             try {
@@ -116,7 +118,7 @@ const SocialMap = (props) => {
                                 });
                                 mapOnLoadHandler(
                                     map,
-                                    props.spiderifierRef,
+                                    spiderifierRef,
                                     props.setSpiderLayerIds,
                                     setMapViewport,
                                     SOURCE_ID,
@@ -125,7 +127,7 @@ const SocialMap = (props) => {
                                     TWEETS_LAYER_PROPS.type,
                                     undefined,
                                     { paint: HOVER_TWEETS_LAYER_PROPS.paint as mapboxgl.SymbolPaint, layout: HOVER_TWEETS_LAYER_PROPS.layout as mapboxgl.AnyLayout })
-                                map.fitBounds(new mapboxgl.LngLatBounds(props.socialFilters['southWest'], props.socialFilters['northEast']), {}, { how: 'fly' })
+                                map.fitBounds(new mapboxgl.LngLatBounds(socialFilters['southWest'], socialFilters['northEast']), {}, { how: 'fly' })
                             }
                             catch (err) {
                                 console.error('Map Load Error', err)
@@ -152,17 +154,17 @@ const SocialMap = (props) => {
                     </div>
                     <Slide
                         direction='left'
-                        in={props.leftClickState.showPoint}
+                        in={leftClickState.showPoint}
                         mountOnEnter={true}
                         unmountOnExit={true}
                         timeout={800}
                     >
                         <MapSlide>
-                            <Card raised={false} style={{width:'30%',float:'right',minWidth:300}}>
+                            <Card raised={false} style={{ width: '30%', float: 'right', minWidth: 300 }}>
                                 <TweetContent
-                                    tweet={props.leftClickState.pointFeatures}
-                                    mapIdsToHazards={props.filtersState.mapIdsToHazards}
-                                    mapIdsToInfos={props.filtersState.mapIdsToInfos}
+                                    tweet={leftClickState.pointFeatures}
+                                    mapIdsToHazards={filtersState.mapIdsToHazards}
+                                    mapIdsToInfos={filtersState.mapIdsToInfos}
                                     textSizes={{
                                         subheader: 'caption',
                                         body: 'body2'
@@ -181,7 +183,7 @@ const SocialMap = (props) => {
             </MapContainer>
             {
                 (props.mapRef.current?.getMap()) &&
-                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={props.spiderifierRef} direction="right"></MapStyleToggle>)
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>)
             }
         </div>
     );

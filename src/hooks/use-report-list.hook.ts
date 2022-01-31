@@ -47,7 +47,7 @@ export default function useReportList() {
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+  const [storedFilters, , ] = useMemoryState(
     'memstate-map',
     null,
     false

@@ -48,7 +48,7 @@ const EventsComponent = (props) => {
     const [spiderLayerIds, setSpiderLayerIds] = useState<string[]>([])
     const [tabValue, setTabValue] = React.useState(0);
 
-    const [eventFiltersMem, setEventFiltersMem, removeEventFiltersMem, getEventFiltersMem] = useMemoryState('memstate-event', JSON.stringify(getDefaultFilterArgs(mapConfig)))
+    const [eventFiltersMem, setEventFiltersMem, , ] = useMemoryState('memstate-event', JSON.stringify(getDefaultFilterArgs(mapConfig)))
     const [eventFiltersState, setEventFiltersState] = useState(JSON.parse(eventFiltersMem!))
 
     useEffect(() => {
@@ -57,8 +57,8 @@ const EventsComponent = (props) => {
 
     useEffect(() => {
         fetchEventsStat(eventFiltersState)
-        fetchEvents(eventFiltersState, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data })
-    }, [eventFiltersState])
+        fetchEvents(eventFiltersState, PAGE_SIZE, false, (data) => { return data }, [], (data) => { return data },eventAnnotations)
+    }, [eventFiltersState,fetchEventsStat,fetchEvents])
 
     useEffect(() => {
         setShownData({ size: MINI_PAGE_SIZE, data: [...eventAnnotations.data].splice(0, MINI_PAGE_SIZE) })
