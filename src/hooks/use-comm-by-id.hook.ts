@@ -51,7 +51,7 @@ const useCommById = () => {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [CommunicationsApiFactory, commByIdState]
+    [commApiFactory, commByIdState]
   )
 
   return [commByIdState, fetchCommById]

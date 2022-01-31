@@ -130,7 +130,7 @@ export default function ReportPanel(props) {
         return data
       }
     )
-  }, [])
+  }, [getRepsData])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

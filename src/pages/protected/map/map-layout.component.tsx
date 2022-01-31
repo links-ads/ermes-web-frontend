@@ -49,9 +49,7 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles } from '@material-ui/styles'
-import { Box, Collapse, createStyles, Fab, IconButton } from '@material-ui/core'
-import SpeedDial from '@material-ui/lab/SpeedDial'
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
+import {  Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -146,6 +144,9 @@ export function MapLayout(props) {
   // Legend toggle
   const [legendToggle, setLegendToggle] = useState(false)
 
+  // Parse props
+  const {goToCoord,setGoToCoord,setMap,setSpiderifierRef} = props
+
   // Map state
   const [
     {
@@ -175,7 +176,7 @@ export function MapLayout(props) {
       console.debug('onFeatureDialogClose', status)
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
-      if (status == 'confirm') {
+      if (status === 'confirm') {
         props.fetchGeoJson()
       }
     },
@@ -228,7 +229,7 @@ export function MapLayout(props) {
         setMapTileId(null)
       }
     }
-  }, [props.selectedLayerId, props.dateIndex])
+  }, [props.selectedLayerId, props.dateIndex,geoServerConfig,mapTileId,props.layerId2Tiles])
 
   // useEffect(() => {
   //   const map = mapViewRef.current?.getMap()!
@@ -364,7 +365,7 @@ export function MapLayout(props) {
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
-        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication'].includes(type)) {
+        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication','MapRequest'].includes(type)) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
           displayWarningSnackbar('Cannot create feature of type ' + type)
@@ -501,23 +502,24 @@ export function MapLayout(props) {
     updateMarkersDebounced
   ])
 
+  
   useEffect(() => {
-    if (props.goToCoord !== undefined) {
+    if (goToCoord !== undefined) {
       mapViewRef.current?.getMap().flyTo(
         {
-          center: new mapboxgl.LngLat(props.goToCoord.longitude, props.goToCoord.latitude),
+          center: new mapboxgl.LngLat(goToCoord.longitude, goToCoord.latitude),
           zoom: 15
         },
         {
           how: 'fly',
-          longitude: props.goToCoord.longitude,
-          latitude: props.goToCoord.latitude,
+          longitude: goToCoord.longitude,
+          latitude: goToCoord.latitude,
           zoom: 15
         }
       )
-      props.setGoToCoord(undefined)
+      setGoToCoord(undefined)
     }
-  }, [props.goToCoord, props.setGoToCoord])
+  }, [goToCoord, setGoToCoord])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -544,9 +546,9 @@ export function MapLayout(props) {
 
   // pass the map for popup over
   useEffect(() => {
-    props.setMap(mapViewRef.current?.getMap())
-    props.setSpiderifierRef(spiderifierRef)
-  }, [])
+    setMap(mapViewRef.current?.getMap())
+    setSpiderifierRef(spiderifierRef)
+  }, [setMap,setSpiderifierRef])
 
   return (
     <>

@@ -1,21 +1,26 @@
-import { useState } from 'react'
+import { useCallback, useState } from "react"
 
 export function useMemoryState(key: string, initialState: any, overwrite: boolean | undefined = false) {
+
+  const [stateKey,] = useState(key)
+
   if (!localStorage.getItem(key) || overwrite) {
     localStorage.setItem(key, initialState)
   }
 
-  const changeItem = (nextState: any) => {
-    localStorage.setItem(key, nextState)
+  const changeItem = useCallback((nextState: any) => {
+    localStorage.setItem(stateKey, nextState)
     return
-  }
+  },[stateKey])
 
-  const removeItem = () => {
-    localStorage.removeItem(key)
+  const removeItem = useCallback(() => {
+    localStorage.removeItem(stateKey)
     return
-  }
-  const getItem = () =>{
-    return localStorage.getItem(key)
-  }
+  },[stateKey])
+
+  const getItem = useCallback(() =>{
+    return localStorage.getItem(stateKey)
+  },[stateKey])
+
   return [getItem(), changeItem, removeItem, getItem] as const
 }

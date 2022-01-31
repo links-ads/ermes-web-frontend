@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
-import { useTranslation } from 'react-i18next'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -36,18 +35,20 @@ export function Map() {
 
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
-    Object.keys((obj?.filters?.multicheckCategories as any).options).map((key) => {
+    
+    Object.keys((obj?.filters?.multicheckCategories as any).options).forEach((key) => {
       if ((obj?.filters?.multicheckCategories as any).options[key]) {
         newFilterList.push(key)
       }
     })
-    Object.keys((obj?.filters?.multicheckPersons as any).options).map((key) => {
+    Object.keys((obj?.filters?.multicheckPersons as any).options).forEach((key) => {
       if ((obj?.filters?.multicheckPersons as any).options[key]) {
         newFilterList.push(key)
       }
     })
+  
     if (obj?.filters?.multicheckActivities) {
-      Object.keys((obj?.filters?.multicheckActivities as any)?.options).map((key) => {
+      Object.keys((obj?.filters?.multicheckActivities as any)?.options).forEach((key) => {
         if (obj?.filters?.multicheckActivities) {
           if ((obj?.filters?.multicheckActivities as any).options[key]) {
             newFilterList.push(key)
@@ -65,7 +66,7 @@ export function Map() {
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
   initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
 
-  let [storedFilters, changeItem, removeStoredFilters, getStoredItems] = useMemoryState(
+  let [storedFilters, changeItem, , ] = useMemoryState(
     'memstate-map',
     JSON.stringify(JSON.parse(JSON.stringify(initObject))),
     false
@@ -109,7 +110,7 @@ export function Map() {
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
   const [selectedLayerId, setSelectedLayerId] = React.useState(NO_LAYER_SELECTED)
-  const [getLayersState, handleGetLayersCall, resetGetLayersState] = useAPIHandler(false)
+  const [getLayersState, handleGetLayersCall, ] = useAPIHandler(false)
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return {}
@@ -151,7 +152,7 @@ export function Map() {
       activitiesList.length > 0
     ) {
       const activitiesObj = {}
-      activitiesList.map((elem) => {
+      activitiesList.forEach((elem) => {
         activitiesObj[elem!.name!] = true
       })
       const newFilterObj = {
@@ -169,7 +170,7 @@ export function Map() {
       setFiltersObj(newFilterObj)
       changeItem(JSON.stringify(newFilterObj))
     }
-  }, [activitiesList, filtersObj])
+  }, [activitiesList, filtersObj,changeItem])
 
   useEffect(() => {
     // console.log('CHANGED FILTER OBJ', filtersObj)
@@ -183,7 +184,7 @@ export function Map() {
         { culture: 'en' }
       )
     })
-  }, [filtersObj])
+  }, [filtersObj,fetchGeoJson,handleGetLayersCall,layersApiFactory])
 
   useEffect(() => {
     if (selectedLayerId !== NO_LAYER_SELECTED) {

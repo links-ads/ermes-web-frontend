@@ -7,7 +7,7 @@ import {
   // WidgetType,
   IDashboardWidgetLayoutConfig,
   // addDashboardWidget,
-  removeDashboardWidget,
+  // removeDashboardWidget,
   computeLayoutsForDashboardWigetConfig,
   LayoutCols,
   EmptyLayouts,
@@ -42,7 +42,10 @@ export function DashboardLayout({
 
   const { statsState, fetchStatistics } = useDashboardStats()
 
-  const [dashboardWidgetsConfig, setDashboardWidgetsConfig] = useState<
+  // const [dashboardWidgetsConfig, setDashboardWidgetsConfig] = useState<
+  //   IDashboardWidgetLayoutConfig[]
+  // >(initialConfig)
+  const [dashboardWidgetsConfig, ] = useState<
     IDashboardWidgetLayoutConfig[]
   >(initialConfig)
   const [breakpoint, setBreakpoint] = useState<string>(
@@ -67,7 +70,7 @@ export function DashboardLayout({
 
   useEffect(() => {
     fetchStatistics(filterArgs)
-  }, [filterArgs])
+  }, [filterArgs,fetchStatistics])
 
   // const removeWidget = useCallback(
   //   (wid: string) => {
