@@ -119,6 +119,7 @@ function localizeColumns(
                 key={name}
                 value={name}
                 onClick={(e) => {
+                  e.stopPropagation()
                   setIsSelectorOpen(false)
                 }}
               >

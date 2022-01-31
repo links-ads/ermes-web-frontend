@@ -115,7 +115,7 @@ export function Map() {
     if (Object.keys(getLayersState.result).length === 0) return {}
     if (!getLayersState.result.data['layerGroups']) return {}
     let data2Tiles = {}
-    
+
     getLayersState.result.data['layerGroups'].forEach((group) => {
       group['subGroups'].forEach((subGroup) => {
         subGroup['layers'].forEach((layer) => {
@@ -123,10 +123,10 @@ export function Map() {
 
           layer['details'].forEach((detail) => {
             detail['timestamps'].forEach((timestamp) => {
-              namestimesDict[timestamp + 'Z'] = detail['name']
+              namestimesDict[timestamp] = detail['name']
             })
           })
-          
+
           data2Tiles[layer['dataTypeId']] = {
             names: Object.values(namestimesDict),
             timestamps: Object.keys(namestimesDict),
@@ -138,7 +138,7 @@ export function Map() {
     return data2Tiles
   }, [getLayersState])
 
-  console.log('getLayersState.result.data', getLayersState.result.data)
+  // console.log('getLayersState.result.data', getLayersState.result.data)
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
@@ -179,7 +179,8 @@ export function Map() {
         undefined,
         undefined,
         filtersObj!.filters!.datestart['selected'],
-        filtersObj!.filters!.dateend['selected']
+        filtersObj!.filters!.dateend['selected'],
+        { culture: 'en' }
       )
     })
   }, [filtersObj])
