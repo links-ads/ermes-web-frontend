@@ -1,6 +1,7 @@
 Ver. 1.2.1 - 2022-01-31
 - Bugfix - Fixed duplicated timestamps in layers (#42)
 - Feature - Management of report visibility and report content in GetFeatureCollection API (#40)
+- Feature - Fix getCategories API, now it supports culture param (#46)
 
 Ver. 1.2.0 - 2021-12-23
 -----------------------
