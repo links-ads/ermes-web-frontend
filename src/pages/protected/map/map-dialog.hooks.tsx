@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Grid } from '@material-ui/core'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
-import { CommunicationsApiFactory, CreateOrUpdateCommunicationInput, CreateOrUpdateMissionInput, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
+import { CommunicationsApiFactory, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, HazardType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.contest'
 import { DialogEdit } from './map-dialog-edit.component'
@@ -38,6 +38,8 @@ export type EditStateType = {
   endDate: Date | null
   description: string
   status: MissionStatusType
+  hazard: HazardType
+  frequency: string
 }
 
 export enum CoordinatorType {
@@ -48,7 +50,7 @@ export enum CoordinatorType {
 }
 
 export type EditActionType = {
-  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET"
+  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "HAZARD" | "FREQUENCY"
   value?: Date | string | any
 }
 
@@ -105,6 +107,17 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         ...currentState,
         status: action.value as MissionStatusType
       }
+    case "HAZARD":
+      return {
+        ...currentState,
+        hazard: action.value as HazardType
+      }
+    case "FREQUENCY":
+      let number = parseInt(action.value)
+      return {
+        ...currentState,
+        frequency: (isNaN(number) || number < 0) ? "0" : (number > 30) ? "30" : number.toString()
+      }
     case 'RESET':
       return {
         title: "",
@@ -115,7 +128,9 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         startDate: new Date(),
         endDate: null,
         description: "",
-        status: MissionStatusType.CREATED
+        status: MissionStatusType.CREATED,
+        hazard: HazardType.FIRE,
+        frequency: "0"
       }
     default:
       throw new Error("Invalid action type")
@@ -123,13 +138,14 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
 }
 
 export function useMapDialog(onDialogClose: (data: any) => void) {
-  const initialEditState = useMemo(() => { return { title: "", startDate: new Date(), endDate: null, description: "", coordinatorType: CoordinatorType.NONE, orgId: -1, teamId: -1, userId: -1, status: MissionStatusType.CREATED } }, [])
+  const initialEditState = useMemo(() => { return { title: "", startDate: new Date(), endDate: null, description: "", coordinatorType: CoordinatorType.NONE, orgId: -1, teamId: -1, userId: -1, status: MissionStatusType.CREATED,hazard:HazardType.FIRE,frequency:"0" } }, [])
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
   const { t } = useTranslation(['maps'])
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig), [backendAPIConfig])
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const mapRequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler()
   const [editState, dispatchEditAction] = useReducer(editReducer, initialEditState)
   const [editError, setEditError] = useState(false)
@@ -222,25 +238,39 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
   }
 
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
-    if (editState.description.length === 0) return false
+    // console.log("FREQUENCY",editState.frequency,typeof editState.frequency,isNaN(editState.frequency))
     if (!editState.endDate) return false
-    if (dialogState.itemType == 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
+    if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
+    if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
+    if (dialogState.itemType === 'MapRequest' && ( isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) ) return false
     return true
   }
 
   const applyHandler = (editState: EditStateType, dialogState: DialogStateType) => {
     const successMessage = `${t("maps:" + dialogState.itemType)} created successfully`
     switch (dialogState.itemType) {
-      case 'Report':
-        console.log("CREATE REPORT")
-        break;
-      case 'ReportRequest':
-        console.log("CREATE REPORT REQUEST")
-        break;
+      // case 'Report':
+      //   console.log("CREATE REPORT")
+      //   break;
+      // case 'ReportRequest':
+      //   console.log("CREATE REPORT REQUEST")
+      //   break;
       case 'Mission':
         console.log("CREATE MISSION with ", getFeatureDto(editState, dialogState))
         handleAPICall(() => {
           return missionsApiFactory.missionsCreateOrUpdateMission(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMissionInput)
+        },successMessage , () => {
+          hideDialog()
+          onDialogClose('confirm')
+        }, () => {
+          hideDialog()
+          onDialogClose('cancel')
+        })
+        break;
+      case 'MapRequest':
+        console.log("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
+        handleAPICall(() => {
+        return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
         },successMessage , () => {
           hideDialog()
           onDialogClose('confirm')
@@ -284,6 +314,10 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
     switch (dialogState.itemType) {
       case 'Communication':
         baseObj['feature']['properties']['message'] = editState.description 
+        break;
+      case 'MapRequest':
+        baseObj['feature']['properties']['hazard'] = editState.hazard 
+        baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
         break;
       case 'Mission':
         baseObj['feature']['properties']['title'] = editState.title 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 import { useUser } from '../../state/auth/auth.hooks'
 import { useTranslation } from 'react-i18next'
@@ -10,9 +10,6 @@ import Typography from '@material-ui/core/Typography'
 export function TitleWidget() {
   const { profile } = useUser()
   const { t } = useTranslation('common')
-  const title = profile
-    ? t('common:authenticated_as', { displayName: profile.user.displayName })
-    : ''
   const location = useLocation()
   const path = location.pathname.split('/')
   path.shift()

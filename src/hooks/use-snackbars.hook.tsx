@@ -1,5 +1,5 @@
 import { useSnackbar, OptionsObject } from 'notistack'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import Close from '@material-ui/icons/Close'
 import IconButton from '@material-ui/core/IconButton'
@@ -15,8 +15,8 @@ function getErrorMessage(err?: ErrorType): string {
     ? typeof err === 'string'
       ? err
       : err instanceof Error
-      ? err.message
-      : err['message'] || ''
+        ? err.message
+        : err['message'] || ''
     : ''
   return errorMessage
 }
@@ -28,7 +28,7 @@ export function useSnackbars() {
   const { t } = useTranslation()
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
 
-  const displayErrorSnackbar = (err: string | Error | object, options: OptionsObject = { variant: 'error', autoHideDuration: 4000}) => {
+  const displayErrorSnackbar = useCallback((err: string | Error | object, options: OptionsObject = { variant: 'error', autoHideDuration: 4000 }) => {
     console.error('Error', err)
     const errorMessage = getErrorMessage(err)
     const message = errorMessage
@@ -48,9 +48,9 @@ export function useSnackbars() {
         </IconButton>
       )
     })
-  }
+  },[enqueueSnackbar, closeSnackbar,t])
 
-  const displayWarningSnackbar = (err: string | Error | object, options: OptionsObject = { variant: 'warning', autoHideDuration: 4000}) => {
+  const displayWarningSnackbar = useCallback((err: string | Error | object, options: OptionsObject = { variant: 'warning', autoHideDuration: 4000 }) => {
     console.warn('Warning', err)
     const errorMessage = t(getErrorMessage(err))
     enqueueSnackbar(errorMessage, {
@@ -67,9 +67,9 @@ export function useSnackbars() {
         </IconButton>
       )
     })
-  }
+  },[enqueueSnackbar, closeSnackbar,t])
 
-  const displayMessage = (message: string, options: OptionsObject = { variant: 'info', autoHideDuration: 4000}) => {
+  const displayMessage = useCallback((message: string, options: OptionsObject = { variant: 'info', autoHideDuration: 4000 }) => {
     console.debug('Snackbar message', message)
     enqueueSnackbar(t(message), {
       ...options,
@@ -83,9 +83,9 @@ export function useSnackbars() {
         </IconButton>
       )
     })
-  }
+  },[enqueueSnackbar, closeSnackbar,t])
 
-  const displaySuccessSnackbar = (message: string, options: OptionsObject = { variant: 'success', autoHideDuration: 4000}) => {
+  const displaySuccessSnackbar = useCallback((message: string, options: OptionsObject = { variant: 'success', autoHideDuration: 4000 }) => {
     console.debug('Snackbar message', message)
     enqueueSnackbar(t(message), {
       ...options,
@@ -99,7 +99,7 @@ export function useSnackbars() {
         </IconButton>
       )
     })
-  }
+  },[enqueueSnackbar, closeSnackbar,t])
 
   return {
     displayErrorSnackbar,

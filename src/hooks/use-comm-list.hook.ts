@@ -49,7 +49,7 @@ export default function useCommList() {
     () => CommunicationsApiFactory(backendAPIConfig),
     [backendAPIConfig]
   )
-  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+  const [storedFilters, , ] = useMemoryState(
     'memstate-map',
     null,
     false

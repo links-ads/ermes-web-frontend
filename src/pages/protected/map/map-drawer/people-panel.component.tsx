@@ -114,7 +114,7 @@ export default function PeoplePanel(props) {
         return data
       }
     )
-  }, [])
+  }, [getPeopData])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

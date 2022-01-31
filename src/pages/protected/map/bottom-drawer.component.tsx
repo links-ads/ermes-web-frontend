@@ -1,33 +1,30 @@
 import React from 'react'
-import { makeStyles, Theme, useTheme } from '@material-ui/core/styles'
+// import { makeStyles } from '@material-ui/core/styles'
 import Drawer from '@material-ui/core/Drawer'
 
 import { useSidebarCollapse } from '@mui-treasury/layout'
-import styled from 'styled-components'
 
-import { useTranslation } from 'react-i18next'
+// const BottomDrawerHeader = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   align-items: center;
+//   justify-content: space-between;
+//   word-break: break-all;
 
-const BottomDrawerHeader = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  word-break: break-all;
+//   h5 {
+//     margin: 0;
+//     padding-left: 8px;
+//   }
+// `
 
-  h5 {
-    margin: 0;
-    padding-left: 8px;
-  }
-`
-
-const BottomDrawerBody = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: ${(props) => props.theme.spacing(1)}px;
-  word-break: break-all;
-  max-height: calc(100% - 48px);
-  overflow-y: auto;
-`
+// const BottomDrawerBody = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   padding: ${(props) => props.theme.spacing(1)}px;
+//   word-break: break-all;
+//   max-height: calc(100% - 48px);
+//   overflow-y: auto;
+// `
 
 interface BottomDrawerProps {
   open: boolean
@@ -36,19 +33,19 @@ interface BottomDrawerProps {
   onCloseButtonClick?: () => void
 }
 
-const useStyles = makeStyles((theme) => ({
-  cardAction: {
-    justifyContent: 'space-between',
-    padding: 16
-  },
-  media: {
-    height: 240
-  },
-  card: {
-    width: '400px',
-    height: 'auto'
-  }
-}))
+// const useStyles = makeStyles((theme) => ({
+//   cardAction: {
+//     justifyContent: 'space-between',
+//     padding: 16
+//   },
+//   media: {
+//     height: 240
+//   },
+//   card: {
+//     width: '400px',
+//     height: 'auto'
+//   }
+// }))
 
 export function BottomDrawerComponent({
   open,
@@ -61,7 +58,6 @@ export function BottomDrawerComponent({
   // Compensate left offset
   const { collapsed, open: leftSidebarOpen } = state
   const leftSidebarCollapsedOpen = collapsed && leftSidebarOpen
-  const classes = useStyles()
   return (
     <Drawer
       anchor={'right'}
