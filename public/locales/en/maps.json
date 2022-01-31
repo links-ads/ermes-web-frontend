@@ -71,5 +71,7 @@
   "category": "Category",
   "description" : "Description",
   "author" : "Author",
-  "activityName" : "Activity Name"
+  "activityName" : "Activity Name",
+  "frequency_help":"Frequency must be greater than 0",
+  "frequency_label":"Frequency (Days)"
 }

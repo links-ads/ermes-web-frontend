@@ -46,7 +46,7 @@ export default function useMapRequestList() {
     const maprequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig), [backendAPIConfig])
     const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
     const mounted = useRef(false)
-    const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    const [storedFilters, , ] = useMemoryState(
         'memstate-map',
         null,
         false
@@ -85,7 +85,7 @@ export default function useMapRequestList() {
                     dispatch({ type: 'ERROR', value: errorData })
                 })
         },
-        [maprequestApiFactory, displayErrorSnackbar, textQuery]
+        [maprequestApiFactory, displayErrorSnackbar, textQuery,storedFilters]
     )
     const applySearchQueryReloadData = (searchQuery: string) => {
         dispatch(initialState)
@@ -106,6 +106,6 @@ export default function useMapRequestList() {
         } else {
             mounted.current = true
         }
-    }, [textQuery])
+    }, [textQuery,fetchMapRequests])
     return [dataState, fetchMapRequests, applySearchQueryReloadData]
 }

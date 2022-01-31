@@ -45,7 +45,7 @@ export default function usePeopleList() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
   // const [filters, setFilters] = useState([])
-  const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+  const [storedFilters, , ] = useMemoryState(
     'memstate-map',
     null,
     false

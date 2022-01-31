@@ -53,7 +53,7 @@ const SocialComponent = (props) => {
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
     const [tabValue, setTabValue] = React.useState(0);
     
-    const [socialFiltersMem, setSocialFiltersMem, removeSocialFiltersMem, getSocialFiltersMem] = useMemoryState('memstate-social',JSON.stringify(getDefaultFilterArgs(mapConfig)))
+    const [socialFiltersMem, setSocialFiltersMem, , ] = useMemoryState('memstate-social',JSON.stringify(getDefaultFilterArgs(mapConfig)))
     const [socialFiltersState, setSocialFiltersState] = useState(JSON.parse(socialFiltersMem!))
 
 

@@ -1,11 +1,11 @@
-import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { GeoJsonApiFactory, FeatureDtoOfGeoJsonItem } from 'ermes-backoffice-ts-sdk'
+import { useCallback, useReducer, useMemo } from 'react'
+import { GeoJsonApiFactory } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
-const MAX_RESULT_COUNT = 9
+
 const initialState = {
     error: false, isLoading: true, data: {
         type: 'FeatureCollection',
@@ -49,10 +49,10 @@ const reducer = (currentState, action) => {
 
 export default function GetApiGeoJson() {
     const [dataState, dispatch] = useReducer(reducer, initialState)
-    const { displayErrorSnackbar } = useSnackbars()
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const repApiFactory = useMemo(() => GeoJsonApiFactory(backendAPIConfig), [backendAPIConfig])
-    const [storedFilters, changeItem, removeStoredFilters] = useMemoryState(
+    const {displayErrorSnackbar} = useSnackbars()
+    const [storedFilters, ,] = useMemoryState(
         'memstate-map',
         null,
         false
@@ -61,9 +61,14 @@ export default function GetApiGeoJson() {
     const fetchGeoJson = useCallback(
         (tot, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { }) => {
             const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-            repApiFactory.geoJsonGetFeatureCollection(
-                (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
-                (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
+            repApiFactory
+              .geoJsonGetFeatureCollection(
+                (filters?.datestart as any)?.selected
+                  ? (filters?.datestart as any)?.selected
+                  : undefined,
+                (filters?.dateend as any)?.selected
+                  ? (filters?.dateend as any)?.selected
+                  : undefined,
                 (filters?.mapBounds as any).northEast[1],
                 (filters?.mapBounds as any).northEast[0],
                 (filters?.mapBounds as any).southWest[1],
@@ -76,24 +81,27 @@ export default function GetApiGeoJson() {
                 (filters?.mapRequests as any).content[2].selected,
                 (filters?.mapRequests as any).content[1].selected,
                 (filters?.mapRequests as any).content[0].selected,
-            )
-                .then((result) => {
-                    dispatch({
-                        type: 'RESULT',
-                        value: {
-                            type: 'FeatureCollection',
-                            features: (result?.data.features || []).map((e, i) => {
-                                return (e as unknown) as GeoJSON.Feature
-                            })
-                        }
+                undefined,
+                (filters?.report as any).content[2].selected,
+                (filters?.report as any).content[3].selected
+              )
+              .then((result) => {
+                dispatch({
+                  type: 'RESULT',
+                  value: {
+                    type: 'FeatureCollection',
+                    features: (result?.data.features || []).map((e, i) => {
+                      return e as unknown as GeoJSON.Feature
                     })
+                  }
                 })
-                .catch((err) => {
-                    displayErrorSnackbar(err)
-                    dispatch({ type: 'ERROR', value: errorData })
-                })
+              })
+              .catch((err) => {
+                displayErrorSnackbar(err)
+                dispatch({ type: 'ERROR', value: errorData })
+              })
         },
-        [repApiFactory, displayErrorSnackbar]
+        [repApiFactory,displayErrorSnackbar]
     )
     return [dataState, fetchGeoJson] //, filterByDate
 }
