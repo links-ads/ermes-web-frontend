@@ -181,7 +181,7 @@ export function Map() {
         undefined,
         filtersObj!.filters!.datestart['selected'],
         filtersObj!.filters!.dateend['selected'],
-        { culture: 'en' }
+        undefined //TODO: add MapRequestCode management
       )
     })
   }, [filtersObj,fetchGeoJson,handleGetLayersCall,layersApiFactory])
