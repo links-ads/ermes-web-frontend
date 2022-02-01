@@ -46,7 +46,7 @@ export function MissionDialog(
     }, [])
 
     useEffect(() => {
-        handleOrgAPICall(() => { return orgApiFactory.organizationsGetOrganizations(1000) })
+        handleOrgAPICall(() => { return orgApiFactory.organizationsGetOrganizations(0, 1000) })
         handleTeamsAPICall(() => { return teamsApiFactory.teamsGetTeams(1000) })
     }, [orgApiFactory,teamsApiFactory,handleOrgAPICall,handleTeamsAPICall])
 
@@ -56,13 +56,13 @@ export function MissionDialog(
 
     const teamsOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.orgId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] === editState.orgId as number).map(obj => [obj['id'], obj['name']]))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['organization']['id'] === editState.orgId).map(obj => [obj['id'], obj['name']]))
             : {}
     }, [teamsApiHandlerState, editState.orgId])
 
     const usersOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.teamId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId as number)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
             : {}
     }, [teamsApiHandlerState, editState.teamId])
 
@@ -162,7 +162,7 @@ export function MissionDialog(
                             value={editState.orgId}
                             renderValue={(orgId) => orgId === -1 ? "" : orgOptions[orgId as number]}
                             onChange={(event) => {
-                                dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.ORGANIZATION, coordId: event.target.value as number } })
+                                dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.ORGANIZATION, coordId: Number(event.target.value) } })
                             }}
                         >
                             {Object.entries(orgOptions).map((e) => {
@@ -185,7 +185,7 @@ export function MissionDialog(
                             value={editState.teamId}
                             renderValue={(teamId) => teamId === -1 ? "" : teamsOptions[teamId as number]}
                             onChange={(event) => {
-                                dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.TEAM, coordId: event.target.value as number } })
+                                dispatchEditAction({ type: "COORDINATOR", value: { coordType: CoordinatorType.TEAM, coordId: Number(event.target.value) } })
                             }}
                             startAdornment={
                                 editState.teamId !== -1 && (
