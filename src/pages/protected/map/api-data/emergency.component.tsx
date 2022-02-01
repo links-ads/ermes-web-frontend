@@ -280,10 +280,10 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
 
   if (data.data?.feature?.properties?.coordinatorPersonId) {
     details.title = 'coord_person'
-    details.content = data.data?.feature?.properties?.coordinatorPersonId.name
+    details.content = data.data?.feature?.properties?.coordinatorPersonId
   } else if (data.data?.feature?.properties?.coordinatorTeamId) {
     details.title = 'coord_team'
-    details.content = data.data?.feature?.properties?.coordinatorPersonId.name
+    details.content = data.data?.feature?.properties?.coordinatorTeamId
   } else if (data.data?.feature?.properties?.organization) {
     details.title = 'coord_org'
     details.content = data.data?.feature?.properties?.organization.name
