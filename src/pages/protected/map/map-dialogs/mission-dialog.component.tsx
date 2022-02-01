@@ -70,7 +70,7 @@ export function MissionDialog(
 
     useEffect(() => {
         if (Object.entries(orgOptions).length === 1)
-            dispatchEditAction({ type: 'COORDINATOR', value: { coordType: CoordinatorType.ORGANIZATION, coordId: Object.entries(orgOptions)[0][0] } })
+            dispatchEditAction({ type: 'COORDINATOR', value: { coordType: CoordinatorType.ORGANIZATION, coordId: Number(Object.entries(orgOptions)[0][0]) } })
     }, [orgOptions,dispatchEditAction])
 
     return (
