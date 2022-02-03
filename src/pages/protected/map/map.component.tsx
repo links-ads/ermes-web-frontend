@@ -19,6 +19,7 @@ import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { LayersPlayer } from './map-player/player.component'
+import { useTranslation } from 'react-i18next'
 
 type MapFeature = CulturalProps
 
@@ -32,7 +33,7 @@ export function Map() {
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
-
+  const { i18n } = useTranslation();
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
     
@@ -181,7 +182,12 @@ export function Map() {
         undefined,
         filtersObj!.filters!.datestart['selected'],
         filtersObj!.filters!.dateend['selected'],
-        undefined //TODO: add MapRequestCode management
+        undefined, //TODO: add MapRequestCode management
+        {
+          headers: {
+            'Accept-Language': i18n.language
+          }
+        }
       )
     })
   }, [filtersObj,fetchGeoJson,handleGetLayersCall,layersApiFactory])
