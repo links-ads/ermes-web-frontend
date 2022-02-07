@@ -1,56 +1,38 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
-// import MaterialTable, { Column, Options } from 'material-table'
-import MaterialTable, { Column, Options } from '@material-table/core'
-import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
+import MaterialTable, { Options } from 'material-table'
+import { AdministrationContainer } from '../../../common/common.components'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
-import { TFunction } from 'i18next'
-import { localizeMaterialTable } from '../../../common/localize-material-table'
-import {
-  useAPIConfiguration
-} from '../../../hooks/api-hooks'
+import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import {
   OrganizationsApiFactory,
   OrganizationDto,
-  CreateOrUpdateOrganizationInput
+  CreateOrUpdateOrganizationInput,
+  DTOrderDir
 } from 'ermes-backoffice-ts-sdk'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_ADMIN } from '../../../App.const'
+import {
+  Select,
+  MenuItem,
+} from '@material-ui/core'
+import customClasses from './organization.module.css'
+import { DTOrder } from 'ermes-ts-sdk'
+import { localizeMaterialTable } from '../../../common/localize-material-table'
 
 const options: Options<any> = {
-  sorting: true,
+  sorting: false,
+  search: true,
+  paging: true,
   pageSize: 10,
-  pageSizeOptions: [10, 20, 30],
-  addRowPosition: 'first',
-  actionsColumnIndex: -1,
+  pageSizeOptions: [10, 20, 30, 40, 50],
   maxBodyHeight: '63vh',
-  minBodyHeight: '63vh'
+  minBodyHeight: '63vh',
+  addRowPosition: 'first', // When adding a new element, where to add it (top or bottom)
+  actionsColumnIndex: -1 // In which position is the actions column, -1 is the last, default is 0
 }
-
-
-function localizeColumns(t: TFunction): Column<OrganizationDto>[] {
-  return [
-    {
-      // see https://material-table.com/#/docs/features/custom-column-rendering
-      title: t('org_logo'),
-      field: 'logoUrl',
-      render: (rowData) => rowData.logoUrl ? (
-        <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
-      ) : (
-        <span>-</span> // add default logo?
-      ),
-      initialEditValue: '',
-      emptyValue: ''
-    },
-    { title: t('org_short_name'), field: 'shortName' },
-    { title: t('org_name'), field: 'name' },
-    { title: t('org_description'), field: 'description' },
-    { title: t('org_website'), field: 'webSite' }
-  ]
-}
-
 
 export function Organizations() {
   const { t, i18n } = useTranslation(['admin', 'tables'])
@@ -58,106 +40,137 @@ export function Organizations() {
   const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig)
   const { displayErrorSnackbar } = useSnackbars()
 
-  const user = useUser()
-  const { orgData, isOrgLoading, loadOrganizations, setOrgUpdating } = useOrgList()
+  const user = useUser();
+  const { orgData } = useOrgList();
 
-  const columns = useMemo(
-    () => localizeColumns(t),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [i18n.language]
-  )
-  // eslint-enable-next-line react-hooks/exhaustive-deps
+  const columns = [
+    {
+      title: t('org_logo'),
+      field: 'logoUrl',
+      render: (rowData) =>
+        rowData.logoUrl ? (
+          <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
+        ) : (
+          <span></span> // add default logo?
+        ),
+      initialEditValue: '',
+      emptyValue: ''
+    },
+    { title: t('org_short_name'), field: 'shortName' },
+    { title: t('org_name'), field: 'name' },
+    { title: t('org_description'), field: 'description' },
+    {
+      title: t('org_parent'),
+      field: 'parentId',
+      render: (rowData) => rowData.parentName,
+      editComponent: (props) => {
+        return (
+          <Select
+            displayEmpty={true}
+            value={props.value || ''}
+            onChange={(e) => {
+              props.onChange(e.target.value)
+            }}
+          >
+            <MenuItem value={undefined}>
+              <em>{t('org_no_parent')}</em>
+            </MenuItem>
+            {orgData
+              .filter((entry) => entry.parentId === null && entry.id !== props.rowData.id)
+              .map((entry) => (
+                <MenuItem key={entry.id} value={entry.id}>
+                  {entry.name}
+                </MenuItem>
+              ))}
+          </Select>
+        )
+      }
+    }
+  ]
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [i18n.language]
   )
-  // eslint-enable-next-line react-hooks/exhaustive-deps
-
-  console.debug('organizations', orgData, isOrgLoading)
 
   return (
     <AdministrationContainer>
-      <div className="table-container">
+      <div className={customClasses['organization-table-container']}>
         <MaterialTable
-          isLoading={isOrgLoading}
-          style={{
-            width: '100%',
-            height: '100%'
-          }}
+          columns={columns}
           title={
             <Typography variant="h5" component="span">
               {t('admin:organizations')}
-              <RefreshButton
-                onClick={() =>
-                  loadOrganizations(/* {
-                    headers: {
-                      Accept: 'application/json'
-                    }
-                  } */)
-                }
-              />
             </Typography>
           }
-          onRowClick={(e, rowData: any) => {
-            return window.location.href = window.location.href + '/teams'
-          }}
           options={options}
-          //options={{ ...options, minBodyHeight: bodyHeight, maxBodyHeight: bodyHeight }}
           localization={localization}
-          data={orgData}
-          columns={columns}
+          data={(query) =>
+            new Promise((resolve, reject) => {
+              orgAPIFactory
+                .organizationsGetOrganizations(
+                  0,
+                  query.pageSize,
+                  query.page * query.pageSize,
+                  0,
+                  query.search,
+                  false,
+                  //TODO: sorting not working
+                  //Current OpenAPI version does not support array in query string
+                  //https://stackoverflow.com/questions/52892768/openapi-query-string-parameter-with-list-of-objects
+                  query.orderBy !== undefined
+                    ? ([
+                        {
+                          column: query.orderBy.field,
+                          dir: query.orderDirection === 'asc' ? DTOrderDir.ASC : DTOrderDir.DESC
+                        }
+                      ] as DTOrder[])
+                    : undefined
+                )
+                .then((response) => {
+                  resolve({
+                    data: response.data.data!,
+                    page: query.page,
+                    totalCount: response.data.recordsTotal!
+                  })
+                })
+            })
+          }
           editable={{
-            isDeleteHidden: (rowData) => true,
-            onRowAdd: (user.isAuthenticated && user.profile?.role === ROLE_ADMIN) ? async (newData: OrganizationDto) => {
-              const newDataInput: CreateOrUpdateOrganizationInput = {
-                organization: newData
-              }
-              try {
-                // loading ON
-                setOrgUpdating(true)
-                await orgAPIFactory.organizationsCreateOrUpdateOrganization(newDataInput)
-                await loadOrganizations() // refresh
-              } catch (err) {
-                displayErrorSnackbar(err.response?.data.error)
-              } finally {
-                // loading OFF
-                setOrgUpdating(false)
-              }
-            } : undefined,
+            onRowAdd:
+              user.isAuthenticated && user.profile?.role === ROLE_ADMIN
+                ? async (newData) => {
+                    const newOrgInput: CreateOrUpdateOrganizationInput = {
+                      organization: {
+                        name: newData.name,
+                        description: newData.description,
+                        shortName: newData.shortName,
+                        logoUrl: newData.logoUrl,
+                        parentId: newData.parentId
+                      }
+                    }
+                    try {
+                      await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
+                      orgData.push(newOrgInput.organization)
+                    } catch (err) {
+                      displayErrorSnackbar((err as any)?.response?.data.error as String)
+                    }
+                  }
+                : undefined,
             onRowUpdate: async (newData: OrganizationDto, oldData?: OrganizationDto) => {
-              const newDataInput: CreateOrUpdateOrganizationInput = {
-                organization: newData
+              const newOrgInput: CreateOrUpdateOrganizationInput = {
+                organization: { ...newData }
               }
               try {
-                // loading ON
-                setOrgUpdating(true)
-                await orgAPIFactory.organizationsCreateOrUpdateOrganization(newDataInput)
-                await loadOrganizations() // refresh
+                await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
               } catch (err) {
-                displayErrorSnackbar(err.response?.data.error)
-              } finally {
-                // loading OFF
-                setOrgUpdating(false)
-              }
-            },
-            onRowDelete: async (oldData: OrganizationDto) => {
-              const id = oldData.id
-              if (typeof id !== undefined) {
-                try {
-                  // loading ON
-                  setOrgUpdating(true)
-                  await orgAPIFactory.organizationsDeleteOrganization(id)
-                  await loadOrganizations() // refresh
-                } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
-                } finally {
-                  // loading OFF
-                  setOrgUpdating(false)
-                }
+                displayErrorSnackbar((err as any)?.response?.data.error as String)
               }
             }
+          }}
+          onRowClick={(e, rowData: any) => {
+            return (window.location.href = window.location.href + '/teams')
           }}
         />
       </div>

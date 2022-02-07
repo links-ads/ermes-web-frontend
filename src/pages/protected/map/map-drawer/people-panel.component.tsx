@@ -191,6 +191,7 @@ export default function PeoplePanel(props) {
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
+                    type="Person"
                   >
                     <div className={classes.details}>
                       <CardContent className={classes.topCard}>

@@ -181,6 +181,7 @@ export default function CommunicationPanel(props) {
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
+                    type='Communication'
                   >
                     {' '}
                     <CardContent>

@@ -189,6 +189,7 @@ export default function MapRequestsPanel(props) {
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
+                    type="MapRequest"
                   >
                     <CardContent>
                       <div className={classes.headerBlock}>

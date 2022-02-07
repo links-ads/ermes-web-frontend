@@ -44,7 +44,7 @@ export default function CardWithPopup(props) {
             GEOJSON_LAYER_IDS,
             CLUSTER_LAYER_ID,
             props.id,
-            SOURCE_ID
+            props.type
           )
 
           if (result.type) {
