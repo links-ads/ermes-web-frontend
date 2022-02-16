@@ -176,7 +176,11 @@ export default function MapDrawer(props) {
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef} />
+              spiderifierRef={props.spiderifierRef}
+              layerSelection={props.layerSelection}
+              setLayerSelection={props.setLayerSelection}
+              layerId2Tiles={props.layerId2Tiles}
+            />
           </TabPanel>
 
         </SwipeableViews>

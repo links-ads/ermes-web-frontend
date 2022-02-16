@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,8 @@ import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import CardWithPopup from './card-with-popup.component'
 
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import { Box } from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+import { Accordion, AccordionDetails, AccordionSummary, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -19,6 +20,7 @@ import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
 import ItemCounter from './item-counter'
+import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
 
 const useStyles = makeStyles(() => ({
   searchField: {
@@ -69,14 +71,6 @@ export default function MapRequestsPanel(props) {
   const classes = useStyles()
   const { t } = useTranslation(['common', 'maps'])
 
-  // time formatter with relative options
-  const dateOptions = {
-    dateStyle: 'short',
-    timeStyle: 'short',
-    hour12: false
-  } as Intl.DateTimeFormatOptions
-  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
-
   const [searchText, setSearchText] = React.useState('')
   const [mapRequestsData, getMapRequestsData, applyFilterByText] = useMapRequestList()
 
@@ -94,11 +88,6 @@ export default function MapRequestsPanel(props) {
     if (searchText !== undefined) {
       applyFilterByText(searchText)
     }
-  }
-
-  // calls the passed function to fly in the map to the desired point
-  const flyToCoords = function (latitude, longitude) {
-    props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
   // Calls the data only the first time is needed
@@ -177,88 +166,18 @@ export default function MapRequestsPanel(props) {
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data.map((elem, i) => {
-                return (
-                  <CardWithPopup
-                    key={'map-request' + String(elem.id)}
-                    keyID={'map-request' + String(elem.id)}
-                    latitude={elem!.centroid!.latitude as number}
-                    longitude={elem!.centroid!.longitude as number}
-                    className={classes.card}
-                    map={props.map}
-                    setMapHoverState={props.setMapHoverState}
-                    spiderLayerIds={props.spiderLayerIds}
-                    id={elem.id}
-                    spiderifierRef={props.spiderifierRef}
-                  >
-                    <CardContent>
-                      <div className={classes.headerBlock}>
-                        <Box component="div" display="inline-block">
-                          <Typography
-                            gutterBottom
-                            variant="h5"
-                            component="h2"
-                            style={{ marginBottom: '0px' }}
-                          >
-                            {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                              ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                              : null}
-                            {elem.hazard}
-                          </Typography>
-                        </Box>
-                        <Box component="div" display="inline-block">
-                          <Typography
-                            color="textSecondary"
-                            style={{ fontSize: '14px', paddingTop: '6px' }}
-                          >
-                            {elem.code}
-                          </Typography>
-                        </Box>
-                      </div>
-                      <div className={classes.pos}>
-                        {['layer', 'status'].map((type) => {
-                          if (elem[type]) {
-                            return (
-                              <>
-                                <Typography
-                                  component={'span'}
-                                  variant="caption"
-                                  color="textSecondary"
-                                  style={{ textTransform: 'uppercase' }}
-                                >
-                                  {t('maps:' + type)}:&nbsp;
-                                  {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
-                                </Typography>
-                                <Typography component={'span'} variant="body1">
-                                  {t('labels:' + elem[type].toLowerCase())}
-                                </Typography>
-                                <br />
-                              </>
-                            )
-                          }
-                          return null
-                        })}
-                      </div>
-                    </CardContent>
-                    <CardActions className={classes.cardAction}>
-                      <Typography color="textSecondary" variant="body2">
-                        {' '}
-                        {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
-                        {formatter.format(new Date(elem.duration?.upperBound as string))}
-                      </Typography>
-                      <IconButton
-                        size="small"
-                        onClick={() =>
-                          flyToCoords(
-                            elem?.centroid?.latitude as number,
-                            elem?.centroid?.longitude as number
-                          )
-                        }
-                        className={classes.viewInMap}
-                      >
-                        <LocationOnIcon />
-                      </IconButton>
-                    </CardActions>
-                  </CardWithPopup>
+                return (<MapRequestCard
+                  key={i}
+                  elem={elem}
+                  setGoToCoord={props.setGoToCoord}
+                  map={props.map}
+                  setMapHoverState={props.setMapHoverState}
+                  spiderLayerIds={props.spiderLayerIds}
+                  spiderifierRef={props.spiderifierRef}
+                  layerSelection={props.layerSelection}
+                  setLayerSelection={props.setLayerSelection}
+                  layerId2Tiles={props.layerId2Tiles}
+                />
                 )
               })}
             </InfiniteScroll>
@@ -266,5 +185,147 @@ export default function MapRequestsPanel(props) {
         </div>
       ) : null}
     </div>
+  )
+}
+
+function MapRequestCard(props) {
+
+  const { t } = useTranslation(['common', 'maps'])
+  // time formatter with relative options
+  const dateOptions = {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    hour12: false
+  } as Intl.DateTimeFormatOptions
+  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+  const classes = useStyles()
+
+  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection } = props
+
+  const handleRadioClick = (event: any) => {
+    let selected = event.target.value.split("_")[1]
+    if ((layerSelection.mapRequestCode === elem.code) && (selected === layerSelection.dataTypeId)) {
+      setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
+    } else {
+      setLayerSelection({ isMapRequest: 1, mapRequestCode: elem.code, dataTypeId: selected })
+    }
+  }
+
+  return (
+    <CardWithPopup
+      key={'map-request' + String(elem.id)}
+      keyID={'map-request' + String(elem.id)}
+      latitude={elem!.centroid!.latitude as number}
+      longitude={elem!.centroid!.longitude as number}
+      className={classes.card}
+      map={map}
+      setMapHoverState={setMapHoverState}
+      spiderLayerIds={spiderLayerIds}
+      id={elem.id}
+      spiderifierRef={spiderifierRef}
+    >
+      <CardContent>
+        <div className={classes.headerBlock}>
+          <Box component="div" display="inline-block">
+            <Typography
+              gutterBottom
+              variant="h5"
+              component="h2"
+              style={{ marginBottom: '0px' }}
+            >
+              {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
+                : null}
+              {elem.hazard}
+            </Typography>
+          </Box>
+          <Box component="div" display="inline-block">
+            <Typography
+              color="textSecondary"
+              style={{ fontSize: '14px', paddingTop: '6px' }}
+            >
+              {elem.code}
+            </Typography>
+          </Box>
+        </div>
+        <div className={classes.pos}>
+          {['layer', 'status'].map((type) => {
+            if (elem[type]) {
+              return (
+                <>
+                  <Typography
+                    component={'span'}
+                    variant="caption"
+                    color="textSecondary"
+                    style={{ textTransform: 'uppercase' }}
+                  >
+                    {t('maps:' + type)}:&nbsp;
+                    {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
+                  </Typography>
+                  <Typography component={'span'} variant="body1">
+                    {t('labels:' + elem[type].toLowerCase())}
+                  </Typography>
+                  <br />
+                </>
+              )
+            }
+            return null
+          })}
+        </div>
+        <div className={classes.pos}>
+          {(elem.status === 'ContentAvailable') && (elem.code in props.layerId2Tiles[1]) && (
+            <Accordion>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Layers</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <FormControl component="fieldset" fullWidth={true}>
+                  <RadioGroup
+                    aria-label="gender"
+                    name="controlled-radio-buttons-group"
+                    value={layerSelection.mapRequestCode+"_"+layerSelection.dataTypeId}
+                  >
+                    {Object.entries(props.layerId2Tiles[1][elem.code]).map(
+                      ([dataTypeId, layerData]: [string, any]) => {
+                        return (<FormControlLabel
+                          key={dataTypeId}
+                          value={elem.code+"_"+dataTypeId}
+                          control={<Radio onClick={handleRadioClick} />}
+                          label={layerData['name']}
+                        />)
+                      }
+                    )}
+                  </RadioGroup>
+                </FormControl>
+              </AccordionDetails>
+            </Accordion>
+            )
+          }
+        </div>
+      </CardContent>
+      <CardActions className={classes.cardAction}>
+        <Typography color="textSecondary" variant="body2">
+          {' '}
+          {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
+          {formatter.format(new Date(elem.duration?.upperBound as string))}
+        </Typography>
+        <IconButton
+          size="small"
+          onClick={() => setGoToCoord(
+            {
+              latitude: elem?.centroid?.latitude as number,
+              longitude: elem?.centroid?.longitude as number
+            })
+          }
+          className={classes.viewInMap}
+        >
+          <LocationOnIcon />
+        </IconButton>
+      </CardActions>
+    </CardWithPopup>
   )
 }

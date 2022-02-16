@@ -194,8 +194,10 @@ export function MapLayout(props) {
 
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
-    if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-      const layerProps = props.layerId2Tiles[props.selectedLayerId]
+    if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {
+      const layerProps = props.layerSelection.isMapRequest === 0 ? 
+        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
+        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
       const layerName = layerProps['names'][props.dateIndex]
       const source = tileJSONIfy(
         map,
@@ -229,12 +231,12 @@ export function MapLayout(props) {
         setMapTileId(null)
       }
     }
-  }, [props.selectedLayerId, props.dateIndex,geoServerConfig,mapTileId,props.layerId2Tiles])
+  }, [props.layerSelection, props.dateIndex,geoServerConfig,mapTileId,props.layerId2Tiles])
 
   // useEffect(() => {
   //   const map = mapViewRef.current?.getMap()!
-  //   if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-  //     const newLayerProps = props.layerId2Tiles[props.selectedLayerId]
+  //   if (props.layerSelection !== NO_LAYER_SELECTED) {
+  //     const newLayerProps = props.layerId2Tiles[props.layerSelection]
   //     const newLayerName = newLayerProps['names'][props.dateIndex]
   //     const newSource = tileJSONIfy(
   //       map,
@@ -685,7 +687,7 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          {props.selectedLayerId !== NO_LAYER_SELECTED ? (
+          {props.layerSelection.dataTypeId !== NO_LAYER_SELECTED ? (
             <PlayerButton visibility={props.togglePlayer} setVisibility={props.setTogglePlayer} />
           ) : null}
         </>
