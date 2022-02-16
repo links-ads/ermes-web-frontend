@@ -10,10 +10,10 @@ const GEOJSON_LAYER_IDS = 'unclustered-point'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    '&:hover': {
-      boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.08)',
-      cursor: 'pointer'
-    }
+    '&:hover > *': {
+        boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.08)',
+        cursor: 'pointer'
+    },
   }
 }))
 

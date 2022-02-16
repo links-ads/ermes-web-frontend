@@ -38,7 +38,7 @@ export function Map() {
   const { i18n } = useTranslation();
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
-    
+
     Object.keys((obj?.filters?.multicheckCategories as any).options).forEach((key) => {
       if ((obj?.filters?.multicheckCategories as any).options[key]) {
         newFilterList.push(key)
@@ -49,7 +49,7 @@ export function Map() {
         newFilterList.push(key)
       }
     })
-  
+
     if (obj?.filters?.multicheckActivities) {
       Object.keys((obj?.filters?.multicheckActivities as any)?.options).forEach((key) => {
         if (obj?.filters?.multicheckActivities) {
@@ -69,7 +69,7 @@ export function Map() {
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
   initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
 
-  let [storedFilters, changeItem, , ] = useMemoryState(
+  let [storedFilters, changeItem, ,] = useMemoryState(
     'memstate-map',
     JSON.stringify(JSON.parse(JSON.stringify(initObject))),
     false
@@ -112,37 +112,107 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [selectedLayerId, setSelectedLayerId] = React.useState(NO_LAYER_SELECTED)
-  const [getLayersState, handleGetLayersCall, ] = useAPIHandler(false)
+  const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
+  const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
 
   const layerId2Tiles = useMemo(() => {
-    if (Object.keys(getLayersState.result).length === 0) return {}
-    if (!getLayersState.result.data['layerGroups']) return {}
+    if (Object.keys(getLayersState.result).length === 0) return [{},{}]
+    if (!getLayersState.result.data['layerGroups']) return [{},{}]
+
+    // Collect datatype ids associated to at least one map request
+    let mapRequestDataTypes = [] as any[]
+    getLayersState.result.data['layerGroups'].forEach((group) => {
+      group['subGroups'].forEach((subGroup) => {
+        subGroup['layers'].forEach((layer) => {
+
+          layer['details'].forEach((detail) => {
+            if (detail['mapRequestCode'])
+              mapRequestDataTypes.push(layer['dataTypeId'])
+          })
+        })
+      })
+    })
+
+    mapRequestDataTypes = [...new Set(mapRequestDataTypes)]
+
     let data2Tiles = {}
+    let mapRequestData2Tiles = {}
 
     getLayersState.result.data['layerGroups'].forEach((group) => {
       group['subGroups'].forEach((subGroup) => {
         subGroup['layers'].forEach((layer) => {
-          let namestimesDict: { [key: string]: string } = {}
 
-          layer['details'].forEach((detail) => {
-            detail['timestamps'].forEach((timestamp) => {
-              namestimesDict[timestamp] = detail['name']
+          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {
+            layer['details'].forEach((detail) => {
+              if (detail['mapRequestCode']) {
+                if (!(detail['mapRequestCode'] in mapRequestData2Tiles)) {
+                  mapRequestData2Tiles[detail['mapRequestCode']] = {}
+                }
+                if (!(layer['dataTypeId'] in mapRequestData2Tiles[detail['mapRequestCode']])) {
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = { name: layer['name'], namesTimes: {} }
+                }
+                detail['timestamps'].forEach((timestamp) => {
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][timestamp] = detail['name']
+                })
+              }
             })
-          })
+          } else {
 
-          data2Tiles[layer['dataTypeId']] = {
-            names: Object.values(namestimesDict),
-            timestamps: Object.keys(namestimesDict),
-            subGroup: layer['name']
+            let namestimesDict: { [key: string]: string } = {}
+
+            layer['details'].forEach((detail) => {
+              detail['timestamps'].forEach((timestamp) => {
+                namestimesDict[timestamp] = detail['name']
+              })
+            })
+
+            data2Tiles[layer['dataTypeId']] = {
+              names: Object.values(namestimesDict),
+              timestamps: Object.keys(namestimesDict),
+              name: layer['name']
+            }
           }
         })
       })
     })
-    return data2Tiles
+    Object.keys(mapRequestData2Tiles).forEach((mapRequestCode) => {
+      Object.keys(mapRequestData2Tiles[mapRequestCode]).forEach((dataTypeId) => {
+        mapRequestData2Tiles[mapRequestCode][dataTypeId]['timestamps'] = Object.keys(mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes'])
+        mapRequestData2Tiles[mapRequestCode][dataTypeId]['names'] = Object.values(mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes'])
+      })
+    })
+    return [data2Tiles, mapRequestData2Tiles]
   }, [getLayersState])
 
-  // console.log('getLayersState.result.data', getLayersState.result.data)
+  const layersData = useMemo(() => {
+    let groupData = [] as any[]
+    if (Object.keys(getLayersState.result).length === 0) return groupData
+    if (!getLayersState.result.data['layerGroups']) return groupData
+    getLayersState.result.data['layerGroups'].forEach((group) => {
+      let subGroupData = [] as any[]
+      group['subGroups'].forEach((subGroup) => {
+        let layerData = [] as any[]
+        subGroup['layers'].forEach((layer) => {
+          if (layer['dataTypeId'] in layerId2Tiles[0]) {
+            layerData.push({
+              name: layer['name'],
+              dataTypeId: layer['dataTypeId']
+            })
+          }
+
+        })
+        if (layerData.length > 0)
+          subGroupData.push({name:subGroup['subGroup'],layers:layerData})
+      })
+      if(subGroupData.length > 0)
+        groupData.push({name:group['group'],subGroups:subGroupData})
+    })
+    return groupData
+  }, [getLayersState])
+  
+  console.log('TILES', layerId2Tiles)
+  console.log('DATA', layersData)
+
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
@@ -173,7 +243,7 @@ export function Map() {
       setFiltersObj(newFilterObj)
       changeItem(JSON.stringify(newFilterObj))
     }
-  }, [activitiesList, filtersObj,changeItem])
+  }, [activitiesList, filtersObj, changeItem])
 
   useEffect(() => {
     // console.log('CHANGED FILTER OBJ', filtersObj)
@@ -185,6 +255,7 @@ export function Map() {
         filtersObj!.filters!.datestart['selected'],
         filtersObj!.filters!.dateend['selected'],
         undefined, //TODO: add MapRequestCode management
+        true,
         {
           headers: {
             'Accept-Language': i18n.language
@@ -192,16 +263,18 @@ export function Map() {
         }
       )
     })
-  }, [filtersObj,fetchGeoJson,handleGetLayersCall,layersApiFactory])
+  }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
-    if (selectedLayerId !== NO_LAYER_SELECTED) {
-      setDateIndex(0)
+    setDateIndex(0)
+    if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
       setTogglePlayer(true)
     } else {
       setTogglePlayer(false)
     }
-  }, [selectedLayerId])
+  }, [layerSelection])
+
+  console.log("DATE OUT", dateIndex)
 
   return (
     <>
@@ -212,6 +285,9 @@ export function Map() {
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
         spiderifierRef={spiderifierRef}
+        layerSelection={layerSelection}
+        setLayerSelection={setLayerSelection}
+        layerId2Tiles={layerId2Tiles}
         setToggleDrawerTab={setToggleSideDrawer}
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
@@ -233,19 +309,19 @@ export function Map() {
           visibility={togglePlayer}
           setVisibility={setTogglePlayer}
           layerId2Tiles={layerId2Tiles}
-          selectedLayerId={selectedLayerId}
+          layerSelection={layerSelection}
           setDateIndex={setDateIndex}
           dateIndex={dateIndex}
         />
 
         <LayersSelectContainer
-          selectedLayerId={selectedLayerId}
-          setSelectedLayerId={setSelectedLayerId}
+          layerSelection={layerSelection}
+          setLayerSelection={setLayerSelection}
           visibility={layersSelectVisibility}
           setVisibility={setLayersSelectVisibility}
           loading={getLayersState.loading}
           error={getLayersState.error}
-          data={getLayersState.result.data}
+          data={layersData}
         />
         <MapStateContextProvider<MapFeature>>
           <MapLayout
@@ -272,7 +348,7 @@ export function Map() {
             changeItem={changeItem}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
-            selectedLayerId={selectedLayerId}
+            layerSelection={layerSelection}
             layerId2Tiles={layerId2Tiles}
             dateIndex={dateIndex}
           />
