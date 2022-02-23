@@ -10,11 +10,12 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
-import { Box, Chip, MenuItem, OutlinedInput, Select } from '@material-ui/core'
+import { Box, Checkbox, Chip, ListItemText, MenuItem, OutlinedInput, Select } from '@material-ui/core'
 import useRolesList from '../../../hooks/use-roles.hook'
 import { RoleDto, UserDto } from 'ermes-backoffice-ts-sdk'
 import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
+import { strictEqual } from 'assert'
 
 const options: Options<any> = {
   sorting: true,
@@ -42,8 +43,8 @@ function localizeColumns(
   orgLookup,
   rolesData: RoleDto[],
   classes: ClassNameMap,
-  isSelectorOpen: boolean,
-  setIsSelectorOpen: (elem: boolean) => void
+  runningSelectorID: number,
+  setRunningSelectorID: (elem: number) => void
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
@@ -74,7 +75,7 @@ function localizeColumns(
       title: t('admin:user_role'),
       field: 'user.roles',
       editable: 'always',
-      // lookup:  UserDto.roles,
+      disableClick: true,
       width: '30%',
       render: (rowData) => (
         <div className={classes.chipContainer}>
@@ -85,27 +86,24 @@ function localizeColumns(
       ),
       initialEditValue: [],
       editComponent: (cellData) => {
+        if (cellData.rowData.user == undefined) {
+          cellData.rowData.user = {
+            roles: ['first_responder']
+          }
+        }
         return (
           <Select
-            labelId="demo-multiple-name-label"
-            id="demo-multiple-name"
-            multiple
-            
-            open={isSelectorOpen}
-            defaultValue={['first_responder']}
-            value={cellData.value || ['first_responder']}
-            onClick={(e) => {
-              setIsSelectorOpen(true)
-            }}
+            labelId="users-multiple-checkbox-label"
+            id="users-multiple-checkbox"
+            value={cellData?.rowData?.user?.roles}
             onChange={(item) => {
-              // Add the new value to the end array
-              cellData.value.splice(
-                0,
-                cellData.value.length,
-                ...(item.target.value as UserRolesType[])
-              )
+              if (cellData?.rowData?.user?.roles?.indexOf(item.target.value as string) === -1) {
+                cellData.rowData.user.roles.push(item.target.value as UserRolesType)
+              } else {
+                cellData?.rowData?.user?.roles?.splice(cellData?.rowData?.user?.roles?.indexOf(item.target.value as UserRolesType), 1)
+              }
             }}
-            input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
+            input={<OutlinedInput label="Tag" />}
             renderValue={(selected) => (
               <div className={classes.chipContainer}>
                 {(selected as []).map((value) => (
@@ -114,16 +112,12 @@ function localizeColumns(
               </div>
             )}
           >
-            {UserRoles?.map((name) => (
+            {UserRoles?.map((role) => (
               <MenuItem
-                key={name}
-                value={name}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsSelectorOpen(false)
-                }}
+                value={role}
+                selected={false}
               >
-                {name}
+                <ListItemText primary={role} />
               </MenuItem>
             ))}
           </Select>
@@ -153,7 +147,7 @@ export function Users() {
   const { usersData, isUserLoading, loadUsers, setUserUpdating, updating } = useUsersList()
 
   const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading
-  const [isSelectorOpen, setisSelectorOpen] = useState(true)
+  const [runningSelectorID, setRunningSelectorID] = useState(0)
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
@@ -205,8 +199,8 @@ export function Users() {
             orgLookup,
             rolesData.data,
             classes,
-            isSelectorOpen,
-            setisSelectorOpen
+            runningSelectorID,
+            setRunningSelectorID
           )}
           editable={{
             onRowAdd: async (newData: ProfileDto) => {
