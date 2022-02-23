@@ -8,7 +8,7 @@ https://github.com/mbrn/material-table/issues/2650 which was causing random cras
 For the table present in the dashboard, the original material-table is used because it contains the export functionality, not available in the materia-table-core library.
 */
 // import MaterialTable, { Column } from 'material-table'
-import MaterialTable, { Column } from '@material-table/core' 
+import MaterialTable, { Column } from '@material-table/core'
 
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
@@ -42,12 +42,12 @@ function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
   return [
     { title: t('admin:team_name'), field: 'name' },
     {
-      title: t('admin:team_org_name'), 
-      field: 'organization.id', 
+      title: t('admin:team_org_name'),
+      field: 'organization.id',
       editable: 'onAdd',
       lookup: orgLookup,
       initialEditValue: (lookupKeys.length > 1) ? undefined : empty,
-      emptyValue:empty
+      emptyValue: empty
     },
     {
       title: t('admin:team_people_count'),
@@ -196,7 +196,7 @@ export function Teams() {
   const { isOrgLoading, orgLookup } = useOrgList()
   // Documents involved in translation
   const { t } = useTranslation(['admin', 'tables'])
-  
+
   // Load api to get the data needed for Teams, set it to backoffice (not public) and load load the configurations
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const teamAPIFactory = TeamsApiFactory(backendAPIConfig)
@@ -211,37 +211,38 @@ export function Teams() {
     { data: result, loading: teamsLoading, error: teamsError },
     loadTeams
   ] = useAxiosWithParamCreator<TmsApiPC, DTResultOfTeamOutputDto | undefined>(opts, false)
-  
+
   const { displayErrorSnackbar } = useSnackbars()
   const teams: TeamOutputDto[] = result?.data || []
   const [updating, setUpdating] = useState<boolean>(false)
   const [data, setData] = useState<TeamOutputDto[]>(teams)
   const isLoading: boolean = updating || teamsLoading || isOrgLoading// true if one true, otherwise false
-  const [membersData, setMembersData] = useState<TeamOutputDto>({})
   const [selectedRow, setSelectedRow] = useState<number>(-1)
-  
+  const [membersData, setMembersData] = useState<TeamOutputDto>(selectedRow !== -1 ? teams[selectedRow] : {})
+
+
   useEffect(() => {
+
     if (!teamsLoading) {
+
       setData(teams)
-      // if (selectedRow !== -1) {
-      //   setMembersData(teams[selectedRow])
-      // }
+
+      if (selectedRow !== -1) {
+        setMembersData(teams.find((team: TeamOutputDto) => team.id === selectedRow) || {})
+      }
     }
-  }, [teamsLoading, selectedRow, teams])
-  
+  }, [teamsLoading, teams, selectedRow])
+
   useEffect(() => {
     if (teamsError) {
       displayErrorSnackbar(teamsError.response?.data.error)
     }
   }, [teamsError, displayErrorSnackbar])
-  
+
   const columns = useMemo(() => localizeColumns(t, orgLookup), [t, orgLookup])
-  
+
   const localization = useMemo(() => localizeMaterialTable(t), [t])
-  
-  useEffect(() => {
-    console.log('DATA TEAMS LIST', data)
-  })
+
   return (
     <AdministrationContainer>
       <div className="not-column-centered">
@@ -279,7 +280,6 @@ export function Teams() {
             data={data}
             columns={columns}
             onRowClick={(e, rowData: any) => {
-              setMembersData(rowData!)
               setSelectedRow(rowData.id!)
             }}
             editable={{
