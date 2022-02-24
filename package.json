@@ -11,7 +11,7 @@
   "dependencies": {
     "@fusionauth/typescript-client": "1.17.3",
     "@material-table/core": "^4.3.5",
-    "@material-ui/core": "^4.11.3",
+    "@material-ui/core": "^4.12.3",
     "@material-ui/icons": "4.9.1",
     "@material-ui/lab": "4.0.0-alpha.56",
     "@mui-treasury/layout": "4.5.0",
@@ -57,7 +57,7 @@
     "konva": "7.2.2",
     "lodash.debounce": "4.0.8",
     "material-design-icons-iconfont": "5.0.1",
-    "material-table": "1.69.1",
+    "material-table": "1.69.3",
     "moment": "2.27.0",
     "nanoid": "3.1.10",
     "node-sass": "4.14.1",

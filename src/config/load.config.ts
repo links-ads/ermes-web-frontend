@@ -1,6 +1,6 @@
 import { AppConfig, MapboxBaseLayersConfig } from './config.types'
 import { DefaultConfig } from './default.config'
-import { ThemeOptions, Theme } from '@material-ui/core/styles/createMuiTheme'
+import { ThemeOptions, Theme } from '@material-ui/core/styles'
 import { createMuiTheme, responsiveFontSizes } from '@material-ui/core/styles'
 import { Palette } from '@material-ui/core/styles/createPalette'
 import { baseUrl, rootUrl, staticAssetsUrl } from './base-path'

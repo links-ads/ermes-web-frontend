@@ -208,6 +208,7 @@ export default function ReportPanel(props) {
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
+                    type='Report'
                   >
                     <CardMedia
                       className={classes.cover}
