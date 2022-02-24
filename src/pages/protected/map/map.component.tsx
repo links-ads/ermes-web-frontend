@@ -254,7 +254,7 @@ export function Map() {
         undefined,
         filtersObj!.filters!.datestart['selected'],
         filtersObj!.filters!.dateend['selected'],
-        undefined, //TODO: add MapRequestCode management
+        undefined,//TODO: add MapRequestCode management
         true,
         {
           headers: {

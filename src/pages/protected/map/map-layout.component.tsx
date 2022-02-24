@@ -489,11 +489,13 @@ export function MapLayout(props) {
           props.filterList.includes(a?.properties?.status) ||
           props.filterList.includes(a?.properties?.activityFilter)
       )
+      const map = mapViewRef?.current?.getMap()
+      if (map) 
+        spiderifierRef.current?.clearSpiders(map!)
       setJsonData({
         type: 'FeatureCollection',
         features: filteredList
       })
-      const map = mapViewRef.current?.getMap()
       updateMarkersDebounced(map)
     }
   }, [
