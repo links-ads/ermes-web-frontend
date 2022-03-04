@@ -46,4 +46,8 @@ case $1 in
         exit 1
 esac
 
-echo "end"
+echo "Creating build.tar"
+cd build
+tar -caf build.tar *
+
+echo "End of build process"

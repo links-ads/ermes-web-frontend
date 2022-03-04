@@ -18,10 +18,10 @@ export function updatePointFeatureLayerIdFilter(
   }
 }
 
-function makeLayerURL(canvas,layerNames,layerTime, geoServerConfig) {
+function makeLayerURL(layerNames,layerTime, geoServerConfig) {
   const { baseUrl, suffix, params } = geoServerConfig
   const layerName = Array.isArray(layerNames) ? layerNames.join(',') : layerNames;
-  let urlParams = `${composeParams(params)}&layers=${layerName}&time=${layerTime}&width=${canvas.clientWidth}&height=${canvas.clientHeight}`
+  let urlParams = `${composeParams(params)}&layers=${layerName}&time=${layerTime}&width=256&height=256`
   urlParams = urlParams.replace(':', '%3A')
   return `${baseUrl}/${suffix}?${urlParams}`
 }
@@ -60,7 +60,7 @@ export function tileJSONIfy(
     description: 'layer description...',
     version: '1.0.0',
     scheme: scheme, //xyz or tms
-    tiles: [makeLayerURL(map.getCanvas(),tileName,tileTime, geoServerConfig)],
+    tiles: [makeLayerURL(tileName,tileTime, geoServerConfig)],
     data:[],
     minzoom: map.getMinZoom(),
     maxzoom: map.getMaxZoom(),

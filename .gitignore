@@ -31,3 +31,4 @@ Docker.dev
 docker-compose
 
 .vscode/*
+deploy-to-azure.sh
