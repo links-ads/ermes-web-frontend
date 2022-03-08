@@ -3,6 +3,7 @@ Ver.
 - Bugfix - Fix bug in Create Mission procedure (#47)
 - Bugfix - Create child organization, fix on cluster bump effect, APIs based on current culture
 - Feature - Show layers related to specific map requests (#48)
+- Bugfix - Fix bug in date of geoserver request (#54)
 
 Ver. 1.3.0 - 2022-01-31
 -----------------------
