@@ -199,10 +199,11 @@ export function MapLayout(props) {
         props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
         props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
       const layerName = layerProps['names'][props.dateIndex]
+      const date = new Date(layerProps['timestamps'][props.dateIndex]) 
       const source = tileJSONIfy(
         map,
         layerName,
-        new Date(layerProps['timestamps'][props.dateIndex]).toISOString(),
+        new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString(),
         geoServerConfig,
         map.getBounds()
       )
