@@ -73,5 +73,6 @@
   "author" : "Author",
   "activityName" : "Activity Name",
   "frequency_help":"Frequency must be greater than 0",
-  "frequency_label":"Frequency (Days)"
+  "frequency_label":"Frequency (Days)",
+  "one_datapoint": "Only one data point available for this date range"
 }
