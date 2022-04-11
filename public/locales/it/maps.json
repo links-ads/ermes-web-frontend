@@ -74,5 +74,6 @@
   "author" : "Autore",
   "activityName" : "Nome attività",
   "frequency_help":"Frequenza deve essere maggiore di 0",
-  "frequency_label":"Frequenza (Giorni)"
+  "frequency_label":"Frequenza (Giorni)",
+  "layer":"Layer"
 }
