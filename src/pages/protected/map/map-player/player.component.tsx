@@ -76,7 +76,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: '25px',
     position: 'absolute',
     bottom: 0,
-    width: '90%',
+    width: '90%'
   },
   oneDatapoint: {
     marginBottom: '25px',
@@ -119,33 +119,38 @@ export function LayersPlayer(props) {
     return insideData.timestamps[value]
   }
 
-  const skipNext = useCallback(async (dateIndex: number, timestampsLength: number, setDateIndex) => {
-    if (dateIndex < timestampsLength - 1) {
-      setDateIndex(dateIndex + 1)
-    } else {
-      setDateIndex(0)
-    }
-  }, [])
+  const skipNext = useCallback(
+    async (dateIndex: number, timestampsLength: number, setDateIndex) => {
+      if (dateIndex < timestampsLength - 1) {
+        setDateIndex(dateIndex + 1)
+      } else {
+        setDateIndex(0)
+      }
+    },
+    []
+  )
 
   async function playPause() {
     setPlaying(!playing)
   }
 
   function formatDate(date: string) {
-
-    return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+    return formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
   }
 
   useEffect(() => {
     if (playing) {
-      let timer = setTimeout(() => skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex), 5000)
+      let timer = setTimeout(
+        () => skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex),
+        5000
+      )
       return () => clearTimeout(timer)
     }
   }, [playing, props.dateIndex, props.setDateIndex, insideData.timestamps, skipNext])
 
   useEffect(() => {
     // do whatever you want to do here
-    console.log("FIRST RENDER HERE")
+    console.log('FIRST RENDER HERE')
     props.setDateIndex(0)
   }, [])
 
@@ -202,7 +207,7 @@ export function LayersPlayer(props) {
           {layerProps ? formatDate(layerProps['timestamps'][props.dateIndex]) : null}
         </Typography>
         <div className={classes.playerContainer}>
-          {insideData.timestamps.length > 1 ?
+          {insideData.timestamps.length > 1 ? (
             <span>
               <div className={classes.sliderContainer}>
                 <Slider
@@ -230,11 +235,19 @@ export function LayersPlayer(props) {
                     <PlayArrowIcon style={{ height: 45, width: 45 }} />
                   )}
                 </IconButton>
-                <IconButton aria-label="next" onClick={() => skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex)}>
+                <IconButton
+                  aria-label="next"
+                  onClick={() =>
+                    skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex)
+                  }
+                >
                   <SkipNextIcon />
                 </IconButton>
               </div>
-            </span> : <div className={classes.oneDatapoint} > {t('maps:one_datapoint')} </div>}
+            </span>
+          ) : (
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} </div>
+          )}
         </div>
       </CardContent>
     </FloatingCardContainer>

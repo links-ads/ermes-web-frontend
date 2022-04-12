@@ -182,6 +182,7 @@ export default function CommunicationPanel(props) {
                     spiderLayerIds={props.spiderLayerIds}
                     id={elem.id}
                     spiderifierRef={props.spiderifierRef}
+                    type="Mission"
                   >
                     <CardContent>
                       <Typography variant="h5" component="h2" gutterBottom>
