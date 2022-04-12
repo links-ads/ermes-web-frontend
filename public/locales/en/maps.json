@@ -74,6 +74,6 @@
   "no_layers":"There are no layers matching the search criteria",
   "frequency_help":"Frequency must be greater than 0",
   "frequency_label":"Frequency (Days)",
-  "layer":"Layer",
-  "one_datapoint": "Only one data point available for this date range"
+  "one_datapoint": "Only one data point available for this date range",
+  "layer":"Layer"
 }
