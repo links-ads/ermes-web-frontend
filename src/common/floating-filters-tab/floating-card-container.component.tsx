@@ -52,7 +52,7 @@ export default function FloatingCardContainer(props) {
               width={props.dim.width}
               onResize={props.onResize}
               className={classes.resizable}
-              minConstraints={[500, 300]}
+              minConstraints={[500, 250]}
               maxConstraints={[1000, 800]}
             >
               {props.children}

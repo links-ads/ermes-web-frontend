@@ -21,9 +21,14 @@
   "user_last_name": "Last Name",
   "user_org_name": "Organization",
   "team_name": "Team",
-  "team_org_name": "Organization",
-  "team_people_count": "# people",
-  "team_select_members": "Select a team to see its members"
+  "team_org_name" :  "Organization",
+  "team_people_count" : "# people",
+  "team_select_members" : "Select a team to see its members",
+  "decision_maker": "Decision Maker",
+  "first_responder": "First Responder",
+  "organization_manager": "Organization Manager",
+  "team_leader": "Team Leader",
+  "administrator": "Administrator"
 }
 
 

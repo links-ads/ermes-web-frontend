@@ -75,5 +75,6 @@
   "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca",
   "frequency_help":"Frequenza deve essere maggiore di 0",
   "frequency_label":"Frequenza (Giorni)",
-  "layer":"Layer"
+  "layer":"Layer",
+  "one_datapoint": "Solo un dato disponibile per questo range di date"
 }

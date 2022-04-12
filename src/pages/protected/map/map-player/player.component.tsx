@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import {
   makeStyles,
   AppBar,
@@ -13,7 +13,7 @@ import CloseIcon from '@material-ui/icons/Close'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
-import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -73,7 +73,16 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   playerContainer: {
-    paddingTop: '25px'
+    paddingTop: '25px',
+    position: 'absolute',
+    bottom: 0,
+    width: '90%'
+  },
+  oneDatapoint: {
+    marginBottom: '25px',
+    width: '100%',
+    textAlign: 'center',
+    color: theme.palette.text.disabled
   }
 }))
 
@@ -87,82 +96,75 @@ export function LayersPlayer(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const {layerSelection,layerId2Tiles,setDateIndex,dateIndex,visibility,setVisibility} = props
-
-  const layerProps = useMemo(()=>{
-    switch(layerSelection.isMapRequest){
-      case NO_LAYER_SELECTED:
-        return null
-      case 0:
-        return layerId2Tiles[layerSelection.isMapRequest][layerSelection.dataTypeId]
-      case 1:
-        return layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId]
-    }
-  },[layerSelection])
-
+  const layerProps = props.layerId2Tiles[props.selectedLayerId]
 
   const [playing, setPlaying] = useState(false)
+  const { t, i18n } = useTranslation(['maps'])
 
   const insideData = {
-    name: layerProps
-      ? layerProps.name
+    subGroup: props.layerId2Tiles[props.selectedLayerId]
+      ? props.layerId2Tiles[props.selectedLayerId].subGroup
       : 'No layer selected',
-    labels: layerProps
-      ? layerProps.names
+    labels: props.layerId2Tiles[props.selectedLayerId]
+      ? props.layerId2Tiles[props.selectedLayerId].names
       : [],
-    timestamps: layerProps
-      ? layerProps.timestamps
+    timestamps: props.layerId2Tiles[props.selectedLayerId]
+      ? props.layerId2Tiles[props.selectedLayerId].timestamps
       : []
   }
-  // console.log('LayersPlayer', props.layerId2Tiles)
-  // console.log('LayerID', props.layerSelection)
+  console.log('LayersPlayer', props.layerId2Tiles)
+  console.log('LayerID', props.selectedLayerId)
 
   function valuetext(value) {
-    console.log('valuetext', insideData.labels[value])
     return insideData.timestamps[value]
   }
 
-  const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
-    if (dateIndex < timestampsLength - 1) {
-      setDateIndex(dateIndex + 1)
-    } else {
-      setDateIndex(0)
-    }
-  },[])
+  const skipNext = useCallback(
+    async (dateIndex: number, timestampsLength: number, setDateIndex) => {
+      if (dateIndex < timestampsLength - 1) {
+        setDateIndex(dateIndex + 1)
+      } else {
+        setDateIndex(0)
+      }
+    },
+    []
+  )
 
   async function playPause() {
     setPlaying(!playing)
   }
-  
-  function formatDate(date: string){
-    
-    return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+
+  function formatDate(date: string) {
+    return formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
   }
 
   useEffect(() => {
-    setDateIndex(0)
-  }, [layerSelection])
-
-  useEffect(() => {
     if (playing) {
-      let timer = setTimeout(() => skipNext(dateIndex,insideData.timestamps.length,setDateIndex), 5000)
+      let timer = setTimeout(
+        () => skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex),
+        5000
+      )
       return () => clearTimeout(timer)
     }
-  }, [playing, dateIndex,setDateIndex,insideData.timestamps,skipNext])
+  }, [playing, props.dateIndex, props.setDateIndex, insideData.timestamps, skipNext])
 
-  console.log("DATE",dateIndex,layerProps,layerProps && layerProps['timestamps'][dateIndex],layerProps && typeof layerProps['timestamps'][dateIndex])
+  useEffect(() => {
+    // do whatever you want to do here
+    console.log('FIRST RENDER HERE')
+    props.setDateIndex(0)
+  }, [])
 
   return (
     <FloatingCardContainer
       bounds={'parent'}
-      defaultPosition={{ x: 140, y: 500 }}
-      toggleActiveFilterTab={visibility}
+      defaultPosition={{ x: 90, y: 500 }}
+      toggleActiveFilterTab={props.visibility}
       dim={{
-        width: 400,
-        height: 200
+        width: 500,
+        height: 250
       }}
       onResize={null}
-      resizable={false}
+      resizable={true}
     >
       <AppBar
         position="static"
@@ -176,14 +178,14 @@ export function LayersPlayer(props) {
       >
         <span className={classes.titleContainer}>
           <Typography align="left" variant="h4">
-            {insideData.name}
+            {insideData.subGroup}
           </Typography>
         </span>
         <span>
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '10px' }}
             onClick={() => {
-              setVisibility(false)
+              props.setVisibility(false)
             }}
           >
             <CloseIcon />
@@ -198,43 +200,54 @@ export function LayersPlayer(props) {
           paddingTop: '0px',
           overflowY: 'hidden',
           overflowX: 'hidden',
-          height: 138
+          height: '100%'
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps ?  formatDate(layerProps['timestamps'][dateIndex]) : null}
+          {layerProps ? formatDate(layerProps['timestamps'][props.dateIndex]) : null}
         </Typography>
         <div className={classes.playerContainer}>
-          <div className={classes.sliderContainer}>
-            <Slider
-              className={classes.slider}
-              aria-label="Temperature"
-              defaultValue={0}
-              getAriaValueText={valuetext}
-              valueLabelDisplay="on"
-              step={1}
-              value={dateIndex}
-              // marks
-              min={0}
-              max={insideData.timestamps.length}
-              color="secondary"
-              onChange={(event, value) => {
-                setDateIndex(value)
-              }}
-            />
-          </div>
-          <div className={classes.buttonsContainer}>
-            <IconButton aria-label="play/pause" onClick={playPause}>
-              {playing ? (
-                <PauseIcon style={{ height: 45, width: 45 }} />
-              ) : (
-                <PlayArrowIcon style={{ height: 45, width: 45 }} />
-              )}
-            </IconButton>
-            <IconButton aria-label="next" onClick={()=>skipNext(dateIndex,insideData.timestamps.length,setDateIndex)}>
-              <SkipNextIcon />
-            </IconButton>
-          </div>
+          {insideData.timestamps.length > 1 ? (
+            <span>
+              <div className={classes.sliderContainer}>
+                <Slider
+                  className={classes.slider}
+                  aria-label="Temperature"
+                  defaultValue={0}
+                  getAriaValueText={valuetext}
+                  valueLabelDisplay="on"
+                  step={1}
+                  value={props.dateIndex}
+                  // marks
+                  min={0}
+                  max={insideData.timestamps.length}
+                  color="secondary"
+                  onChange={(event, value) => {
+                    props.setDateIndex(value)
+                  }}
+                />
+              </div>
+              <div className={classes.buttonsContainer}>
+                <IconButton aria-label="play/pause" onClick={playPause}>
+                  {playing ? (
+                    <PauseIcon style={{ height: 45, width: 45 }} />
+                  ) : (
+                    <PlayArrowIcon style={{ height: 45, width: 45 }} />
+                  )}
+                </IconButton>
+                <IconButton
+                  aria-label="next"
+                  onClick={() =>
+                    skipNext(props.dateIndex, insideData.timestamps.length, props.setDateIndex)
+                  }
+                >
+                  <SkipNextIcon />
+                </IconButton>
+              </div>
+            </span>
+          ) : (
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} </div>
+          )}
         </div>
       </CardContent>
     </FloatingCardContainer>

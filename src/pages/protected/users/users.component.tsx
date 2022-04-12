@@ -27,9 +27,11 @@ const options: Options<any> = {
 }
 const useStyles = makeStyles((theme) => ({
   chipContainer: {
-    width: '100%'
+    width: '100%',
+    zIndex: 1
   },
   chipStyle: {
+    zIndex: 30,
     marginBottom: 3,
     marginRight: '3px',
     position: 'relative',
@@ -71,62 +73,61 @@ function localizeColumns(
     { title: t('admin:user_username'), field: 'user.username' },
     { title: t('admin:user_email'), field: 'user.email' },
     {
+      // Selector of the roles, showing them as chips
       title: t('admin:user_role'),
       field: 'user.roles',
       editable: 'always',
-      // lookup:  UserDto.roles,
       width: '30%',
       render: (rowData) => (
+        // when not editing, render them as a list of chips
         <div className={classes.chipContainer}>
           {rowData?.user?.roles?.map((value) => (
-            <Chip key={value} label={value} size="small" className={classes.chipStyle} />
+            <Chip key={value} label={t('admin:' + value)} size="small" className={classes.chipStyle} />
           ))}
         </div>
       ),
       initialEditValue: [],
       editComponent: (cellData) => {
         return (
+          // Selector for editing (multiple selector was not working properly, due to different rendering cycles between editing and adding an element,
+          // which was causing different behaviour in the two different cases. A trick on the single selector solved the problem, although the solution
+          // is everything but elegant).
           <Select
             labelId="demo-multiple-name-label"
             id="demo-multiple-name"
-            multiple
-            
-            open={isSelectorOpen}
             defaultValue={['first_responder']}
             value={cellData.value || ['first_responder']}
-            onClick={(e) => {
-              setIsSelectorOpen(true)
-            }}
             onChange={(item) => {
-              // Add the new value to the end array
-              cellData.value.splice(
-                0,
-                cellData.value.length,
-                ...(item.target.value as UserRolesType[])
-              )
+              // If exists, remove, otherwise add to list
+              if (!cellData.value.includes(item.target.value)) {
+                cellData.value.push(item.target.value)
+              } else {
+                cellData.value.splice(cellData.value.indexOf(item.target.value), 1)
+              }
             }}
             input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-            renderValue={(selected) => (
-              <div className={classes.chipContainer}>
-                {(selected as []).map((value) => (
-                  <Chip key={value} label={value} size="small" className={classes.chipStyle} />
-                ))}
-              </div>
-            )}
+            renderValue={(selected) => {
+              return (
+                // render the values as chips in the selector
+                < div className={classes.chipContainer} >
+                  {(selected as []).map((value) => (
+                    <Chip key={value} label={t('admin:' + value)} size="small" className={classes.chipStyle} />
+                  ))
+                  }
+                </div>
+              )
+            }}
           >
             {UserRoles?.map((name) => (
+              // on selector open, render all the roles as options
               <MenuItem
                 key={name}
                 value={name}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsSelectorOpen(false)
-                }}
               >
-                {name}
+                {t('admin:' + name)}
               </MenuItem>
             ))}
-          </Select>
+          </Select >
         )
       }
     },

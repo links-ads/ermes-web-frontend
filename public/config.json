@@ -1,27 +1,15 @@
 {
   "envTag": "",
   "ui": {
-    "availableThemes": [
-      "dark",
-      "light"
-    ],
+    "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
   },
   "i18n": {
-    "ns": [
-      "common",
-      "errors"
-    ],
+    "ns": ["common", "errors"],
     "defaultNS": "common",
     "fallbackNS": "common",
-    "whitelist": [
-      "en",
-      "it"
-    ],
-    "preload": [
-      "en",
-      "it"
-    ],
+    "whitelist": ["en", "it"],
+    "preload": ["en", "it"],
     "fallbackLng": "en"
   },
   "mapboxgl": {
@@ -31,17 +19,11 @@
     "mapViewport": {
       "latitude": 45.3,
       "longitude": 7.23,
-      "zoom": 4.5
+      "zoom": 2.5
     },
     "mapBounds": {
-      "southWest": [
-        -47.7766,
-        24.9285
-      ],
-      "northEast": [
-        61.2366,
-        60.3175
-      ]
+      "southWest": [-47.7766,24.9285],
+      "northEast": [61.2366,60.3175]
     }
   },
   "geoServer": {
