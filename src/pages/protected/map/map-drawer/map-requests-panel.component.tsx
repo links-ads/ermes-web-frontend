@@ -234,17 +234,6 @@ function MapRequestCard(props) {
               component="h2"
               style={{ marginBottom: '0px' }}
             >
-              {HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                ? HAZARD_SOCIAL_ICONS[elem.hazard.toLowerCase()]
-                : null}
-              {elem.hazard}
-            </Typography>
-          </Box>
-          <Box component="div" display="inline-block">
-            <Typography
-              color="textSecondary"
-              style={{ fontSize: '14px', paddingTop: '6px' }}
-            >
               {elem.code}
             </Typography>
           </Box>

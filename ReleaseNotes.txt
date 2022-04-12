@@ -4,6 +4,8 @@ Ver.
 - Bugfix - Create child organization, fix on cluster bump effect, APIs based on current culture
 - Feature - Show layers related to specific map requests (#48)
 - Bugfix - Close open spiders when map data are reloaded (#43)
+- Bugfix - Fix bug in date of geoserver request (#54)
+- Feature - Add Data Type Id select to map request dialog creation (#57)
 
 Ver. 1.3.0 - 2022-01-31
 -----------------------
