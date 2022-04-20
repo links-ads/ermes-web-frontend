@@ -40,11 +40,14 @@
     }
   },
   "fusionAuth": {
-    "url": "https://auth.shelter-project.cloud",
-    "clientId": "7b31e994-862b-466a-ab97-30cd36973829",
-    "tenantId": "3df7c97a-0794-4db8-9a11-8084766c1a5e"
+    "url": "https://auth.safers-project.cloud/",
+    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
+    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
-    "url": "https://api-dev.shelter-project.cloud"
+    "url": "https://api-dev.safers-project.cloud"
+  },
+  "userTagsFilter": {
+    "filters": ["administrator", "first_responder"]
   }
 }
