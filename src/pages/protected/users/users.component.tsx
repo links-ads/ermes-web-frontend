@@ -2,7 +2,7 @@ import Typography from '@material-ui/core/Typography'
 import { UsersApiFactory, ProfileDto, UpdateProfileInput } from 'ermes-backoffice-ts-sdk'
 import { TFunction } from 'i18next'
 import MaterialTable, { Column, Options } from 'material-table'
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect, useState, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
@@ -16,6 +16,7 @@ import { RoleDto, UserDto } from 'ermes-backoffice-ts-sdk'
 import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { strictEqual } from 'assert'
+import { AppConfig, AppConfigContext } from '../../../config'
 
 const options: Options<any> = {
   sorting: true,
@@ -44,12 +45,12 @@ function localizeColumns(
   rolesData: RoleDto[],
   classes: ClassNameMap,
   runningSelectorID: number,
-  setRunningSelectorID: (elem: number) => void
+  setRunningSelectorID: (elem: number) => void,
+  userTagsFilter: string[],
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
-  const filterOutValues = ['administrator', 'first_responder']
-  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => filterOutValues.indexOf(r) === -1)
+  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
   const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
   type UserRolesType = typeof UserRoles[number]
 
@@ -81,7 +82,9 @@ function localizeColumns(
       render: (rowData) => (
         <div className={classes.chipContainer}>
           {rowData?.user?.roles?.map((value) => (
-            <Chip key={value} label={value} size="small" className={classes.chipStyle} />
+            UserRoles.indexOf(value) !== -1 ? (
+              <Chip key={value} label={t('common:role_' + value)} size="small" className={classes.chipStyle} />
+            ) : null
           ))}
         </div>
       ),
@@ -108,7 +111,8 @@ function localizeColumns(
             renderValue={(selected) => (
               <div className={classes.chipContainer}>
                 {(selected as []).map((value) => (
-                  <Chip key={value} label={value} size="small" className={classes.chipStyle} />
+                  UserRoles.indexOf(value) !== -1 ? (
+                    <Chip key={value} label={t('common:role_' + value)} size="small" className={classes.chipStyle} />) : null
                 ))}
               </div>
             )}
@@ -118,7 +122,7 @@ function localizeColumns(
                 value={role}
                 selected={false}
               >
-                <ListItemText primary={role} />
+                <ListItemText primary={t('common:role_' + role)} />
               </MenuItem>
             ))}
           </Select>
@@ -149,6 +153,8 @@ export function Users() {
 
   const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading
   const [runningSelectorID, setRunningSelectorID] = useState(0)
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const userTagsFilter = appConfig.userTagsFilter?.filters
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
@@ -201,7 +207,8 @@ export function Users() {
             rolesData.data,
             classes,
             runningSelectorID,
-            setRunningSelectorID
+            setRunningSelectorID,
+            userTagsFilter ? userTagsFilter : []
           )}
           editable={{
             onRowAdd: async (newData: ProfileDto) => {

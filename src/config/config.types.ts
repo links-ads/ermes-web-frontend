@@ -15,6 +15,10 @@ interface UIConfig {
   theme: Theme
 }
 
+interface UserTagsFilter {
+  filters?: string[]
+}
+
 // Configuration for basemap styles that are not in the same server
 // e.g. { label: 'Dark', url: 'https://myserver.com/dark.style.json'}
 export interface MapboxStyleObject {
@@ -59,19 +63,19 @@ export interface MapboxGlConfig {
 }
 
 export interface GeoServerConfig {
-  baseUrl?:string
-  suffix?:string
-  params?:{
+  baseUrl?: string
+  suffix?: string
+  params?: {
 
-    service?:string
-    request?:string
-    version?:string
-    format?:string
-    bbox?:string
-    srs?:string
-    height?:number
-    width?:number
-    transparent?:boolean
+    service?: string
+    request?: string
+    version?: string
+    format?: string
+    bbox?: string
+    srs?: string
+    height?: number
+    width?: number
+    transparent?: boolean
   }
 
 }
@@ -93,11 +97,13 @@ export interface AppConfig {
   // Map configuration
   mapboxgl?: MapboxGlConfig
   // GeoServer configuration to retrieve layers
-  geoServer?:GeoServerConfig
+  geoServer?: GeoServerConfig
   // FusionAuth connection paramters
   fusionAuth?: FusionAuthConfig
   // API connection parameters
   backend?: BackendConfiguration
   // Detected at runtime/boot time
   isMobileDevice: boolean
+  // user filter tags that needs to be excluded from the tag list 
+  userTagsFilter?: UserTagsFilter 
 }
