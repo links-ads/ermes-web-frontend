@@ -46,5 +46,8 @@
   },
   "backend": {
     "url": "https://api-test.safers-project.cloud"
+  },
+  "userTagsFilter": {
+    "filters": ["administrator", "first_responder"]
   }
 }

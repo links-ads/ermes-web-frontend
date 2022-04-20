@@ -48,8 +48,9 @@ function localizeColumns(
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
-  const UserRoles = rolesData.map((r) => r.name) as string[]
-
+  const filterOutValues = ['administrator', 'first_responder']
+  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => filterOutValues.indexOf(r) === -1)
+  const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
   type UserRolesType = typeof UserRoles[number]
 
   return [
@@ -86,9 +87,9 @@ function localizeColumns(
       ),
       initialEditValue: [],
       editComponent: (cellData) => {
-        if (cellData.rowData.user == undefined) {
+        if (cellData.rowData.user === undefined) {
           cellData.rowData.user = {
-            roles: ['first_responder']
+            roles: [defaultRole]
           }
         }
         return (
