@@ -21,6 +21,7 @@
   "role_organization_manager": "Org. Manager",
   "role_decision_maker": "Decision Maker",
   "role_first_responder": "First Responder",
+  "role_citizen": "Citizen",
   "page_coming_soon": "{{pageName}} is coming soon!",
   "page_profile": "Profile",
   "page_dev_auth": "Device Authorization",

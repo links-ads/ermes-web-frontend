@@ -40,11 +40,14 @@
     }
   },
   "fusionAuth": {
-    "url": "https://auth.faster-project.cloud",
-    "clientId": "1a3f6b36-4917-48c1-9144-e2dd4ed6d642",
-    "tenantId": "ae5f83c9-11cf-4e84-a4cd-404d40bd6c0b"
+    "url": "https://auth.safers-project.cloud/",
+    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
+    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
-    "url": "https://api-dev.faster-project.cloud"
+    "url": "https://api-dev.safers-project.cloud"
+  },
+  "userTagsFilter": {
+    "filters": ["administrator", "first_responder"]
   }
 }
