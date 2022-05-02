@@ -20,6 +20,7 @@ import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { LayersPlayer } from './map-player/player.component'
 import { useTranslation } from 'react-i18next'
+import MapTimeSeries from './map-popup-series.component'
 
 type MapFeature = CulturalProps
 
@@ -112,10 +113,11 @@ export function Map() {
 
   const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
   const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
+  const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
   const layerId2Tiles = useMemo(() => {
-    if (Object.keys(getLayersState.result).length === 0) return [{},{}]
-    if (!getLayersState.result.data['layerGroups']) return [{},{}]
+    if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
+    if (!getLayersState.result.data['layerGroups']) return [{}, {}]
 
     // Collect datatype ids associated to at least one map request
     let mapRequestDataTypes = [] as any[]
@@ -167,7 +169,10 @@ export function Map() {
             data2Tiles[layer['dataTypeId']] = {
               names: Object.values(namestimesDict),
               timestamps: Object.keys(namestimesDict),
-              name: layer['name']
+              name: layer['name'],
+              format: layer['format'],
+              fromTime : Object.keys(namestimesDict)[0],
+              toTime : Object.keys(namestimesDict).slice(-1)[0]
             }
           }
         })
@@ -200,14 +205,14 @@ export function Map() {
 
         })
         if (layerData.length > 0)
-          subGroupData.push({name:subGroup['subGroup'],layers:layerData})
+          subGroupData.push({ name: subGroup['subGroup'], layers: layerData })
       })
-      if(subGroupData.length > 0)
-        groupData.push({name:group['group'],subGroups:subGroupData})
+      if (subGroupData.length > 0)
+        groupData.push({ name: group['group'], subGroups: subGroupData })
     })
     return groupData
   }, [getLayersState])
-  
+
   console.log('TILES', layerId2Tiles)
   console.log('DATA', layersData)
 
@@ -244,7 +249,7 @@ export function Map() {
   }, [activitiesList, filtersObj, changeItem])
 
   useEffect(() => {
-    // console.log('CHANGED FILTER OBJ', filtersObj)
+    setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
     fetchGeoJson()
     handleGetLayersCall(() => {
       return layersApiFactory.layersGetLayers(
@@ -311,7 +316,15 @@ export function Map() {
           setDateIndex={setDateIndex}
           dateIndex={dateIndex}
         />
+        {
+          dblClickFeatures && (
 
+            <MapTimeSeries
+            dblClickFeatures={dblClickFeatures}
+            setDblClickFeatures={setDblClickFeatures}
+            />
+          )
+        }
         <LayersSelectContainer
           layerSelection={layerSelection}
           setLayerSelection={setLayerSelection}
@@ -349,6 +362,7 @@ export function Map() {
             layerSelection={layerSelection}
             layerId2Tiles={layerId2Tiles}
             dateIndex={dateIndex}
+            setDblClickFeatures={setDblClickFeatures}
           />
         </MapStateContextProvider>
       </MapContainer>
