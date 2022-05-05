@@ -113,7 +113,9 @@ export default function FloatingFilterContainer(props) {
     <>
       <FloatingCardContainer
         bounds={props.filtersObj.bounds ? props.filtersObj.bounds : 'parent'}
-        defaultPosition={{ x: props.filtersObj.xystart[0], y: props.filtersObj.xystart[1] }}
+        defaultPosition={props.defaultPosition}
+        position={props.position}
+        onPositionChange={props.onPositionChange}
         toggleActiveFilterTab={props.toggleActiveFilterTab}
         dim={dim}
         onResize={onResize}
