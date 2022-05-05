@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Accordion,
   AccordionDetails,
@@ -56,6 +56,11 @@ export function LayersSelectContainer(props) {
     setDim({ height: data.size.height, width: data.size.width })
   }
 
+  useEffect(() => {
+    console.log('position changed',props.position)
+    
+  }, [props.position])
+
   const handleAccordionChange =
     (panel: string, type: 'main' | 'sub') =>
     (event: React.ChangeEvent<{}>, newExpanded: boolean) => {
@@ -84,11 +89,13 @@ export function LayersSelectContainer(props) {
     <>
       <FloatingCardContainer
         bounds={'parent'}
-        defaultPosition={{ x: 90, y: 90 }}
+        defaultPosition={props.defaultPosition}
+        position={props.position}
         toggleActiveFilterTab={props.visibility}
         dim={dim}
         onResize={onResize}
         resizable={true}
+        onPositionChange={props.onPositionChange}
       >
         <Card style={{ height: dim.height }}>
           <AppBar

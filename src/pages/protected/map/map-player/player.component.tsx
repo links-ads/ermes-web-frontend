@@ -25,18 +25,19 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 32
   },
   heading: {
-    fontSize: theme.typography.pxToRem(15),
+    fontSize: theme.typography.pxToRem(14),
     fontWeight: theme.typography.fontWeightRegular
   },
   accordionDetails: {
     display: 'block'
   },
   sliderContainer: {
-    display: 'inline-block',
+    display: 'flex',
     width: '75%',
     height: '50px',
     verticalAlign: '-moz-middle-with-baseline',
-    marginTop: '21px'
+  
+    alignItems:'flex-end'
   },
   slider: {
     width: '100%',
@@ -64,8 +65,10 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonsContainer: {
     width: '25%',
+    
+    alignItems:'center',
     textAlign: 'end',
-    display: 'inline-block',
+    display: 'flex',
     '& .MuiButtonBase-root': {
       display: 'inline-block',
       padding: 0,
@@ -74,17 +77,24 @@ const useStyles = makeStyles((theme) => ({
   },
   playerContainer: {
     paddingTop: '25px',
-    position: 'absolute',
-    bottom: 0,
     width: '90%',
   },
+
+  spanContainer:{
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+    
+  },
+
   oneDatapoint: {
-    marginBottom: '25px',
+ 
     width: '100%',
     textAlign: 'center',
     color: theme.palette.text.disabled
   }
 }))
+
 
 export function LayersPlayer(props) {
   const classes = useStyles()
@@ -113,8 +123,8 @@ export function LayersPlayer(props) {
       : []
   }
   console.log('LayersPlayer', props.layerId2Tiles)
-  console.log('LayerID', props.selectedLayerId)
-
+  console.log('LayerID', props.selectedLayerId, 'visibility', props.visibility)
+  
   function valuetext(value) {
     return insideData.timestamps[value]
   }
@@ -149,16 +159,25 @@ export function LayersPlayer(props) {
     props.setDateIndex(0)
   }, [])
 
+  function testResize(w:number, h:number){
+    console.log('onresizeend',  w, h )
+  }
+
   return (
     <FloatingCardContainer
       bounds={'parent'}
-      defaultPosition={{ x: 90, y: 500 }}
+      defaultPosition={props.defaultPosition}
+      position={props.position}
+      onPositionChange={props.onPositionChange}
       toggleActiveFilterTab={props.visibility}
       dim={{
         width: 500,
         height: 250
       }}
       onResize={null}
+      onResizeStop={(_, { size: { width, height } }) => {
+        testResize(width, height )
+      }}
       resizable={true}
     >
       <AppBar
@@ -172,7 +191,7 @@ export function LayersPlayer(props) {
         className="handle handleResize"
       >
         <span className={classes.titleContainer}>
-          <Typography align="left" variant="h4">
+          <Typography align="left" variant="h4" style={{ fontSize: '2rem'}} >
             {insideData.subGroup}
           </Typography>
         </span>
@@ -203,7 +222,7 @@ export function LayersPlayer(props) {
         </Typography>
         <div className={classes.playerContainer}>
           {insideData.timestamps.length > 1 ?
-            <span>
+            <span className={classes.spanContainer}>
               <div className={classes.sliderContainer}>
                 <Slider
                   className={classes.slider}

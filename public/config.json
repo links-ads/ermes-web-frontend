@@ -40,11 +40,11 @@
     }
   },
   "fusionAuth": {
-    "url": "https://auth.faster-project.cloud",
-    "clientId": "1a3f6b36-4917-48c1-9144-e2dd4ed6d642",
-    "tenantId": "ae5f83c9-11cf-4e84-a4cd-404d40bd6c0b"
+    "url": "https://auth.safers-project.cloud/",
+    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
+    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
   },
   "backend": {
-    "url": "https://api-dev.faster-project.cloud"
+    "url": "https://api-test.safers-project.cloud"
   }
 }

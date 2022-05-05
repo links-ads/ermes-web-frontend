@@ -187,6 +187,9 @@ export function Map() {
   }, [filtersObj,fetchGeoJson,handleGetLayersCall,layersApiFactory])
 
   useEffect(() => {
+    //console.log('selectedlayerid',selectedLayerId)
+    // setPlayersDefaultCoord({x:470, y:layersPlayerDefaultCoord.y})
+    //console.log('layersel2', layersPlayerDefaultCoord, layersPlayerPosition)
     if (selectedLayerId !== NO_LAYER_SELECTED) {
       setDateIndex(0)
       setTogglePlayer(true)
@@ -194,6 +197,48 @@ export function Map() {
       setTogglePlayer(false)
     }
   }, [selectedLayerId])
+
+  const [layersPlayerDefaultCoord, setPlayersDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:500})
+  const [layersSelectContainerDefaultCoord, setLayersSelectContainerDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:90})
+  const [floatingFilterContainerDefaultCoord, setFloatingFilterContainerDefaultCoord] = useState<{ x: number; y: number }>({x:60, y:60})
+
+  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+
+  // const [layerPlayerMoved, setLayerPlayerMoved] = useState(false)
+  // const [layerSelectMoved, setLayerSelectMoved] = useState(false)
+  // const [floatingFilterMoved, setFloatingFilterMoved] = useState(false)
+
+  useEffect(() => {
+    if(toggleSideDrawer){ 
+     
+      if(layersSelectVisibility){ //layers container is visible, move it
+        //opening drawer
+        if(layersSelectContainerPosition == undefined)
+          setLayersSelectContainerPosition({x:470, y: layersSelectContainerDefaultCoord.y})
+        else if( layersSelectContainerPosition!.x < 450)
+          setLayersSelectContainerPosition({x:470, y: layersSelectContainerPosition!.y})
+      }
+      
+      if(togglePlayer){
+        if(layersPlayerPosition == undefined)
+          setLayersPlayerPosition({x:470, y: layersPlayerDefaultCoord.y})
+        else if( layersPlayerPosition!.x < 450)
+          setLayersPlayerPosition({x:470, y: layersPlayerPosition!.y})
+      }
+
+      if(toggleActiveFilterTab){
+        if(floatingFilterContainerPosition == undefined)
+          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerDefaultCoord.y})
+        else if( floatingFilterContainerPosition!.x < 450)
+          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerPosition!.y})
+      }     
+  } else{
+    //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+  }
+
+  }, [toggleSideDrawer])
 
   return (
     <>
@@ -215,6 +260,9 @@ export function Map() {
           setToggleActiveFilterTab={setToggleActiveFilterTab}
           toggleActiveFilterTab={toggleActiveFilterTab}
           filtersObj={filtersObj}
+          defaultPosition={floatingFilterContainerDefaultCoord}
+          position={floatingFilterContainerPosition}
+          onPositionChange={setFloatingFilterContainerPosition}
           applyFiltersObj={applyFiltersObj}
           // resetFiltersObj={resetFiltersObj}
           initObj={initObject}
@@ -228,6 +276,9 @@ export function Map() {
           selectedLayerId={selectedLayerId}
           setDateIndex={setDateIndex}
           dateIndex={dateIndex}
+          defaultPosition={layersPlayerDefaultCoord}
+          position={layersPlayerPosition}
+          onPositionChange={setLayersPlayerPosition}
         />
 
         <LayersSelectContainer
@@ -238,6 +289,9 @@ export function Map() {
           loading={getLayersState.loading}
           error={getLayersState.error}
           data={getLayersState.result.data}
+          defaultPosition={layersSelectContainerDefaultCoord}
+          position={layersSelectContainerPosition}
+          onPositionChange={setLayersSelectContainerPosition}
         />
         <MapStateContextProvider<MapFeature>>
           <MapLayout
