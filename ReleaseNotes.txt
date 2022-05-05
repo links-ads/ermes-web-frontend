@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 1.4.0 - 2022-05-05
+-----------------------
 - Bugfix - Fix bug in Create Mission procedure (#47)
 - Bugfix - Create child organization, fix on cluster bump effect, APIs based on current culture
 - Feature - Show layers related to specific map requests (#48)
