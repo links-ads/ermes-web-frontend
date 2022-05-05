@@ -155,7 +155,7 @@ export const parseStats = (stats, mapping:any|undefined=undefined): {} => {
 }
 
 
-export const ChartTooltip = (label: string, colour: string, value: number) => {
+export const ChartTooltip = (label: string, colour: string, value: string | number) => {
     return (
         <Paper elevation={2} style={{ padding: 5 }}>
             <Grid container direction='row' justify='center' alignItems='center'>

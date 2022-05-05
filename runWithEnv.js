@@ -12,5 +12,4 @@ env['REACT_APP_BUILD_DATE'] = Date.now()
 console.log('Used env variables: ' + JSON.stringify(env))
 console.log('Run command: react-scripts ' + command)
 execSync('npx react-scripts ' + command, { env: env, stdio: 'inherit' })
-execSync('bash create_public_content.sh '+ projectname, { stdio: 'inherit' })
-
+execSync('sh create_public_content.sh '+ projectname, { stdio: 'inherit' })

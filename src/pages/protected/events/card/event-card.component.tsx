@@ -46,7 +46,15 @@ export const EventCard = (props) => {
                 if (!coord) return
                 const map = props.mapRef.current.getMap()
                 if (!map) return
-                const result = queryHoveredFeature(map, coord, [EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], EVENTS_LAYER_ID, CLUSTER_LAYER_ID, event.id, SOURCE_ID)
+                const result = queryHoveredFeature(
+                  map,
+                  coord,
+                  [EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds],
+                  EVENTS_LAYER_ID,
+                  CLUSTER_LAYER_ID,
+                  event.id,
+                  undefined
+                )
                 if (result.type) {
                     map.setFeatureState({
                         source: result.type === 'leaf' ? result.source : SOURCE_ID,

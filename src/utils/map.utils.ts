@@ -18,12 +18,34 @@ export function updatePointFeatureLayerIdFilter(
   }
 }
 
-function makeLayerURL(canvas,layerNames,layerTime, geoServerConfig) {
+function makeLayerURL(layerNames,layerTime, geoServerConfig) {
   const { baseUrl, suffix, params } = geoServerConfig
   const layerName = Array.isArray(layerNames) ? layerNames.join(',') : layerNames;
-  let urlParams = `${composeParams(params)}&layers=${layerName}&time=${layerTime}&width=${canvas.clientWidth}&height=${canvas.clientHeight}`
+  let urlParams = `${composeParams(params)}&layers=${layerName}&time=${layerTime}&width=256&height=256`
   urlParams = urlParams.replace(':', '%3A')
   return `${baseUrl}/${suffix}?${urlParams}`
+}
+
+export function makeTimeSeriesURL(coord,layerName,geoServerConfig,timeRange){
+  const { baseUrl, suffix } = geoServerConfig
+  const params = {
+    service: 'WMS',
+    version: '1.1.0',
+    feature_count: '1',
+    x: "1",
+    y: "1",
+    srs: "EPSG:4326",
+    width: "101",
+    height: "101",
+    request: "GetTimeSeries",
+    info_format: "text/csv",
+    time: timeRange.join('/'),
+    bbox: [coord[0],coord[1],coord[0]+0.00001,coord[1]+0.00001].join('%2C'),
+    query_layers: layerName,
+    layers: layerName,
+  }
+  return `${baseUrl}/${suffix}?${composeParams(params)}`
+
 }
 
 
@@ -60,7 +82,7 @@ export function tileJSONIfy(
     description: 'layer description...',
     version: '1.0.0',
     scheme: scheme, //xyz or tms
-    tiles: [makeLayerURL(map.getCanvas(),tileName,tileTime, geoServerConfig)],
+    tiles: [makeLayerURL(tileName,tileTime, geoServerConfig)],
     data:[],
     minzoom: map.getMinZoom(),
     maxzoom: map.getMaxZoom(),

@@ -1,5 +1,5 @@
 import { useCallback, useReducer, useMemo } from 'react'
-import { CategoryDto, GetCategoriesOutput } from 'ermes-ts-sdk'
+import { CategoryDto, ReportsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
@@ -38,30 +38,31 @@ export default function useCategoriesList() {
   const { displayErrorSnackbar } = useSnackbars()
   const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig]);
 
   const fetchCategoriesList = useCallback(
-    async (transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-      const response = await fetch(
-        backendAPIConfig.basePath +
-          '/api/services/app/Reports/GetCategories?culture=' +
-          i18n.language
-      );
-
-      if (!response.ok) {
-        displayErrorSnackbar('Error while fetching Category List');
-        dispatch({ type: 'ERROR', value: 'Error while fetching Category List' });
-      }
-
-      const output = (await response.json()) as GetCategoriesOutput;
-      let newData: CategoryDto[] =
-        transformData(output.categories?.map((elem) => elem.categories).flat()) || []
-      dispatch({
-        type: 'RESULT',
-        value: newData
-      });
+    (transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      repApiFactory
+        .reportsGetCategories({
+          headers: {
+            'Accept-Language': i18n.language
+          }
+        })
+        .then((result) => {
+          let newData: CategoryDto[] =
+            transformData(result.data.categories?.map((elem) => elem.categories).flat()) || []
+          dispatch({
+            type: 'RESULT',
+            value: newData
+          })
+        })
+        .catch((err) => {
+          displayErrorSnackbar(err)
+          dispatch({ type: 'ERROR', value: errorData })
+        })
     },
-    [i18n.language, displayErrorSnackbar]
+    [repApiFactory, displayErrorSnackbar]
   )
 
-  return [dataState, fetchCategoriesList]
+  return [dataState, fetchCategoriesList];
 }

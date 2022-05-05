@@ -188,7 +188,7 @@ export const queryHoveredFeature = (
   pointLayer,
   clusterLayer,
   elementId,
-  sourceId
+  elementType
 ): { type: 'leaf' | 'point' | 'cluster' | null; id: string | number | null; source?: string } => {
   const point = map.project(coord)
   const bboxSize = getBboxSizeFromZoom(map.getZoom())
@@ -198,13 +198,19 @@ export const queryHoveredFeature = (
   ]
   var features = map.queryRenderedFeatures(bbox, { layers: layers })
   if (features.length > 0) {
-    // filter features that match the id of the tweet
-    const clusterFeatures = features.filter((point) => point.layer.id === clusterLayer)
+    // filter features that match the id of the entity
+    // for events and tweets there's no need to add a check on the entity type
+    const clusterFeatures = features.filter(
+      (point) => point.layer.id === clusterLayer && (!elementType || point.properties[elementType] > 0)
+    )
     const pointFeatures = features.filter(
-      (point) => point.layer.id === pointLayer && point.properties['id'] === elementId
+      (point) => point.layer.id === pointLayer && point.properties['id'] === elementId && (!elementType || point.properties['type'] === elementType)
     )
     const leavesFeatures = features.filter(
-      (point) => point.layer.id.includes('spider-leaves') && point.properties['id'] === elementId
+      (point) =>
+        point.layer.id.includes('spider-leaves') &&
+        point.properties['id'] === elementId &&
+        (!elementType || point.properties['type'] === elementType)
     )
     if (leavesFeatures.length > 0) {
       const feature = leavesFeatures[0]

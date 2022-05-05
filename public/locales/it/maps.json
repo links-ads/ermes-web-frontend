@@ -75,5 +75,6 @@
   "activityName" : "Nome attività",
   "frequency_help":"Frequenza deve essere maggiore di 0",
   "frequency_label":"Frequenza (Giorni)",
-  "one_datapoint": "Solo un timestamp disponibile per questo layer"
+  "one_datapoint": "Solo un timestamp disponibile per questo layer",
+  "layer":"Layer"
 }

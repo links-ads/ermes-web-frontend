@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 
-import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select } from '@material-ui/core'
+import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import {
@@ -12,9 +12,11 @@ import DateFnsUtils from '@date-io/date-fns'
 import useLanguage from '../../../../hooks/use-language.hook';
 import { useTranslation } from 'react-i18next';
 
-import { HazardType } from 'ermes-ts-sdk'
 import { GenericDialogProps } from '../map-dialog-edit.component';
 import { _MS_PER_DAY } from '../../../../utils/utils.common';
+import useAPIHandler from '../../../../hooks/use-api-handler';
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
+import { useAPIConfiguration } from '../../../../hooks/api-hooks';
 
 
 
@@ -34,9 +36,34 @@ export function MapRequestDialog(
         </IconButton>)
     }, [])
 
-    const hazardOptions = useMemo(() => { return Object.values(HazardType).filter(v => v !== "None") }, [])
+    const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+    const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+    const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
 
-    console.log(editState)
+    useEffect(() => {
+        handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+    }, [])
+
+    const dataTypeOptions = useMemo(() => {
+        if (Object.entries(apiHandlerState.result).length === 0)
+            return []
+        else {
+            const entries = [] as any[]
+
+            apiHandlerState.result.data.layerGroups.forEach(group => {
+                group.subGroups.forEach(subGroup => {
+                    subGroup.layers.forEach(layer => {
+                        if (layer.frequency === 'OnDemand') {
+                            entries.push([layer.dataTypeId as string, layer.name])
+                        }
+                    })
+                })
+            })
+            return Object.fromEntries(entries)
+        }
+
+    }, [apiHandlerState])
+
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
@@ -83,23 +110,23 @@ export function MapRequestDialog(
             <Grid container>
                 <Grid item style={{ flex: 1 }}>
                     <FormControl margin='normal' style={{ minWidth: '50%' }}>
-                        <InputLabel id='select-hazard-label'>{t('maps:organization')}</InputLabel>
+                        <InputLabel id='select-datatype-label'>{t('maps:layer')}</InputLabel>
                         <Select
-                            labelId='select-hazard-label'
-                            id="select-hazard"
-                            value={editState.hazard}
-                            renderValue={(h) => t("labels:" + (h as string).toLowerCase())}
+                            labelId='select-datatype-label'
+                            id="select-datatype"
+                            value={editState.dataType}
+                            multiple={true}
+                            renderValue={(selected) => (selected as string[]).map(id=>dataTypeOptions[id]).join(', ')}
                             onChange={(event) => {
-                                dispatchEditAction({ type: "HAZARD", value: event.target.value as HazardType })
+                                dispatchEditAction({ type: "DATATYPE", value: event.target.value })
                             }}
                         >
-                            {hazardOptions.map((e) => {
-                                return (
-                                    <MenuItem key={e} value={e}>
-                                        {t("labels:" + (e as string).toLowerCase())}
-                                    </MenuItem>
-                                )
-                            })}
+                            {Object.entries(dataTypeOptions).map((e) => (
+                                <MenuItem key={e[0]} value={e[0]}>
+                                    <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
+                                    <ListItemText primary={e[1]} />
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
                 </Grid>
@@ -108,15 +135,15 @@ export function MapRequestDialog(
                         id="title"
                         label={t("maps:frequency_label")}
                         error={editError && parseInt(editState.frequency) < 0}
-                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help") }
+                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
                         type="number"
                         value={editState.frequency}
                         onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
                         variant='outlined'
                         color='primary'
                         fullWidth={true}
-                        inputProps={{ min: 0 , max:30}}
-                />
+                        inputProps={{ min: 0, max: 30 }}
+                    />
                 </Grid>
             </Grid>
         </Grid>

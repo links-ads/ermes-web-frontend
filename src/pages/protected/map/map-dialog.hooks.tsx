@@ -38,8 +38,8 @@ export type EditStateType = {
   endDate: Date | null
   description: string
   status: MissionStatusType
-  hazard: HazardType
   frequency: string
+  dataType: string[]
 }
 
 export enum CoordinatorType {
@@ -50,8 +50,22 @@ export enum CoordinatorType {
 }
 
 export type EditActionType = {
-  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "HAZARD" | "FREQUENCY"
+  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY"
   value?: Date | string | any
+}
+
+const defaultEditState = {
+  title: "",
+  coordinatorType: CoordinatorType.NONE,
+  orgId: -1,
+  teamId: -1,
+  userId: -1,
+  startDate: new Date(),
+  endDate: null,
+  description: "",
+  status: MissionStatusType.CREATED,
+  frequency: "0",
+  dataType: []
 }
 
 
@@ -107,10 +121,10 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         ...currentState,
         status: action.value as MissionStatusType
       }
-    case "HAZARD":
+    case "DATATYPE":
       return {
         ...currentState,
-        hazard: action.value as HazardType
+        dataType: action.value
       }
     case "FREQUENCY":
       let number = parseInt(action.value)
@@ -119,26 +133,14 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         frequency: (isNaN(number) || number < 0) ? "0" : (number > 30) ? "30" : number.toString()
       }
     case 'RESET':
-      return {
-        title: "",
-        coordinatorType: CoordinatorType.NONE,
-        orgId: -1,
-        teamId: -1,
-        userId: -1,
-        startDate: new Date(),
-        endDate: null,
-        description: "",
-        status: MissionStatusType.CREATED,
-        hazard: HazardType.FIRE,
-        frequency: "0"
-      }
+      return defaultEditState
     default:
       throw new Error("Invalid action type")
   }
 }
 
 export function useMapDialog(onDialogClose: (data: any) => void) {
-  const initialEditState = useMemo(() => { return { title: "", startDate: new Date(), endDate: null, description: "", coordinatorType: CoordinatorType.NONE, orgId: -1, teamId: -1, userId: -1, status: MissionStatusType.CREATED,hazard:HazardType.FIRE,frequency:"0" } }, [])
+  const initialEditState = useMemo(() => { return defaultEditState }, [])
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
   const { t } = useTranslation(['maps'])
 
@@ -316,8 +318,9 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
         baseObj['feature']['properties']['message'] = editState.description 
         break;
       case 'MapRequest':
-        baseObj['feature']['properties']['hazard'] = editState.hazard 
         baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
+        if (editState.dataType.length > 0)
+          baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map(d=>parseInt(d))
         break;
       case 'Mission':
         baseObj['feature']['properties']['title'] = editState.title 

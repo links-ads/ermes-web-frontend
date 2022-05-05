@@ -109,7 +109,15 @@ export const TweetCard = (props) => {
                 if (!coord) return
                 const map = props.mapRef.current.getMap()
                 if (!map) return
-                const result = queryHoveredFeature(map, coord, [TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds], TWEETS_LAYER_ID, CLUSTER_LAYER_ID, tweet.id_str, SOURCE_ID)
+                const result = queryHoveredFeature(
+                  map,
+                  coord,
+                  [TWEETS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds],
+                  TWEETS_LAYER_ID,
+                  CLUSTER_LAYER_ID,
+                  tweet.id_str,
+                  undefined
+                )
                 switch (result.type) {
                     case null:
                         return

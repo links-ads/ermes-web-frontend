@@ -72,129 +72,191 @@ const EventsComponent = (props) => {
     )
 
     return (
-        <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid container direction="row" justify="flex-start" alignContent='space-around' >
-                <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3 }}>
-                    <AppBar position="static" color="default" className={classes.appbar}>
-                        <Tabs
-                            value={tabValue}
-                            onChange={(evt, value) => handleTabChange(evt, value, setTabValue)}
-                            indicatorColor="primary"
-                            color='white'
-                            classes={{ indicator: classes.indicator }}
-                            variant="scrollable"
-                            scrollButtons="auto"
-                            aria-label="scrollable auto tabs example"
-                        >
-                            <Tab label={t("social:events_label")} {...a11yProps(0)} />
-                            <Tab label={t("social:stats_label")} {...a11yProps(1)} />
-                        </Tabs>
-                    </AppBar>
-                    <TabPanel value={tabValue} index={0}>
-                        <CardsList
-                            data={shownData.data}
-                            isLoading={eventAnnotations.isLoading}
-                            hasMore={shownData.size < eventAnnotations.data.length}
-                            isError={eventAnnotations.error}
-                            moreData={() => showMoreSocialData(shownData, eventAnnotations.data, MINI_PAGE_SIZE, setShownData)}
-                            renderItem={(item) => (
-                                <EventCard
-                                    item={item}
-                                    key={item.id}
-                                    mapIdsToHazards={filtersState.mapIdsToHazards}
-                                    mapIdsToInfos={filtersState.mapIdsToInfos}
-                                    mapRef={mapRef}
-                                    leftClickState={mapLeftClickState}
-                                    setLeftClickState={setMapLeftClickState}
-                                    setMapHoverState={setMapHoverState}
-                                    spiderifierRef={spiderifierRef}
-                                    spiderLayerIds={spiderLayerIds}
-                                />
-                            )}
-                        />
-                    </TabPanel>
-                    <TabPanel value={tabValue} index={1}>
-                        <div style={{
-                            width: '100%',
-                            height: '80vh', minHeight: 400,
-                            overflow: "auto"
-                        }}>
-                            <VolumeCard isLoading={eventStats.isLoading} isError={eventStats.error} label={t("social:tweets_count")} value={eventStats.stats.events_count} />
-                            <Paper elevation={6} style={{ marginBottom: '8px' }}>
-                                <Grid container direction='column'>
-                                    <Grid item><Typography variant='subtitle1' align='center'>{t("social:language_count_label")}</Typography></Grid>
-                                    {
-                                        eventStats.isLoading ? (<Grid style={{ flex: 1 }} container justify="center" >
-                                            <CircularProgress />
-                                        </Grid>) :
-                                            (eventStats.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
-                                                (Object.entries(eventStats.stats.languages_count).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
-                                                    (<div className={classes.pieContainer}>
-                                                        <PieChartStats
-                                                            prefix='labels:'
-                                                            data={eventStats.stats.languages_count} />
-                                                    </div>)
-                                    }
-                                </Grid>
-                            </Paper>
-                            <Paper elevation={6} style={{ marginBottom: '8px' }}>
-                                <Grid container direction='column'>
-                                    <Grid item>
-                                        <Typography variant='subtitle1' align='center'>
-                                            {t("social:label_hazard_count")}
-                                        </Typography>
-                                    </Grid>
-                                    {
-                                        (eventStats.error || filtersState.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
-                                            (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /> </Grid>) :
-                                                (Object.entries(hazardCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
-                                                    (<div className={classes.pieContainer}>
-                                                        <PieChartStats
-                                                            prefix='labels:'
-                                                            data={hazardCount} />
-                                                    </div>)
-                                    }
-                                </Grid>
-                            </Paper>
-                            <Paper elevation={6} style={{ marginBottom: '8px' }}>
-                                <Grid container direction='column'>
-                                    <Grid item><Typography variant='subtitle1' align='center'>{t("social:label_info_count")}</Typography></Grid>
-                                    {
-                                        (eventStats.error || filtersState.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
-                                            (eventStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /></Grid>) :
-                                                (Object.entries(infoCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
-                                                    (<div className={classes.pieContainer}>
-                                                        <PieChartStats
-                                                            prefix='labels:'
-                                                            data={infoCount} />
-                                                    </div>)
-                                    }
-                                </Grid>
-                            </Paper>
-                        </div>
-                    </TabPanel>
-                </Grid>
-                <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
-                    <Grid style={{ flex: 1, width: '100%' }} container justify='space-evenly'>
-                        <EventMap
-                            eventFilters={eventFiltersState}
-                            filtersState={filtersState}
-                            mapRef={mapRef}
-                            leftClickState={mapLeftClickState}
-                            setLeftClickState={setMapLeftClickState}
-                            data={eventAnnotations.data}
-                            isLoading={eventAnnotations.isLoading}
-                            isError={eventAnnotations.error}
-                            filterObjApplyHandler={(filtersObj) => filterObjApplyHandler(filtersObj, filtersState.mapHazardsToIds, filtersState.mapInfosToIds, eventFiltersState, mapRef, setEventFiltersMem, setEventFiltersState)}
-                            mapHoverState={mapHoverState}
-                            spiderifierRef={spiderifierRef}
-                            spiderLayerIds={spiderLayerIds}
-                            setSpiderLayerIds={setSpiderLayerIds}
-                        />
+      <Grid container direction="column" justify="flex-start" alignContent="space-around">
+        <Grid container direction="row" justify="flex-start" alignContent="space-around">
+          <Grid
+            className={classes.tweetsStatContainer}
+            item
+            lg="auto"
+            sm="auto"
+            xl="auto"
+            style={{ flex: 3 }}
+          >
+            <AppBar position="static" color="default" className={classes.appbar}>
+              <Tabs
+                value={tabValue}
+                onChange={(evt, value) => handleTabChange(evt, value, setTabValue)}
+                indicatorColor="primary"
+                color="white"
+                classes={{ indicator: classes.indicator }}
+                variant="scrollable"
+                scrollButtons="auto"
+                aria-label="scrollable auto tabs example"
+              >
+                <Tab label={t('social:events_label')} {...a11yProps(0)} />
+                <Tab label={t('social:stats_label')} {...a11yProps(1)} />
+              </Tabs>
+            </AppBar>
+            <TabPanel value={tabValue} index={0}>
+              <CardsList
+                data={shownData.data}
+                isLoading={eventAnnotations.isLoading}
+                hasMore={shownData.size < eventAnnotations.data.length}
+                isError={eventAnnotations.error}
+                moreData={() =>
+                  showMoreSocialData(shownData, eventAnnotations.data, MINI_PAGE_SIZE, setShownData)
+                }
+                renderItem={(item) => (
+                  <EventCard
+                    item={item}
+                    key={item.id}
+                    mapIdsToHazards={filtersState.mapIdsToHazards}
+                    mapIdsToInfos={filtersState.mapIdsToInfos}
+                    mapRef={mapRef}
+                    leftClickState={mapLeftClickState}
+                    setLeftClickState={setMapLeftClickState}
+                    setMapHoverState={setMapHoverState}
+                    spiderifierRef={spiderifierRef}
+                    spiderLayerIds={spiderLayerIds}
+                  />
+                )}
+              />
+            </TabPanel>
+            <TabPanel value={tabValue} index={1}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '80vh',
+                  minHeight: 400,
+                  overflow: 'auto'
+                }}
+              >
+                <VolumeCard
+                  isLoading={eventStats.isLoading}
+                  isError={eventStats.error}
+                  label={t('social:tweets_count')}
+                  value={eventStats.stats.events_count}
+                />
+                <Paper elevation={6} style={{ marginBottom: '8px' }}>
+                  <Grid container direction="column">
+                    <Grid item>
+                      <Typography variant="subtitle1" align="center">
+                        {t('social:language_count_label')}
+                      </Typography>
                     </Grid>
-                </Grid>
+                    {eventStats.isLoading ? (
+                      <Grid style={{ flex: 1 }} container justify="center">
+                        <CircularProgress />
+                      </Grid>
+                    ) : eventStats.error ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:fetch_error')}
+                      </Typography>
+                    ) : Object.entries(eventStats.stats.languages_count).length === 0 ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:no_results')}
+                      </Typography>
+                    ) : (
+                      <div className={classes.pieContainer}>
+                        <PieChartStats prefix="labels:" data={eventStats.stats.languages_count} />
+                      </div>
+                    )}
+                  </Grid>
+                </Paper>
+                <Paper elevation={6} style={{ marginBottom: '8px' }}>
+                  <Grid container direction="column">
+                    <Grid item>
+                      <Typography variant="subtitle1" align="center">
+                        {t('social:label_hazard_count')}
+                      </Typography>
+                    </Grid>
+                    {eventStats.error || filtersState.error ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:fetch_error')}
+                      </Typography>
+                    ) : eventStats.isLoading ? (
+                      <Grid container style={{ padding: 8 }} justify="center">
+                        {' '}
+                        <CircularProgress />{' '}
+                      </Grid>
+                    ) : Object.entries(hazardCount).length === 0 ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:no_results')}
+                      </Typography>
+                    ) : (
+                      <div className={classes.pieContainer}>
+                        <PieChartStats prefix="labels:" data={hazardCount} />
+                      </div>
+                    )}
+                  </Grid>
+                </Paper>
+                <Paper elevation={6} style={{ marginBottom: '8px' }}>
+                  <Grid container direction="column">
+                    <Grid item>
+                      <Typography variant="subtitle1" align="center">
+                        {t('social:label_info_count')}
+                      </Typography>
+                    </Grid>
+                    {eventStats.error || filtersState.error ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:fetch_error')}
+                      </Typography>
+                    ) : eventStats.isLoading ? (
+                      <Grid container style={{ padding: 8 }} justify="center">
+                        {' '}
+                        <CircularProgress />
+                      </Grid>
+                    ) : Object.entries(infoCount).length === 0 ? (
+                      <Typography style={{ margin: 4 }} align="center" variant="caption">
+                        {t('social:no_results')}
+                      </Typography>
+                    ) : (
+                      <div className={classes.pieContainer}>
+                        <PieChartStats prefix="labels:" data={infoCount} />
+                      </div>
+                    )}
+                  </Grid>
+                </Paper>
+              </div>
+            </TabPanel>
+          </Grid>
+          <Grid
+            container
+            className={classes.tweetsStatContainer}
+            direction="column"
+            item
+            style={{ flex: 7 }}
+          >
+            <Grid style={{ flex: 1, width: '100%' }} container justify="space-evenly">
+              <EventMap
+                eventFilters={eventFiltersState}
+                filtersState={filtersState}
+                mapRef={mapRef}
+                leftClickState={mapLeftClickState}
+                setLeftClickState={setMapLeftClickState}
+                data={eventAnnotations.data}
+                isLoading={eventAnnotations.isLoading}
+                isError={eventAnnotations.error}
+                filterObjApplyHandler={(filtersObj) =>
+                  filterObjApplyHandler(
+                    filtersObj,
+                    filtersState.mapHazardsToIds,
+                    filtersState.mapInfosToIds,
+                    eventFiltersState,
+                    mapRef,
+                    setEventFiltersMem,
+                    setEventFiltersState
+                  )
+                }
+                mapHoverState={mapHoverState}
+                spiderifierRef={spiderifierRef}
+                spiderLayerIds={spiderLayerIds}
+                setSpiderLayerIds={setSpiderLayerIds}
+              />
             </Grid>
+          </Grid>
         </Grid>
+      </Grid>
     )
 }
 

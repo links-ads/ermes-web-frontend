@@ -79,10 +79,10 @@ export function LayersSelectContainer(props) {
     }
 
   const handleRadioClick = (event: any) => {
-    if (event.target.value === props.selectedLayerId) {
-      props.setSelectedLayerId(NO_LAYER_SELECTED)
+    if (event.target.value === props.layerSelection.dataTypeId) {
+      props.setLayerSelection({isMapRequest:NO_LAYER_SELECTED,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:NO_LAYER_SELECTED})
     } else {
-      props.setSelectedLayerId(event.target.value)
+      props.setLayerSelection({isMapRequest:0,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:event.target.value})
     }
   }
   return (
@@ -131,8 +131,8 @@ export function LayersSelectContainer(props) {
                 <CircularProgress />{' '}
               </Grid>
             ) : props.data === undefined ||
-              !props.data['layerGroups'] ||
-              Object.entries(props.data['layerGroups']).length === 0 ? (
+              !props.data ||
+              props.data.length === 0 ? (
               <Grid container justify="center">
                 <Typography align="center" variant="h6">
                   {t('maps:no_layers')}
@@ -143,19 +143,19 @@ export function LayersSelectContainer(props) {
                 <RadioGroup
                   aria-label="gender"
                   name="controlled-radio-buttons-group"
-                  value={props.selectedLayerId}
+                  value={props.layerSelection.dataTypeId}
                 >
-                  {props.data['layerGroups'].map((group) => {
+                  {props.data.map((group) => {
                     return (
                       <Accordion
-                        key={group['groupKey']}
+                        key={group['name']}
                         color="primary"
                         style={{ backgroundColor: theme.palette.primary.dark, width: '100%' }}
-                        expanded={expanded.split('_')[0] === group['groupKey']}
-                        onChange={handleAccordionChange(group['groupKey'], 'main')}
+                        expanded={expanded.split('_')[0] === group['name']}
+                        onChange={handleAccordionChange(group['name'], 'main')}
                       >
-                        <AccordionSummary expandIcon={<ExpandMoreIcon />} id={group['groupKey']}>
-                          <Typography className={classes.heading}>{group['group']}</Typography>
+                        <AccordionSummary expandIcon={<ExpandMoreIcon />} id={group['name']}>
+                          <Typography className={classes.heading}>{group['name']}</Typography>
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                           {group['subGroups'].map((subGroup) => {
@@ -170,23 +170,23 @@ export function LayersSelectContainer(props) {
                                 <br />
                               </div>
                             ))
-                            return subGroup['subGroupKey'] !== null ? (
+                            return subGroup['name'] !== null ? (
                               <Accordion
-                                key={subGroup['subGroupKey']}
+                                key={subGroup['name']}
                                 color="primary"
                                 style={{
                                   backgroundColor: theme.palette.primary.dark,
                                   width: '100%'
                                 }}
-                                expanded={expanded.split('_')[1] === subGroup['subGroupKey']}
-                                onChange={handleAccordionChange(subGroup['subGroupKey'], 'sub')}
+                                expanded={expanded.split('_')[1] === subGroup['name']}
+                                onChange={handleAccordionChange(subGroup['name'], 'sub')}
                               >
                                 <AccordionSummary
                                   expandIcon={<ExpandMoreIcon />}
-                                  id={subGroup['subGroupKey']}
+                                  id={subGroup['name']}
                                 >
                                   <Typography className={classes.heading}>
-                                    {subGroup['subGroup']}
+                                    {subGroup['name']}
                                   </Typography>
                                 </AccordionSummary>
                                 <AccordionDetails className={classes.accordionDetails}>
