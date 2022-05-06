@@ -8,6 +8,7 @@ import {
 import { useSnackbars } from './use-snackbars.hook'
 import { useState, useEffect } from 'react'
 import { APIAxiosHookOpts, useAxiosWithParamCreator } from './api-hooks'
+import { useTranslation } from 'react-i18next'
 // , useAPIConfiguration
 type ActApiPC = typeof ActivitiesApiAxiosParamCreator
 type KRActApiPC = keyof ReturnType<ActApiPC>
@@ -15,13 +16,20 @@ const FULL_LIST = 'true'
 
 export default function useActivitiesList() {
   // const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  // const teamAPIFactory = ActivitiesApiFactory(backendAPIConfig)
+  const { i18n } = useTranslation()
   const methodName: KRActApiPC = 'activitiesGetActivities'
   const opts: APIAxiosHookOpts<ActApiPC> = {
     type: 'backoffice',
     paramCreator: ActivitiesApiAxiosParamCreator,
     methodName,
-    args: [FULL_LIST]
+    args: [
+      FULL_LIST,
+      {
+        headers: {
+          'Accept-Language': i18n.language
+        }
+      }
+    ]
   }
   const [
     { data: result, loading: activitiesLoading, error: activError }

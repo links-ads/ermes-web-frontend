@@ -4,6 +4,7 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { useTranslation } from 'react-i18next'
 
 
 const initialState = {
@@ -57,6 +58,7 @@ export default function GetApiGeoJson() {
         null,
         false
     )
+    const { i18n } = useTranslation()
 
     const fetchGeoJson = useCallback(
       (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -81,7 +83,12 @@ export default function GetApiGeoJson() {
             (filters?.mapRequests as any).content[0].selected,
             undefined,
             (filters?.report as any).content[2].selected,
-            (filters?.report as any).content[3].selected
+            (filters?.report as any).content[3].selected,
+            {
+              headers: {
+                'Accept-Language': i18n.language
+              }
+            }
           )
           .then((result) => {
             dispatch({

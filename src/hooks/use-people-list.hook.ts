@@ -4,6 +4,7 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { useTranslation } from 'react-i18next'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -44,7 +45,8 @@ export default function usePeopleList() {
   const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
-  // const [filters, setFilters] = useState([])
+  const { i18n } = useTranslation()
+  
   const [storedFilters, , ] = useMemoryState(
     'memstate-map',
     null,
@@ -71,7 +73,12 @@ export default function usePeopleList() {
           undefined,
           searchText,
           undefined,
-          undefined
+          undefined,
+          {
+            headers: {
+              'Accept-Language': i18n.language
+            }
+          }
         )
         .then((result) => {
           let newData: PersonActionDto[] = transformData(result.data.data) || []

@@ -5,6 +5,7 @@ import React from 'react'
 import Draggable from 'react-draggable'
 import { Card, makeStyles } from '@material-ui/core'
 import { ResizableBox } from 'react-resizable'
+import { position } from 'polished'
 
 const useStyles = makeStyles((theme) => ({
   floatingFilter: {
@@ -35,11 +36,13 @@ export default function FloatingCardContainer(props) {
       handle=".handle"
       bounds={props.bounds}
       defaultPosition={props.defaultPosition}
-      position={undefined}
+      position={props.position}
       scale={1}
       onStart={(e) => e.preventDefault()}
       onDrag={(e) => e.preventDefault()}
-      onStop={(e) => e.preventDefault()}
+      onStop={((e, d) => {e.preventDefault()
+        props.onPositionChange({x:d.x, y:d.y})})}
+      
     >
       <div
         style={{ display: props.toggleActiveFilterTab ? undefined : 'none' }}
@@ -51,8 +54,9 @@ export default function FloatingCardContainer(props) {
               height={props.dim.height}
               width={props.dim.width}
               onResize={props.onResize}
+              onResizeStop={props.onResizeStop}
               className={classes.resizable}
-              minConstraints={[500, 300]}
+              minConstraints={[420, 220]}
               maxConstraints={[1000, 800]}
             >
               {props.children}

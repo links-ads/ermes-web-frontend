@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useContext, useEffect, useCallback, useMemo } from 'react'
 import {
   GeolocateControl,
   NavigationControl,
@@ -35,6 +35,7 @@ import {
   onMouseEnterHandler,
   onMouseLeaveHandler,
   onMapLeftClickHandler,
+  onMapDoubleClickHandler,
   onMapRightClickHandler
 } from './map-event-handlers'
 import { DrawerToggle } from './map-drawer/drawer-toggle.component'
@@ -49,7 +50,7 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles } from '@material-ui/styles'
-import {  Collapse, createStyles, Fab } from '@material-ui/core'
+import { Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -145,7 +146,7 @@ export function MapLayout(props) {
   const [legendToggle, setLegendToggle] = useState(false)
 
   // Parse props
-  const {goToCoord,setGoToCoord,setMap,setSpiderifierRef} = props
+  const { goToCoord, setGoToCoord, setMap, setSpiderifierRef, setDblClickFeatures } = props
 
   // Map state
   const [
@@ -190,79 +191,47 @@ export function MapLayout(props) {
   // Variable checked to draw polygons to the map
   const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)
 
-  const [mapTileId, setMapTileId] = useState<string | null>(null)
+  const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
-    if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-      const layerProps = props.layerId2Tiles[props.selectedLayerId]
-      const layerName = layerProps['names'][props.dateIndex]
+    const mapTileId = geoLayerState.tileId
+    if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {
+      const layerProps = props.layerSelection.isMapRequest === 0 ?
+        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
+        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
+      const geoLayerName = layerProps['names'][props.dateIndex]
       const source = tileJSONIfy(
         map,
-        layerName,
+        geoLayerName,
         new Date(layerProps['timestamps'][props.dateIndex]).toISOString(),
         geoServerConfig,
         map.getBounds()
       )
+      source['properties'] = {'format': layerProps['format'], 'fromTime':layerProps['fromTime'],'toTime':layerProps['toTime']}
       if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
 
-      map.addSource(layerName, source as mapboxgl.RasterSource)
+      map.addSource(geoLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
-          id: layerName,
+          id: geoLayerName,
           type: 'raster',
-          source: layerName,
-          paint: {
-            'raster-opacity': 0.8
-          }
+          source: geoLayerName,
         },
         'clusters'
       )
-      setMapTileId(layerName)
+      setGeoLayerState({ tileId: geoLayerName, tileSource: source })
     } else {
       if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
-        setMapTileId(null)
+        setGeoLayerState({ tileId: null, tileSource: {} })
       }
     }
-  }, [props.selectedLayerId, props.dateIndex,geoServerConfig,mapTileId,props.layerId2Tiles])
-
-  // useEffect(() => {
-  //   const map = mapViewRef.current?.getMap()!
-  //   if (props.selectedLayerId !== NO_LAYER_SELECTED) {
-  //     const newLayerProps = props.layerId2Tiles[props.selectedLayerId]
-  //     const newLayerName = newLayerProps['names'][props.dateIndex]
-  //     const newSource = tileJSONIfy(
-  //       map,
-  //       newLayerName,
-  //       newLayerProps['timestamps'][props.dateIndex],
-  //       geoServerConfig,
-  //       map.getBounds()
-  //     )
-  //     map.addSource(newLayerName, newSource as mapboxgl.RasterSource)
-  //     map.addLayer(
-  //       {
-  //         id: newLayerName,
-  //         type: 'raster',
-  //         source: newLayerName,
-  //         paint: {
-  //           'raster-opacity': 0.8
-  //         }
-  //       },
-  //       'clusters'
-  //     )
-  //     if (mapTileId !== null) {
-  //       map.removeLayer(mapTileId)
-  //       map.removeSource(mapTileId)
-
-  //     }
-
-  //   }
-  // }, [props.dateIndex])
+  }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
 
   useEffect(
     () => {
@@ -365,7 +334,7 @@ export function MapLayout(props) {
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
       } else {
-        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication','MapRequest'].includes(type)) {
+        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
           displayWarningSnackbar('Cannot create feature of type ' + type)
@@ -429,6 +398,23 @@ export function MapLayout(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [viewport.zoom, mapMode] // TODO check if needed
   )
+  const onMapDoubleClick = useCallback(
+    (evt: PointerEvent) => {
+      evt.preventDefault()
+      evt.stopPropagation()
+      onMapDoubleClickHandler(
+        mapViewRef,
+        mapMode,
+        geoLayerState,
+        geoServerConfig,
+        setDblClickFeatures,
+        props.filtersObj.filters,
+        evt
+      )
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mapMode, geoLayerState] // TODO check if needed
+  )
 
   // Called on right click
   const onContextMenu = useCallback(
@@ -487,11 +473,13 @@ export function MapLayout(props) {
           props.filterList.includes(a?.properties?.status) ||
           props.filterList.includes(a?.properties?.activityFilter)
       )
+      const map = mapViewRef?.current?.getMap()
+      if (map)
+        spiderifierRef.current?.clearSpiders(map!)
       setJsonData({
         type: 'FeatureCollection',
         features: filteredList
       })
-      const map = mapViewRef.current?.getMap()
       updateMarkersDebounced(map)
     }
   }, [
@@ -502,7 +490,7 @@ export function MapLayout(props) {
     updateMarkersDebounced
   ])
 
-  
+
   useEffect(() => {
     if (goToCoord !== undefined) {
       mapViewRef.current?.getMap().flyTo(
@@ -548,7 +536,11 @@ export function MapLayout(props) {
   useEffect(() => {
     setMap(mapViewRef.current?.getMap())
     setSpiderifierRef(spiderifierRef)
-  }, [setMap,setSpiderifierRef])
+  }, [setMap, setSpiderifierRef])
+
+  const mapLayers = useMemo(() => {
+    return geoLayerState.tileId ? [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds, geoLayerState.tileId] : [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]
+  }, [geoLayerState])
 
   return (
     <>
@@ -566,12 +558,12 @@ export function MapLayout(props) {
         transformRequest={transformRequest}
         clickRadius={CLICK_RADIUS}
         onLoad={onMapLoad}
-        interactiveLayerIds={[...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]}
+        interactiveLayerIds={mapLayers}
         // onHover={(evt) => console.debug('Map: mouse Hover', evt)}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
         onClick={onMapClick}
-        // onDblClick={onDoubleClick}
+        onDblClick={onMapDoubleClick}
         onContextMenu={onContextMenu}
         ref={mapViewRef}
         width="100%"
@@ -685,7 +677,7 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          {props.selectedLayerId !== NO_LAYER_SELECTED ? (
+          {props.layerSelection.dataTypeId !== NO_LAYER_SELECTED ? (
             <PlayerButton visibility={props.togglePlayer} setVisibility={props.setTogglePlayer} />
           ) : null}
         </>

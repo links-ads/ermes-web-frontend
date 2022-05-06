@@ -29,9 +29,11 @@ const options: Options<any> = {
 }
 const useStyles = makeStyles((theme) => ({
   chipContainer: {
-    width: '100%'
+    width: '100%',
+    zIndex: 1
   },
   chipStyle: {
+    zIndex: 30,
     marginBottom: 3,
     marginRight: '3px',
     position: 'relative',
@@ -74,12 +76,14 @@ function localizeColumns(
     { title: t('admin:user_username'), field: 'user.username' },
     { title: t('admin:user_email'), field: 'user.email' },
     {
+      // Selector of the roles, showing them as chips
       title: t('admin:user_role'),
       field: 'user.roles',
       editable: 'always',
       disableClick: true,
       width: '30%',
       render: (rowData) => (
+        // when not editing, render them as a list of chips
         <div className={classes.chipContainer}>
           {rowData?.user?.roles?.map((value) => (
             UserRoles.indexOf(value) !== -1 ? (
@@ -96,6 +100,9 @@ function localizeColumns(
           }
         }
         return (
+          // Selector for editing (multiple selector was not working properly, due to different rendering cycles between editing and adding an element,
+          // which was causing different behaviour in the two different cases. A trick on the single selector solved the problem, although the solution
+          // is everything but elegant).
           <Select
             labelId="users-multiple-checkbox-label"
             id="users-multiple-checkbox"
@@ -125,7 +132,7 @@ function localizeColumns(
                 <ListItemText primary={t('common:role_' + role)} />
               </MenuItem>
             ))}
-          </Select>
+          </Select >
         )
       }
     },

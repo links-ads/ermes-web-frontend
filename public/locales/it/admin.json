@@ -9,6 +9,8 @@
   "org_short_name": "Abbr.",
   "org_name": "Nome",
   "org_description": "Descrizione",
+  "org_parent": "Org. Padre",
+  "org_no_parent": "No Org. Padre",
   "org_website": "Sito Web",
   "user": "Utente",
   "users": "Utenti",
@@ -21,5 +23,10 @@
   "team_name": "Team",
   "team_org_name" :  "Organizzazione",
   "team_people_count" : "# persone",
-  "team_select_members" : "Seleziona un team per vedere i suoi membri"
+  "team_select_members" : "Seleziona un team per vedere i suoi membri",
+  "decision_maker": "Decision Maker",
+  "first_responder": "First Responder",
+  "organization_manager": "Organization Manager",
+  "team_leader": "Team Leader",
+  "administrator": "Amministratore"
 }

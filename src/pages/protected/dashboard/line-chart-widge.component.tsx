@@ -8,6 +8,17 @@ export const LineChartWidget = (
 ) => {
     const theme = useTheme()
 
+    const formatTicks = (v) => {
+        return v.length > 10 ? (
+            <tspan>
+                {v.substring(0, 10) + "..."}
+                <title>{v}</title>
+            </tspan>
+        ) : (
+            v
+        );
+    }
+
     const chartData = useMemo(() => {
         const newData = [] as any[]
         Object.entries(props.data).forEach(entry => {
@@ -19,16 +30,14 @@ export const LineChartWidget = (
         return newData
     }, [props.data])
 
-    const chartNumbers = useMemo(()=>{
-        let values = [] as number[] 
-        Object.entries(props.data).forEach(entry=>{
-            const newArr = (entry[1] as any[]).map(o=>o.y)
+    const xValues = useMemo(() => {
+        let values = [] as number[]
+        Object.entries(props.data).forEach(entry => {
+            const newArr = (entry[1] as any[]).map(o => o.x)
             values = values.concat(newArr)
         })
-        let maxValue = [...new Set(values)].reduce(function(a, b) { return Math.max(a, b); });
-        values = [...Array(maxValue+1).keys()]
-        return values
-    },[props.data])
+        return [...new Set(values)]
+    }, [props.data])
 
     return (
         <div
@@ -36,30 +45,28 @@ export const LineChartWidget = (
         >
             <ResponsiveLine
                 data={chartData}
-                margin={{ top: 50, right: 110, bottom: 60, left: 60 }}
+                margin={{ top: 32, right: 32, bottom: 64, left: 60 }}
                 xScale={{ type: 'point' }}
                 yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
-                yFormat=" >-#.0d"
-                gridYValues={chartNumbers}
-                // gridYValues={listToMax(chartNumbers)}
-                // gridYValues={[0,1,4]}
+                yFormat=">-6.2f"
                 theme={
-                    { 
+                    {
                         textColor: theme['palette']['text']['primary'],
-                        grid: { line: { stroke: theme['palette']['text']['primary'] } } 
+                        grid: { line: { stroke: theme['palette']['text']['primary'] } }
                     }}
                 axisBottom={{
                     orient: 'bottom',
                     tickSize: 5,
                     tickPadding: 5,
-                    tickRotation: -45
+                    tickRotation: -75,
+                    format: formatTicks,
+                    tickValues: xValues.length < 40 ? xValues : xValues.filter((_, i) => i % 2 === 0)
                 }}
                 axisLeft={{
                     orient: 'left',
                     tickSize: 5,
                     tickPadding: 5,
                     tickRotation: 0,
-                    tickValues:chartNumbers
                 }}
                 pointSize={10}
                 pointColor={{ theme: 'background' }}
@@ -67,13 +74,14 @@ export const LineChartWidget = (
                 pointBorderColor={{ from: 'serieColor' }}
                 enableGridX={false}
                 useMesh={true}
-                tooltip={d=>{
-                    return ChartTooltip(
-                        // t(props.prefix + (item.label as string).toLowerCase()),
-                        "Activations",
-                        d.point.serieColor,
-                        d.point.data.y as number)
-                }}
+                tooltip={d => {
+                    return (
+                        ChartTooltip(
+                            d.point.serieId as string,
+                            d.point.serieColor,
+                            (d.point.data.y as number).toFixed(4))
+                            )
+                        }}
             />
         </div>
     )
