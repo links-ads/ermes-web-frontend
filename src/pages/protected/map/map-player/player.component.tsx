@@ -14,6 +14,7 @@ import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -25,18 +26,19 @@ const useStyles = makeStyles((theme) => ({
     marginRight: 32
   },
   heading: {
-    fontSize: theme.typography.pxToRem(15),
+    fontSize: theme.typography.pxToRem(14),
     fontWeight: theme.typography.fontWeightRegular
   },
   accordionDetails: {
     display: 'block'
   },
   sliderContainer: {
-    display: 'inline-block',
+    display: 'flex',
     width: '75%',
     height: '50px',
     verticalAlign: '-moz-middle-with-baseline',
-    marginTop: '21px'
+  
+    alignItems:'flex-end'
   },
   slider: {
     width: '100%',
@@ -64,8 +66,10 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonsContainer: {
     width: '25%',
+    
+    alignItems:'center',
     textAlign: 'end',
-    display: 'inline-block',
+    display: 'flex',
     '& .MuiButtonBase-root': {
       display: 'inline-block',
       padding: 0,
@@ -73,9 +77,25 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   playerContainer: {
-    paddingTop: '25px'
+    paddingTop: '25px',
+    width: '90%',
+  },
+
+  spanContainer:{
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+    
+  },
+
+  oneDatapoint: {
+ 
+    width: '100%',
+    textAlign: 'center',
+    color: theme.palette.text.disabled
   }
 }))
+
 
 export function LayersPlayer(props) {
   const classes = useStyles()
@@ -102,6 +122,7 @@ export function LayersPlayer(props) {
 
 
   const [playing, setPlaying] = useState(false)
+  const { t, i18n } = useTranslation(['maps'])
 
   const insideData = {
     name: layerProps
@@ -160,11 +181,11 @@ export function LayersPlayer(props) {
       onPositionChange={props.onPositionChange}
       toggleActiveFilterTab={visibility}
       dim={{
-        width: 400,
-        height: 200
+        width: 500,
+        height: 250
       }}
       onResize={null}
-      resizable={false}
+      resizable={true}
     >
       <AppBar
         position="static"
@@ -177,7 +198,7 @@ export function LayersPlayer(props) {
         className="handle handleResize"
       >
         <span className={classes.titleContainer}>
-          <Typography align="left" variant="h4">
+          <Typography align="left" variant="h4" style={{ fontSize: '2rem'}}>
             {insideData.name}
           </Typography>
         </span>
@@ -200,13 +221,15 @@ export function LayersPlayer(props) {
           paddingTop: '0px',
           overflowY: 'hidden',
           overflowX: 'hidden',
-          height: 138
+          height: '100%'
         }}
       >
         <Typography align="left" variant="h5">
           {layerProps ?  formatDate(layerProps['timestamps'][dateIndex]) : null}
         </Typography>
         <div className={classes.playerContainer}>
+        {insideData.timestamps.length > 1 ? (
+            <span className={classes.spanContainer}>
           <div className={classes.sliderContainer}>
             <Slider
               className={classes.slider}
@@ -237,6 +260,10 @@ export function LayersPlayer(props) {
               <SkipNextIcon />
             </IconButton>
           </div>
+          </span>
+          ) : (
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} </div>
+          )}
         </div>
       </CardContent>
     </FloatingCardContainer>
