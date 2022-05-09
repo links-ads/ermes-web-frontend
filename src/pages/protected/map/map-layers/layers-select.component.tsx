@@ -127,7 +127,7 @@ export function LayersSelectContainer(props) {
           </AppBar>
           <CardContent style={{ height: '90%', overflowY: 'auto' }}>
             {props.loading ? (
-              <Grid container justify="center">
+              <Grid container justifyContent="center">
                 <CircularProgress />{' '}
               </Grid>
             ) : props.data === undefined ||
@@ -160,7 +160,7 @@ export function LayersSelectContainer(props) {
                         <AccordionDetails className={classes.accordionDetails}>
                           {group['subGroups'].map((subGroup) => {
                             const layers = subGroup['layers'].map((layer, i) => (
-                              <div>
+                              <div key={i}>
                                 <FormControlLabel
                                   key={layer['dataTypeId']}
                                   value={String(layer['dataTypeId'])}

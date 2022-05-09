@@ -408,7 +408,7 @@ export function Tab1(props) {
                 </Select>
               </FormControl>
             )
-          default: return (<div></div>)
+          default: return (<div key={i}></div>)
         }
       })}
     </div>
