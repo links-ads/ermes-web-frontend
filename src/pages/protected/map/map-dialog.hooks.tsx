@@ -40,6 +40,7 @@ export type EditStateType = {
   status: MissionStatusType
   frequency: string
   dataType: string[]
+  resolution: string
 }
 
 export enum CoordinatorType {
@@ -50,7 +51,7 @@ export enum CoordinatorType {
 }
 
 export type EditActionType = {
-  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY"
+  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY" | "RESOLUTION"
   value?: Date | string | any
 }
 
@@ -65,7 +66,8 @@ const defaultEditState = {
   description: "",
   status: MissionStatusType.CREATED,
   frequency: "0",
-  dataType: []
+  dataType: [],
+  resolution: "10"
 }
 
 
@@ -127,10 +129,16 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         dataType: action.value
       }
     case "FREQUENCY":
-      let number = parseInt(action.value)
+      var number = parseInt(action.value)
       return {
         ...currentState,
         frequency: (isNaN(number) || number < 0) ? "0" : (number > 30) ? "30" : number.toString()
+      }
+    case "RESOLUTION":
+      var number = parseInt(action.value)
+      return {
+        ...currentState,
+        resolution: (isNaN(number) || number < 0) ? "0" : (number > 60) ? "60" : number.toString()
       }
     case 'RESET':
       return defaultEditState
@@ -319,6 +327,7 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
         break;
       case 'MapRequest':
         baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
+        baseObj['feature']['properties']['resolution'] = parseInt(editState.resolution)
         if (editState.dataType.length > 0)
           baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map(d=>parseInt(d))
         break;

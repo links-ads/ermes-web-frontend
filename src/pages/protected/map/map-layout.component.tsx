@@ -686,9 +686,9 @@ export function MapLayout(props) {
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
-            {Object.keys(EmergencyColorMap).map((key) => {
+            {Object.keys(EmergencyColorMap).map((key,i) => {
               return (
-                <div className={classes.legend_row}>
+                <div key={i} className={classes.legend_row}>
                   <div
                     style={{
                       backgroundColor: EmergencyColorMap[key]

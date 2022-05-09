@@ -75,6 +75,8 @@
   "no_layers":"Non ci sono layers che soddisfano i criteri di ricerca",
   "frequency_help":"Frequenza deve essere maggiore di 0",
   "frequency_label":"Frequenza (Giorni)",
+  "resolution_help":"Risoluzione deve essere maggiore di 0",
+  "resolution_label":"Risoluzione (Metri)",
   "one_datapoint": "Solo un timestamp disponibile per questo layer",
   "layer":"Layer"
 }

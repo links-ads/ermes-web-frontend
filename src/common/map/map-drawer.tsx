@@ -47,7 +47,7 @@ export const MapHeadDrawer = (props) => {
         container
         style={{ height: '100%' }}
         direction="row"
-        justify="space-evenly"
+        justifyContent="space-evenly"
         alignItems="center"
         alignContent="center"
       >

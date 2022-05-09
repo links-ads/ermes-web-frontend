@@ -107,44 +107,57 @@ export function MapRequestDialog(
                     />
                 </MuiPickersUtilsProvider>
             </Grid>
-            <Grid container>
-                <Grid item style={{ flex: 1 }}>
-                    <FormControl margin='normal' style={{ minWidth: '50%' }}>
-                        <InputLabel id='select-datatype-label'>{t('maps:layer')}</InputLabel>
-                        <Select
-                            labelId='select-datatype-label'
-                            id="select-datatype"
-                            value={editState.dataType}
-                            multiple={true}
-                            renderValue={(selected) => (selected as string[]).map(id=>dataTypeOptions[id]).join(', ')}
-                            onChange={(event) => {
-                                dispatchEditAction({ type: "DATATYPE", value: event.target.value })
-                            }}
-                        >
-                            {Object.entries(dataTypeOptions).map((e) => (
-                                <MenuItem key={e[0]} value={e[0]}>
-                                    <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
-                                    <ListItemText primary={e[1]} />
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid item style={{ flex: 1 }}>
-                    <TextField
-                        id="title"
-                        label={t("maps:frequency_label")}
-                        error={editError && parseInt(editState.frequency) < 0}
-                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
-                        type="number"
-                        value={editState.frequency}
-                        onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
-                        variant='outlined'
-                        color='primary'
-                        fullWidth={true}
-                        inputProps={{ min: 0, max: 30 }}
-                    />
-                </Grid>
+            <Grid container style={{marginBottom:16, width:'50%'}} >
+                <FormControl margin='normal' style={{ minWidth: '50%' }}>
+                    <InputLabel id='select-datatype-label'>{t('maps:layer')}</InputLabel>
+                    <Select
+                        labelId='select-datatype-label'
+                        id="select-datatype"
+                        value={editState.dataType}
+                        multiple={true}
+                        renderValue={(selected) => (selected as string[]).map(id => dataTypeOptions[id]).join(', ')}
+                        onChange={(event) => {
+                            dispatchEditAction({ type: "DATATYPE", value: event.target.value })
+                        }}
+                    >
+                        {Object.entries(dataTypeOptions).map((e) => (
+                            <MenuItem key={e[0]} value={e[0]}>
+                                <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
+                                <ListItemText primary={e[1]} />
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Grid>
+            <Grid container style={{marginBottom:16, width:'50%'}}>
+                <TextField
+                    id="frequency-title"
+                    label={t("maps:frequency_label")}
+                    error={editError && parseInt(editState.frequency) < 0}
+                    helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
+                    type="number"
+                    value={editState.frequency}
+                    onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+                    variant='outlined'
+                    color='primary'
+                    fullWidth={true}
+                    inputProps={{ min: 0, max: 30 }}
+                />
+            </Grid>
+            <Grid container style={{marginBottom:16, width:'50%'}}>
+                <TextField
+                    id="resolution-title"
+                    label={t("maps:resolution_label")}
+                    error={editError && parseInt(editState.resolution) < 0}
+                    helperText={editError && parseInt(editState.resolution) < 0 && t("maps:resolution_help")}
+                    type="number"
+                    value={editState.resolution}
+                    onChange={e => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+                    variant='outlined'
+                    color='primary'
+                    fullWidth={true}
+                    inputProps={{ min: 10, max: 60 }}
+                />
             </Grid>
         </Grid>
     )
