@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useReducer, useContext, useMemo} from 'react'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -173,8 +173,8 @@ export function Map() {
               timestamps: Object.keys(namestimesDict),
               name: layer['name'],
               format: layer['format'],
-              fromTime : Object.keys(namestimesDict)[0],
-              toTime : Object.keys(namestimesDict).slice(-1)[0]
+              fromTime: Object.keys(namestimesDict)[0],
+              toTime: Object.keys(namestimesDict).slice(-1)[0]
             }
           }
         })
@@ -214,9 +214,6 @@ export function Map() {
     })
     return groupData
   }, [getLayersState])
-
-  console.log('TILES', layerId2Tiles)
-  console.log('DATA', layersData)
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -279,47 +276,43 @@ export function Map() {
     }
   }, [layerSelection])
 
-  console.log("DATE OUT", dateIndex)
+  const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: 60 } }, [])
+  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 300) } }, [])
+  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120,window.innerHeight - 300 - 450) } }, [])
+  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400,window.innerWidth-600), y: 60 } }, [])
 
-  const [layersPlayerDefaultCoord, setPlayersDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:500})
-  const [layersSelectContainerDefaultCoord, setLayersSelectContainerDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:90})
-  const [floatingFilterContainerDefaultCoord, setFloatingFilterContainerDefaultCoord] = useState<{ x: number; y: number }>({x:60, y:60})
-
-  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-
-  // const [layerPlayerMoved, setLayerPlayerMoved] = useState(false)
-  // const [layerSelectMoved, setLayerSelectMoved] = useState(false)
-  // const [floatingFilterMoved, setFloatingFilterMoved] = useState(false)
-
+  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  
   useEffect(() => {
-    if(toggleSideDrawer){ 
-     
-      if(layersSelectVisibility){ //layers container is visible, move it
+    if (toggleSideDrawer) {
+
+      if (layersSelectVisibility) { //layers container is visible, move it
         //opening drawer
-        if(layersSelectContainerPosition == undefined)
-          setLayersSelectContainerPosition({x:470, y: layersSelectContainerDefaultCoord.y})
-        else if( layersSelectContainerPosition!.x < 450)
-          setLayersSelectContainerPosition({x:470, y: layersSelectContainerPosition!.y})
-      }
-      
-      if(togglePlayer){
-        if(layersPlayerPosition == undefined)
-          setLayersPlayerPosition({x:470, y: layersPlayerDefaultCoord.y})
-        else if( layersPlayerPosition!.x < 450)
-          setLayersPlayerPosition({x:470, y: layersPlayerPosition!.y})
+        if (layersSelectContainerPosition == undefined)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
+        else if (layersSelectContainerPosition!.x < 450)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
       }
 
-      if(toggleActiveFilterTab){
-        if(floatingFilterContainerPosition == undefined)
-          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerDefaultCoord.y})
-        else if( floatingFilterContainerPosition!.x < 450)
-          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerPosition!.y})
-      }     
-  } else{
-    //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
-  }
+      if (togglePlayer) {
+        if (layersPlayerPosition == undefined)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerDefaultCoord.y })
+        else if (layersPlayerPosition!.x < 450)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerPosition!.y })
+      }
+
+      if (toggleActiveFilterTab) {
+        if (floatingFilterContainerPosition == undefined)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
+        else if (floatingFilterContainerPosition!.x < 450)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
+      }
+    } else {
+      //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+    }
 
   }, [toggleSideDrawer])
 
@@ -370,8 +363,11 @@ export function Map() {
           dblClickFeatures && (
 
             <MapTimeSeries
-            dblClickFeatures={dblClickFeatures}
-            setDblClickFeatures={setDblClickFeatures}
+              dblClickFeatures={dblClickFeatures}
+              setDblClickFeatures={setDblClickFeatures}
+              defaultPosition={mapTimeSeriesContainerDefaultCoord}
+              position={mapTimeSeriesContainerPosition}
+              onPositionChange={setMapTimeSeriesContainerPosition}
             />
           )
         }
