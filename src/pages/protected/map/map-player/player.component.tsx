@@ -10,6 +10,7 @@ import {
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
+import LegendIcon from '@material-ui/icons/FilterNone'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
@@ -18,12 +19,11 @@ import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
-    width: '90%',
+    width: '80%',
     display: 'inline-block',
     paddingLeft: 32,
     paddingTop: 11,
-    paddingBottom: 11,
-    marginRight: 32
+    paddingBottom: 11
   },
   heading: {
     fontSize: theme.typography.pxToRem(14),
@@ -123,6 +123,7 @@ export function LayersPlayer(props) {
 
   const [playing, setPlaying] = useState(false)
   const { t, i18n } = useTranslation(['maps'])
+  const [ layerName, setLayerName ] = useState('')
 
   const insideData = {
     name: layerProps
@@ -140,8 +141,12 @@ export function LayersPlayer(props) {
 
   function valuetext(value) {
     console.log('valuetext', insideData.labels[value])
+    setLayerName(insideData.labels[value])
+    props.onPlayerChange(insideData.labels[value])
+    //setSelectedName(insideData.labels[value])
     return insideData.timestamps[value]
   }
+
 
   const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
     if (dateIndex < timestampsLength - 1) {
@@ -210,6 +215,14 @@ export function LayersPlayer(props) {
             }}
           >
             <CloseIcon />
+          </IconButton>
+          <IconButton
+            style={{ marginTop: '10px', position: 'absolute', right: '60px' }}
+            onClick={() => {
+             props.getLegend(layerName)
+            }}
+          >
+            <LegendIcon />
           </IconButton>
         </span>
       </AppBar>

@@ -48,6 +48,23 @@ export function makeTimeSeriesURL(coord,layerName,geoServerConfig,timeRange){
 
 }
 
+export function getLegendURL(geoServerConfig, w, h ,layerName){
+
+   const baseUrl = geoServerConfig?.baseUrl
+ 
+   const suffix  = geoServerConfig?.suffix
+   const params = {
+     request: "GetLegendGraphic",
+     version: '1.0.0',
+     format: "image/png",
+     width: w, //w
+     height: h, //h
+     layer: layerName, //layerName
+   }
+   return `${baseUrl}/${suffix}?${composeParams(params)}`
+ 
+ }
+
 
 function composeParams(params) {
   return Object.keys(params)

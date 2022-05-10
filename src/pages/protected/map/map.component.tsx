@@ -21,8 +21,11 @@ import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { LayersPlayer } from './map-player/player.component'
+import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
+
+import { getLegendURL }  from '../../../utils/map.utils'
 
 type MapFeature = CulturalProps
 
@@ -35,6 +38,8 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
+
+  const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
   const { i18n } = useTranslation();
   const getFilterList = (obj) => {
@@ -116,6 +121,9 @@ export function Map() {
   const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
   const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
+
+  const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
+  const [ legendLayer, setLegendLayer ] = useState('')
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
@@ -267,6 +275,7 @@ export function Map() {
     })
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
+
   useEffect(() => {
     setDateIndex(0)
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
@@ -280,10 +289,18 @@ export function Map() {
   const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 300) } }, [])
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120,window.innerHeight - 300 - 450) } }, [])
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400,window.innerWidth-600), y: 60 } }, [])
+  console.log("DATE OUT", dateIndex)
 
-  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  
+  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersLegendPosition, setLayersLegendPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  // const [layerPlayerMoved, setLayerPlayerMoved] = useState(false)
+  // const [layerSelectMoved, setLayerSelectMoved] = useState(false)
+  // const [floatingFilterMoved, setFloatingFilterMoved] = useState(false)
+
+ 
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
   
   useEffect(() => {
@@ -316,6 +333,61 @@ export function Map() {
 
   }, [toggleSideDrawer])
 
+  useMemo(() => {
+    if(toggleSideDrawer){ 
+     
+      if(layersSelectVisibility){ //layers container is visible, move it
+        //opening drawer
+        if(layersSelectContainerPosition == undefined)
+          setLayersSelectContainerPosition({x:470, y: layersSelectContainerDefaultCoord.y})
+        else if( layersSelectContainerPosition!.x < 450)
+          setLayersSelectContainerPosition({x:470, y: layersSelectContainerPosition!.y})
+      }
+      
+      if(togglePlayer){
+        if(layersPlayerPosition == undefined)
+          setLayersPlayerPosition({x:470, y: layersPlayerDefaultCoord.y})
+        else if( layersPlayerPosition!.x < 450)
+          setLayersPlayerPosition({x:470, y: layersPlayerPosition!.y})
+      }
+
+      if(toggleActiveFilterTab){
+        if(floatingFilterContainerPosition == undefined)
+          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerDefaultCoord.y})
+        else if( floatingFilterContainerPosition!.x < 450)
+          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerPosition!.y})
+      }     
+  } else{
+    //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+  }
+
+  }, [toggleSideDrawer])
+
+  function changePlayer(value){
+    if(toggleLegend){
+      setLegendLayer(value)
+    }
+  }
+
+  useMemo(() => {
+    if(legendLayer){
+      getLegend(legendLayer)
+    }
+  }, [legendLayer])
+
+
+function showImage(responseAsBlob) {
+  const imgUrl = URL.createObjectURL(responseAsBlob);
+  setLegendSrc(imgUrl)
+  setToggleLegend(true)
+}
+async function getLegend(layerName){
+ const geoServerConfig = appConfig.geoServer
+ const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
+ showImage(await res.blob());
+}
+
+///////
   return (
     <>
       <MapDrawer
@@ -358,7 +430,20 @@ export function Map() {
           defaultPosition={layersPlayerDefaultCoord}
           position={layersPlayerPosition}
           onPositionChange={setLayersPlayerPosition}
+          getLegend={getLegend}
+          onPlayerChange={changePlayer}
+          geoServerConfig = {appConfig.geoServer}
         />
+
+        <PlayerLegend
+         visibility={toggleLegend}
+         defaultPosition={{x:window.innerWidth-200, y: 60}}
+         position={layersLegendPosition}
+         onPositionChange={setLayersLegendPosition}
+         setVisibility={setToggleLegend}
+         imgSrc={legendSrc}
+      />
+
         {
           dblClickFeatures && (
 
