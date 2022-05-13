@@ -49,7 +49,7 @@ import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
-import { makeStyles } from '@material-ui/styles'
+import { makeStyles, Theme } from '@material-ui/core/styles'
 import { Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
@@ -79,13 +79,13 @@ const GEOJSON_LAYER_IDS = ['clusters', 'unclustered-point']
 // TODO check if memoization is more efficient
 const DEBOUNCE_TIME = 200 // ms
 
-const useStyles = makeStyles(() =>
+const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    fab: { position: 'absolute', bottom: '25px', right: '15px', zIndex: 99 },
+    fab: { position: 'absolute', bottom: '55px', right: '15px', zIndex: 99, backgroundColor: theme.palette.primary.activeColor },
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 20,
+      bottom: 50,
       right: 10
     },
     legend_row: {
@@ -567,7 +567,7 @@ export function MapLayout(props) {
         onContextMenu={onContextMenu}
         ref={mapViewRef}
         width="100%"
-        height="calc(100% + 30px)"
+        height="calc(100% + 80px)" //was  height="calc(100% + 30px)"
       >
         <MapDraw
           ref={mapDrawRef}

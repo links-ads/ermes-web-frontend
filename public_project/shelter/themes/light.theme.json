@@ -2,20 +2,26 @@
   "palette": {
     "type": "light",
     "primary": {
-      "light": "#fbcc57",
-      "main": "#fbc02d",
-      "dark": "#af861f",
-      "contrastText": "#ffffff"
+      "light": "#E9EDEA",
+      "main": "#CCD1Ca",
+      "dark": "#899587",
+      "contrastText": "#ffffff", 
+      "activeColor": "#e8c535"
     },
     "secondary": {
       "light": "#ff8b33",
-      "main": "#ff6f00",
-      "dark": "#b24d00",
+      "main": "#e8c535",
+      "dark": "#fae64d",
       "contrastText": "#000000"
     },
     "background": {
       "default": "#E0E0E0",
       "paper": "#F5F5F5"
+    },
+    "sideboard": {
+      "main": "#2F313D",
+      "light": "#e8c5354D",
+      "textColor": "#ffffff"
     }
   }
 }

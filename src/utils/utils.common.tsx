@@ -108,7 +108,7 @@ export const getFiltersStyle = (theme) => {
     },
     applyButton: {
       color: theme['palette']['text']['primary'],
-      backgroundColor: theme['palette']['background']['paper'],
+      backgroundColor: theme['palette']['secondary']['main'],
       margin: '8px'
     },
     resetButton: {

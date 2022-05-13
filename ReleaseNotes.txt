@@ -1,7 +1,12 @@
 Ver.
 -----------------------
- - Feature - Added Legend to PlayerLayer (#60)
 
+
+Ver. 1.5.0 - 2022-05-10
+-----------------------
+- Feature - Added Legend to PlayerLayer (#60)
+- Feature - Resolution prop added to MapRequest (#59)
+- Bugfix - Fix popup series widget dragging (#61)
 
 Ver. 1.4.0 - 2022-05-05
 -----------------------

@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
-
+//line 6 was 104
 export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-container' })`
-  width: 100%;
-  height: 104% !important;
+  width: 100%;    
+  height: 100%;
   flex-grow: 1;
   position: relative;
 

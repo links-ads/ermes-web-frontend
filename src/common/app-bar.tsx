@@ -22,7 +22,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
 
   return (
     <Header color="primary" className={`header ${isAuthenticated ? 'logged-in' : 'not-logged-in'}`}>
-      <Toolbar>
+      <Toolbar  style={{paddingLeft:'15px'}}>
         {isAuthenticated ? (
           <SidebarTrigger sidebarId="left_sidebar">
             {({ open }) => (open ? <Close /> : <Menu />)}

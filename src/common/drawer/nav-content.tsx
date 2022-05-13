@@ -24,6 +24,7 @@ import { useUser } from '../../state/auth/auth.hooks'
 import { UserRole } from 'ermes-ts-sdk'
 import { useSidebarCollapse } from '@mui-treasury/layout/hooks';
 import { controlAccess} from '../../pages/protected/control-access'; 
+import { makeStyles } from '@material-ui/core'
 
 interface INavContentLinkConfig {
   primaryText: string
@@ -50,6 +51,46 @@ const personal: NavContentLinkConfig[] = [
     to: '/settings'
   }
 ]
+
+
+
+const useStyles = makeStyles((theme) => ({
+  listItemStyle: {
+    '&:hover': {
+      backgroundColor: theme.palette.sideboard.light,
+      color: theme.palette.sideboard.textColor
+    },
+    '&active':{
+      backgroundColor: theme.palette.sideboard.light,
+      color: theme.palette.sideboard.textColor
+    }
+  },
+
+  iconStyle: {
+    minWidth: '46px',
+    color: theme.palette.sideboard.textColor,
+    '&:hover': {
+      color: theme.palette.sideboard.textColor,
+    }
+  },
+       
+  drawerTextStyle: { 
+    color: theme.palette.sideboard.textColor,
+    '&:hover': {
+      color: theme.palette.sideboard.textColor,
+    }
+  },
+
+  drawerDividerStyle: { 
+    backgroundColor: theme.palette.sideboard.textColor,
+    margin: '12px 0'
+  },
+  active: {
+     backgroundColor: theme.palette.primary.activeColor,
+   }
+
+
+}))
 
 // TODO org id, org Name (with support in translation, e.g. Edit {{orgName}})
 const orgManagement = (oid: string): NavContentLinkConfig[] => [
@@ -152,7 +193,7 @@ export function NavContent() {
   const { t } = useTranslation()
   const { profile } = useUser()
   const { state, /* setCollapsed, */ setOpen } = useSidebarCollapse('left_sidebar')
-
+  const classes = useStyles()
   function onClickItem() {
     if (!state.collapsed) {
       if (state.open) {
@@ -179,23 +220,23 @@ export function NavContent() {
     <List>
       {list.map((config, i) => {
         if (config === null) {
-          return <Divider key={i} style={{ margin: '12px 0' }} />
+          return <Divider key={i} className={classes.drawerDividerStyle}  />
         } else {
           const text: string = t(config.primaryText, { orgName: profile?.organization?.name || '' })
           return (
             <Tooltip key={i} title={text}>
-              <ListItem
+              <ListItem  className={classes.listItemStyle}
                 button
                 onClick={onClickItem}
                 component={NavLink}
-                activeClassName="Mui-selected"
+                activeClassName={classes.active}
                 exact={true}
                 to={config.to}
               >
-                <ListItemIcon onClick={onClickItem} style={{ minWidth: 46 }}>
+                <ListItemIcon onClick={onClickItem} className={classes.iconStyle} >
                   <Icon>{config.icon}</Icon>
                 </ListItemIcon>
-                <ListItemText
+                <ListItemText  className={classes.drawerTextStyle}
                   onClick={onClickItem}
                   primary={text}
                   primaryTypographyProps={{ noWrap: true }}

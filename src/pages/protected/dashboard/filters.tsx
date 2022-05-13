@@ -100,6 +100,7 @@ export const DashboardFilters = (props) => {
                 </Grid>
                 <Grid>
                     <Button
+                        
                         className={classes.applyButton}
                         onClick={applyFilters} size='small' color='primary' variant='contained'>{t("social:filter_apply")}</Button>
                 </Grid>
