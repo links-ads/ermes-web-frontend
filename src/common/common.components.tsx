@@ -102,7 +102,7 @@ export const Main = styled(Content)`
   // height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    height: calc(100% - 112px);
+    height: calc(100% - 144px);
   }
 `
 
@@ -112,13 +112,13 @@ const StyledFooter = styled(Footer).attrs({ className: 'faster-footer' })`
   left: 0;
   box-sizing: border-box;
   overflow: hidden;
-  background-color: ${(props) => props.theme.palette.background.default};
-  height: 25px;
+  background-color: ${(props) => props.theme.palette.primary.main};
+  height: 80px;
   width: 100%;
-  border-top: 1px solid ${(props) => rgba(props.theme.palette.text.primary, 0.5)};
+  border-top: 1px solid ${(props) => rgba(props.theme.palette.primary.activeColor, 0.5)};
   /* TODO use props.theme for media queries */
   @media (min-width: 600px) {
-    height: 40px;
+    height: 80px;
   }
   z-index: -1;
 `

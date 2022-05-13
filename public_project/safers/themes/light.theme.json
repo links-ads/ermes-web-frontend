@@ -5,7 +5,8 @@
       "light": "#fbcc57",
       "main": "#fbc02d",
       "dark": "#af861f",
-      "contrastText": "#ffffff"
+      "contrastText": "#ffffff",
+      "activeColor": "#fbc02d"
     },
     "secondary": {
       "light": "#ff5f5c",
@@ -16,6 +17,11 @@
     "background": {
       "default": "#E0E0E0",
       "paper": "#F5F5F5"
+    },
+    "sideboard": {
+      "main": "#f5f5f5",
+      "light": "#e2e2e2",
+      "textColor": "#686868"
     }
   }
 }
