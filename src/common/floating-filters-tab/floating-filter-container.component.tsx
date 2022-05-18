@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonApply: {
     marginRight: 15,
-    backgroundColor: theme.palette.primary.activeColor
+    backgroundColor: theme.palette.secondary.main
   },
   buttonReset: {
     marginRight: 15

@@ -32,7 +32,7 @@ const NavHeaderContainer = styled.div<NavHeaderProps>`
   overflow: hidden;
   .text-properties {
     width: 100%;
-    color: ${(props) => props.theme.palette.sideboard.textColor};
+    color: ${(props) => props.theme.palette.primary.contrastText};
   }
   .secondary-text{
     width: 100%;
@@ -113,7 +113,7 @@ export function NavHeader() {
           </div>
         )}
       </NavHeaderContainer>
-      <Divider style={{ backgroundColor: theme.palette.sideboard.textColor}}/>
+      <Divider style={{ backgroundColor: theme.palette.primary.contrastText}}/>
     </>
   ) : null
 }

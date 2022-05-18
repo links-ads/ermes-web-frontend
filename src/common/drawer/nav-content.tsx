@@ -57,36 +57,36 @@ const personal: NavContentLinkConfig[] = [
 const useStyles = makeStyles((theme) => ({
   listItemStyle: {
     '&:hover': {
-      backgroundColor: theme.palette.sideboard.light,
-      color: theme.palette.sideboard.textColor
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.primary.contrastText
     },
     '&active':{
-      backgroundColor: theme.palette.sideboard.light,
-      color: theme.palette.sideboard.textColor
+      backgroundColor: theme.palette.background.default,
+      color: theme.palette.primary.contrastText
     }
   },
 
   iconStyle: {
     minWidth: '46px',
-    color: theme.palette.sideboard.textColor,
+    color: theme.palette.primary.contrastText,
     '&:hover': {
-      color: theme.palette.sideboard.textColor,
+      color: theme.palette.primary.contrastText,
     }
   },
        
   drawerTextStyle: { 
-    color: theme.palette.sideboard.textColor,
+    color: theme.palette.primary.contrastText,
     '&:hover': {
-      color: theme.palette.sideboard.textColor,
+      color: theme.palette.primary.contrastText,
     }
   },
 
   drawerDividerStyle: { 
-    backgroundColor: theme.palette.sideboard.textColor,
+    backgroundColor: theme.palette.primary.contrastText,
     margin: '12px 0'
   },
   active: {
-     backgroundColor: theme.palette.primary.activeColor,
+     backgroundColor: theme.palette.secondary.main,
    }
 
 

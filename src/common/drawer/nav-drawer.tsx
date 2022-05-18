@@ -6,18 +6,18 @@ import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
 const SidebarContent = styled(getSidebarContent(styled))`
-background-color:  ${(props) => props.theme.palette.sideboard.main};
+background-color:  ${(props) => props.theme.palette.background.sideboard};
 `
 
 const DrawerSidebar = getDrawerSidebar(styled)
 const CollapseBtn = styled(getCollapseBtn(styled))`
-  background-color: ${(props) => props.theme.palette.sideboard.main};
-  color: ${(props) => props.theme.palette.sideboard.textColor};
+  background-color: ${(props) => props.theme.palette.background.sideboard};
+  color: ${(props) => props.theme.palette.primary.contrastText};
   min-height: 40px;
   min-width: 40px;
-  border-color: ${(props) => props.theme.palette.sideboard.textColor};
+  border-color: ${(props) => props.theme.palette.primary.contrastText};
 :hover{
-  background-color: ${(props) => props.theme.palette.sideboard.light};
+  background-color: ${(props) => props.theme.palette.background.default};
 }
 
 `
