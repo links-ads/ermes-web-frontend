@@ -24,7 +24,7 @@ body {
   color: var(--mui-text-primary);
   margin: 0;
   font-family: 'Rubik', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    'Cantarell', 'Fira Sans', 'Droid Sans','Open Sans', 'Helvetica Neue', sans-serif, 'EB Garamond', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -44,6 +44,7 @@ body main {
   position: fixed;
   top: 0;
   display: flex;
+  font-family:'Open Sans', sans-serif;
   height: calc(100% - 128px);
   top: 64px;
 }

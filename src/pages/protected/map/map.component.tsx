@@ -283,8 +283,6 @@ export function Map() {
     }
   }, [layerSelection])
 
-  console.log("DATE OUT", dateIndex)
-  
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
   const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
   const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
