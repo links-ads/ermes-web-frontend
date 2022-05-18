@@ -6,12 +6,12 @@ import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
 const SidebarContent = styled(getSidebarContent(styled))`
-background-color:  ${(props) => props.theme.palette.background.sideboard};
+background-color:  ${(props) => props.theme.palette.secondary.contrastText};
 `
 
 const DrawerSidebar = getDrawerSidebar(styled)
 const CollapseBtn = styled(getCollapseBtn(styled))`
-  background-color: ${(props) => props.theme.palette.background.sideboard};
+  background-color: ${(props) => props.theme.palette.secondary.contrastText};
   color: ${(props) => props.theme.palette.primary.contrastText};
   min-height: 40px;
   min-width: 40px;

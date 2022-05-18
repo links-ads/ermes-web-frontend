@@ -11,12 +11,11 @@
       "light": "#ff5f5c",
       "main": "#F47560",
       "dark": "#c30009",
-      "contrastText": "#000000"
+      "contrastText": "#CAD5F8"
     },
     "background": {
       "default": "#0000000a",
-      "paper": "#CAD5F8",
-      "sideboard": "#CAD5F8"
+      "paper": "#CAD5F8"
     }
   }
 }

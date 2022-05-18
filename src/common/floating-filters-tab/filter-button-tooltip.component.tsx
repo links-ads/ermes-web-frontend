@@ -64,7 +64,7 @@ export function FilterTooltip(props) {
       : (filters?.persons as any).content[0].selected.join(', ')
   return checkIfVisible() ? (
     <FilterTooltipContainer
-      style={{ backgroundColor: theme.palette.background.sideboard + ' !important' }}
+      style={{ backgroundColor: theme.palette.secondary.contrastText + ' !important' }}
     >
       {/* <b>{t('filters:set_filters') + ': '}</b> */}
       {t('filters:from_date') + ' '}
