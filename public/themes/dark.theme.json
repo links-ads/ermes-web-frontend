@@ -5,8 +5,7 @@
       "light": "#739ce1",
       "main": "#43518C",
       "dark": "#333E74",
-      "contrastText": "#ffffff",
-      "activeColor": "#e8c535"
+      "contrastText": "#ffffff"
     },
     "secondary": {
       "light": "#ff5f5c",
@@ -16,12 +15,8 @@
     },
     "background": {
       "default": "#091744",
-      "paper": "#0E2367"
-    },
-    "sideboard": {
-      "main": "#424242",
-      "light": "#e8c5354D",
-      "textColor": "#FFFFFFB3"
+      "paper": "#0E2367",
+      "sideboard": "#424242"
     }
   }
 }

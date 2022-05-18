@@ -115,7 +115,7 @@ const StyledFooter = styled(Footer).attrs({ className: 'faster-footer' })`
   background-color: ${(props) => props.theme.palette.primary.main};
   height: 80px;
   width: 100%;
-  border-top: 1px solid ${(props) => rgba(props.theme.palette.primary.activeColor, 0.5)};
+  border-top: 1px solid ${(props) => rgba(props.theme.palette.secondary.main, 0.5)};
   /* TODO use props.theme for media queries */
   @media (min-width: 600px) {
     height: 80px;

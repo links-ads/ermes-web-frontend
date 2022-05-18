@@ -5,23 +5,18 @@
       "light": "#35baf6",
       "main": "#03a9f4",
       "dark": "#0276aa",
-      "contrastText": "#ffffff", 
-      "activeColor": "#ff5f5c"
+      "contrastText": "#000000b3"
     },
     "secondary": {
       "light": "#ff5f5c",
-      "main": "#ff1531",
+      "main": "#F47560",
       "dark": "#c30009",
       "contrastText": "#000000"
     },
     "background": {
-      "default": "#ECF0FD",
-      "paper": "#CAD5F8"
-    },
-    "sideboard": {
-      "main": "#CAD5F8",
-      "light": "#0000000a",
-      "textColor": "#000000b3"
+      "default": "#0000000a",
+      "paper": "#CAD5F8",
+      "sideboard": "#CAD5F8"
     }
   }
 }
