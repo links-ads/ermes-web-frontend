@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Remove on demand layers from main drawer (#64)
 
 Ver. 1.5.0 - 2022-05-10
 -----------------------
