@@ -168,6 +168,8 @@ export function Map() {
             })
           } else {
 
+            if (layer['frequency'] === 'OnDemand') return
+
             let namestimesDict: { [key: string]: string } = {}
 
             layer['details'].forEach((detail) => {
