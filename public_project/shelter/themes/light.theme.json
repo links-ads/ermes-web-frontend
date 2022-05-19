@@ -14,8 +14,8 @@
       "contrastText": "#2F313D"
     },
     "background": {
-      "default": "#E0E0E04D",
-      "paper": "#F5F5F5"
+      "default": "#e7e7e7",
+      "paper": "#fff"
     }
   }
 }
