@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: 850,
     maxWidth: 450,
-    height: '108%',
+    height: '110%',
     backgroundColor: theme.palette.primary.dark,
     position: 'absolute',
     zIndex: 99

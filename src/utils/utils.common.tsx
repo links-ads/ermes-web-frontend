@@ -69,7 +69,8 @@ export const getSocialCardStyle = (theme) => {
 export const getSocialDashboardStyle = (theme) => {
   return {
     tweetsStatContainer: {
-      margin: '8px'
+      padding: '8px',
+      height: '100%'
     },
     infoContainer: {
       marginBottom: '16px'

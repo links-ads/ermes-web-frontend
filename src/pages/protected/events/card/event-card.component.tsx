@@ -99,7 +99,7 @@ export const EventCard = (props) => {
                 <div style={{ height: 200, width: '100%', overflow: 'auto', backgroundColor: theme['palette']['background']['default'] }}>
                     {
                         props.item.tweets.map(tweet => (
-                            <Grid key={tweet.id_str} style={{ margin: 5, padding: 5, backgroundColor: theme['palette']['secondary']['contrastText'] }}>
+                            <Grid key={tweet.id_str} style={{ margin: 5, padding: 5, backgroundColor: theme['palette']['primary']['light'] }}>
                                 <ParsedTweet
                                     text={tweet.text}
                                     textSizes={{ body: 'body2' }}

@@ -72,8 +72,8 @@ const EventsComponent = (props) => {
     )
 
     return (
-      <Grid container direction="column" justify="flex-start" alignContent="space-around">
-        <Grid container direction="row" justify="flex-start" alignContent="space-around">
+      <Grid container direction="column" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
+      <Grid container direction="row" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
           <Grid
             className={classes.tweetsStatContainer}
             item

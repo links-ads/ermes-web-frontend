@@ -125,7 +125,7 @@ export function LayersSelectContainer(props) {
               </IconButton>
             </span>
           </AppBar>
-          <CardContent style={{ height: '90%', overflowY: 'auto' }}>
+          <CardContent style={{ height: '90%', overflowY: 'auto', backgroundColor: theme.palette.primary.main }}>
             {props.loading ? (
               <Grid container justifyContent="center">
                 <CircularProgress />{' '}

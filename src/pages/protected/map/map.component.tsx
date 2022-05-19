@@ -397,7 +397,7 @@ async function getLegend(layerName){
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
       />
-      <MapContainer initialHeight={window.innerHeight - 112}>
+      <MapContainer initialHeight={window.innerHeight - 112} style={{height:"110%"}}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
         <FloatingFilterContainer
