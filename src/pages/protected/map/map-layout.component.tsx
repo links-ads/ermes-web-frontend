@@ -81,11 +81,11 @@ const DEBOUNCE_TIME = 200 // ms
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    fab: { position: 'absolute', bottom: '55px', right: '15px', zIndex: 99, backgroundColor: theme.palette.secondary.main },
+    fab: { position: 'absolute', bottom: '50px', right: '10px', zIndex: 99, backgroundColor: theme.palette.secondary.main },
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 50,
+      bottom: 48,
       right: 10
     },
     legend_row: {
@@ -567,7 +567,7 @@ export function MapLayout(props) {
         onContextMenu={onContextMenu}
         ref={mapViewRef}
         width="100%"
-        height="calc(100% + 80px)" //was  height="calc(100% + 30px)"
+        height="100%" //was  height="calc(100% + 30px)"
       >
         <MapDraw
           ref={mapDrawRef}
