@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Feature - Opacity slider added ref #63
 
 
 Ver. 1.5.1 - 2022-05-19

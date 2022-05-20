@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   makeStyles,
   AppBar,
@@ -80,7 +80,6 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: '25px',
     width: '90%',
   },
-
   spanContainer:{
     display: 'flex',
     flexDirection: 'row',
@@ -122,7 +121,8 @@ export function LayersPlayer(props) {
 
 
   const [playing, setPlaying] = useState(false)
-  const { t, i18n } = useTranslation(['maps'])
+  const [opacity, setOpacity] = useState<number>(100);
+  const { t } = useTranslation(['maps'])
   const [ layerName, setLayerName ] = useState('')
 
   const insideData = {
@@ -145,6 +145,17 @@ export function LayersPlayer(props) {
     props.onPlayerChange(insideData.labels[value])
     //setSelectedName(insideData.labels[value])
     return insideData.timestamps[value]
+  }
+
+  const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
+    event.stopPropagation();
+    const opacity: number = newValue as number
+    setOpacity(opacity)
+    props.map.setPaintProperty(
+      layerName,
+      'raster-opacity',
+      opacity / 100
+    )
   }
 
 
@@ -203,7 +214,7 @@ export function LayersPlayer(props) {
         className="handle handleResize"
       >
         <span className={classes.titleContainer}>
-          <Typography align="left" variant="h4" style={{ fontSize: '2rem'}}>
+          <Typography align="left" variant="h4" style={{ fontSize: '2rem' }}>
             {insideData.name}
           </Typography>
         </span>
@@ -219,7 +230,7 @@ export function LayersPlayer(props) {
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '60px' }}
             onClick={() => {
-             props.getLegend(layerName)
+              props.getLegend(layerName)
             }}
           >
             <LegendIcon />
@@ -238,45 +249,64 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps ?  formatDate(layerProps['timestamps'][dateIndex]) : null}
+          {layerProps ? formatDate(layerProps['timestamps'][dateIndex]) : null}
         </Typography>
         <div className={classes.playerContainer}>
-        {insideData.timestamps.length > 1 ? (
+          {insideData.timestamps.length > 1 ? (
             <span className={classes.spanContainer}>
-          <div className={classes.sliderContainer}>
-            <Slider
-              className={classes.slider}
-              aria-label="Temperature"
-              defaultValue={0}
-              getAriaValueText={valuetext}
-              valueLabelDisplay="on"
-              step={1}
-              value={dateIndex}
-              // marks
-              min={0}
-              max={insideData.timestamps.length}
-              color="secondary"
-              onChange={(event, value) => {
-                setDateIndex(value)
-              }}
-            />
-          </div>
-          <div className={classes.buttonsContainer}>
-            <IconButton aria-label="play/pause" onClick={playPause}>
-              {playing ? (
-                <PauseIcon style={{ height: 45, width: 45 }} />
-              ) : (
-                <PlayArrowIcon style={{ height: 45, width: 45 }} />
-              )}
-            </IconButton>
-            <IconButton aria-label="next" onClick={()=>skipNext(dateIndex,insideData.timestamps.length,setDateIndex)}>
-              <SkipNextIcon />
-            </IconButton>
-          </div>
-          </span>
+              <div className={classes.sliderContainer}>
+                <Slider
+                  className={classes.slider}
+                  aria-label="Temperature"
+                  defaultValue={0}
+                  getAriaValueText={valuetext}
+                  valueLabelDisplay="on"
+                  step={1}
+                  value={dateIndex}
+                  // marks
+                  min={0}
+                  max={insideData.timestamps.length}
+                  color="secondary"
+                  onChange={(event, value) => {
+                    setDateIndex(value)
+                  }}
+                />
+              </div>
+              <div className={classes.buttonsContainer}>
+                <IconButton aria-label="play/pause" onClick={playPause}>
+                  {playing ? (
+                    <PauseIcon style={{ height: 45, width: 45 }} />
+                  ) : (
+                    <PlayArrowIcon style={{ height: 45, width: 45 }} />
+                  )}
+                </IconButton>
+                <IconButton
+                  aria-label="next"
+                  onClick={() => skipNext(dateIndex, insideData.timestamps.length, setDateIndex)}
+                >
+                  <SkipNextIcon />
+                </IconButton>
+              </div>
+            </span>
           ) : (
             <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} </div>
           )}
+        </div>
+        <div className={classes.sliderContainer}>
+          <label htmlFor="opacity-slider">
+            {t('maps:opacity')} {opacity}%
+          </label>
+            <Slider
+              id="layer-slider"
+              defaultValue={100}
+              valueLabelDisplay="off"
+              step={1}
+              value={opacity}
+              min={0}
+              max={100}
+              color="secondary"
+              onChange={handleOpacityChange}
+            />
         </div>
       </CardContent>
     </FloatingCardContainer>
