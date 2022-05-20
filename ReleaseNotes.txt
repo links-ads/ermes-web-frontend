@@ -1,6 +1,12 @@
 Ver.
 -----------------------
+- Feature - Opacity slider added ref #63
+
+
+Ver. 1.5.1 - 2022-05-19
+-----------------------
 - Bugfix - Remove on demand layers from main drawer (#64)
+- Feature - style update for Shelter (#62)
 
 Ver. 1.5.0 - 2022-05-10
 -----------------------

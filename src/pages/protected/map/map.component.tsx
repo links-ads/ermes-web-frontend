@@ -406,7 +406,7 @@ async function getLegend(layerName){
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
       />
-      <MapContainer initialHeight={window.innerHeight - 112} style={{height:"110%"}}>
+      <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
         <FloatingFilterContainer
@@ -434,30 +434,28 @@ async function getLegend(layerName){
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           onPlayerChange={changePlayer}
-          geoServerConfig = {appConfig.geoServer}
+          geoServerConfig={appConfig.geoServer}
+          map={map}
         />
 
         <PlayerLegend
-         visibility={toggleLegend}
-         defaultPosition={{x:window.innerWidth-200, y: 60}}
-         position={layersLegendPosition}
-         onPositionChange={setLayersLegendPosition}
-         setVisibility={setToggleLegend}
-         imgSrc={legendSrc}
-      />
+          visibility={toggleLegend}
+          defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+          position={layersLegendPosition}
+          onPositionChange={setLayersLegendPosition}
+          setVisibility={setToggleLegend}
+          imgSrc={legendSrc}
+        />
 
-        {
-          dblClickFeatures && (
-
-            <MapTimeSeries
-              dblClickFeatures={dblClickFeatures}
-              setDblClickFeatures={setDblClickFeatures}
-              defaultPosition={mapTimeSeriesContainerDefaultCoord}
-              position={mapTimeSeriesContainerPosition}
-              onPositionChange={setMapTimeSeriesContainerPosition}
-            />
-          )
-        }
+        {dblClickFeatures && (
+          <MapTimeSeries
+            dblClickFeatures={dblClickFeatures}
+            setDblClickFeatures={setDblClickFeatures}
+            defaultPosition={mapTimeSeriesContainerDefaultCoord}
+            position={mapTimeSeriesContainerPosition}
+            onPositionChange={setMapTimeSeriesContainerPosition}
+          />
+        )}
         <LayersSelectContainer
           layerSelection={layerSelection}
           setLayerSelection={setLayerSelection}
