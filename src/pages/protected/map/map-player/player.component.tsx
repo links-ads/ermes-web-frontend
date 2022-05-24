@@ -11,6 +11,7 @@ import {
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 import LegendIcon from '@material-ui/icons/FilterNone'
+import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
@@ -19,7 +20,7 @@ import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
-    width: '80%',
+    width: '75%',
     display: 'inline-block',
     paddingLeft: 32,
     paddingTop: 11,
@@ -134,15 +135,17 @@ export function LayersPlayer(props) {
       : [],
     timestamps: layerProps
       ? layerProps.timestamps
+      : [],
+      metadatas: layerProps
+      ? layerProps.metadataId
       : []
   }
   // console.log('LayersPlayer', props.layerId2Tiles)
   // console.log('LayerID', props.layerSelection)
 
   function valuetext(value) {
-    console.log('valuetext', insideData.labels[value])
     setLayerName(insideData.labels[value])
-    props.onPlayerChange(insideData.labels[value])
+    props.onPlayerChange(insideData.labels[value], insideData.metadatas[value])
     //setSelectedName(insideData.labels[value])
     return insideData.timestamps[value]
   }
@@ -187,7 +190,7 @@ export function LayersPlayer(props) {
     }
   }, [playing, dateIndex,setDateIndex,insideData.timestamps,skipNext])
 
-  console.log("DATE",dateIndex,layerProps,layerProps && layerProps['timestamps'][dateIndex],layerProps && typeof layerProps['timestamps'][dateIndex])
+  //console.log("DATE",dateIndex,layerProps,layerProps && layerProps['timestamps'][dateIndex],layerProps && typeof layerProps['timestamps'][dateIndex])
 
   return (
     <FloatingCardContainer
@@ -198,7 +201,7 @@ export function LayersPlayer(props) {
       toggleActiveFilterTab={visibility}
       dim={{
         width: 500,
-        height: 250
+        height: 275
       }}
       onResize={null}
       resizable={true}
@@ -234,6 +237,14 @@ export function LayersPlayer(props) {
             }}
           >
             <LegendIcon />
+          </IconButton>
+          <IconButton
+            style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
+            onClick={() => {
+              props.getMeta(insideData.metadatas[dateIndex])
+            }}
+          >
+            <MetaIcon />
           </IconButton>
         </span>
       </AppBar>

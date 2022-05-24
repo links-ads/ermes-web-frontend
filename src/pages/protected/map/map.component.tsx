@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
 
 import { getLegendURL }  from '../../../utils/map.utils'
+import { PlayerMetadata } from './map-popup-meta.component'
 
 type MapFeature = CulturalProps
 
@@ -38,6 +39,7 @@ export function Map() {
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
+  const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
   const { i18n } = useTranslation();
   const getFilterList = (obj) => {
@@ -122,6 +124,7 @@ export function Map() {
 
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
   const [ legendLayer, setLegendLayer ] = useState('')
+  const [ metaLayer, setMetaLayer ] = useState('')
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
@@ -169,10 +172,12 @@ export function Map() {
             if (layer['frequency'] === 'OnDemand') return
 
             let namestimesDict: { [key: string]: string } = {}
+            let namesmetaDict: { [key: string]: string } = {}
 
             layer['details'].forEach((detail) => {
               detail['timestamps'].forEach((timestamp) => {
                 namestimesDict[timestamp] = detail['name']
+                namesmetaDict[timestamp] = detail['metadata_Id']
               })
             })
 
@@ -182,7 +187,8 @@ export function Map() {
               name: layer['name'],
               format: layer['format'],
               fromTime: Object.keys(namestimesDict)[0],
-              toTime: Object.keys(namestimesDict).slice(-1)[0]
+              toTime: Object.keys(namestimesDict).slice(-1)[0],
+              metadataId: Object.values(namesmetaDict)
             }
           }
         })
@@ -292,11 +298,13 @@ export function Map() {
 
 
   const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: 60 } }, [])
-  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 300) } }, [])
+  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 350) } }, [])
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120,window.innerHeight - 300 - 450) } }, [])
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400,window.innerWidth-600), y: 60 } }, [])
   
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
   
   useEffect(() => {
     if (toggleSideDrawer) {
@@ -358,9 +366,13 @@ export function Map() {
 
   }, [toggleSideDrawer])
 
-  function changePlayer(value){
+  function changePlayer(value, metadataId){
     if(toggleLegend){
       setLegendLayer(value)
+    }
+    if(toggleMeta){
+     // getMeta(metadataId)
+     setMetaLayer(metadataId)
     }
   }
 
@@ -370,6 +382,39 @@ export function Map() {
     }
   }, [legendLayer])
 
+  useMemo(() => {
+    if(metaLayer){
+      getMeta(metaLayer)
+    }
+  }, [metaLayer])
+
+  function formatMeta(result){
+    let res : [any, any] = ['','']
+    let data = result.data
+     Object.keys(data).forEach(function(key) {
+       if(data[key] == "" || data[key] == null) {return}
+       if(data[key] !== undefined && data[key] !== null && typeof(data[key])  === 'object'){
+         let innerres = ''
+         Object.keys(data[key]).forEach(function(innerkey) {
+           if(data[key][innerkey] == "" || data[key][innerkey] == null) {return}
+           if(data[key][innerkey] !== undefined && data[key][innerkey] !== null && typeof(data[key][innerkey])  === 'object'){
+             let innerinnerres = ''
+             Object.keys(data[key][innerkey]).forEach(function(innerinnerkey) {
+               if(data[key][innerkey][innerinnerkey] == "" || data[key][innerkey][innerinnerkey] == null) {return}
+               innerinnerres += innerinnerkey+`: `+data[key][innerkey][innerinnerkey]+`, \n`
+             })
+             innerres+= innerinnerres
+           }
+           else innerres += innerkey+`: `+data[key][innerkey]+`, \n`
+         })
+         res.push([key, innerres])
+       }
+       else 
+       res.push([key, ''+data[key]])
+     })
+     res.splice(0,2)
+     return res
+  }
 
 function showImage(responseAsBlob) {
   const imgUrl = URL.createObjectURL(responseAsBlob);
@@ -381,6 +426,21 @@ async function getLegend(layerName){
  const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
  showImage(await res.blob());
 }
+
+function getMeta(metaId: string){
+  layersApiFactory.layersGetMetadata(
+    metaId,
+    {
+      headers: {
+        'Accept-Language': i18n.language
+      }
+    }
+  ).then(result => {
+    const formattedres = formatMeta(result)
+    setLayerMeta(formattedres)
+    setToggleMeta(true)
+  })
+ }
 
 ///////
   return (
@@ -426,6 +486,7 @@ async function getLegend(layerName){
           position={layersPlayerPosition}
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
+          getMeta={getMeta}
           onPlayerChange={changePlayer}
           geoServerConfig={appConfig.geoServer}
           map={map}
@@ -438,6 +499,15 @@ async function getLegend(layerName){
           onPositionChange={setLayersLegendPosition}
           setVisibility={setToggleLegend}
           imgSrc={legendSrc}
+        />
+
+<PlayerMetadata 
+          visibility={toggleMeta}
+          defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+          position={layersMetaPosition}
+          onPositionChange={setLayersMetaPosition}
+          setVisibility={setToggleMeta}
+          layerData={layerMeta}
         />
 
         {dblClickFeatures && (
