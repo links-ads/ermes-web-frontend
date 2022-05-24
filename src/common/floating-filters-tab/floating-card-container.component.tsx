@@ -57,7 +57,7 @@ export default function FloatingCardContainer(props) {
               onResizeStop={props.onResizeStop}
               className={classes.resizable}
               minConstraints={[420, 220]}
-              maxConstraints={[1000, 800]}
+              maxConstraints={[800, 800]}
             >
               {props.children}
             </ResizableBox>
