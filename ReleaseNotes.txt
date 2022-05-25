@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 1.6.0 - 2022-05-25
+-----------------------
 - Feature - Opacity slider added ref #63
 - Feature - Added Metadata popup ref #56
 
