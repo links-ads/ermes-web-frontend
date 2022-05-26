@@ -276,7 +276,7 @@ export function LayersPlayer(props) {
                   value={dateIndex}
                   // marks
                   min={0}
-                  max={insideData.timestamps.length}
+                  max={insideData.timestamps.length - 1}
                   color="secondary"
                   onChange={(event, value) => {
                     setDateIndex(value)
