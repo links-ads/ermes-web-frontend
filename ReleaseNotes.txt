@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Fixed crash on PlayerLayer slider when selecting last value ref #65
 
 Ver. 1.6.0 - 2022-05-25
 -----------------------
