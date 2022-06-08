@@ -78,5 +78,6 @@
   "resolution_label":"Resolution (Meters)",
   "one_datapoint": "Only one data point available for this date range",
   "layer":"Layer",
-  "opacity": "Opacity"
+  "opacity": "Opacity",
+  "creator": "Creator"
 }
