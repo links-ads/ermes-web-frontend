@@ -257,6 +257,7 @@ export default function ReportPanel(props) {
                             ? elem.description.substring(0, 37) + '...'
                             : elem.description}
                         </Typography>
+                        { !!elem.organizationName ? (
                         <>
                           <Typography
                             component={'span'}
@@ -270,6 +271,21 @@ export default function ReportPanel(props) {
                             {elem.organizationName}
                           </Typography>
                         </>
+                        ) : (
+                        <>
+                          <Typography
+                            component={'span'}
+                            variant="caption"
+                            color="textSecondary"
+                            style={{ textTransform: 'uppercase' }}
+                          >
+                            {t('maps:creator')}:&nbsp;
+                          </Typography>
+                          <Typography component={'span'} variant="body1">
+                            {elem.username}
+                          </Typography>
+                        </>
+                        )}
                       </CardContent>
                       <CardActions className={classes.cardAction}>
                         <div className={classes.chipContainer}>
