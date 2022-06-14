@@ -33,7 +33,9 @@ export default function MapTimeSeries(props) {
         <>
             <FloatingCardContainer
                 bounds={'parent'}
-                defaultPosition={{ x: 90, y: 90 }}
+                defaultPosition={props.defaultPosition}
+                position={props.position}
+                onPositionChange={props.onPositionChange}
                 toggleActiveFilterTab={dblClickFeatures !== null}
                 dim={dim}
                 onResize={onResize}

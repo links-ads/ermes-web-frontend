@@ -56,6 +56,7 @@ const SocialMap = (props) => {
         return getFilterObjFromFilters(getDefaultFilterArgs(mapConfig), filtersState.mapIdsToHazards, filtersState.mapIdsToInfos)
     }, [filtersState, mapConfig])
 
+    const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>({x:50, y:55})
     useEffect(() => {
         let map = mapRef?.current?.getMap()
         if (leftClickState.showPoint)
@@ -74,7 +75,14 @@ const SocialMap = (props) => {
     }
 
     return (
-        <div style={{ display: 'flex', width: '100%', minHeight: 400, position: 'relative' }}>
+        <div    
+        style={{
+          display: 'flex',
+          width: '100%',
+          minHeight: 400,
+          position: 'relative'
+        }}
+      >
             <MapHeadDrawer
                 mapRef={props.mapRef}
                 filterApplyHandler={() => props.filterObjApplyHandler(filtersObj)}
@@ -87,6 +95,8 @@ const SocialMap = (props) => {
                 filtersObj={filtersObj}
                 applyFiltersObj={applyFilters}
                 initObj={initObj}
+                onPositionChange={setFloatingFilterContainerPosition}
+                position={floatingFilterContainerPosition}
             ></FloatingFilterContainer>
             <MapContainer>
                 <MapLoadingDiv

@@ -2,20 +2,20 @@
   "palette": {
     "type": "light",
     "primary": {
-      "light": "#35baf6",
-      "main": "#03a9f4",
-      "dark": "#0276aa",
-      "contrastText": "#ffffff"
+      "light": "#E9EDEA",
+      "main": "#CCD1Ca",
+      "dark": "#899587",
+      "contrastText": "#ffffff" 
     },
     "secondary": {
-      "light": "#ff5f5c",
-      "main": "#ff1531",
-      "dark": "#c30009",
-      "contrastText": "#000000"
+      "light": "#ff8b33",
+      "main": "#e8c535",
+      "dark": "#fae64d",
+      "contrastText": "#2F313D"
     },
     "background": {
-      "default": "#ECF0FD",
-      "paper": "#CAD5F8"
+      "default": "#e7e7e7",
+      "paper": "#fff"
     }
   }
 }

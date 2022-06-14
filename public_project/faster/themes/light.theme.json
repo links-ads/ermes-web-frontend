@@ -5,16 +5,16 @@
       "light": "#35baf6",
       "main": "#03a9f4",
       "dark": "#0276aa",
-      "contrastText": "#ffffff"
+      "contrastText": "#000000b3"
     },
     "secondary": {
       "light": "#ff5f5c",
-      "main": "#ff1531",
+      "main": "#F47560",
       "dark": "#c30009",
-      "contrastText": "#000000"
+      "contrastText": "#CAD5F8"
     },
     "background": {
-      "default": "#ECF0FD",
+      "default": "#0000000a",
       "paper": "#CAD5F8"
     }
   }

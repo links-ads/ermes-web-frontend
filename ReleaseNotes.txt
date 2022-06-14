@@ -1,6 +1,25 @@
 Ver.
 -----------------------
+- Bugfix - Fixed crash on PlayerLayer slider when selecting last value ref #65
+- Bugfix - In report card correctly show creator username if their organization is null (#67)
 
+Ver. 1.6.0 - 2022-05-25
+-----------------------
+- Feature - Opacity slider added ref #63
+- Feature - Added Metadata popup ref #56
+
+
+Ver. 1.5.1 - 2022-05-19
+-----------------------
+- Bugfix - Remove on demand layers from main drawer (#64)
+- Feature - style update for Shelter (#62)
+
+Ver. 1.5.0 - 2022-05-10
+-----------------------
+- Feature - Added Legend to PlayerLayer (#60)
+- Feature - Resolution prop added to MapRequest (#59)
+- Bugfix - Fix popup series widget dragging (#61)
+- Feature - Modified Layout colors, fixed bug in social/events filter popup dragging (#62)
 
 Ver. 1.4.0 - 2022-05-05
 -----------------------

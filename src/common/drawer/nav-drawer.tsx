@@ -5,20 +5,28 @@ import styled from 'styled-components'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
-const SidebarContent = getSidebarContent(styled)
+const SidebarContent = styled(getSidebarContent(styled))`
+background-color:  ${(props) => props.theme.palette.secondary.contrastText};
+`
 
 const DrawerSidebar = getDrawerSidebar(styled)
 const CollapseBtn = styled(getCollapseBtn(styled))`
-  background-color: ${(props) => props.theme.palette.background.paper};
+  background-color: ${(props) => props.theme.palette.secondary.contrastText};
+  color: ${(props) => props.theme.palette.primary.contrastText};
   min-height: 40px;
   min-width: 40px;
+  border-color: ${(props) => props.theme.palette.primary.contrastText};
+:hover{
+  background-color: ${(props) => props.theme.palette.background.default};
+}
+
 `
 
 export function NavDrawer() {
   const { isAuthenticated } = useUser()
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
-      <SidebarContent>
+      <SidebarContent >
         <NavHeader />
         <NavContent />
       </SidebarContent>

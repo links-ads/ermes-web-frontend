@@ -37,7 +37,11 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 8,
     paddingRight: 0
   },
-  buttonAction: {
+  buttonApply: {
+    marginRight: 15,
+    backgroundColor: theme.palette.secondary.main
+  },
+  buttonReset: {
     marginRight: 15
   },
   indicator: {
@@ -205,7 +209,7 @@ export default function FloatingFilterContainer(props) {
           <Button
             variant="contained"
             size="small"
-            className={classes.buttonAction}
+            className={classes.buttonReset}
             onClick={() => resetFilters()}
           >
             {t('labels:filter_reset')}
@@ -213,7 +217,7 @@ export default function FloatingFilterContainer(props) {
           <Button
             variant="contained"
             color="primary"
-            className={classes.buttonAction}
+            className={classes.buttonApply}
             size="small"
             onClick={() => {
               const newObj = props.filtersObj

@@ -2,16 +2,16 @@
   "palette": {
     "type": "dark",
     "primary": {
-      "light": "#5c9ff6",
-      "main": "#0c71c3",
-      "dark": "#004792",
+      "light": "#739ce1",
+      "main": "#43518C",
+      "dark": "#333E74",
       "contrastText": "#ffffff"
     },
     "secondary": {
       "light": "#ff5f5c",
-      "main": "#ff1531",
+      "main": "#e8c535",
       "dark": "#c30009",
-      "contrastText": "#000000"
+      "contrastText": "#424242"
     },
     "background": {
       "default": "#091744",

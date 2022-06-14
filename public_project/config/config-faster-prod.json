@@ -2,7 +2,7 @@
   "envTag": "",
   "ui": {
     "availableThemes": ["dark", "light"],
-    "defaultTheme": "light"
+    "defaultTheme": "dark"
   },
   "i18n": {
     "ns": ["common", "errors"],
@@ -27,7 +27,7 @@
     }
   },
   "geoServer": {
-    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
@@ -40,14 +40,11 @@
     }
   },
   "fusionAuth": {
-    "url": "https://auth.safers-project.cloud/",
-    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
-    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
+    "url": "https://auth.faster-project.cloud",
+    "clientId": "d21b1bb8-13e8-4d4f-b4f7-7d874bb5f120",
+    "tenantId": "b7861d7c-c404-4ddc-ad32-b5abdcc6291f"
   },
   "backend": {
-    "url": "https://api-dev.safers-project.cloud"
-  },
-  "userTagsFilter": {
-    "filters": ["administrator", "first_responder"]
+    "url": "https://api.faster-project.cloud"
   }
 }

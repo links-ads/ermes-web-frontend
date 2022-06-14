@@ -78,9 +78,9 @@ const SocialComponent = (props) => {
     )
 
     return (
-        <Grid container direction="column" justify="flex-start" alignContent='space-around'>
-            <Grid container direction="row" justify="flex-start" alignContent='space-around' >
-                <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3 }}>
+        <Grid container direction="column" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
+            <Grid container direction="row" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
+                <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3}}>
                     <AppBar position="static" color="default" className={classes.appbar}>
                         <Tabs
                             value={tabValue}

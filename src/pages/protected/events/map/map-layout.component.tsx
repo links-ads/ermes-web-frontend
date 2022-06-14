@@ -75,7 +75,7 @@ const EventMap = (props) => {
     []
   )
 
-
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>({x:50, y:55})
   const applyFilters = (filtersObj) => {
     props.filterObjApplyHandler(filtersObj)
     setToggleActiveFilterTab(false)
@@ -122,6 +122,8 @@ const EventMap = (props) => {
         filtersObj={filtersObj}
         applyFiltersObj={applyFilters}
         initObj={initObj}
+        onPositionChange={setFloatingFilterContainerPosition}
+        position={floatingFilterContainerPosition}
       ></FloatingFilterContainer>
       <MapContainer>
         <MapLoadingDiv

@@ -32,6 +32,12 @@ const NavHeaderContainer = styled.div<NavHeaderProps>`
   overflow: hidden;
   .text-properties {
     width: 100%;
+    color: ${(props) => props.theme.palette.primary.contrastText};
+  }
+  .secondary-text{
+    width: 100%;
+    color: ${(props) => props.theme.palette.primary.dark};
+    font-weight: 200;
   }
 `
 
@@ -95,19 +101,19 @@ export function NavHeader() {
             <Typography variant={'h6'} noWrap>
               {profile.user.displayName}
             </Typography>
-            <Typography color={'textSecondary'} noWrap gutterBottom>
+            <Typography  noWrap gutterBottom>
               {profile.user.username}
             </Typography>
-            <Typography color={'textSecondary'} noWrap gutterBottom>
+            <Typography noWrap gutterBottom>
               {profile.user.email}
             </Typography>
-            <Typography color={'textSecondary'} noWrap gutterBottom>
+            <Typography noWrap gutterBottom>
               {t('common:' + profile.role)}
             </Typography>
           </div>
         )}
       </NavHeaderContainer>
-      <Divider />
+      <Divider style={{ backgroundColor: theme.palette.primary.contrastText}}/>
     </>
   ) : null
 }

@@ -50,7 +50,7 @@ export function AuthenticationCard() {
               </div>
             </Grid>
             <Grid item>
-              <Button variant="contained" color="primary" onClick={login}>
+              <Button variant="contained" color="secondary" onClick={login}>
                 {t('common:login')}
               </Button>
             </Grid>

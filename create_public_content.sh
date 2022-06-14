@@ -13,6 +13,14 @@ case $1 in
         cp -a public_project/config/config-faster-test.json build/config.json
         sed -i "s/PROJECT_NAME/FASTER/" build/index.html
         ;;
+
+    faster-prod)
+        echo "faster-prod"
+        cp -a public_project/faster/* build/
+        cp -a public_project/config/config-faster-prod.json build/config.json
+        sed -i "s/PROJECT_NAME/FASTER/" build/index.html
+        ;;        
+        
     safers-dev)
         echo "safers-dev"
         cp -a public_project/safers/* build/

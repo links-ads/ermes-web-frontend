@@ -69,7 +69,8 @@ export const getSocialCardStyle = (theme) => {
 export const getSocialDashboardStyle = (theme) => {
   return {
     tweetsStatContainer: {
-      margin: '8px'
+      padding: '8px',
+      height: '100%'
     },
     infoContainer: {
       marginBottom: '16px'
@@ -108,7 +109,7 @@ export const getFiltersStyle = (theme) => {
     },
     applyButton: {
       color: theme['palette']['text']['primary'],
-      backgroundColor: theme['palette']['background']['paper'],
+      backgroundColor: theme['palette']['secondary']['main'],
       margin: '8px'
     },
     resetButton: {

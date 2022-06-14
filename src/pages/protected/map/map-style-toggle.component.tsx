@@ -13,7 +13,7 @@ const MapStyleToggleContainer = styled.div.attrs({
   className: 'map-style-toggle-container'
 })`
   position: absolute;
-  bottom: 16px;
+  bottom: 0px;
   left: 0px;
   margin: 10px;
   width: 56px;
@@ -63,7 +63,7 @@ export function MapStyleToggle({
   }
 
   return (
-    <MapStyleToggleContainer>
+    <MapStyleToggleContainer style={{ bottom: "0px"}}>
       <Tooltip title={title} placement="top">
         <div className="speed-dial-parent">
           <SpeedDial

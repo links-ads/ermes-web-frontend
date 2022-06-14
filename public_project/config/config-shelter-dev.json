@@ -2,7 +2,7 @@
   "envTag": "",
   "ui": {
     "availableThemes": ["dark", "light"],
-    "defaultTheme": "dark"
+    "defaultTheme": "light"
   },
   "i18n": {
     "ns": ["common", "errors"],

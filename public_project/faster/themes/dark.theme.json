@@ -9,12 +9,12 @@
     },
     "secondary": {
       "light": "#ff5f5c",
-      "main": "#ff1531",
+      "main": "#ff5f5c",
       "dark": "#c30009",
-      "contrastText": "#000000"
+      "contrastText": "#0e2367"
     },
     "background": {
-      "default": "#091744",
+      "default": "#0a1744",
       "paper": "#0E2367"
     }
   }

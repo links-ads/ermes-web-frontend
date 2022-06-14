@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useReducer, useContext, useMemo} from 'react'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -19,8 +19,12 @@ import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { LayersPlayer } from './map-player/player.component'
+import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
+
+import { getLegendURL }  from '../../../utils/map.utils'
+import { PlayerMetadata } from './map-popup-meta.component'
 
 type MapFeature = CulturalProps
 
@@ -33,6 +37,9 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
+
+  const [toggleLegend, setToggleLegend] = useState<boolean>(false)
+  const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
   const { i18n } = useTranslation();
   const getFilterList = (obj) => {
@@ -115,6 +122,10 @@ export function Map() {
   const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
+  const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
+  const [ legendLayer, setLegendLayer ] = useState('')
+  const [ metaLayer, setMetaLayer ] = useState('')
+
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
     if (!getLayersState.result.data['layerGroups']) return [{}, {}]
@@ -158,11 +169,15 @@ export function Map() {
             })
           } else {
 
+            if (layer['frequency'] === 'OnDemand') return
+
             let namestimesDict: { [key: string]: string } = {}
+            let namesmetaDict: { [key: string]: string } = {}
 
             layer['details'].forEach((detail) => {
               detail['timestamps'].forEach((timestamp) => {
                 namestimesDict[timestamp] = detail['name']
+                namesmetaDict[timestamp] = detail['metadata_Id']
               })
             })
 
@@ -171,8 +186,9 @@ export function Map() {
               timestamps: Object.keys(namestimesDict),
               name: layer['name'],
               format: layer['format'],
-              fromTime : Object.keys(namestimesDict)[0],
-              toTime : Object.keys(namestimesDict).slice(-1)[0]
+              fromTime: Object.keys(namestimesDict)[0],
+              toTime: Object.keys(namestimesDict).slice(-1)[0],
+              metadataId: Object.values(namesmetaDict)
             }
           }
         })
@@ -212,9 +228,6 @@ export function Map() {
     })
     return groupData
   }, [getLayersState])
-
-  console.log('TILES', layerId2Tiles)
-  console.log('DATA', layersData)
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -268,6 +281,7 @@ export function Map() {
     })
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
+
   useEffect(() => {
     setDateIndex(0)
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
@@ -277,21 +291,52 @@ export function Map() {
     }
   }, [layerSelection])
 
-  console.log("DATE OUT", dateIndex)
-
-  const [layersPlayerDefaultCoord, setPlayersDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:500})
-  const [layersSelectContainerDefaultCoord, setLayersSelectContainerDefaultCoord] = useState<{ x: number; y: number }>({x:90, y:90})
-  const [floatingFilterContainerDefaultCoord, setFloatingFilterContainerDefaultCoord] = useState<{ x: number; y: number }>({x:60, y:60})
-
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
   const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
   const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersLegendPosition, setLayersLegendPosition] = useState<{ x: number; y: number }| undefined>(undefined)
 
-  // const [layerPlayerMoved, setLayerPlayerMoved] = useState(false)
-  // const [layerSelectMoved, setLayerSelectMoved] = useState(false)
-  // const [floatingFilterMoved, setFloatingFilterMoved] = useState(false)
 
+  const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: 60 } }, [])
+  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 350) } }, [])
+  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120,window.innerHeight - 300 - 450) } }, [])
+  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400,window.innerWidth-600), y: 60 } }, [])
+  
+  const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
+  
   useEffect(() => {
+    if (toggleSideDrawer) {
+
+      if (layersSelectVisibility) { //layers container is visible, move it
+        //opening drawer
+        if (layersSelectContainerPosition == undefined)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
+        else if (layersSelectContainerPosition!.x < 450)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
+      }
+
+      if (togglePlayer) {
+        if (layersPlayerPosition == undefined)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerDefaultCoord.y })
+        else if (layersPlayerPosition!.x < 450)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerPosition!.y })
+      }
+
+      if (toggleActiveFilterTab) {
+        if (floatingFilterContainerPosition == undefined)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
+        else if (floatingFilterContainerPosition!.x < 450)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
+      }
+    } else {
+      //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+    }
+
+  }, [toggleSideDrawer])
+
+  useMemo(() => {
     if(toggleSideDrawer){ 
      
       if(layersSelectVisibility){ //layers container is visible, move it
@@ -321,6 +366,83 @@ export function Map() {
 
   }, [toggleSideDrawer])
 
+  function changePlayer(value, metadataId){
+    if(toggleLegend){
+      setLegendLayer(value)
+    }
+    if(toggleMeta){
+     // getMeta(metadataId)
+     setMetaLayer(metadataId)
+    }
+  }
+
+  useMemo(() => {
+    if(legendLayer){
+      getLegend(legendLayer)
+    }
+  }, [legendLayer])
+
+  useMemo(() => {
+    if(metaLayer){
+      getMeta(metaLayer)
+    }
+  }, [metaLayer])
+
+  function formatMeta(result){
+    let res : [any, any] = ['','']
+    let data = result.data
+     Object.keys(data).forEach(function(key) {
+       if(data[key] == "" || data[key] == null) {return}
+       if(data[key] !== undefined && data[key] !== null && typeof(data[key])  === 'object'){
+         let innerres = ''
+         Object.keys(data[key]).forEach(function(innerkey) {
+           if(data[key][innerkey] == "" || data[key][innerkey] == null) {return}
+           if(data[key][innerkey] !== undefined && data[key][innerkey] !== null && typeof(data[key][innerkey])  === 'object'){
+             let innerinnerres = ''
+             Object.keys(data[key][innerkey]).forEach(function(innerinnerkey) {
+               if(data[key][innerkey][innerinnerkey] == "" || data[key][innerkey][innerinnerkey] == null) {return}
+               innerinnerres += innerinnerkey+`: `+data[key][innerkey][innerinnerkey]+`, \n`
+             })
+             innerres+= innerinnerres
+           }
+           else innerres += innerkey+`: `+data[key][innerkey]+`, \n`
+         })
+         res.push([key, innerres])
+       }
+       else 
+       res.push([key, ''+data[key]])
+     })
+     res.splice(0,2)
+     return res
+  }
+
+function showImage(responseAsBlob) {
+  const imgUrl = URL.createObjectURL(responseAsBlob);
+  setLegendSrc(imgUrl)
+  setToggleLegend(true)
+}
+async function getLegend(layerName){
+ const geoServerConfig = appConfig.geoServer
+ const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
+ showImage(await res.blob());
+}
+
+function getMeta(metaId: string){
+  layersApiFactory.layersGetMetadata(
+    metaId,
+    {
+      headers: {
+        'Accept-Language': i18n.language
+      }
+    }
+  ).then(result => {
+    const formattedres = formatMeta(result)
+    setLayerMeta(formattedres)
+    setToggleMeta(true)
+  })
+ }
+
+///////
   return (
     <>
       <MapDrawer
@@ -337,7 +459,7 @@ export function Map() {
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
       />
-      <MapContainer initialHeight={window.innerHeight - 112}>
+      <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
         <FloatingFilterContainer
@@ -363,16 +485,40 @@ export function Map() {
           defaultPosition={layersPlayerDefaultCoord}
           position={layersPlayerPosition}
           onPositionChange={setLayersPlayerPosition}
+          getLegend={getLegend}
+          getMeta={getMeta}
+          onPlayerChange={changePlayer}
+          geoServerConfig={appConfig.geoServer}
+          map={map}
         />
-        {
-          dblClickFeatures && (
 
-            <MapTimeSeries
+        <PlayerLegend
+          visibility={toggleLegend}
+          defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+          position={layersLegendPosition}
+          onPositionChange={setLayersLegendPosition}
+          setVisibility={setToggleLegend}
+          imgSrc={legendSrc}
+        />
+
+<PlayerMetadata 
+          visibility={toggleMeta}
+          defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+          position={layersMetaPosition}
+          onPositionChange={setLayersMetaPosition}
+          setVisibility={setToggleMeta}
+          layerData={layerMeta}
+        />
+
+        {dblClickFeatures && (
+          <MapTimeSeries
             dblClickFeatures={dblClickFeatures}
             setDblClickFeatures={setDblClickFeatures}
-            />
-          )
-        }
+            defaultPosition={mapTimeSeriesContainerDefaultCoord}
+            position={mapTimeSeriesContainerPosition}
+            onPositionChange={setMapTimeSeriesContainerPosition}
+          />
+        )}
         <LayersSelectContainer
           layerSelection={layerSelection}
           setLayerSelection={setLayerSelection}
