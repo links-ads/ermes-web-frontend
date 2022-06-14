@@ -104,6 +104,7 @@
     "build": "node ./runWithEnv.js build",
     "build-faster-dev": "node ./runWithEnv.js build faster-dev",
     "build-faster-test": "node ./runWithEnv.js build faster-test",
+    "build-faster-prod": "node ./runWithEnv.js build faster-prod",
     "build-safers-dev": "node ./runWithEnv.js build safers-dev",
     "deploy-safers-dev": "node ./runWithEnv.js build safers-dev && sh deploy-to-azure.sh safers-dev",
     "build-safers-test": "node ./runWithEnv.js build safers-test",
