@@ -2,6 +2,7 @@ Ver.
 -----------------------
 - Bugfix - Fixed crash on PlayerLayer slider when selecting last value ref #65
 - Bugfix - In report card correctly show creator username if their organization is null (#67)
+- Bugfix _ Removed 'citizen' role and delete option from users page adjusted roles shown (#50)
 
 Ver. 1.6.0 - 2022-05-25
 -----------------------

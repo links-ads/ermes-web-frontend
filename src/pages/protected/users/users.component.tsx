@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { strictEqual } from 'assert'
 import { AppConfig, AppConfigContext } from '../../../config'
+import { ROLE_ORGANIZATION_MANAGER, ROLE_TEAM_LEADER, ROLE_DECISION_MAKER, ROLE_FIRST_RESPONDER } from '../../../App.const'
 
 const options: Options<any> = {
   sorting: true,
@@ -52,7 +53,8 @@ function localizeColumns(
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
-  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
+  //const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
+  const UserRoles = [ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER,ROLE_FIRST_RESPONDER]
   const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
   type UserRolesType = typeof UserRoles[number]
 
@@ -256,23 +258,23 @@ export function Users() {
                 setUserUpdating(false)
               }
             },
-            onRowDelete: async (oldData: ProfileDto) => {
-              const id = oldData.personId
-              if (typeof id !== undefined) {
-                try {
-                  // loading ON
-                  setUserUpdating(true)
-                  // METHOD IS MISSING
-                  // await userAPIFactory.deleteUserById(id)
-                  await loadUsers() // refresh
-                } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
-                } finally {
-                  // loading OFF
-                  setUserUpdating(false)
-                }
-              }
-            }
+            // onRowDelete: async (oldData: ProfileDto) => {
+            //   const id = oldData.personId
+            //   if (typeof id !== undefined) {
+            //     try {
+            //       // loading ON
+            //       setUserUpdating(true)
+            //       // METHOD IS MISSING
+            //       // await userAPIFactory.deleteUserById(id)
+            //       await loadUsers() // refresh
+            //     } catch (err) {
+            //       displayErrorSnackbar(err.response?.data.error)
+            //     } finally {
+            //       // loading OFF
+            //       setUserUpdating(false)
+            //     }
+            //   }
+            // }
           }}
         />
       </div>
