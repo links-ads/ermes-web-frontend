@@ -29,7 +29,6 @@ export default function useUsersList () {
     { data: result, loading: usersLoading, error: usersError },
     loadUsers
   ] = useAxiosWithParamCreator<UsrApiPC, DTResultOfProfileDto | undefined>(opts, false)
-
   const { displayErrorSnackbar } = useSnackbars()
   const users: ProfileDto[] = result?.data || []
   const [updating, setUserUpdating] = useState<boolean>(false)
@@ -46,7 +45,7 @@ export default function useUsersList () {
     if (!usersLoading) {
       let orgIdList = orgData.map(elem => elem.id)
       const filtered_users = users.filter(elem => {
-        if(orgIdList.includes(elem.organization?.id)){
+        if(orgIdList.includes(elem.organization?.id) && !elem.user?.roles?.includes('citizen')){
           return elem
         }
         return null

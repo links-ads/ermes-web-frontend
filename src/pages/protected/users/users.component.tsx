@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { strictEqual } from 'assert'
 import { AppConfig, AppConfigContext } from '../../../config'
+import { ROLE_ORGANIZATION_MANAGER, ROLE_TEAM_LEADER, ROLE_DECISION_MAKER, ROLE_FIRST_RESPONDER } from '../../../App.const'
 
 const options: Options<any> = {
   sorting: true,
@@ -52,7 +53,8 @@ function localizeColumns(
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
-  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
+  //const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
+  const UserRoles = [ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER,ROLE_FIRST_RESPONDER]
   const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
   type UserRolesType = typeof UserRoles[number]
 
@@ -82,16 +84,18 @@ function localizeColumns(
       editable: 'always',
       disableClick: true,
       width: '30%',
-      render: (rowData) => (
+      render: (rowData) => {
+        
         // when not editing, render them as a list of chips
-        <div className={classes.chipContainer}>
-          {rowData?.user?.roles?.map((value) => (
-            UserRoles.indexOf(value) !== -1 ? (
+        return <div className={classes.chipContainer}>
+          { rowData?.user?.roles?.map((value) => {
+           // console.log('rowdata', value)
+           return ( UserRoles.indexOf(value) !== -1 ? (
               <Chip key={value} label={t('common:role_' + value)} size="small" className={classes.chipStyle} />
             ) : null
-          ))}
+            )})}
         </div>
-      ),
+    },
       initialEditValue: [],
       editComponent: (cellData) => {
         if (cellData.rowData.user === undefined) {
@@ -118,20 +122,20 @@ function localizeColumns(
             renderValue={(selected) => (
               <div className={classes.chipContainer}>
                 {(selected as []).map((value) => (
-                  UserRoles.indexOf(value) !== -1 ? (
+                UserRoles.indexOf(value) !== -1 ? (
                     <Chip key={value} label={t('common:role_' + value)} size="small" className={classes.chipStyle} />) : null
                 ))}
               </div>
             )}
           >
-            {UserRoles?.map((role) => (
-              <MenuItem
+            {UserRoles?.map((role) => {
+              return <MenuItem
                 value={role}
                 selected={false}
               >
                 <ListItemText primary={t('common:role_' + role)} />
               </MenuItem>
-            ))}
+            })}
           </Select >
         )
       }
@@ -139,7 +143,7 @@ function localizeColumns(
     {
       title: t('admin:user_org_name'),
       field: 'organization.id',
-      editable: 'onAdd',
+      editable: "onAdd",
       lookup: orgLookup,
       emptyValue: empty,
       initialEditValue: lookupKeys.length > 1 ? undefined : empty
@@ -256,23 +260,23 @@ export function Users() {
                 setUserUpdating(false)
               }
             },
-            onRowDelete: async (oldData: ProfileDto) => {
-              const id = oldData.personId
-              if (typeof id !== undefined) {
-                try {
-                  // loading ON
-                  setUserUpdating(true)
-                  // METHOD IS MISSING
-                  // await userAPIFactory.deleteUserById(id)
-                  await loadUsers() // refresh
-                } catch (err) {
-                  displayErrorSnackbar(err.response?.data.error)
-                } finally {
-                  // loading OFF
-                  setUserUpdating(false)
-                }
-              }
-            }
+            // onRowDelete: async (oldData: ProfileDto) => {
+            //   const id = oldData.personId
+            //   if (typeof id !== undefined) {
+            //     try {
+            //       // loading ON
+            //       setUserUpdating(true)
+            //       // METHOD IS MISSING
+            //       // await userAPIFactory.deleteUserById(id)
+            //       await loadUsers() // refresh
+            //     } catch (err) {
+            //       displayErrorSnackbar(err.response?.data.error)
+            //     } finally {
+            //       // loading OFF
+            //       setUserUpdating(false)
+            //     }
+            //   }
+            // }
           }}
         />
       </div>
