@@ -107,8 +107,12 @@ export function LayersPlayer(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const {layerSelection,layerId2Tiles,setDateIndex,dateIndex,visibility,setVisibility} = props
+  const {layerSelection,layerId2Tiles,setDateIndex,dateIndex,visibility,setVisibility, updateCurrentLayer} = props
 
+  const [playing, setPlaying] = useState(false)
+  const [opacity, setOpacity] = useState<number>(100);
+  const { t } = useTranslation(['maps'])
+  const [ layerName, setLayerName ] = useState('')
   const layerProps = useMemo(()=>{
     switch(layerSelection.isMapRequest){
       case NO_LAYER_SELECTED:
@@ -116,16 +120,10 @@ export function LayersPlayer(props) {
       case 0:
         return layerId2Tiles[layerSelection.isMapRequest][layerSelection.dataTypeId]
       case 1:
+        setLayerName(layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId].names[0])
         return layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId]
     }
   },[layerSelection])
-
-
-  const [playing, setPlaying] = useState(false)
-  const [opacity, setOpacity] = useState<number>(100);
-  const { t } = useTranslation(['maps'])
-  const [ layerName, setLayerName ] = useState('')
-
   const insideData = {
     name: layerProps
       ? layerProps.name
@@ -140,6 +138,7 @@ export function LayersPlayer(props) {
       ? layerProps.metadataId
       : []
   }
+  useMemo(() => updateCurrentLayer(layerName), [layerName]);
   // console.log('LayersPlayer', props.layerId2Tiles)
   // console.log('LayerID', props.layerSelection)
 
@@ -241,7 +240,12 @@ export function LayersPlayer(props) {
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
             onClick={() => {
-              props.getMeta(insideData.metadatas[dateIndex])
+              if(typeof(insideData.metadatas) == 'object')
+                props.getMeta(insideData.metadatas[dateIndex])
+              else if (typeof(insideData.metadatas) == 'string')
+                props.getMeta(insideData.metadatas)
+              else 
+                console.log('no metadata procedure implemented for type', typeof(insideData.metadatas))
             }}
           >
             <MetaIcon />
@@ -300,7 +304,10 @@ export function LayersPlayer(props) {
               </div>
             </span>
           ) : (
-            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} </div>
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} 
+            
+            </div>
+            
           )}
         </div>
         <div className={classes.sliderContainer}>

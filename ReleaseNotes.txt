@@ -1,4 +1,9 @@
-Ver.
+Ver. 1.6.2 - 2022-06-28
+-----------------------
+- Bugfix - fixed Opacity, Legend and Metadata of layers on map requests page (#66)
+
+
+Ver. 1.6.1 - 2022-06-23
 -----------------------
 - Bugfix - Fixed crash on PlayerLayer slider when selecting last value ref #65
 - Bugfix - In report card correctly show creator username if their organization is null (#67)

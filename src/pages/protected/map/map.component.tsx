@@ -127,6 +127,7 @@ export function Map() {
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
   const [ legendLayer, setLegendLayer ] = useState('')
   const [ metaLayer, setMetaLayer ] = useState('')
+  const [ currentLayerName, setCurrentLayerName ] = useState('')
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
@@ -165,6 +166,7 @@ export function Map() {
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = { name: layer['name'], namesTimes: {} }
                 }
                 detail['timestamps'].forEach((timestamp) => {
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['metadataId'] = detail['metadata_Id']
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][timestamp] = detail['name']
                 })
               }
@@ -428,10 +430,14 @@ function showImage(responseAsBlob) {
   setLegendSrc(imgUrl)
   setToggleLegend(true)
 }
-async function getLegend(layerName){
+async function getLegend(layerName: string){
  const geoServerConfig = appConfig.geoServer
  const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
  showImage(await res.blob());
+}
+
+function updateCurrentLayer(layerName: string){
+setCurrentLayerName(layerName)
 }
 
 function getMeta(metaId: string){
@@ -494,6 +500,7 @@ function getMeta(metaId: string){
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           getMeta={getMeta}
+          updateCurrentLayer = {updateCurrentLayer}
           onPlayerChange={changePlayer}
           geoServerConfig={appConfig.geoServer}
           map={map}
@@ -566,6 +573,7 @@ function getMeta(metaId: string){
             layerSelection={layerSelection}
             layerId2Tiles={layerId2Tiles}
             dateIndex={dateIndex}
+            currentLayerName = {currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
           />
         </MapStateContextProvider>
