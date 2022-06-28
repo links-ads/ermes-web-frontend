@@ -198,7 +198,7 @@ export default function CommunicationPanel(props) {
                           {t('maps:organization')}:&nbsp;
                         </Typography>
                         <Typography component={'span'} variant="body1">
-                          {elem.organization.name}
+                          {elem.organization == null ? '' : elem.organization.name }
                         </Typography>
                       </>
                       <Typography color="textSecondary">

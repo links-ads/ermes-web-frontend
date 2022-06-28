@@ -1,5 +1,6 @@
-Ver.
+Ver. 1.6.2 - 2022-06-28
 -----------------------
+- Bugfix - fixed Opacity, Legend and Metadata of layers on map requests page (#66)
 
 
 Ver. 1.6.1 - 2022-06-23

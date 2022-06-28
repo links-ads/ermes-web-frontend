@@ -209,11 +209,14 @@ export function MapLayout(props) {
         map.getBounds()
       )
       source['properties'] = {'format': layerProps['format'], 'fromTime':layerProps['fromTime'],'toTime':layerProps['toTime']}
+      try{
       if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
-
+      }catch(err){
+        console.error('An error occurred', err)
+      }
       map.addSource(geoLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
@@ -225,11 +228,17 @@ export function MapLayout(props) {
       )
       setGeoLayerState({ tileId: geoLayerName, tileSource: source })
     } else {
-      if (mapTileId !== null) {
+    if (mapTileId !== null) {
+      try{
+     
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
         setGeoLayerState({ tileId: null, tileSource: {} })
+      
+      }catch(err){
+        console.error('An error occurred', err)
       }
+    }
     }
   }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
 
@@ -682,6 +691,8 @@ export function MapLayout(props) {
           ) : null}
         </>
       )}
+      {//error in change style see https://stackoverflow.com/questions/36168658/mapbox-gl-setstyle-removes-layers https://bl.ocks.org/tristen/0c0ed34e210a04e89984 
+      }
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
