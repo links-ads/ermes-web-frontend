@@ -36,11 +36,15 @@ const MapStyleToggleContainer = styled.div.attrs({
 interface RefProps {
   mapViewRef: React.RefObject<InteractiveMap>
   spiderifierRef: React.MutableRefObject<Spiderifier | null>
+  onMapStyleChange
+  mapChangeSource: number
 }
 
 export function MapStyleToggle({
   mapViewRef,
   spiderifierRef,
+  onMapStyleChange,
+  mapChangeSource,
   hidden = false,
   direction = 'right'
 }: Pick<SpeedDialProps, 'hidden' | 'direction'> & RefProps) {
@@ -51,6 +55,8 @@ export function MapStyleToggle({
   const handleClose = (name?: string) => {
     setOpen(false)
     if (name) {
+      if(mapChangeSource==0) //check if the style change comes from main map
+        onMapStyleChange()
       if (spiderifierRef.current && mapViewRef.current) {
         //spiderifierRef.current.clearSpiders(mapViewRef.current.getMap())
       }

@@ -8,17 +8,16 @@ export const LineChartWidget = (
 ) => {
     const theme = useTheme()
 
-    const formatTicks = (v) => {
-        return v.length > 10 ? (
-            <tspan>
-                {v.substring(0, 10) + "..."}
-                <title>{v}</title>
-            </tspan>
-        ) : (
-            v
-        );
-    }
-
+    // const formatTicks = (v) => {
+    //     return v.length > 10 ? (
+    //         <tspan>
+    //             {v.substring(0, 10) + "..."}
+    //             <title>{v}</title>
+    //         </tspan>
+    //     ) : (
+    //         v
+    //     );
+    // }
     const chartData = useMemo(() => {
         const newData = [] as any[]
         Object.entries(props.data).forEach(entry => {
@@ -41,12 +40,13 @@ export const LineChartWidget = (
 
     return (
         <div
-            style={{ height: '95%' }}
+            style={{ height: '95%', marginBottom:'0', width:"1200px" }}
         >
             <ResponsiveLine
                 data={chartData}
-                margin={{ top: 32, right: 32, bottom: 64, left: 60 }}
+                margin={{ top: 32, right: 32, bottom: 104, left: 60 }}
                 xScale={{ type: 'point' }}
+                
                 yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
                 yFormat=">-6.2f"
                 theme={
@@ -56,10 +56,9 @@ export const LineChartWidget = (
                     }}
                 axisBottom={{
                     orient: 'bottom',
-                    tickSize: 5,
                     tickPadding: 5,
                     tickRotation: -75,
-                    format: formatTicks,
+    
                     tickValues: xValues.length < 40 ? xValues : xValues.filter((_, i) => i % 2 === 0)
                 }}
                 axisLeft={{

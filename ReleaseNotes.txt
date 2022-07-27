@@ -1,6 +1,7 @@
 Ver.
 -----------------------
-
+- Bugfix - Fixed layer visualization when changing map style (#66)
+- Bugfix - Fixed timeseries visualization when double clicking on a weather layer (#68)
 
 Ver. 1.6.1 - 2022-06-23
 -----------------------

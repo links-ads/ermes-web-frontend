@@ -145,7 +145,7 @@ export function LayersPlayer(props) {
 
   function valuetext(value) {
     setLayerName(insideData.labels[value])
-    props.onPlayerChange(insideData.labels[value], insideData.metadatas[value])
+    props.onPlayerChange(insideData.labels[value], insideData.metadatas[value], insideData.name)
     //setSelectedName(insideData.labels[value])
     return insideData.timestamps[value]
   }
