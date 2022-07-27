@@ -96,6 +96,7 @@ const EventMap = (props) => {
     }
   }, [data, mapRef])
 
+
   useEffect(() => {
     setGeoJsonData(parseEventDataToGeoJson(data))
   }, [data])
@@ -213,6 +214,8 @@ const EventMap = (props) => {
         <MapStyleToggle
           mapViewRef={mapRef}
           spiderifierRef={props.spiderifierRef}
+          onMapStyleChange={null}
+          mapChangeSource={2}
           direction="right"
         ></MapStyleToggle>
       )}

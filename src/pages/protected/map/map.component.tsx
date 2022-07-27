@@ -42,6 +42,7 @@ export function Map() {
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
   const { i18n } = useTranslation();
+  const [layerName, setLayerName] = useState<string>('')
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
 
@@ -368,15 +369,22 @@ export function Map() {
 
   }, [toggleSideDrawer])
 
-  function changePlayer(value, metadataId){
+  function changePlayer(value, metadataId, layerName){
+    setLayerName(layerName)
     if(toggleLegend){
       setLegendLayer(value)
     }
     if(toggleMeta){
-     // getMeta(metadataId)
      setMetaLayer(metadataId)
     }
   }
+
+  /**
+   * close the mappopupseries component when we change layer 
+   */
+  useMemo(() => {
+    setDblClickFeatures(null)
+  }, [layerName])
 
   useMemo(() => {
     if(legendLayer){
@@ -524,6 +532,7 @@ function getMeta(metaId: string){
             defaultPosition={mapTimeSeriesContainerDefaultCoord}
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
+            layerName={layerName}
           />
         )}
         <LayersSelectContainer
