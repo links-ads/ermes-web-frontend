@@ -1,7 +1,8 @@
 Ver. 1.6.2 - 2022-06-28
 -----------------------
 - Bugfix - fixed Opacity, Legend and Metadata of layers on map requests page (#66)
-
+- Bugfix - Fixed layer visualization when changing map style (#66)
+- Bugfix - Fixed timeseries visualization when double clicking on a weather layer (#68)
 
 Ver. 1.6.1 - 2022-06-23
 -----------------------

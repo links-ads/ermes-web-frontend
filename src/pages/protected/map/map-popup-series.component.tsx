@@ -23,7 +23,7 @@ export default function MapTimeSeries(props) {
 
     const [dim, setDim] = useState({
         width: 500,
-        height: 400
+        height: 620
     })
     const onResize = (event, data) => {
         setDim({ height: data.size.height, width: data.size.width })
@@ -40,8 +40,9 @@ export default function MapTimeSeries(props) {
                 dim={dim}
                 onResize={onResize}
                 resizable={true}
+                style={{ minHeight:'600px', paddingBottom:'0px' }}
             >
-                <Card style={{ height: dim.height }}>
+                <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: '0px' }}>
                     <AppBar
                         position="static"
                         color="default"
@@ -54,8 +55,8 @@ export default function MapTimeSeries(props) {
                     >
                         <Toolbar>
                             <Box sx={{ flexGrow: 9 }}>
-                                <Typography variant='caption'>
-                                    {dblClickFeatures.layer}
+                                <Typography variant='h4'>
+                                    {props.layerName}
                                 </Typography>
                             </Box>
                             <Box sx={{ flexGrow: 1 }}>
@@ -69,7 +70,7 @@ export default function MapTimeSeries(props) {
                             </Box>
                         </Toolbar>
                     </AppBar>
-                    <CardContent style={{ height: '90%', overflowY: 'scroll' }}>
+                    <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom:'0px' }}>
                         <LineChartWidget
                             data={dblClickFeatures.data}
                         />
