@@ -101,7 +101,7 @@ const RenderMembersTables = (
   const genLookupObject = () => {
     let persons: any = {}
     Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
-      persons[value.personId] = value.user.username
+      persons[value.personId] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
     })
     return persons
   }

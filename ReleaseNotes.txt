@@ -2,6 +2,12 @@ Ver.
 -----------------------
 
 
+Ver. 1.6.2 - 2022-07-27
+-----------------------
+- Bugfix - fixed Opacity, Legend and Metadata of layers on map requests page, fixed layer visualization when changing map style (#66)
+- Bugfix - Fixed timeseries visualization when double clicking on a weather layer (#68)
+- Bugfix - Inserted displayName for user identification, with username and email as fallbacks (#70)
+
 Ver. 1.6.1 - 2022-06-23
 -----------------------
 - Bugfix - Fixed crash on PlayerLayer slider when selecting last value ref #65

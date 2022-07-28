@@ -282,7 +282,7 @@ export default function ReportPanel(props) {
                             {t('maps:creator')}:&nbsp;
                           </Typography>
                           <Typography component={'span'} variant="body1">
-                            {elem.username}
+                            {elem.displayName == null ? (elem.username == null ? elem.email : elem.username) : elem.displayName}
                           </Typography>
                         </>
                         )}
