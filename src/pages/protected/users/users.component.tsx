@@ -75,7 +75,7 @@ function localizeColumns(
       ),
       initialEditValue: ''
     },
-    { title: t('admin:user_username'), field: 'user.username' },
+    { title: t('admin:user_username'), field: 'user.displayName' == null ? ('user.username' == null ? 'user.email' : 'user.username') : 'user.displayName'},
     { title: t('admin:user_email'), field: 'user.email' },
     {
       // Selector of the roles, showing them as chips

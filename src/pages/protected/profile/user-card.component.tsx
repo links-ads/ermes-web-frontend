@@ -55,7 +55,7 @@ export const UserCard = memo(function UserCard() {
 
   return profile ? (
     <Card style={{ margin: 'auto' }}>
-      <CardHeader title={t('common:authenticated_as', { displayName: profile.user.displayName })} />
+      <CardHeader title={t('common:authenticated_as', { displayName: (profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)  })} />
       <CardContent>
         <AvatarContainer>
           <Avatar

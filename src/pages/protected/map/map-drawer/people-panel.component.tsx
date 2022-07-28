@@ -205,7 +205,7 @@ export default function PeoplePanel(props) {
                             >
                               {elem.username.length > 22
                                 ? elem.username.substring(0, 20) + '...'
-                                : elem.username}
+                                :  (elem.displayName == null ? (elem.username == null ? elem.email : elem.username) : elem.displayName)}
                             </Typography>
                           </Box>
                           <Box component="div" display="inline-block">
