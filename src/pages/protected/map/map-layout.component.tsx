@@ -209,11 +209,14 @@ export function MapLayout(props) {
         map.getBounds()
       )
       source['properties'] = {'format': layerProps['format'], 'fromTime':layerProps['fromTime'],'toTime':layerProps['toTime']}
+      try{
       if (mapTileId !== null) {
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
       }
-
+      }catch(err){
+        console.error('An error occurred', err)
+      }
       map.addSource(geoLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
@@ -225,11 +228,17 @@ export function MapLayout(props) {
       )
       setGeoLayerState({ tileId: geoLayerName, tileSource: source })
     } else {
-      if (mapTileId !== null) {
+    if (mapTileId !== null) {
+      try{
+     
         map.removeLayer(mapTileId)
         map.removeSource(mapTileId)
         setGeoLayerState({ tileId: null, tileSource: {} })
+      
+      }catch(err){
+        console.error('An error occurred', err)
       }
+    }
     }
   }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
 
@@ -289,6 +298,50 @@ export function MapLayout(props) {
     if (!map) return
     updateMarkers(map)
   }, [props.mapHoverState])
+
+  /**
+   * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to 
+   * ensure that the style has finished loading (workaround to known bug with the official callback)
+   */
+  const onMapStyleChange = () => {
+    const map = mapViewRef.current?.getMap()!
+    const mapTileId = geoLayerState.tileId
+    if (mapTileId !== null) {
+
+      map.removeLayer(mapTileId)
+      map.removeSource(mapTileId)
+      setGeoLayerState({ tileId: null, tileSource: {} })
+    }
+
+    setTimeout(() => {
+      if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {
+        const layerProps = props.layerSelection.isMapRequest === 0 ?
+          props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
+          props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
+        const geoLayerName = layerProps['names'][props.dateIndex]
+        const source = tileJSONIfy(
+          map,
+          geoLayerName,
+          new Date(layerProps['timestamps'][props.dateIndex]).toISOString(),
+          geoServerConfig,
+          map.getBounds()
+        )
+        source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }
+
+
+        map.addSource(geoLayerName, source as mapboxgl.RasterSource)
+        map.addLayer(
+          {
+            id: geoLayerName,
+            type: 'raster',
+            source: geoLayerName,
+          },
+          'clusters'
+        )
+        setGeoLayerState({ tileId: geoLayerName, tileSource: source })
+      }
+    }, 1000) //after 1 sec
+  }
 
   const onMapLoad = useCallback(
     () => {
@@ -682,11 +735,11 @@ export function MapLayout(props) {
           ) : null}
         </>
       )}
-      <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef}></MapStyleToggle>
+      <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef} onMapStyleChange={onMapStyleChange} mapChangeSource={0}></MapStyleToggle>
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
-            {Object.keys(EmergencyColorMap).map((key,i) => {
+            {Object.keys(EmergencyColorMap).map((key, i) => {
               return (
                 <div key={i} className={classes.legend_row}>
                   <div

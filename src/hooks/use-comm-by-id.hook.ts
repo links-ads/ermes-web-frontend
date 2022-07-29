@@ -34,9 +34,7 @@ const reducer = (currentState, action) => {
 const useCommById = () => {
   const [commByIdState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig), [
-    backendAPIConfig
-  ])
+  const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig), [backendAPIConfig])
 
   const fetchCommById = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -51,7 +49,7 @@ const useCommById = () => {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [commApiFactory, commByIdState]
+    [commApiFactory]
   )
 
   return [commByIdState, fetchCommById]

@@ -42,6 +42,7 @@ export function Map() {
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
   const { i18n } = useTranslation();
+  const [layerName, setLayerName] = useState<string>('')
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
 
@@ -125,6 +126,7 @@ export function Map() {
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
   const [ legendLayer, setLegendLayer ] = useState('')
   const [ metaLayer, setMetaLayer ] = useState('')
+  const [ currentLayerName, setCurrentLayerName ] = useState('')
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
@@ -163,6 +165,7 @@ export function Map() {
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = { name: layer['name'], namesTimes: {} }
                 }
                 detail['timestamps'].forEach((timestamp) => {
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['metadataId'] = detail['metadata_Id']
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][timestamp] = detail['name']
                 })
               }
@@ -366,15 +369,22 @@ export function Map() {
 
   }, [toggleSideDrawer])
 
-  function changePlayer(value, metadataId){
+  function changePlayer(value, metadataId, layerName){
+    setLayerName(layerName)
     if(toggleLegend){
       setLegendLayer(value)
     }
     if(toggleMeta){
-     // getMeta(metadataId)
      setMetaLayer(metadataId)
     }
   }
+
+  /**
+   * close the mappopupseries component when we change layer 
+   */
+  useMemo(() => {
+    setDblClickFeatures(null)
+  }, [layerName])
 
   useMemo(() => {
     if(legendLayer){
@@ -421,10 +431,14 @@ function showImage(responseAsBlob) {
   setLegendSrc(imgUrl)
   setToggleLegend(true)
 }
-async function getLegend(layerName){
+async function getLegend(layerName: string){
  const geoServerConfig = appConfig.geoServer
  const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
  showImage(await res.blob());
+}
+
+function updateCurrentLayer(layerName: string){
+setCurrentLayerName(layerName)
 }
 
 function getMeta(metaId: string){
@@ -487,6 +501,7 @@ function getMeta(metaId: string){
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           getMeta={getMeta}
+          updateCurrentLayer = {updateCurrentLayer}
           onPlayerChange={changePlayer}
           geoServerConfig={appConfig.geoServer}
           map={map}
@@ -517,6 +532,7 @@ function getMeta(metaId: string){
             defaultPosition={mapTimeSeriesContainerDefaultCoord}
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
+            layerName={layerName}
           />
         )}
         <LayersSelectContainer
@@ -559,6 +575,7 @@ function getMeta(metaId: string){
             layerSelection={layerSelection}
             layerId2Tiles={layerId2Tiles}
             dateIndex={dateIndex}
+            currentLayerName = {currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
           />
         </MapStateContextProvider>

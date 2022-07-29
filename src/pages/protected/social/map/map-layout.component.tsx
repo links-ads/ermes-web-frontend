@@ -193,7 +193,7 @@ const SocialMap = (props) => {
             </MapContainer>
             {
                 (props.mapRef.current?.getMap()) &&
-                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} direction="right"></MapStyleToggle>)
+                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} onMapStyleChange={null} mapChangeSource={1} direction="right"></MapStyleToggle>)
             }
         </div>
     );
