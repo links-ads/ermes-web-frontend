@@ -591,9 +591,10 @@ export function MapLayout(props) {
     setSpiderifierRef(spiderifierRef)
   }, [setMap, setSpiderifierRef])
 
+  // when the layers change (like the spiderifier layer), update the mapLayers to show changes
   const mapLayers = useMemo(() => {
     return geoLayerState.tileId ? [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds, geoLayerState.tileId] : [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]
-  }, [geoLayerState])
+  }, [geoLayerState, props.spiderLayerIds])
 
   return (
     <>
