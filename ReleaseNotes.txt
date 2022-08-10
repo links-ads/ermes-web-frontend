@@ -8,6 +8,7 @@ Ver. 1.6.2 - 2022-07-27
 - Bugfix - Fixed timeseries visualization when double clicking on a weather layer (#68)
 - Bugfix - Inserted displayName for user identification, with username and email as fallbacks (#70)
 - Bugfix - Fixed lag when GetCommunicationById was called (#69)
+- Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
 
 Ver. 1.6.1 - 2022-06-23
 -----------------------

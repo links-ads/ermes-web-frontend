@@ -90,11 +90,13 @@ export function Widget({
       break
 
   }
+  //to accommodate long linechart and table, for that type set overflowX
   WidgetChild = (<div
     data-wid={wid}
     style={{
       width: '100%',
-      height: '100%'
+      height: '100%',
+      overflowX: (type === 'line' )? 'auto': 'unset'
     }}
   >
     {WidgetChild}
