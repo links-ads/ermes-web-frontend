@@ -2,14 +2,17 @@ Ver.
 -----------------------
 
 
+Ver. 1.7.0 - 2022-08-10
+-----------------------
+- Bugfix - Fixed map nodes not being clickable when expanded with a spiderifier (#71)
+- Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
+
 Ver. 1.6.2 - 2022-07-27
 -----------------------
 - Bugfix - fixed Opacity, Legend and Metadata of layers on map requests page, fixed layer visualization when changing map style (#66)
 - Bugfix - Fixed timeseries visualization when double clicking on a weather layer (#68)
 - Bugfix - Inserted displayName for user identification, with username and email as fallbacks (#70)
 - Bugfix - Fixed lag when GetCommunicationById was called (#69)
-- Bugfix - Fixed map nodes not being clickable when expanded with a spiderifier (#71)
-- Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
 
 Ver. 1.6.1 - 2022-06-23
 -----------------------
