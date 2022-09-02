@@ -339,7 +339,7 @@ export const MapLoadingDiv = (props) => {
       <Grid style={{
         position: 'absolute', zIndex: 10, height:'100%', backgroundColor: 'black', opacity: 0.65
       }}
-        container justify='center' alignItems='center'>
+        container justifyContent='center' alignItems='center'>
         <Grid item style={{ top: '40%', left: '40%' }}>
           <CircularProgress size={100} thickness={4} />
         </Grid>

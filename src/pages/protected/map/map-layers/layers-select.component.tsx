@@ -132,7 +132,7 @@ export function LayersSelectContainer(props) {
             ) : props.data === undefined ||
               !props.data ||
               props.data.length === 0 ? (
-              <Grid container justify="center">
+              <Grid container justifyContent="center">
                 <Typography align="center" variant="h6">
                   {t('maps:no_layers')}
                 </Typography>

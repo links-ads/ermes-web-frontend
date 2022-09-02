@@ -41,7 +41,7 @@ export const CardsList = (props) => {
     </Card>)
 
     const cardToShow = (props.isLoading && props.data.length === 0) ?
-        (<Grid container justify="center"><CircularProgress disableShrink /></Grid>) :
+        (<Grid container justifyContent="center"><CircularProgress disableShrink /></Grid>) :
         (props.isError || (!props.isLoading && props.data.length === 0)) ? noResultsCard : itemList
     return (
         <div id="scrollableDiv" style={{
@@ -57,7 +57,7 @@ export const CardsList = (props) => {
                 endMessage={
                     <div></div>
                 }
-                loader={<Grid container justify="center"><CircularProgress disableShrink /></Grid>}
+                loader={<Grid container justifyContent="center"><CircularProgress disableShrink /></Grid>}
                 scrollableTarget='scrollableDiv'
             >
                 {cardToShow}

@@ -206,6 +206,19 @@ export default function CommunicationPanel(props) {
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
                         {formatter.format(new Date(elem.duration?.upperBound as string))}
                       </Typography>
+                      <>
+                        <Typography
+                          component={'span'}
+                          variant="caption"
+                          color="textSecondary"
+                          style={{ textTransform: 'uppercase' }}
+                        >
+                          {'status'}:&nbsp;
+                        </Typography>
+                        <Typography component={'span'} variant="body1">
+                          {elem.currentStatus == null ? '' : elem.currentStatus }
+                        </Typography>
+                      </>
                     </CardContent>
                     <CardActions className={classes.cardAction}>
                       <Typography color="textSecondary">

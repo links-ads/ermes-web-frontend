@@ -72,8 +72,8 @@ const EventsComponent = (props) => {
     )
 
     return (
-      <Grid container direction="column" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
-      <Grid container direction="row" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
+      <Grid container direction="column" justifyContent="flex-start" alignContent='space-around' style={{height:'100%'}}>
+      <Grid container direction="row" justifyContent="flex-start" alignContent='space-around' style={{height:'100%'}}>
           <Grid
             className={classes.tweetsStatContainer}
             item
@@ -145,7 +145,7 @@ const EventsComponent = (props) => {
                       </Typography>
                     </Grid>
                     {eventStats.isLoading ? (
-                      <Grid style={{ flex: 1 }} container justify="center">
+                      <Grid style={{ flex: 1 }} container justifyContent="center">
                         <CircularProgress />
                       </Grid>
                     ) : eventStats.error ? (
@@ -175,7 +175,7 @@ const EventsComponent = (props) => {
                         {t('social:fetch_error')}
                       </Typography>
                     ) : eventStats.isLoading ? (
-                      <Grid container style={{ padding: 8 }} justify="center">
+                      <Grid container style={{ padding: 8 }} justifyContent="center">
                         {' '}
                         <CircularProgress />{' '}
                       </Grid>
@@ -202,7 +202,7 @@ const EventsComponent = (props) => {
                         {t('social:fetch_error')}
                       </Typography>
                     ) : eventStats.isLoading ? (
-                      <Grid container style={{ padding: 8 }} justify="center">
+                      <Grid container style={{ padding: 8 }} justifyContent="center">
                         {' '}
                         <CircularProgress />
                       </Grid>
@@ -227,7 +227,7 @@ const EventsComponent = (props) => {
             item
             style={{ flex: 7 }}
           >
-            <Grid style={{ flex: 1, width: '100%' }} container justify="space-evenly">
+            <Grid style={{ flex: 1, width: '100%' }} container justifyContent="space-evenly">
               <EventMap
                 eventFilters={eventFiltersState}
                 filtersState={filtersState}
