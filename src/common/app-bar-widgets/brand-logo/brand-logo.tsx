@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { staticAssetsUrl } from '../../../config/base-path'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { getRandomBackgroundAndTextColors } from '../../../utils/color.utils'
+import { useUITheme } from   '../../../state/preferences/preferences.hooks'
 
 const rotate360 = keyframes`
   from {
@@ -18,16 +19,16 @@ const rotate360 = keyframes`
   }
 `
 
-const logoSrc = new URL('icons/brand.png', staticAssetsUrl).href
 
 interface BrandLogoProps {
   envTag?: string
   envTagBackgroundColor?: string
   envTagColor?: string
+  logoSrc?: string
 }
 
 export const BrandLogoD = styled.div<BrandLogoProps>`
-  background-image: url(${logoSrc});
+  background-image: url(${(props) => props.logoSrc});
   background-position: center;
   background-origin: content-box;
   background-repeat: no-repeat;
@@ -77,6 +78,13 @@ export const BrandLogo = memo(function BrandLogo() {
   /* add color and background color picked randomly on the envTag letter */
   const getColors = useCallback(() => getRandomBackgroundAndTextColors(envTag), [envTag])
   const { textColor, backgroundColor } = getColors()
+
+  const { theme, themeName } = useUITheme()
+var logoSrc =  new URL('icons/brand_light.png', staticAssetsUrl).href
+if(themeName == 'light')
+  logoSrc = new URL('icons/brand_light.png', staticAssetsUrl).href
+else 
+  logoSrc = new URL('icons/brand_dark.png', staticAssetsUrl).href
   return (
     <Route
       render={({ location }) => {
@@ -93,9 +101,10 @@ export const BrandLogo = memo(function BrandLogo() {
             >
               <BrandLogoD
                 className="brand-logo"
-                envTag={envTag}
-                envTagBackgroundColor={backgroundColor}
-                envTagColor={textColor}
+                logoSrc={logoSrc}
+                // envTag={envTag}
+                // envTagBackgroundColor={backgroundColor}
+                // envTagColor={textColor}
               />
             </Link>
           </Tooltip>

@@ -12,28 +12,6 @@ import styled from 'styled-components'
 import { RefreshButton } from '../../../common/common.components'
 import MaterialTable, { Column, Options } from 'material-table'
 import useLeaderboard from '../../../hooks/use-gamification.hook'
-const AvatarContainer = styled.div.attrs({ className: 'avatar-container' })`
-  display: flex;
-  flex-grow: 1;
-  width: 100%;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0px 32px 16px 32px;
-  box-sizing: border-box;
-`
-
-const StyledCardActions = styled(CardActions)`
-  align-items: flex-start;
-  flex-wrap: wrap;
-  justify-content: space-between;
-
-  .MuiButton-contained:nth-child(2) {
-    min-width: 120px;
-    ${(props) => props.theme.breakpoints.down('xs')} {
-      margin: 8px 0;
-    }
-  }
-`
 
 const options: Options<any> = {
   sorting: false,
