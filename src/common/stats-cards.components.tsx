@@ -36,7 +36,7 @@ export const VolumeCard = (props) => {
     const { t } = useTranslation(['social'])
     let textToShow = props.isError ? (<Typography style={{ margin: 4 }} align="left" variant="caption">{t("social:fetch_error")}</Typography>)
         : (<Typography style={{ margin: 4 }} align="right" className={classes.volume_count} variant="h5">{formatNumber(props.value)}</Typography>)
-    let value = props.isLoading ? (<Grid container justify='center'><CircularProgress /> </Grid>) : textToShow
+    let value = props.isLoading ? (<Grid container justifyContent='center'><CircularProgress /> </Grid>) : textToShow
     return (
         <Paper elevation={6} className={classes.card_root}>
             <Typography style={{ margin: 4 }} align="left" variant="subtitle1">{props.label}</Typography>
@@ -65,12 +65,12 @@ export const InformativeCard = (props) => {
 
     const classes = useStyles();
     const { t } = useTranslation(['social'])
-    let cardToShow = props.isLoading ? (<Grid container justify='center'><CircularProgress /> </Grid>) : (props.isError) ?
+    let cardToShow = props.isLoading ? (<Grid container justifyContent='center'><CircularProgress /> </Grid>) : (props.isError) ?
         (<Typography style={{ margin: 4 }} align="right" variant="caption">{t("social:fetch_error")}</Typography>) :
         (props.value === null) ? (<Typography style={{ margin: 4 }} align="right" variant="caption">{t("social:no_results")}</Typography>) :
             (
                 <div style={{ margin: 4 }}>
-                    <Grid container direction='row' justify='space-between'>
+                    <Grid container direction='row' justifyContent='space-between'>
                         <Typography className={classes.labelText} align="left" variant="caption" display='inline'>{t("social:informative_yes").toUpperCase()}</Typography>
                         <Typography className={classes.labelText} align="right" variant="caption" display='inline'>{t("social:informative_no").toUpperCase()}</Typography>
                     </Grid>
@@ -79,7 +79,7 @@ export const InformativeCard = (props) => {
                         color='primary'
                         variant="determinate"
                         value={props.value} />
-                    <Grid container direction='row' justify='space-between'>
+                    <Grid container direction='row' justifyContent='space-between'>
                         <Typography className={classes.labelText} align="left" variant="caption" display='inline'>{props.value.toFixed(2) + '%'}</Typography>
                         <Typography className={classes.labelText} align="right" variant="caption" display='inline'>{(100 - props.value).toFixed(2) + '%'}</Typography>
                     </Grid>
@@ -110,7 +110,7 @@ export const LanguageCard = (props) => {
     const classes = useStyles();
     return (
         <Paper elevation={6} className={classes.card_root}>
-            <Grid container direction='row' justify='space-between' >
+            <Grid container direction='row' justifyContent='space-between' >
                 <Typography style={{ margin: 4 }} align="left" variant="body2">{props.label}</Typography>
                 <Typography style={{ margin: 4 }} className={classes.language_value} align="right" variant="subtitle2">{formatNumber(props.value)}</Typography>
             </Grid>
@@ -158,7 +158,7 @@ export const parseStats = (stats, mapping:any|undefined=undefined): {} => {
 export const ChartTooltip = (label: string, colour: string, value: string | number) => {
     return (
         <Paper elevation={2} style={{ padding: 5 }}>
-            <Grid container direction='row' justify='center' alignItems='center'>
+            <Grid container direction='row' justifyContent='center' alignItems='center'>
                 <div style={{
                     backgroundColor: colour,
                     margin: 5,
