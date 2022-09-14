@@ -193,6 +193,9 @@ export function MapLayout(props) {
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
+  const [activeSources, setActiveSources] = useState<any>({})
+  const removeSource = (arr, element) => { let tmp = arr; delete tmp[element]; return tmp }
+
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     const mapTileId = geoLayerState.tileId
@@ -208,14 +211,42 @@ export function MapLayout(props) {
         geoServerConfig,
         map.getBounds()
       )
-      source['properties'] = {'format': layerProps['format'], 'fromTime':layerProps['fromTime'],'toTime':layerProps['toTime']}
-      try{
-      if (mapTileId !== null) {
-        map.removeLayer(mapTileId)
-        map.removeSource(mapTileId)
+      source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }
+
+      if (!props.layerSelection.multipleLayersAllowed) {
+        try {
+          if (mapTileId !== null) {
+            map.removeLayer(mapTileId)
+            map.removeSource(mapTileId)
+          }
+        } catch (err) {
+          console.error('An error occurred', err)
+        }
       }
-      }catch(err){
-        console.error('An error occurred', err)
+      else {
+
+        let firstkey = (Object.keys(activeSources)[0] != null ? Object.keys(activeSources)[0].split("_")[0]  : '')
+        let selected = props.layerSelection.layerClicked.split("_")[0]
+        var tmp=activeSources
+        if(firstkey !== selected){
+          
+          try {
+            for(let key in activeSources){
+              let titletoremove = activeSources[key]
+              if (map.getLayer(titletoremove)) {
+              map.removeLayer(titletoremove)
+              map.removeSource(titletoremove)
+              }
+            }
+            tmp = {}
+          } catch (err) {
+            console.error('An error occurred', err)
+          }
+        }
+        
+        tmp[props.layerSelection.layerClicked]= geoLayerName
+        setActiveSources(tmp)
+        //}
       }
       map.addSource(geoLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
@@ -228,18 +259,38 @@ export function MapLayout(props) {
       )
       setGeoLayerState({ tileId: geoLayerName, tileSource: source })
     } else {
-    if (mapTileId !== null) {
-      try{
-     
-        map.removeLayer(mapTileId)
-        map.removeSource(mapTileId)
-        setGeoLayerState({ tileId: null, tileSource: {} })
-      
-      }catch(err){
-        console.error('An error occurred', err)
+
+      if (!props.layerSelection.multipleLayersAllowed) {
+        if (mapTileId !== null) {
+          try {
+            map.removeLayer(mapTileId)
+            map.removeSource(mapTileId)
+            setGeoLayerState({ tileId: null, tileSource: {} })
+          } catch (err) {
+            console.error('An error occurred', err)
+          }
+        }
+      } else {
+        if (mapTileId !== null) {
+          try {
+
+            let titletoremove = activeSources[props.layerSelection.layerClicked]
+            let removedSource = removeSource(activeSources, props.layerSelection.layerClicked)
+
+            setActiveSources(removedSource)
+            if (map.getLayer(titletoremove)) {
+              map.removeLayer(titletoremove)
+              map.removeSource(titletoremove)
+            }
+            if(Object.keys(removedSource).length == 0)
+            setGeoLayerState({ tileId: null, tileSource: {} })
+          } catch (err) {
+            console.error('An error occurred', err)
+          }
+        }
       }
     }
-    }
+
   }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
 
   useEffect(
@@ -518,8 +569,8 @@ export function MapLayout(props) {
   // Empty array ensures that effect is only run on mount and unmount
   useEffect(() => {
     if (props.isGeoJsonPrepared) {
-      console.log('FILTERED LIST', props.prepGeoJson.features)
-      console.log('FILTER LIST', props.filterList)
+      // console.log('FILTERED LIST', props.prepGeoJson.features)
+      // console.log('FILTER LIST', props.filterList)
       let filteredList = props.prepGeoJson.features.filter(
         (a) =>
           props.filterList.includes(a?.properties?.type) ||
