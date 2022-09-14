@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
@@ -9,7 +9,7 @@ import CardWithPopup from './card-with-popup.component'
 
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { Accordion, AccordionDetails, AccordionSummary, Box, FormControl, FormControlLabel, Radio, RadioGroup } from '@material-ui/core'
+import { Accordion, AccordionDetails, AccordionSummary, Box, FormControl, FormControlLabel, Checkbox, FormGroup } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -75,6 +75,8 @@ export default function MapRequestsPanel(props) {
   const [mapRequestsData, getMapRequestsData, applyFilterByText] = useMapRequestList()
 
   const [height, setHeight] = React.useState(window.innerHeight)
+  const [activeL, setActiveL] = useState<string[]>([])
+  const [activeParent, setParent] = useState('')
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
@@ -166,6 +168,7 @@ export default function MapRequestsPanel(props) {
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data.map((elem, i) => {
+          
                 return (<MapRequestCard
                   key={i}
                   elem={elem}
@@ -177,6 +180,10 @@ export default function MapRequestsPanel(props) {
                   layerSelection={props.layerSelection}
                   setLayerSelection={props.setLayerSelection}
                   layerId2Tiles={props.layerId2Tiles}
+                  activeParent={activeParent}
+                  setParent={setParent}
+                  activeL={activeL}
+                  setActiveL={setActiveL}
                 />
                 )
               })}
@@ -200,16 +207,35 @@ function MapRequestCard(props) {
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   const classes = useStyles()
 
-  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection } = props
+  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection, setParent, activeParent, setActiveL, activeL } = props
 
+  const removeSource = (arr, element) => { let tmp = arr.filter(item => item !== element); return tmp }
   const handleRadioClick = (event: any) => {
     let selected = event.target.value.split("_")[1]
-    if ((layerSelection.mapRequestCode === elem.code) && (selected === layerSelection.dataTypeId)) {
-      setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED })
-    } else {
-      setLayerSelection({ isMapRequest: 1, mapRequestCode: elem.code, dataTypeId: selected })
+    let parent = event.target.value.split("_")[0]
+    var tmp = ['']
+    //if ((layerSelection.mapRequestCode === elem.code) && (selected === layerSelection.dataTypeId)) {
+    if (!getcheckedState(event.target.value)) { //se mnon è checked 
+      if (activeParent == parent) {
+        tmp = [...activeL, event.target.value]
+       // setActiveL([...activeL, event.target.value])
+      }
+      else {
+        tmp = [event.target.value]
+        //setActiveL([event.target.value])
+        setParent(parent)
+      }
+      setLayerSelection({ isMapRequest: 1, mapRequestCode: elem.code, dataTypeId: selected, multipleLayersAllowed: true, layerClicked: event.target.value })
+    } else { //se è checked
+      tmp = removeSource(activeL, event.target.value)
+      setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: true, layerClicked: event.target.value })
     }
+    setActiveL(tmp)
   }
+
+  const getcheckedState = ((id: string) => {
+    return (activeL.includes(id))
+  })
 
   return (
     <CardWithPopup
@@ -225,9 +251,9 @@ function MapRequestCard(props) {
       spiderifierRef={spiderifierRef}
       type="MapRequest"
     >
-      <CardContent>
-        <div className={classes.headerBlock}>
-          <Box component="div" display="inline-block">
+      <CardContent key={elem.code}>
+        <div className={classes.headerBlock}key={elem.code+'_sub'}>
+          <Box component="div" display="inline-block" key={elem.code+'_box'}>
             <Typography
               gutterBottom
               variant="h5"
@@ -239,10 +265,12 @@ function MapRequestCard(props) {
           </Box>
         </div>
         <div className={classes.pos}>
-          {['layer', 'status'].map((type) => {
+          {['layer', 'status'].map((type, index) => {
             if (elem[type]) {
+          
               return (
                 <>
+                <div key={index}>
                   <Typography
                     component={'span'}
                     variant="caption"
@@ -256,6 +284,7 @@ function MapRequestCard(props) {
                     {t('labels:' + elem[type].toLowerCase())}
                   </Typography>
                   <br />
+                  </div>
                 </>
               )
             }
@@ -274,26 +303,27 @@ function MapRequestCard(props) {
               </AccordionSummary>
               <AccordionDetails>
                 <FormControl component="fieldset" fullWidth={true}>
-                  <RadioGroup
+                  <FormGroup
                     aria-label="gender"
-                    name="controlled-radio-buttons-group"
-                    value={layerSelection.mapRequestCode+"_"+layerSelection.dataTypeId}
                   >
                     {Object.entries(props.layerId2Tiles[1][elem.code]).map(
                       ([dataTypeId, layerData]: [string, any]) => {
                         return (<FormControlLabel
                           key={dataTypeId}
-                          value={elem.code+"_"+dataTypeId}
-                          control={<Radio onClick={handleRadioClick} />}
+                          value={elem.code + "_" + dataTypeId}
+                          control={<Checkbox
+                            onClick={handleRadioClick}
+                            checked={getcheckedState(elem.code + "_" + dataTypeId)}
+                          />}
                           label={layerData['name']}
                         />)
                       }
                     )}
-                  </RadioGroup>
+                  </FormGroup>
                 </FormControl>
               </AccordionDetails>
             </Accordion>
-            )
+          )
           }
         </div>
       </CardContent>

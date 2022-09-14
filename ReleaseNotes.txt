@@ -7,6 +7,7 @@ Ver. 1.7.0 - 2022-08-10
 - Bugfix - Fixed map nodes not being clickable when expanded with a spiderifier (#71)
 - Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
 - Feature - Added Gamification page for Citizen Profile, updated sdk to 3.8.1, improved shelter dark theme and added light-dark versions of logos (#73)
+- Feature - Added possibility of visualizing multiple map requests layers (#74)
 
 Ver. 1.6.2 - 2022-07-27
 -----------------------

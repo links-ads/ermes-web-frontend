@@ -79,9 +79,9 @@ export function LayersSelectContainer(props) {
 
   const handleRadioClick = (event: any) => {
     if (event.target.value === props.layerSelection.dataTypeId) {
-      props.setLayerSelection({isMapRequest:NO_LAYER_SELECTED,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:NO_LAYER_SELECTED})
+      props.setLayerSelection({isMapRequest:NO_LAYER_SELECTED,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:NO_LAYER_SELECTED, multipleLayersAllowed: false})
     } else {
-      props.setLayerSelection({isMapRequest:0,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:event.target.value})
+      props.setLayerSelection({isMapRequest:0,mapRequestCode:NO_LAYER_SELECTED,dataTypeId:event.target.value, multipleLayersAllowed: false})
     }
   }
   return (
