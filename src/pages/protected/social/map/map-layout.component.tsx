@@ -58,9 +58,10 @@ const SocialMap = (props) => {
 
     const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>({x:50, y:55})
     useEffect(() => {
+        console.log('hey', leftClickState)
         let map = mapRef?.current?.getMap()
-        if (leftClickState.showPoint)
-            setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...leftClickState.pointFeatures } })
+        // if (leftClickState.showPoint)        //decomment to hide the tweet slide
+        //     setLeftClickState({ showPoint: false, clickedPoint: null, pointFeatures: { ...leftClickState.pointFeatures } })
         if (map) {
             spiderifierRef.current?.clearSpiders(map)
             setGeoJsonData(parseDataToGeoJson(data))
