@@ -27,7 +27,7 @@
     }
   },
   "geoServer": {
-    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-test.shelter-project.cloud/geoserver/shelter",
     "suffix": "wms",
     "params": {
       "service": "WMS",
