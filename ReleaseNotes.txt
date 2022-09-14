@@ -8,6 +8,7 @@ Ver. 1.7.0 - 2022-08-10
 - Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
 - Feature - Added Gamification page for Citizen Profile, updated sdk to 3.8.1, improved shelter dark theme and added light-dark versions of logos (#73)
 - Feature - Added possibility of visualizing multiple map requests layers (#74)
+- Bugfix - Fixed Tweets not showing when clicking on tweet in social map (#75)
 
 Ver. 1.6.2 - 2022-07-27
 -----------------------
