@@ -6,6 +6,7 @@ Ver. 1.7.0 - 2022-08-10
 -----------------------
 - Bugfix - Fixed map nodes not being clickable when expanded with a spiderifier (#71)
 - Feature - Allowed Citizens to login and view Dashboard, Map, Events and Tweets pages (also Settings, Add device and Profile) (#72)
+- Bugfix - Fixed Tweets not showing when clicking on tweet in social map (#75)
 
 Ver. 1.6.2 - 2022-07-27
 -----------------------
