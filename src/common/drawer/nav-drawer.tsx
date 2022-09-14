@@ -26,7 +26,7 @@ export function NavDrawer() {
   const { isAuthenticated } = useUser()
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
-      <SidebarContent >
+      <SidebarContent style={{overflowX:'hidden'}}>
         <NavHeader />
         <NavContent />
       </SidebarContent>

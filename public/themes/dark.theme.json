@@ -2,20 +2,20 @@
   "palette": {
     "type": "dark",
     "primary": {
-      "light": "#739ce1",
-      "main": "#43518C",
-      "dark": "#333E74",
+      "light": "#fab950",
+      "main": "#31343d",
+      "dark": "#2c2d35",
       "contrastText": "#ffffff"
     },
     "secondary": {
       "light": "#ff5f5c",
-      "main": "#e8c535",
+      "main": "#f9a825",
       "dark": "#c30009",
       "contrastText": "#424242"
     },
     "background": {
-      "default": "#091744",
-      "paper": "#0E2367"
+      "default": "#2c2d35",
+      "paper": "#333"
     }
   }
 }

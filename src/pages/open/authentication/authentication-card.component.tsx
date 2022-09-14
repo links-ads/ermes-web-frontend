@@ -28,7 +28,7 @@ export function AuthenticationCard() {
         </CardContent>
         <CardActions>
           <Grid
-            justify="space-between" // Add it here :)
+            justifyContent="space-between" // Add it here :)
             container
           >
             <Grid item>

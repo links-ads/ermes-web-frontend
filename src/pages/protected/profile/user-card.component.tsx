@@ -9,7 +9,7 @@ import Exit from '@material-ui/icons/ExitToApp'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { useTranslation } from 'react-i18next'
-import { /* useAuth */ useLogout, useUser } from '../../../state/auth/auth.hooks'
+import { useUser } from '../../../state/auth/auth.hooks'
 import { Avatar } from '@material-ui/core'
 import styled from 'styled-components'
 const AvatarContainer = styled.div.attrs({ className: 'avatar-container' })`
@@ -42,19 +42,22 @@ const USER_KEYS = [
   ['user_birth_date', 'birthDate'],
   ['user_email', 'email'],
   ['user_role', 'role'],
-  ['org_name', 'organization.name']
+  ['org_name', 'organization.name'],
+  ['user_current_status', 'currentStatus'],
+  ['user_team', 'team']
 ]
 
 const isDebug = process.env.NODE_ENV !== 'production'
 
 export const UserCard = memo(function UserCard() {
   const { t } = useTranslation()
-  // const { logout, user } = useAuth()
-  const logout = useLogout()
+
   const { profile } = useUser()
 
   return profile ? (
-    <Card style={{ margin: 'auto' }}>
+    <Card style={profile.role !== 'citizen' ? { margin: 'auto'} : { margin: 'auto', height:'100%', width:'100%' }}
+    
+    >
       <CardHeader title={t('common:authenticated_as', { displayName: (profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)  })} />
       <CardContent>
         <AvatarContainer>
@@ -72,21 +75,32 @@ export const UserCard = memo(function UserCard() {
             <b>Id: </b> {profile.user.id}
           </Typography>
         )}
-        {USER_KEYS.map(([tkey, userField], i) =>
+        {profile.role !== 'citizen' ? (USER_KEYS.map(([tkey, userField], i) =>
           profile[userField] || profile.user[userField] ? (
             <Typography key={i} variant="body2" color="textSecondary" component="p">
               {t(tkey, {
                 [userField]:
                   userField === 'role'
-                    ? t('common:role_' + profile.role)
-                    : userField === 'organization' && typeof profile[userField] !== 'undefined'
-                    ? profile?.organization?.name
-                    : profile.user[userField]
+                    ? t('common:role_' + profile.role) : ((userField === 'organization' && typeof profile[userField] !== 'undefined')
+                        ? profile?.organization?.name : (userField === 'currentStatus' && typeof profile[userField] !== 'undefined') ? profile.currentStatus 
+                    : profile.user[userField]) 
               })}
             </Typography>
           ) : null
+        )) : (
+          <div>
+        <Typography variant="body2" color="textSecondary" component="p">
+          {'username:'+(profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)}
+        </Typography>
+        { !!(profile as any).level ? (<Typography variant="body2" color="textSecondary" component="p">
+          { //wait for sdk
+          t('common:user_level',  { level: (profile as any).level })
+          }
+        </Typography>) : null}
+        </div>
         )}
       </CardContent>
+      {profile.role !== 'citizen' ? (
       <StyledCardActions>
         <Button
           variant="contained"
@@ -97,10 +111,7 @@ export const UserCard = memo(function UserCard() {
         >
           {t('common:page_dev_auth')}
         </Button>
-        <Button variant="contained" color="secondary" onClick={logout} startIcon={<Exit />}>
-          {t('common:logout')}
-        </Button>
-      </StyledCardActions>
+      </StyledCardActions>) : null}
     </Card>
   ) : null
 })

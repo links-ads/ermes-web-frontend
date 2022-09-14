@@ -137,7 +137,7 @@ const ImportComponent = (props) => {
     }
 
     return (
-        <Grid container direction="row" justify="flex-start" alignContent='space-around'>
+        <Grid container direction="row" justifyContent="flex-start" alignContent='space-around'>
             <Grid item className={classes.section}>
                 <h1>
                     {t('import:label_title')}
@@ -177,7 +177,7 @@ const ImportComponent = (props) => {
                                         <Typography align='center' style={{ margin: 5, fontWeight: 1000 }}>{t("import:zone_name_label", { filename: selectState.filename })}</Typography>
                                     </Grid>
                                 ) : (
-                                    <Grid container justify='center' direction='column' alignContent='center' >
+                                    <Grid container justifyContent='center' direction='column' alignContent='center' >
                                         <img src={excelIcon} style={{ objectFit: 'contain' }} alt=''/>
                                         <Typography style={{ margin: 5 }}>{fileState.currentFilename}</Typography>
                                     </Grid>
@@ -186,7 +186,7 @@ const ImportComponent = (props) => {
                             }
                         </Grid>
                     </Grid>
-                    <Grid container className={classes.section} justify='space-around'>
+                    <Grid container className={classes.section} justifyContent='space-around'>
                         <Button
                             startIcon={<DeleteIcon />}
                             size='large'
@@ -212,19 +212,19 @@ const ImportComponent = (props) => {
                     </Grid>
                 </Grid>
                 <Grid container direction='column' style={{ flex: 3 }}>
-                    <Grid container direction='column' style={{ padding: 16 }} justify='center' alignContent='center'>
+                    <Grid container direction='column' style={{ padding: 16 }} justifyContent='center' alignContent='center'>
                         {
                             (importState.isLoading) ? (
-                                <Grid container justify='center'>
+                                <Grid container justifyContent='center'>
                                     <Typography align='center' variant='h5'>
                                         {t("import:loading_label")}
                                     </Typography>
-                                    <Grid container style={{ margin: 32 }} justify='center'>
+                                    <Grid container style={{ margin: 32 }} justifyContent='center'>
                                         <CircularProgress size={100} />
                                     </Grid>
                                 </Grid>
                             ) : (Object.keys(importState.data).length > 0) ? (
-                                <Grid container justify='center' direction='column'>
+                                <Grid container justifyContent='center' direction='column'>
                                     <Typography align='center' variant='h5'>
                                         {t("import:result_label")}
                                     </Typography>
