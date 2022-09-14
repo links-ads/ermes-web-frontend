@@ -32,15 +32,15 @@ const WidgetBody = styled.div`
 const FallbackComponent = (isLoading: boolean, isError: boolean, data: any, child: JSX.Element): JSX.Element => {
   const { t } = useTranslation(['social'])
   return isLoading ?
-    (<Grid container justify='center' >
+    (<Grid container justifyContent='center' >
       <CircularProgress size={80} />
     </Grid >) :
     isError ?
-      (<Grid container justify='center' alignItems='center' style={{height:'100%'}}>
+      (<Grid container justifyContent='center' alignItems='center' style={{height:'100%'}}>
         <Typography style={{ margin: 4 }} align="center" variant="body1">{t("social:fetch_error")}</Typography>
       </Grid >) :
       (!data || data.length === 0) ?
-        (<Grid container justify='center' alignItems='center'  style={{height:'100%'}}>
+        (<Grid container justifyContent='center' alignItems='center'  style={{height:'100%'}}>
             <Typography style={{ margin: 4 }} align="center" variant="body1">{t("social:no_results")}</Typography>
         </Grid >) :
         child

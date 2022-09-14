@@ -113,10 +113,10 @@ export const TweetContent = (props) => {
 
     const chipSection = props.expandButton ? (
         <Grid container direction='row'>
-            <Grid container style={{ width: '90%' }} justify='flex-start' alignItems='center'>
+            <Grid container style={{ width: '90%' }} justifyContent='flex-start' alignItems='center'>
                 {cardChips}
             </Grid>
-            <Grid container style={{ width: '10%' }} justify='center' alignItems='flex-end'>
+            <Grid container style={{ width: '10%' }} justifyContent='center' alignItems='flex-end'>
                 {props.expandButton}
             </Grid>
         </Grid>) : cardChips

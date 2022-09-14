@@ -2,7 +2,7 @@
   "envTag": "",
   "ui": {
     "availableThemes": ["dark", "light"],
-    "defaultTheme": "light"
+    "defaultTheme": "dark"
   },
   "i18n": {
     "ns": ["common", "errors"],
@@ -27,7 +27,7 @@
     }
   },
   "geoServer": {
-    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
@@ -41,11 +41,11 @@
   },
   "fusionAuth": {
     "url": "https://auth.safers-project.cloud/",
-    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
-    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
+    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
+    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
   },
   "backend": {
-    "url": "https://api-dev.safers-project.cloud"
+    "url": "https://api-test.safers-project.cloud"
   },
   "userTagsFilter": {
     "filters": ["administrator"]

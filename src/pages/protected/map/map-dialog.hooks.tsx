@@ -192,7 +192,7 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
 
           {dialogState.operation === 'create' &&
             apiHandlerState.loading ?
-            (<Grid container justify='center' alignItems='center'>
+            (<Grid container justifyContent='center' alignItems='center'>
               <Grid>
                 <CircularProgress size={100} thickness={4} />
               </Grid>

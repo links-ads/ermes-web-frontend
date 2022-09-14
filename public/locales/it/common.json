@@ -76,5 +76,17 @@
   "inaccurate": "Inaccurato",
   "inappropriate": "Inappropriato",
   "validated": "Validato",
-  "number_of_items": "Numero di Elementi"
+  "number_of_items": "Numero di Elementi",
+  "medals": "Medaglie",
+  "badges": "Distintivi",
+  "leaderboard": "Leaderboard",
+  "user_current_status":  "Stato corrente: {{currentStatus}}",
+  "user_team": "Team: {{team}}",
+  "user_level":"Livello: {{level}}",
+  "leader_points": "Punti",
+  "leader_gpos": "Posizione Globale",
+  "leader_level": "Livello",
+  "description":"Descrizione",
+  "nickname": "Nickname",
+  "icon": "Icona"
 }

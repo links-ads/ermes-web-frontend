@@ -64,6 +64,7 @@ export function RefreshButton({ onClick, disabled = false, icon = <ReplayIcon />
           aria-label="comments"
           size="small"
           onClick={onClick}
+          style={{marginLeft:'5px'}}
         >
           {icon}
         </IconButton>

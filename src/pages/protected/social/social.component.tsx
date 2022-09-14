@@ -78,8 +78,8 @@ const SocialComponent = (props) => {
     )
 
     return (
-        <Grid container direction="column" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
-            <Grid container direction="row" justify="flex-start" alignContent='space-around' style={{height:'100%'}}>
+        <Grid container direction="column" justifyContent="flex-start" alignContent='space-around' style={{height:'100%'}}>
+            <Grid container direction="row" justifyContent="flex-start" alignContent='space-around' style={{height:'100%'}}>
                 <Grid className={classes.tweetsStatContainer} item lg='auto' sm='auto' xl='auto' style={{ flex: 3}}>
                     <AppBar position="static" color="default" className={classes.appbar}>
                         <Tabs
@@ -130,7 +130,7 @@ const SocialComponent = (props) => {
                                 <Grid container direction='column'>
                                     <Grid item><Typography variant='subtitle1' align='center'>{t("social:language_count_label")}</Typography></Grid>
                                     {
-                                        tweetsStats.isLoading ? (<Grid style={{ flex: 1 }} container justify="center" >
+                                        tweetsStats.isLoading ? (<Grid style={{ flex: 1 }} container justifyContent="center" >
                                             <CircularProgress />
                                         </Grid>) :
                                             (tweetsStats.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
@@ -152,7 +152,7 @@ const SocialComponent = (props) => {
                                     </Grid>
                                     {
                                         (tweetsStats.error || filtersState.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
-                                            (tweetsStats.isLoading) ? (<Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /> </Grid>) :
+                                            (tweetsStats.isLoading) ? (<Grid container style={{ padding: 8 }} justifyContent='center'> <CircularProgress /> </Grid>) :
                                                 (Object.entries(hazardCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                                     (<div className={classes.pieContainer}>
                                                         <PieChartStats
@@ -167,7 +167,7 @@ const SocialComponent = (props) => {
                                     <Grid item><Typography variant='subtitle1' align='center'>{t("social:label_info_count")}</Typography></Grid>
                                     {
                                         (tweetsStats.error || filtersState.error) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:fetch_error")}</Typography>) :
-                                            (tweetsStats.isLoading) ? <Grid container style={{ padding: 8 }} justify='center'> <CircularProgress /></Grid> :
+                                            (tweetsStats.isLoading) ? <Grid container style={{ padding: 8 }} justifyContent='center'> <CircularProgress /></Grid> :
                                                 (Object.entries(infoCount).length === 0) ? (<Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography>) :
                                                     (<div className={classes.pieContainer}>
                                                         <PieChartStats
@@ -181,7 +181,7 @@ const SocialComponent = (props) => {
                     </TabPanel>
                 </Grid>
                 <Grid container className={classes.tweetsStatContainer} direction="column" item style={{ flex: 7 }}>
-                    <Grid style={{ flex: 1, width: '100%'}} container justify='space-evenly'>
+                    <Grid style={{ flex: 1, width: '100%'}} container justifyContent='space-evenly'>
                         <SocialMap
                             socialFilters={socialFiltersState}
                             filtersState={filtersState}
