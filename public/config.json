@@ -27,7 +27,7 @@
     }
   },
   "geoServer": {
-    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
@@ -45,7 +45,7 @@
     "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
   },
   "backend": {
-    "url": "https://api-test.safers-project.cloud"
+    "url": "https://api-dev.safers-project.cloud"
   },
   "userTagsFilter": {
     "filters": ["administrator"]

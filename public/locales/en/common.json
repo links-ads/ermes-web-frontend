@@ -74,5 +74,10 @@
   "leader_level": "Level",
   "description":"Description",
   "nickname": "Nickname",
-  "icon": "Icon"
+  "icon": "Icon",
+  "Error": "Error",
+  "Message": "Message",
+  "Creator":"Creatore",
+  "Frequency": "Frequency",
+  "Resolution": "Resolution"
 }
