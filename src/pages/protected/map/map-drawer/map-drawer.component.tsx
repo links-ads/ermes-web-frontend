@@ -180,6 +180,10 @@ export default function MapDrawer(props) {
               layerSelection={props.layerSelection}
               setLayerSelection={props.setLayerSelection}
               layerId2Tiles={props.layerId2Tiles}
+              setDateIndex={props.setDateIndex}
+              dateIndex={props.dateIndex}
+              getLegend={props.getLegend}
+              getMeta={props.getMeta}
             />
           </TabPanel>
 

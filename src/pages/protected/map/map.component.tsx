@@ -287,6 +287,8 @@ export function Map() {
 
   useEffect(() => {
     setDateIndex(0)
+    if(layerSelection.multipleLayersAllowed)
+    return
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
       setTogglePlayer(true)
     } else {
@@ -472,6 +474,10 @@ function getMeta(metaId: string){
         setToggleDrawerTab={setToggleSideDrawer}
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
+        setDateIndex={setDateIndex}
+        dateIndex={dateIndex}
+        getLegend={getLegend}
+        getMeta={getMeta}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}

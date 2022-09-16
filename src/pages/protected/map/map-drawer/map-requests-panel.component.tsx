@@ -1,10 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 
 import useMapRequestList from '../../../../hooks/use-map-requests-list.hook'
-import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import CardWithPopup from './card-with-popup.component'
 
 import LocationOnIcon from '@material-ui/icons/LocationOn'
@@ -19,10 +18,17 @@ import IconButton from '@material-ui/core/IconButton'
 import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
+import { Slider } from '@material-ui/core'
 import ItemCounter from './item-counter'
 import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
+import LegendIcon from '@material-ui/icons/FilterNone'
+import MetaIcon from '@material-ui/icons/InfoOutlined'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import PauseIcon from '@material-ui/icons/Pause'
+import SkipNextIcon from '@material-ui/icons/SkipNext'
+import { LayerImportStatusType } from 'ermes-ts-sdk'
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   searchField: {
     marginTop: 20,
     width: '88%',
@@ -64,7 +70,74 @@ const useStyles = makeStyles(() => ({
   },
   pos: {
     marginTop: 8
-  }
+  },
+  sliderContainer: {
+    display: 'flex',
+    width: '85%',
+    height: '50px',
+    verticalAlign: '-moz-middle-with-baseline',
+
+    alignItems: 'flex-end'
+  },
+  buttonsContainer: {
+    width: '25%',
+
+    alignItems: 'center',
+    textAlign: 'end',
+    display: 'flex',
+    '& .MuiButtonBase-root': {
+      display: 'inline-block',
+      padding: 0,
+      marginTop: '12px'
+    }
+  },
+  slider: {
+    width: '100%',
+    display: 'inline-block',
+    '& .MuiSlider-thumb': {
+      backgroundColor: '#fff',
+      width: '16px',
+      height: '16px'
+    },
+    '& .MuiSlider-track': {
+      border: 'none',
+      height: '6px',
+      borderRadius: '3px'
+    },
+    '& .MuiSlider-rail': {
+      opacity: 0.5,
+      backgroundColor: '#fff',
+      height: '6px',
+      borderRadius: '3px'
+    },
+    '& .MuiSlider-mark ': {
+      color: '#fff',
+      display: 'none'
+    }
+  },
+  playerContainer: {
+    paddingTop: '5px',
+    width: '90%',
+  },
+  spanContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    width: '100%'
+
+  },
+
+  oneDatapoint: {
+
+    width: '100%',
+    textAlign: 'center',
+    color: theme.palette.text.disabled
+  },
+
+  separator: {
+
+    backgroundColor: theme.palette.primary.contrastText,
+    height: '1px'
+  },
 }))
 
 export default function MapRequestsPanel(props) {
@@ -77,9 +150,12 @@ export default function MapRequestsPanel(props) {
   const [height, setHeight] = React.useState(window.innerHeight)
   const [activeL, setActiveL] = useState<string[]>([])
   const [activeParent, setParent] = useState('')
+  const [dateIndex, setDateIndex] = useState<number>(0)
+
   const resizeHeight = () => {
     setHeight(window.innerHeight)
   }
+  const { getMeta, getLegend } = props
 
   // handle the text changes in the search field
   const handleSearchTextChange = (e) => {
@@ -168,7 +244,6 @@ export default function MapRequestsPanel(props) {
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data.map((elem, i) => {
-          
                 return (<MapRequestCard
                   key={i}
                   elem={elem}
@@ -184,6 +259,10 @@ export default function MapRequestsPanel(props) {
                   setParent={setParent}
                   activeL={activeL}
                   setActiveL={setActiveL}
+                  setDateIndex={setDateIndex}
+                  dateIndex={dateIndex}
+                  getLegend={getLegend}
+                  getMeta={getMeta}
                 />
                 )
               })}
@@ -198,6 +277,8 @@ export default function MapRequestsPanel(props) {
 function MapRequestCard(props) {
 
   const { t } = useTranslation(['common', 'maps'])
+
+  const [playing, setPlaying] = useState(false)
   // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
@@ -207,9 +288,10 @@ function MapRequestCard(props) {
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   const classes = useStyles()
 
-  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection, setParent, activeParent, setActiveL, activeL } = props
+  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection, setParent, activeParent, setActiveL, activeL, dateIndex, getMeta, getLegend, setDateIndex } = props
 
   const removeSource = (arr, element) => { let tmp = arr.filter(item => item !== element); return tmp }
+
   const handleRadioClick = (event: any) => {
     let selected = event.target.value.split("_")[1]
     let parent = event.target.value.split("_")[0]
@@ -218,7 +300,7 @@ function MapRequestCard(props) {
     if (!getcheckedState(event.target.value)) { //se mnon è checked 
       if (activeParent == parent) {
         tmp = [...activeL, event.target.value]
-       // setActiveL([...activeL, event.target.value])
+        // setActiveL([...activeL, event.target.value])
       }
       else {
         tmp = [event.target.value]
@@ -237,6 +319,215 @@ function MapRequestCard(props) {
     return (activeL.includes(id))
   })
 
+
+  const handleOpacityChange = (event: any, newValue: number | number[], name: string) => {
+    event.stopPropagation();
+    const opacity: number = newValue as number
+    //setOpacity(opacity)
+
+    console.log('evval', event.target.value, opacity, name)
+
+    props.map.setPaintProperty(
+      //layerName,
+      name,
+      'raster-opacity',
+      opacity / 100
+    )
+  }
+
+  const skipNext = useCallback(async (dateIndex: number, timestampsLength: number, setDateIndex) => {
+    if (dateIndex < timestampsLength - 1) {
+      setDateIndex(dateIndex + 1)
+    } else {
+      setDateIndex(0)
+    }
+  }, [])
+
+  async function playPause() {
+    setPlaying(!playing)
+  }
+
+  function formatDate(date: string) {
+
+    // return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+    return new Date(date as string).toLocaleDateString('it')
+  }
+
+  const getSingleLayer = (layerArray: any[], layerId: string) => {
+    if (!!layerArray) {
+      for (let i = 0; i < layerArray.length; i++) {
+        if (layerArray[i].layerDataTypeId == layerId)
+          return layerArray[i]
+      }
+    }
+
+    return null
+  }
+
+  const singleAccordionElement = (lArr: any[], layerDataP: any) => {
+    let tr: any[] = []
+    for (let i = 0; i < lArr.length; i++) {
+      let dataTypeId = lArr[i].layerDataTypeId
+      let layerData = layerDataP[dataTypeId]
+
+      if (lArr[i].status == LayerImportStatusType.COMPLETED) {
+        tr.push(
+          <div style={{ marginTop: '5px', marginBottom: '5px' }} >
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <FormControlLabel style={{ flex: 2 }}
+                key={dataTypeId}
+                value={elem.code + "_" + dataTypeId}
+                control={<Checkbox
+                  onClick={handleRadioClick}
+                  checked={getcheckedState(elem.code + "_" + dataTypeId)}
+                />}
+                label={layerData['name']}
+              />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
+
+                <IconButton
+                  onClick={() => {
+                    if (typeof (layerData.metadataId) == 'object')
+                      getMeta(layerData.metadataId[dateIndex])
+                    else if (typeof (layerData.metadataId) == 'string')
+                      getMeta(layerData.metadataId)
+                    else
+                      console.log('no metadata procedure implemented for type', typeof (layerData.metadataId))
+                  }}
+                >
+                  <MetaIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => {
+                    getLegend(layerData.names[dateIndex])
+                  }}
+                >
+                  <LegendIcon />
+                </IconButton>
+              </div>
+            </div>
+            {
+
+              <div>
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Typography >
+                    {t('labels:status')}:&nbsp;
+                  </Typography>
+                  <Typography >
+                    {t('labels:' + getSingleLayer(elem.mapRequestLayers, dataTypeId).status.toLowerCase())}
+                  </Typography>
+                </div>
+                <div className={classes.playerContainer}>
+                  {
+                    layerData.timestamps.length > 1 ? (
+                      <span className={classes.spanContainer}>
+                        <div className={classes.sliderContainer} style={{ marginTop: '10px', marginLeft: '5px' }}>
+                          <Slider
+                            className={classes.slider}
+                            aria-label="Temperature"
+                            defaultValue={0}
+
+                            valueLabelDisplay="on"
+                            step={1}
+                            //value={dateIndex}
+                            disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
+                            min={0}
+                            max={layerData.timestamps.length - 1}
+                            color="secondary"
+                            onChange={(event, value) => {
+                              setDateIndex(value)
+                            }}
+                          />
+                        </div>
+                        <div className={classes.buttonsContainer} style={{ paddingTop: '10px' }}>
+                          <IconButton aria-label="play/pause" onClick={playPause}>
+                            {playing ? (
+                              <PauseIcon style={{ height: 45, width: 45 }} />
+                            ) : (
+                              <PlayArrowIcon style={{ height: 45, width: 45 }} />
+                            )}
+                          </IconButton>
+                          <IconButton
+                            aria-label="next"
+                            onClick={() => skipNext(dateIndex, layerData.timestamps.length, setDateIndex)}
+                          >
+                            <SkipNextIcon />
+                          </IconButton>
+                        </div>
+                      </span>
+                    ) : (
+                      <div>
+                        <Typography >
+                          {'Timestamp: ' + formatDate(layerData.timestamps[0])}
+                        </Typography>
+                      </div>
+                    )
+                  }
+                </div>
+                <div className={classes.sliderContainer} style={{ paddingTop: '5px', alignItems: 'flex-start' }} >
+                  <label htmlFor="opacity-slider" style={{ marginRight: '10px' }}>
+                    <Typography >
+                      {t('maps:opacity')}:&nbsp;
+                    </Typography >
+                  </label>
+                  <Slider
+                    id={layerData.name}
+                    defaultValue={100}
+                    //valueLabelDisplay="on"
+                    step={1}
+                    //value={opacity}
+                    min={0}
+                    max={100}
+                    aria-label={layerData.name}
+                    color="secondary"
+                    disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
+                    onChange={(event, value) => {
+                      handleOpacityChange(event, value, layerData.names[dateIndex])
+                    }}
+                  //onChange={layerData.names[dateIndex]}
+                  />
+                </div>
+              </div>
+
+            }
+            <div className={classes.separator} />
+          </div>
+        )
+      }
+      else tr.push(
+        <div>
+          <Typography >
+            {lArr[i].layerDataTypeId}
+          </Typography>
+
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            <Typography >
+              {t('labels:status')}:&nbsp;
+            </Typography>
+            <Typography >
+              {lArr[i].status}
+            </Typography>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'row' }}>
+            {lArr[i].status == LayerImportStatusType.ERROR ?
+              (
+                <div>
+                  <Typography >
+                    {t('common:Message')}:&nbsp;
+                  </Typography>
+                  <Typography >
+                    {'' + lArr[i].errorMessage}
+                  </Typography>
+                </div>) : null
+            }
+          </div>
+
+          <div className={classes.separator} />
+        </div>)
+    }
+    return tr
+  }
+
   return (
     <CardWithPopup
       key={'map-request' + String(elem.id)}
@@ -251,8 +542,8 @@ function MapRequestCard(props) {
       spiderifierRef={spiderifierRef}
     >
       <CardContent key={elem.code}>
-        <div className={classes.headerBlock}key={elem.code+'_sub'}>
-          <Box component="div" display="inline-block" key={elem.code+'_box'}>
+        <div className={classes.headerBlock} key={elem.code + '_sub'}>
+          <Box component="div" display="inline-block" key={elem.code + '_box'}>
             <Typography
               gutterBottom
               variant="h5"
@@ -262,27 +553,77 @@ function MapRequestCard(props) {
               {elem.code}
             </Typography>
           </Box>
+
+        </div>
+        <div className={classes.pos}>
+          <div >
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('labels:creator')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {elem.displayName}
+            </Typography>
+            <br />
+          </div>
+        </div>
+        <div className={classes.pos}>
+          <div >
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('common:Frequency')}:&nbsp;
+
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {elem.frequency}
+            </Typography>
+            <br />
+          </div>
+        </div>
+        <div className={classes.pos}>
+          <div >
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('common:Resolution')}:&nbsp;
+
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {elem.resolution}
+            </Typography>
+            <br />
+          </div>
         </div>
         <div className={classes.pos}>
           {['layer', 'status'].map((type, index) => {
             if (elem[type]) {
-          
+
               return (
                 <>
-                <div key={index}>
-                  <Typography
-                    component={'span'}
-                    variant="caption"
-                    color="textSecondary"
-                    style={{ textTransform: 'uppercase' }}
-                  >
-                    {t('maps:' + type)}:&nbsp;
-                    {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
-                  </Typography>
-                  <Typography component={'span'} variant="body1">
-                    {t('labels:' + elem[type].toLowerCase())}
-                  </Typography>
-                  <br />
+                  <div key={index}>
+                    <Typography
+                      component={'span'}
+                      variant="caption"
+                      color="textSecondary"
+                      style={{ textTransform: 'uppercase' }}
+                    >
+                      {t('maps:' + type)}:&nbsp;
+                    </Typography>
+                    <Typography component={'span'} variant="body1">
+                      {t('labels:' + elem[type].toLowerCase())}
+                    </Typography>
+                    <br />
                   </div>
                 </>
               )
@@ -305,19 +646,10 @@ function MapRequestCard(props) {
                   <FormGroup
                     aria-label="gender"
                   >
-                    {Object.entries(props.layerId2Tiles[1][elem.code]).map(
-                      ([dataTypeId, layerData]: [string, any]) => {
-                        return (<FormControlLabel
-                          key={dataTypeId}
-                          value={elem.code + "_" + dataTypeId}
-                          control={<Checkbox
-                            onClick={handleRadioClick}
-                            checked={getcheckedState(elem.code + "_" + dataTypeId)}
-                          />}
-                          label={layerData['name']}
-                        />)
-                      }
-                    )}
+                    { //Single element of layers accordion list
+                      singleAccordionElement(elem.mapRequestLayers, props.layerId2Tiles[1][elem.code])
+                    }
+
                   </FormGroup>
                 </FormControl>
               </AccordionDetails>
