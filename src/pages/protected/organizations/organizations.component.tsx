@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
-import MaterialTable, { Options } from 'material-table'
+import MaterialTable, { Column, Options } from 'material-table'
 import { AdministrationContainer } from '../../../common/common.components'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
@@ -43,50 +43,53 @@ export function Organizations() {
   const user = useUser();
   const { orgData } = useOrgList();
 
-  const columns = [
-    {
-      title: t('org_logo'),
-      field: 'logoUrl',
-      render: (rowData) =>
-        rowData.logoUrl ? (
-          <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
-        ) : (
-          <span></span> // add default logo?
-        ),
-      initialEditValue: '',
-      emptyValue: ''
-    },
-    { title: t('org_short_name'), field: 'shortName' },
-    { title: t('org_name'), field: 'name' },
-    { title: t('org_description'), field: 'description' },
-    {
-      title: t('org_parent'),
-      field: 'parentId',
-      render: (rowData) => rowData.parentName,
-      editComponent: (props) => {
-        return (
-          <Select
-            displayEmpty={true}
-            value={props.value || ''}
-            onChange={(e) => {
-              props.onChange(e.target.value)
-            }}
-          >
-            <MenuItem value={undefined}>
-              <em>{t('org_no_parent')}</em>
-            </MenuItem>
-            {orgData
-              .filter((entry) => entry.parentId === null && entry.id !== props.rowData.id)
-              .map((entry) => (
-                <MenuItem key={entry.id} value={entry.id}>
-                  {entry.name}
-                </MenuItem>
-              ))}
-          </Select>
-        )
+  function localizeColumns(): Column<OrganizationDto>[] {
+    return [
+      {
+        title: t('org_logo'),
+        field: 'logoUrl',
+        render: (rowData) =>
+          rowData.logoUrl ? (
+            <img alt="logo" src={rowData.logoUrl} style={{ width: 40, borderRadius: '50%' }} />
+          ) : (
+            <span></span> // add default logo?
+          ),
+        initialEditValue: '',
+        emptyValue: ''
+      },
+      { title: t('org_short_name'), field: 'shortName' },
+      { title: t('org_name'), field: 'name' },
+      { title: t('org_description'), field: 'description' },
+      { title: t('org_members_tax_code'), field: 'membersHaveTaxCode', type:'boolean' },
+      {
+        title: t('org_parent'),
+        field: 'parentId',
+        render: (rowData) => rowData.parentName,
+        editComponent: (props) => {
+          return (
+            <Select
+              displayEmpty={true}
+              value={props.value || ''}
+              onChange={(e) => {
+                props.onChange(e.target.value)
+              }}
+            >
+              <MenuItem value={undefined}>
+                <em>{t('org_no_parent')}</em>
+              </MenuItem>
+              {orgData
+                .filter((entry) => entry.parentId === null && entry.id !== props.rowData.id)
+                .map((entry) => (
+                  <MenuItem key={entry.id} value={entry.id}>
+                    {entry.name}
+                  </MenuItem>
+                ))}
+            </Select>
+          )
+        }
       }
-    }
-  ]
+    ]
+  }
 
   const localization = useMemo(
     () => localizeMaterialTable(t),
@@ -98,7 +101,7 @@ export function Organizations() {
     <AdministrationContainer>
       <div className={customClasses['organization-table-container']}>
         <MaterialTable
-          columns={columns}
+          columns={localizeColumns()}
           title={
             <Typography variant="h5" component="span">
               {t('admin:organizations')}
@@ -147,7 +150,8 @@ export function Organizations() {
                         description: newData.description,
                         shortName: newData.shortName,
                         logoUrl: newData.logoUrl,
-                        parentId: newData.parentId
+                        parentId: newData.parentId,
+                        membersHaveTaxCode: newData.membersHaveTaxCode
                       }
                     }
                     try {

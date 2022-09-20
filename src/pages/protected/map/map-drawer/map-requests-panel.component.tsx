@@ -365,12 +365,13 @@ function MapRequestCard(props) {
   }
 
   const singleAccordionElement = (lArr: any[], layerDataP: any) => {
+  
     let tr: any[] = []
     for (let i = 0; i < lArr.length; i++) {
       let dataTypeId = lArr[i].layerDataTypeId
       let layerData = layerDataP[dataTypeId]
-
-      if (lArr[i].status == LayerImportStatusType.COMPLETED) {
+      if(!!layerData){
+        if (lArr[i].status == LayerImportStatusType.COMPLETED) {
         tr.push(
           <div style={{ marginTop: '5px', marginBottom: '5px' }} >
             <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -524,6 +525,7 @@ function MapRequestCard(props) {
 
           <div className={classes.separator} />
         </div>)
+        }
     }
     return tr
   }
