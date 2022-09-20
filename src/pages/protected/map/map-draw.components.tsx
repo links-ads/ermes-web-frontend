@@ -10,7 +10,7 @@ import {
 import { Feature } from '@nebula.gl/edit-modes'
 import { useMapStateContext, ProvisionalFeatureType } from './map.contest'
 import yellow from '@material-ui/core/colors/yellow'
-import { fade } from '@material-ui/core/styles/colorManipulator'
+import { alpha } from '@material-ui/core/styles'
 import blueGrey from '@material-ui/core/colors/blueGrey'
 // provisional colors
 import purple from '@material-ui/core/colors/purple'
@@ -73,13 +73,13 @@ function featureStyle(editingFeatureType: ProvisionalFeatureType | null) {
   }) => {
     if (state === RENDER_STATE.UNCOMMITTED) {
       return {
-        stroke: fade(yellow[800], 0.9),
-        fill: fade(yellow[500], 0.2)
+        stroke: alpha(yellow[800], 0.9),
+        fill: alpha(yellow[500], 0.2)
       }
     }
     return {
-      stroke: fade(color[800], 0.9),
-      fill: fade(color[500], 0.2),
+      stroke: alpha(color[800], 0.9),
+      fill: alpha(color[500], 0.2),
       strokeDasharray: '4,2'
     }
   }

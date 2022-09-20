@@ -7,6 +7,7 @@ Ver. 1.8.0 - 2022-09-16
 - Feature - Added possibility of visualizing multiple map requests layers (#74)
 - Bugfix - Fixed Tweets not showing when clicking on tweet in social map (#75)
 - Feature - Added single layer info and controls to maprequests layers (#76)
+- Feature - Added Tax code field into organizations page, added a null control in map requests (#77)
 
 Ver. 1.7.0 - 2022-08-10
 -----------------------

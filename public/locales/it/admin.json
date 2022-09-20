@@ -28,5 +28,6 @@
   "first_responder": "First Responder",
   "organization_manager": "Organization Manager",
   "team_leader": "Team Leader",
-  "administrator": "Amministratore"
+  "administrator": "Amministratore",
+  "org_members_tax_code": "Cod. fiscale"
 }
