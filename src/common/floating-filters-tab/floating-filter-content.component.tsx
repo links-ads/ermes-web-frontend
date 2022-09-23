@@ -271,7 +271,7 @@ export function Tab1(props) {
                           <div key={elem.name} className={classes.block}>
                             <FormControl className={classes.formControl}>
                               <InputLabel id={'demo-simple-select-label_' + i}>
-                                {elem.name}
+                              {t('labels:' + elem.name)}
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-label"
