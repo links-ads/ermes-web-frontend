@@ -27,13 +27,15 @@ import MapTimeSeries from './map-popup-series.component'
 
 import { getLegendURL }  from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
+import { useUser } from '../../../state/auth/auth.hooks'
+import { ROLE_CITIZEN } from '../../../App.const'
 
 type MapFeature = CulturalProps
 
 export function Map() {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])
-
+  const { profile } = useUser()
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
@@ -77,6 +79,19 @@ export function Map() {
   initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
   initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
+  initObject.filters.report.content[2] = (profile?.role == ROLE_CITIZEN) ? 
+    {
+      name: 'hazard_visibility',
+      options: ['Public'],
+      type: 'select',
+      selected: 'Public'
+    }  
+  : {
+    name: 'hazard_visibility',
+    options: ['Private', 'Public', 'All'],
+    type: 'select',
+    selected: 'Private'
+  }  
 
   let [storedFilters, changeItem, ,] = useMemoryState(
     'memstate-map',

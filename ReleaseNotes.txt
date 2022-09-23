@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Added Tax code field into organizations page, added a null control in map requests (#77)
+- Feature - Locked Citizen Role report visibility to Public (#81)
 
 Ver. 1.8.0 - 2022-09-16
 -----------------------
