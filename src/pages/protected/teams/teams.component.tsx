@@ -57,12 +57,12 @@ function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
     }
   ]
 }
-function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds): Column<TeamOutputDto>[] {
+function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds: string[]): Column<TeamOutputDto>[] {
   const lookupObj = genLookupObject()
   const orgUsersEntries = Object.entries(lookupObj)
-  const availableOrgUsers = orgUsersEntries.filter(entry => !membersIds.includes(parseInt(entry[0])))
+  const availableOrgUsers = orgUsersEntries.filter(entry => !membersIds.includes(entry[0]))
   return [{
-    title: t('admin:team_mem_name'), field: 'id', lookup: lookupObj,
+    title: t('admin:team_mem_name'), field: 'fusionAuthUserGuid', lookup: lookupObj,
     initialEditValue: availableOrgUsers.length > 0 ? availableOrgUsers[0][0] : undefined,
     editComponent: props => {
       return (<Select
@@ -70,7 +70,7 @@ function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds)
         onChange={(e) => props.onChange(e.target.value)}
       >
         {/* shows only user not already included in this team or the user currently in edit mode */}
-        {orgUsersEntries.filter(entry => !membersIds.includes(parseInt(entry[0])) || props.rowData.id === parseInt(entry[0]))
+        {orgUsersEntries.filter(entry => !membersIds.includes((entry[0])) || props.rowData.id === parseInt(entry[0]))
           .map((entry) => (
             <MenuItem
               key={entry[0]}
@@ -96,13 +96,16 @@ const RenderMembersTables = (
 ) => {
   // Return lookup table with the possible users to be selected
 
-  const membersIds = useMemo(() => rowData?.members?.map((mem) => mem.id) || [], [rowData])
-
+  const membersIds = useMemo(() => rowData?.members?.map((mem) => {
+    console.log('heymem', mem)
+    return mem.fusionAuthUserGuid}) || [], [rowData])
   const genLookupObject = () => {
     let persons: any = {}
+    console.log('heyusers', Object.entries(users)[0])
     Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
-      persons[value.personId] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
+      persons[value.user.id] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
     })
+    console.log('heypersons', persons)
     return persons
   }
 
@@ -132,7 +135,7 @@ const RenderMembersTables = (
       </div>
     )
   }
-
+console.log('Rdatas', rowData)
   return (
     <MaterialTable
       isLoading={usersLoading}
@@ -157,31 +160,32 @@ const RenderMembersTables = (
       }}
       columns={localizeMemColumns(t, genLookupObject, membersIds)}
       editable={{
-        onRowAdd: async (newData: TeamOutputDto) => {
-          const ids = membersIds.concat([Number(newData.id)])
+        onRowAdd: async (newData: any) => {
+          console.log('heyadding team member upd', newData)
+          const ids: string[] = membersIds.concat([newData.fusionAuthUserGuid])
           const newTeamMemInput: SetTeamMembersInput = {
             teamId: rowData.id,
-            membersIds: ids
+            membersGuids: ids
           }
           await SetTeamMembsFromInput(newTeamMemInput)
         },
-        onRowUpdate: async (newData: TeamOutputDto, oldData?: TeamOutputDto) => {
+        onRowUpdate: async (newData: any, oldData?: any) => {
           let ids = [...membersIds]
-          const i = ids.indexOf(Number(oldData!.id))
-          ids[i] = Number(newData!.id)
+          const i = ids.indexOf(oldData!.fusionAuthUserGuid)
+          ids[i] = String(newData!.fusionAuthUserGuid)
           const newTeamMemInput: SetTeamMembersInput = {
             teamId: rowData.id,
-            membersIds: ids
+            membersGuids: ids
           }
           await SetTeamMembsFromInput(newTeamMemInput)
         },
-        onRowDelete: async (oldData: TeamOutputDto) => {
-          let ids = [...membersIds]
-          const i = ids.indexOf(Number(oldData!.id))
+        onRowDelete: async (oldData: any) => {
+          let ids: string[] = [...membersIds]
+          const i = ids.indexOf(String(oldData!.fusionAuthUserGuid))
           ids.splice(i, 1)
           const newTeamMemInput: SetTeamMembersInput = {
             teamId: rowData.id,
-            membersIds: ids
+            membersGuids: ids
           }
           await SetTeamMembsFromInput(newTeamMemInput)
         }

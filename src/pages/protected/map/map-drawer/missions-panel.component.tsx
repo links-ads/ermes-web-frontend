@@ -169,7 +169,7 @@ export default function CommunicationPanel(props) {
               scrollableTarget="scrollableElem"
             >
               {missionsData.data.map((elem, i) => {
-                console.log('ELEM', elem)
+                //console.log('ELEM', elem)
                 return (
                   <CardWithPopup
                     key={'report' + String(elem.id)}

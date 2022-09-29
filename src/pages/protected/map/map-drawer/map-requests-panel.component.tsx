@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
@@ -25,8 +25,10 @@ import LegendIcon from '@material-ui/icons/FilterNone'
 import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
+import DeleteIcon from '@material-ui/icons/Delete'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
-import { LayerImportStatusType } from 'ermes-ts-sdk'
+import { LayerImportStatusType, MapRequestStatusType } from 'ermes-ts-sdk'
+import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -181,12 +183,50 @@ export default function MapRequestsPanel(props) {
       }
     )
   }, [getMapRequestsData])
-
+  const sFilter: string[] = props.filters.content.filter(e => e.name === 'map_request_status')[0].selected
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
+  const [deletionState, deleteMapRequest] = useDeleteMapRequest()
+  const DeleteRequest = (partnerName: string, id: string) => {
+    let listTodelete: string[] = ([partnerName + '.' + id])
+    deleteMapRequest(listTodelete)
+  }
+
+  useEffect(() => {
+    if (!!deletionState.data.deletedMapRequestCodes) {
+
+      if (deletionState.data.deletedMapRequestCodes?.length > 0) {
+        let elemToChange: string = deletionState.data.deletedMapRequestCodes[0].split('.')[1]
+        var indexToChange: number = -1
+
+        for (let i = 0; i < mapRequestsData.data.length; i++) {
+          if (mapRequestsData.data[i].code == elemToChange) {
+
+            indexToChange = i
+          }
+        }
+        if (indexToChange >= 0) {
+          mapRequestsData.data[indexToChange].status = MapRequestStatusType.CANCELED
+
+          getMapRequestsData(
+            0,
+            (data) => {
+              return data
+            },
+            {},
+            (data) => {
+              return data
+            }
+          )
+
+        }
+      }
+    }
+  }, [deletionState])
+
 
   return (
     <div className="container">
@@ -218,7 +258,7 @@ export default function MapRequestsPanel(props) {
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
-          <ItemCounter itemCount={mapRequestsData.tot} />
+          <ItemCounter itemCount={mapRequestsData.data.filter(e => sFilter.includes(e.status)).length} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -234,7 +274,7 @@ export default function MapRequestsPanel(props) {
                 )
               }}
               dataLength={mapRequestsData.data.length}
-              hasMore={mapRequestsData.data.length >= mapRequestsData.tot ? false : true}
+              hasMore={mapRequestsData.data.length >= mapRequestsData.data.filter(e => sFilter.includes(e.status)).length ? false : true}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -243,29 +283,32 @@ export default function MapRequestsPanel(props) {
               }
               scrollableTarget="scrollableElem"
             >
-              {mapRequestsData.data.map((elem, i) => {
-                return (<MapRequestCard
-                  key={i}
-                  elem={elem}
-                  setGoToCoord={props.setGoToCoord}
-                  map={props.map}
-                  setMapHoverState={props.setMapHoverState}
-                  spiderLayerIds={props.spiderLayerIds}
-                  spiderifierRef={props.spiderifierRef}
-                  layerSelection={props.layerSelection}
-                  setLayerSelection={props.setLayerSelection}
-                  layerId2Tiles={props.layerId2Tiles}
-                  activeParent={activeParent}
-                  setParent={setParent}
-                  activeL={activeL}
-                  setActiveL={setActiveL}
-                  setDateIndex={setDateIndex}
-                  dateIndex={dateIndex}
-                  getLegend={getLegend}
-                  getMeta={getMeta}
-                />
-                )
-              })}
+              {mapRequestsData.data
+                .filter(e => sFilter.includes(e.status))   //use the filters to visualize the maprequests in side panel without having to open and close it
+                .map((elem, i) => {
+                  return (<MapRequestCard
+                    key={'map_request_card_' + i}
+                    elem={elem}
+                    setGoToCoord={props.setGoToCoord}
+                    map={props.map}
+                    setMapHoverState={props.setMapHoverState}
+                    spiderLayerIds={props.spiderLayerIds}
+                    spiderifierRef={props.spiderifierRef}
+                    layerSelection={props.layerSelection}
+                    setLayerSelection={props.setLayerSelection}
+                    layerId2Tiles={props.layerId2Tiles}
+                    activeParent={activeParent}
+                    setParent={setParent}
+                    activeL={activeL}
+                    setActiveL={setActiveL}
+                    setDateIndex={setDateIndex}
+                    dateIndex={dateIndex}
+                    getLegend={getLegend}
+                    getMeta={getMeta}
+                    DeleteRequest={DeleteRequest}
+                  />
+                  )
+                })}
             </InfiniteScroll>
           </List>
         </div>
@@ -365,167 +408,167 @@ function MapRequestCard(props) {
   }
 
   const singleAccordionElement = (lArr: any[], layerDataP: any) => {
-  
+
     let tr: any[] = []
     for (let i = 0; i < lArr.length; i++) {
       let dataTypeId = lArr[i].layerDataTypeId
       let layerData = layerDataP[dataTypeId]
-      if(!!layerData){
+      if (!!layerData) {
         if (lArr[i].status == LayerImportStatusType.COMPLETED) {
-        tr.push(
-          <div style={{ marginTop: '5px', marginBottom: '5px' }} >
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-              <FormControlLabel style={{ flex: 2 }}
-                key={dataTypeId}
-                value={elem.code + "_" + dataTypeId}
-                control={<Checkbox
-                  onClick={handleRadioClick}
-                  checked={getcheckedState(elem.code + "_" + dataTypeId)}
-                />}
-                label={layerData['name']}
-              />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
+          tr.push(
+            <div style={{ marginTop: '5px', marginBottom: '5px' }} >
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <FormControlLabel style={{ flex: 2 }}
+                  key={dataTypeId}
+                  value={elem.code + "_" + dataTypeId}
+                  control={<Checkbox
+                    onClick={handleRadioClick}
+                    checked={getcheckedState(elem.code + "_" + dataTypeId)}
+                  />}
+                  label={layerData['name']}
+                />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
 
-                <IconButton
-                  onClick={() => {
-                    if (typeof (layerData.metadataId) == 'object')
-                      getMeta(layerData.metadataId[dateIndex])
-                    else if (typeof (layerData.metadataId) == 'string')
-                      getMeta(layerData.metadataId)
-                    else
-                      console.log('no metadata procedure implemented for type', typeof (layerData.metadataId))
-                  }}
-                >
-                  <MetaIcon />
-                </IconButton>
-                <IconButton
-                  onClick={() => {
-                    getLegend(layerData.names[dateIndex])
-                  }}
-                >
-                  <LegendIcon />
-                </IconButton>
-              </div>
-            </div>
-            {
-
-              <div>
-                <div style={{ display: 'flex', flexDirection: 'row' }}>
-                  <Typography >
-                    {t('labels:status')}:&nbsp;
-                  </Typography>
-                  <Typography >
-                    {t('labels:' + getSingleLayer(elem.mapRequestLayers, dataTypeId).status.toLowerCase())}
-                  </Typography>
-                </div>
-                <div className={classes.playerContainer}>
-                  {
-                    layerData.timestamps.length > 1 ? (
-                      <span className={classes.spanContainer}>
-                        <div className={classes.sliderContainer} style={{ marginTop: '10px', marginLeft: '5px' }}>
-                          <Slider
-                            className={classes.slider}
-                            aria-label="Temperature"
-                            defaultValue={0}
-
-                            valueLabelDisplay="on"
-                            step={1}
-                            //value={dateIndex}
-                            disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
-                            min={0}
-                            max={layerData.timestamps.length - 1}
-                            color="secondary"
-                            onChange={(event, value) => {
-                              setDateIndex(value)
-                            }}
-                          />
-                        </div>
-                        <div className={classes.buttonsContainer} style={{ paddingTop: '10px' }}>
-                          <IconButton aria-label="play/pause" onClick={playPause}>
-                            {playing ? (
-                              <PauseIcon style={{ height: 45, width: 45 }} />
-                            ) : (
-                              <PlayArrowIcon style={{ height: 45, width: 45 }} />
-                            )}
-                          </IconButton>
-                          <IconButton
-                            aria-label="next"
-                            onClick={() => skipNext(dateIndex, layerData.timestamps.length, setDateIndex)}
-                          >
-                            <SkipNextIcon />
-                          </IconButton>
-                        </div>
-                      </span>
-                    ) : (
-                      <div>
-                        <Typography >
-                          {'Timestamp: ' + formatDate(layerData.timestamps[0])}
-                        </Typography>
-                      </div>
-                    )
-                  }
-                </div>
-                <div className={classes.sliderContainer} style={{ paddingTop: '5px', alignItems: 'flex-start' }} >
-                  <label htmlFor="opacity-slider" style={{ marginRight: '10px' }}>
-                    <Typography >
-                      {t('maps:opacity')}:&nbsp;
-                    </Typography >
-                  </label>
-                  <Slider
-                    id={layerData.name}
-                    defaultValue={100}
-                    //valueLabelDisplay="on"
-                    step={1}
-                    //value={opacity}
-                    min={0}
-                    max={100}
-                    aria-label={layerData.name}
-                    color="secondary"
-                    disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
-                    onChange={(event, value) => {
-                      handleOpacityChange(event, value, layerData.names[dateIndex])
+                  <IconButton
+                    onClick={() => {
+                      if (typeof (layerData.metadataId) == 'object')
+                        getMeta(layerData.metadataId[dateIndex])
+                      else if (typeof (layerData.metadataId) == 'string')
+                        getMeta(layerData.metadataId)
+                      else
+                        console.log('no metadata procedure implemented for type', typeof (layerData.metadataId))
                     }}
-                  //onChange={layerData.names[dateIndex]}
-                  />
+                  >
+                    <MetaIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => {
+                      getLegend(layerData.names[dateIndex])
+                    }}
+                  >
+                    <LegendIcon />
+                  </IconButton>
                 </div>
               </div>
+              {
 
-            }
-            <div className={classes.separator} />
-          </div>
-        )
-      }
-      else tr.push(
-        <div>
-          <Typography >
-            {lArr[i].layerDataTypeId}
-          </Typography>
-
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <Typography >
-              {t('labels:status')}:&nbsp;
-            </Typography>
-            <Typography >
-              {lArr[i].status}
-            </Typography>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'row' }}>
-            {lArr[i].status == LayerImportStatusType.ERROR ?
-              (
                 <div>
-                  <Typography >
-                    {t('common:Message')}:&nbsp;
-                  </Typography>
-                  <Typography >
-                    {'' + lArr[i].errorMessage}
-                  </Typography>
-                </div>) : null
-            }
-          </div>
+                  <div style={{ display: 'flex', flexDirection: 'row' }}>
+                    <Typography >
+                      {t('labels:status')}:&nbsp;
+                    </Typography>
+                    <Typography >
+                      {t('labels:' + getSingleLayer(elem.mapRequestLayers, dataTypeId).status.toLowerCase())}
+                    </Typography>
+                  </div>
+                  <div className={classes.playerContainer}>
+                    {
+                      layerData.timestamps.length > 1 ? (
+                        <span className={classes.spanContainer}>
+                          <div className={classes.sliderContainer} style={{ marginTop: '10px', marginLeft: '5px' }}>
+                            <Slider
+                              className={classes.slider}
+                              aria-label="Temperature"
+                              defaultValue={0}
 
-          <div className={classes.separator} />
-        </div>)
+                              valueLabelDisplay="on"
+                              step={1}
+                              //value={dateIndex}
+                              disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
+                              min={0}
+                              max={layerData.timestamps.length - 1}
+                              color="secondary"
+                              onChange={(event, value) => {
+                                setDateIndex(value)
+                              }}
+                            />
+                          </div>
+                          <div className={classes.buttonsContainer} style={{ paddingTop: '10px' }}>
+                            <IconButton aria-label="play/pause" onClick={playPause}>
+                              {playing ? (
+                                <PauseIcon style={{ height: 45, width: 45 }} />
+                              ) : (
+                                <PlayArrowIcon style={{ height: 45, width: 45 }} />
+                              )}
+                            </IconButton>
+                            <IconButton
+                              aria-label="next"
+                              onClick={() => skipNext(dateIndex, layerData.timestamps.length, setDateIndex)}
+                            >
+                              <SkipNextIcon />
+                            </IconButton>
+                          </div>
+                        </span>
+                      ) : (
+                        <div>
+                          <Typography >
+                            {'Timestamp: ' + formatDate(layerData.timestamps[0])}
+                          </Typography>
+                        </div>
+                      )
+                    }
+                  </div>
+                  <div className={classes.sliderContainer} style={{ paddingTop: '5px', alignItems: 'flex-start' }} >
+                    <label htmlFor="opacity-slider" style={{ marginRight: '10px' }}>
+                      <Typography >
+                        {t('maps:opacity')}:&nbsp;
+                      </Typography >
+                    </label>
+                    <Slider
+                      id={layerData.name}
+                      defaultValue={100}
+                      //valueLabelDisplay="on"
+                      step={1}
+                      //value={opacity}
+                      min={0}
+                      max={100}
+                      aria-label={layerData.name}
+                      color="secondary"
+                      disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
+                      onChange={(event, value) => {
+                        handleOpacityChange(event, value, layerData.names[dateIndex])
+                      }}
+                    //onChange={layerData.names[dateIndex]}
+                    />
+                  </div>
+                </div>
+
+              }
+              <div className={classes.separator} />
+            </div>
+          )
         }
+        else tr.push(
+          <div>
+            <Typography >
+              {lArr[i].layerDataTypeId}
+            </Typography>
+
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              <Typography >
+                {t('labels:status')}:&nbsp;
+              </Typography>
+              <Typography >
+                {lArr[i].status}
+              </Typography>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'row' }}>
+              {lArr[i].status == LayerImportStatusType.ERROR ?
+                (
+                  <div>
+                    <Typography >
+                      {t('common:Message')}:&nbsp;
+                    </Typography>
+                    <Typography >
+                      {'' + lArr[i].errorMessage}
+                    </Typography>
+                  </div>) : null
+              }
+            </div>
+
+            <div className={classes.separator} />
+          </div>)
+      }
     }
     return tr
   }
@@ -555,7 +598,12 @@ function MapRequestCard(props) {
               {elem.code}
             </Typography>
           </Box>
-
+          {(elem.status != MapRequestStatusType.CANCELED) ?(
+          <IconButton
+            onClick={() => props.DeleteRequest('links', elem.code)}>
+            <DeleteIcon />
+          </IconButton>
+          ):null}
         </div>
         <div className={classes.pos}>
           <div >
@@ -613,7 +661,7 @@ function MapRequestCard(props) {
 
               return (
                 <>
-                  <div key={index}>
+                  <div key={'label_status_' + index}>
                     <Typography
                       component={'span'}
                       variant="caption"
@@ -634,7 +682,7 @@ function MapRequestCard(props) {
           })}
         </div>
         <div className={classes.pos}>
-          {(elem.status === 'ContentAvailable') && (elem.code in props.layerId2Tiles[1]) && (
+          {(elem.status === MapRequestStatusType.CONTENT_AVAILABLE) && (elem.code in props.layerId2Tiles[1]) && (
             <Accordion>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}

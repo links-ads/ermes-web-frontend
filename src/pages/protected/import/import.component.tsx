@@ -87,7 +87,7 @@ const ImportComponent = (props) => {
         if (!((name.endsWith('.xls')) || (name.endsWith('.xlsx'))))
             return [false, t('import:extension_error')]
         const filename = name.split('.')[0]
-        if (filename !== selectState.filename)
+        if (!filename.includes(selectState.filename))
             return [false, t('import:name_error', { filename: selectState.filename })]
         return [true, '']
     }

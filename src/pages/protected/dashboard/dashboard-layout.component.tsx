@@ -25,11 +25,7 @@ import useDashboardStats from '../../../hooks/use-dashboard-statistics.hook'
 import { FiltersType } from '../../../common/filters/reducer'
 import { _MS_PER_DAY } from '../../../utils/utils.common'
 import { DashboardFilters } from './filters'
-// import {
-//   ContainerSize,
-//   ContainerSizeContext,
-//   SizeAwareContainer
-// } from '../../../common/size-aware-container.component'
+
 
 export function DashboardLayout({
   className = 'dashboard',

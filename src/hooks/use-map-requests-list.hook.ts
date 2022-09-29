@@ -22,7 +22,7 @@ const reducer = (currentState, action) => {
             return {
                 ...currentState,
                 isLoading: false,
-                data: [...currentState.data, ...action.value],
+                data: action.value, //was data: [...currentState.data, ...action.value],  but then results keep adding each call
                 error: false,
                 tot: action.tot
             }

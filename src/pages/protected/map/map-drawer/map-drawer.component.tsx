@@ -172,6 +172,7 @@ export default function MapDrawer(props) {
           {/* MAP REQUESTS */}
           <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
             <MapRequestsPanel
+              filters= {props.filtersObj.filters.mapRequests}
               setGoToCoord={props.setGoToCoord}
               map={props.map}
               setMapHoverState={props.setMapHoverState}
@@ -184,6 +185,7 @@ export default function MapDrawer(props) {
               dateIndex={props.dateIndex}
               getLegend={props.getLegend}
               getMeta={props.getMeta}
+              forceUpdate={props.forceUpdate}
             />
           </TabPanel>
 
