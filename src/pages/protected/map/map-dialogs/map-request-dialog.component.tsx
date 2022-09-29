@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 
-import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText } from '@material-ui/core'
+import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import {
@@ -39,7 +39,7 @@ export function MapRequestDialog(
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
     const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
-
+//console.log('hey2', editState)
     useEffect(() => {
         handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
     }, [])
@@ -115,6 +115,7 @@ export function MapRequestDialog(
                         id="select-datatype"
                         value={editState.dataType}
                         multiple={true}
+                        error={editError && editState.dataType.length<1}
                         renderValue={(selected) => (selected as string[]).map(id => dataTypeOptions[id]).join(', ')}
                         onChange={(event) => {
                             dispatchEditAction({ type: "DATATYPE", value: event.target.value })
@@ -127,6 +128,10 @@ export function MapRequestDialog(
                             </MenuItem>
                         ))}
                     </Select>
+                    {(editError && editState.dataType.length<1)?
+                    (
+                    <FormHelperText style={{color:'#f44336'}}>{t("maps:mandatory_field")}</FormHelperText>
+                    ):null}
                 </FormControl>
             </Grid>
             <Grid container style={{marginBottom:16, width:'50%'}}>

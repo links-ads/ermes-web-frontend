@@ -64,6 +64,7 @@ export default function usePeopleList() {
           (filters?.dateend as any)?.selected,
           (filters?.persons as any).content[0].selected,
           undefined,
+          undefined,
           (filters?.mapBounds as any).northEast[1],
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
@@ -81,6 +82,7 @@ export default function usePeopleList() {
           }
         )
         .then((result) => {
+          console.log('httpresult', result)
           let newData: PersonActionDto[] = transformData(result.data.data) || []
 
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
@@ -91,6 +93,7 @@ export default function usePeopleList() {
           })
         })
         .catch((err) => {
+          console.log('httperror', err, err.code, errorData)
           displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })

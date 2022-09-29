@@ -6,6 +6,7 @@ import DialogContent from '@material-ui/core/DialogContent'
 // import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import { ModalProps } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 
 export interface ConfirmDialogProps extends DialogProps {
   title: string
@@ -14,7 +15,11 @@ export interface ConfirmDialogProps extends DialogProps {
   onConfirm: ModalProps['onClose'] & MouseEventHandler<any>
   onCancel: MouseEventHandler<any>
 }
-
+const useStyles = makeStyles((theme) => ({
+  confirmButtonStyle: {
+    backgroundColor: theme.palette.secondary.main,
+  }
+}))
 export function ConfirmDialog({
   title,
   confirmLabel,
@@ -24,6 +29,7 @@ export function ConfirmDialog({
   onCancel,
   ...dialogProps
 }: React.PropsWithChildren<ConfirmDialogProps>) {
+  const classes = useStyles()
   return (
     <Dialog
       {...dialogProps}
@@ -38,7 +44,7 @@ export function ConfirmDialog({
       </DialogContent>
       <DialogActions>
         <Button onClick={onCancel}>{cancelLabel}</Button>
-        <Button onClick={onConfirm} color="primary">
+        <Button onClick={onConfirm } className={classes.confirmButtonStyle}>
           {confirmLabel}
         </Button>
       </DialogActions>

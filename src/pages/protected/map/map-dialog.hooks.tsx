@@ -249,10 +249,11 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
 
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     // console.log("FREQUENCY",editState.frequency,typeof editState.frequency,isNaN(editState.frequency))
+    //console.log('hey1', editState)
     if (!editState.endDate) return false
     if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
     if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
-    if (dialogState.itemType === 'MapRequest' && ( isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) ) return false
+    if (dialogState.itemType === 'MapRequest' && ( isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0) return false
     return true
   }
 
@@ -279,13 +280,14 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
         break;
       case 'MapRequest':
         console.log("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
+        hideDialog() //hide dialog immediately since success and errors are shown externally
         handleAPICall(() => {
         return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
         },successMessage , () => {
-          hideDialog()
+          //hideDialog()
           onDialogClose('confirm')
         }, () => {
-          hideDialog()
+          //hideDialog()
           onDialogClose('cancel')
         })
         break;

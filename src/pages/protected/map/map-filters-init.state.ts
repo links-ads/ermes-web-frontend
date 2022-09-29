@@ -90,7 +90,7 @@ export const initObjectState = {
           name: 'map_request_status',
           options: ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable', 'Canceled'],
           type: 'multipleselect',
-          selected: []
+          selected: ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
         },
         {
           name: 'map_request_layer',

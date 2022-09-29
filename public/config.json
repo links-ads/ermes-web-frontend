@@ -41,8 +41,8 @@
   },
   "fusionAuth": {
     "url": "https://auth.safers-project.cloud/",
-    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
-    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
+    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
+    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
     "url": "https://api-dev.safers-project.cloud"

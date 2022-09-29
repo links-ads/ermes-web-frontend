@@ -500,6 +500,7 @@ function getMeta(metaId: string){
         dateIndex={dateIndex}
         getLegend={getLegend}
         getMeta={getMeta}
+        forceUpdate={forceUpdate}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
