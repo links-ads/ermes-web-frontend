@@ -32,7 +32,7 @@ import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 
-const MAX_RESULT_COUNT = 100
+const MAX_RESULT_COUNT = 1000
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
 type KRTmsApiPC = keyof ReturnType<TmsApiPC>
 
