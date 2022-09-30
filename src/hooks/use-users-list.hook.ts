@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react'
 import { APIAxiosHookOpts, useAxiosWithParamCreator } from './api-hooks'
 import useOrgList from './use-organization-list.hooks'
 
-const MAX_RESULT_COUNT = 100
+const MAX_RESULT_COUNT = 1000
 
 type UsrApiPC = typeof UsersApiAxiosParamCreator
 type KRUsrApiPC = keyof ReturnType<UsrApiPC>
