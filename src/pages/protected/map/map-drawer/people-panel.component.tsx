@@ -65,7 +65,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PeoplePanel(props) {
   const classes = useStyles()
-
   // time formatter with relative options
   const dateOptions = {
     dateStyle: 'short',
@@ -101,11 +100,29 @@ export default function PeoplePanel(props) {
     }
   }
   const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
-
+  function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
   // Calls the data only the first time is needed
   useEffect(() => {
+
+    let selected = props.filters.content[1].selected
+    let teamList = props.teamList
+    
+    var arrayOfTeams: number [] = []
+    if(!!selected && selected.length>0){
+      for(let i =0; i<selected.length; i++){
+        let idFromContent = Number(!!getKeyByValue(teamList,selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
+        if(idFromContent>=0)
+        arrayOfTeams.push(idFromContent)
+      }
+ 
+    }
+
     getPeopData(
       0,
+      undefined,
+      (arrayOfTeams.length>0) ? arrayOfTeams : undefined,
       (data) => {
         return data
       },
@@ -159,6 +176,7 @@ export default function PeoplePanel(props) {
               next={() => {
                 getPeopData(
                   peopData.data.length,
+                  undefined,
                   (data) => {
                     return data
                   },
@@ -218,7 +236,7 @@ export default function PeoplePanel(props) {
                           </Box>
                         </div>
                         <div className={classes.pos}>
-                          {['status', 'activityName', 'organizationName'].map((type) => {
+                          {['status', 'activityName', 'organizationName', 'teamName'].map((type) => {
                             if (elem[type]) {
                               return (
                                 <>

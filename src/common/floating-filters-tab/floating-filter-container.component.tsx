@@ -2,7 +2,7 @@
 user can decide to select or deselect by clicking the third button on the top left list
 in the map page */
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import CardContent from '@material-ui/core/CardContent'
 import {
   Button,
@@ -96,6 +96,19 @@ export default function FloatingFilterContainer(props) {
 
   // Filters object with reset
   const [filters, setFilters] = useState(props.filtersObj ? props.filtersObj.filters : null)
+
+  //if teamList has changed then update the filters with the new teams availables
+  useEffect(() => {
+    if(Object.keys(props.teamList).length>0){
+      var l:string[] = []
+      for(let key in props.teamList){
+        l.push(props.teamList[key])
+      }
+      let tmp = filters
+    tmp.persons.content[1].options = l
+    setFilters(tmp)
+  }
+  }, [props.teamList])
 
   const resetFilters = () => {
     setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)

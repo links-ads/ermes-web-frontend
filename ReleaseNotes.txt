@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Added Team to persons panel and added teams to filters (#82)
 
 Ver. 1.9.0 - 2022-09-29
 -----------------------
