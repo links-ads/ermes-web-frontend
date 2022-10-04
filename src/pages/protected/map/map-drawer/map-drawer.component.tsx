@@ -166,6 +166,8 @@ export default function MapDrawer(props) {
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
+              filters= {props.filtersObj.filters.persons}
+              teamList={props.teamList}
             />
           </TabPanel>
 

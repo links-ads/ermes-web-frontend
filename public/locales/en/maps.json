@@ -37,6 +37,7 @@
   "address": "Address",
   "notes": "Notes",
   "organizationName": "Organization Name",
+  "teamName": "Team Name",
   "organization": "Organization",
   "team": "Team",
   "user": "User",

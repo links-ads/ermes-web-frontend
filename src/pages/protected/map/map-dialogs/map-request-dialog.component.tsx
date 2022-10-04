@@ -39,7 +39,6 @@ export function MapRequestDialog(
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
     const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
-//console.log('hey2', editState)
     useEffect(() => {
         handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
     }, [])

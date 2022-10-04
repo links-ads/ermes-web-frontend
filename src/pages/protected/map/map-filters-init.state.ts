@@ -78,7 +78,13 @@ export const initObjectState = {
           options: ['Off', 'Ready', 'Moving', 'Active'],
           type: 'multipleselect',
           selected: []
-        }
+        },
+        {
+          name: 'team_list',
+          options: [],
+          type: 'multipleselect',
+          selected: []
+        },
       ]
     },
     mapRequests: {

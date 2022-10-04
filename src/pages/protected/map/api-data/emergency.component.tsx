@@ -36,6 +36,7 @@ import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
+import usePeopleList from '../../../../hooks/use-people-list.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -147,7 +148,7 @@ const mapRequestCard = (
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
   console.log('DETTAGLI', details)
-  console.log('DETTAGLI', description)
+  //console.log('DESCRIPTION', description)
   return (
     <>
       <Card elevation={0}>
@@ -162,7 +163,7 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
               {description}
             </Typography>
           </div>
-          {['status', 'details', 'organizationName'].map((type) => {
+          {['status', 'details', 'organizationName', 'teamName'].map((type) => {
             if (details[type] && details[type] !== 'null') {
               return (
                 <>
@@ -870,6 +871,7 @@ export function EmergencyContent({
   const [missDetails, fetchMissDetails] = useMissionsById()
   const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
+  const [peopData, getPeopData, applyFilterByText] = usePeopleList()
 
   const dateOptions = {
     dateStyle: 'short',
@@ -937,6 +939,20 @@ export function EmergencyContent({
           }
         )
         break
+      case 'Person':
+          getPeopData(
+            0,
+            rest.id,
+            undefined,
+            (data) => {
+              return data
+            },
+            {},
+            (data) => {
+              return data
+            }
+          )
+       break
       default:
         break
     }
@@ -952,6 +968,12 @@ export function EmergencyContent({
       })
     }
   }, [missDetails])
+
+  useEffect(() => {
+    if (!peopData.isLoading) {
+      rest.setPersonTeam(peopData.data.filter(e=> e.id === rest.id)[0].teamName)
+    }
+  }, [peopData])
 
   useEffect(() => {
     if (!commDetails.isLoading) {
@@ -1057,6 +1079,8 @@ export function EmergencyDrawerDetails(props) {
           longitude={props.longitude}
           setPolyToMap={props.setPolyToMap}
           setGoToCoord={props.setGoToCoord}
+          setPersonTeam={props.setPersonTeam}
+            teamName={props.teamName}
         />
       )}
       {/* <Typography

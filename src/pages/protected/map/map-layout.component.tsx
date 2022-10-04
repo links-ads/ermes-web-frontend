@@ -178,7 +178,8 @@ export function MapLayout(props) {
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
       if (status === 'confirm') {
-        props.fetchGeoJson()
+        console.log('onFeatureDialogClose [confirm]')
+        props.fetchGeoJson(undefined)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -190,6 +191,7 @@ export function MapLayout(props) {
 
   // Variable checked to draw polygons to the map
   const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)
+  const [teamName, setPersonTeam] = useState<undefined | { feature }>(undefined)
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
@@ -834,6 +836,8 @@ export function MapLayout(props) {
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
             setGoToCoord={props.setGoToCoord}
+            setPersonTeam={setPersonTeam}
+            teamName={teamName}
           />
         )}
       </BottomDrawerComponent>
