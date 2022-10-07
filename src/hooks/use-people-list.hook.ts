@@ -63,7 +63,7 @@ export default function usePeopleList() {
           (filters?.dateend as any)?.selected,
           (filters?.persons as any).content[0].selected,
           undefined,
-          teamList,
+          teamList != undefined ? Object.keys(teamList).length > 0 ? teamList : undefined : undefined,
           (filters?.mapBounds as any).northEast[1],
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],

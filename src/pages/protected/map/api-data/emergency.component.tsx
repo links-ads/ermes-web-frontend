@@ -36,8 +36,8 @@ import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
-import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { CommunicationScopeType } from 'ermes-ts-sdk'
+import usePeopleList from '../../../../hooks/use-people-list.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
