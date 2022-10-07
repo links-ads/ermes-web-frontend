@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Grid, IconButton,TextField } from '@material-ui/core'
+import { Grid, IconButton,TextField,FormControl,InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import DateFnsUtils from '@date-io/date-fns'
@@ -13,6 +13,7 @@ import {
 import useLanguage from '../../../../hooks/use-language.hook';
 import { useTranslation } from 'react-i18next';
 import { GenericDialogProps } from '../map-dialog-edit.component';
+import { CommunicationRestrictionType, CommunicationScopeType } from 'ermes-ts-sdk';
 
 
 export function CommunicationDialog(
@@ -31,6 +32,10 @@ export function CommunicationDialog(
             <TodayIcon />
         </IconButton>)
     }, [])
+    let i = CommunicationScopeType.PUBLIC
+    let j = CommunicationRestrictionType.NONE
+    const scopeTypes = [ CommunicationScopeType.PUBLIC, CommunicationScopeType.RESTRICTED]
+    const restrictedTypes = [CommunicationRestrictionType.CITIZEN, CommunicationRestrictionType.ORGANIZATION, CommunicationRestrictionType.PROFESSIONAL]
 
     return (
         <Grid container direction='column'>
@@ -65,7 +70,7 @@ export function CommunicationDialog(
                         disableFuture={false}
                         autoOk={true}
                         ampm={false}
-                        error={editError && !editState.endDate}
+                        error={editError}
                         helperText={editError && !editState.endDate && t("maps:mandatory_field")}
                         minDate={editState.startDate}
                         InputProps={{
@@ -74,6 +79,66 @@ export function CommunicationDialog(
                     />
                 </MuiPickersUtilsProvider>
             </Grid>
+            <Grid container style={{marginBottom:16, width:'75%'}} >
+                <FormControl margin='normal' style={{ minWidth: '45%', marginRight:'10px' }}>
+                    <InputLabel id='select-datatype-label'>{t("labels:scope")}</InputLabel>
+                    <Select
+                        labelId='select-datatype-label'
+                        id="select-datatype"
+                        value={editState.scope}
+                        multiple={false}
+                        error={editError && editState.dataType.length<1}
+                       // renderValue={(selected) => (selected as string[]).map(id => dataTypeOptions[id]).join(', ')}
+                        onChange={(event) => {
+                            
+                            dispatchEditAction({ type: "SCOPE", value: event.target.value })
+                            if(event.target.value == CommunicationScopeType.PUBLIC)
+                            dispatchEditAction({ type: "RESTRICTION", value: CommunicationRestrictionType.NONE })
+                            console.log('HEY', String(event.target.value),editState.scope, CommunicationScopeType.RESTRICTED,  event.target.value == CommunicationScopeType.PUBLIC)
+                        }}
+                    >
+                        {scopeTypes.map((e) => (
+                            <MenuItem key={e} value={e}>
+                               {e}
+                            </MenuItem>
+                        ))} 
+                    </Select>
+                    {(editError)?
+                    (
+                    <FormHelperText style={{color:'#f44336'}}>{t("maps:mandatory_field")}</FormHelperText>
+                    ):null}
+                </FormControl>
+                {editState.scope == CommunicationScopeType.RESTRICTED ? (
+            <>
+                <FormControl margin='normal' style={{ minWidth: '45%', marginLeft:'10px' }}>
+                    <InputLabel id='select-datatype-label'>{t("labels:restriction")}</InputLabel>
+                    <Select
+                        labelId='select-datatype-label'
+                        id="select-datatype"
+                        value={editState.restrictionType}
+                        multiple={false}
+                        error={editError}
+                        //renderValue={(selected) => (selected as string[]).map(id => dataTypeOptions[id]).join(', ')}
+                        onChange={(event) => {
+                            dispatchEditAction({ type: "RESTRICTION", value: event.target.value })
+                            //dispatchEditAction({ type: "DATATYPE", value: event.target.value })
+                        }}
+                    >
+                        {restrictedTypes.map((e) => (
+                            <MenuItem key={e} value={e}>
+                               {e}
+                            </MenuItem>
+                        ))} 
+                    </Select>
+                    {(editError)?
+                    (
+                    <FormHelperText style={{color:'#f44336'}}>{t("maps:mandatory_field")}</FormHelperText>
+                    ):null}
+                </FormControl> 
+                 </>
+                 ) : null}
+            </Grid>
+
             <Grid style={{ marginTop: 8 }}>
                 <TextField
                     id="description"

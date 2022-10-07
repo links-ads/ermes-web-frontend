@@ -124,5 +124,12 @@
   "map_request_status": "Stato",
   "map_request_layer": "Livello",
   "map_request_hazards": "Evento",
-  "MapRequest": "Richieste mappatura"
+  "MapRequest": "Richieste mappatura",
+  "scope": "Visibilità",
+  "restriction":"Restrizione",
+  "restricted": "Ristretto",
+  "public":"Pubblico",
+  "organization": "Organizzazione",
+  "professional": "Professionista",
+  "citizen": "Cittadino"
 }

@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Added Scope and Restriction to Communication ref #83, fixed ref #84
 
 Ver. 1.9.0 - 2022-09-29
 -----------------------

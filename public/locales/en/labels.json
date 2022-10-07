@@ -123,5 +123,12 @@
     "map_request_status": "State",
     "map_request_layer": "Layer",
     "map_request_hazards": "Event",
-    "MapRequest": "Map request"
+    "MapRequest": "Map request",
+    "scope": "Scope",
+    "restriction":"Restriction",
+    "restricted": "Restricted",
+    "public":"Public",
+    "organization": "Organization",
+    "professional": "Professional",
+    "citizen": "Citizen"
 }

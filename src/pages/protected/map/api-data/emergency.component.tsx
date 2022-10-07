@@ -36,6 +36,7 @@ import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
+import { CommunicationScopeType } from 'ermes-ts-sdk'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -62,6 +63,16 @@ const useStyles = makeStyles((theme) => ({
   card: {
     width: '400px',
     height: 'auto'
+  },
+  chipCommContainer: {
+    width: '100%'
+  },
+  chipCommStyle: {
+    marginBottom: 10,
+    marginRight: '10px',
+    backgroundColor: theme.palette.primary.dark,
+    borderColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText
   },
   paper: {
     position: 'absolute',
@@ -428,6 +439,7 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
 
 const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) => {
   if (!data.isLoading) {
+    console.log('Dettagli', data)
     return (
       <>
         <Card elevation={0}>
@@ -451,6 +463,27 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
                 {commInfo.organizationName}
               </Typography>
             </div>
+             
+            <div className={classes.chipCommContainer}>
+                          <Chip
+                            label={data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED ? t('labels:restricted') : t('labels:public')}
+                            color="primary"
+                            size="small"
+                            className={classes.chipCommStyle}
+                          />
+                          
+                         <> {data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED?(
+                         <Chip
+                            label={t('labels:' + data.data?.feature?.properties?.restriction.toLowerCase())}
+                            color="primary"
+                            size="small"
+                            className={classes.chipCommStyle}
+                         
+                          />
+                          ): null}</>
+                        </div>
+                        
+                        
             <Typography color="textSecondary">
               {formatter.format(
                 new Date(data.data?.feature?.properties?.duration?.lowerBound as string)

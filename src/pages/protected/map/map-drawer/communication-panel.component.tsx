@@ -17,6 +17,8 @@ import SearchIcon from '@material-ui/icons/Search'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import List from '@material-ui/core/List'
 import ItemCounter from './item-counter'
+import { Chip } from '@material-ui/core'
+import { CommunicationScopeType } from 'ermes-ts-sdk'
 
 const useStyles = makeStyles((theme) => ({
   viewInMap: {
@@ -42,6 +44,16 @@ const useStyles = makeStyles((theme) => ({
   },
   card: {
     marginBottom: 15
+  },
+  chipContainer: {
+    width: '100%'
+  },
+  chipStyle: {
+    marginBottom: 10,
+    marginRight: '10px',
+    backgroundColor: theme.palette.primary.dark,
+    borderColor: theme.palette.primary.dark,
+    color: theme.palette.primary.contrastText
   },
   cardAction: {
     justifyContent: 'space-between',
@@ -188,6 +200,7 @@ export default function CommunicationPanel(props) {
                       <Typography variant="h5" component="h2" gutterBottom>
                         {elem.message}
                       </Typography>
+                      <div>
                       <>
                         <Typography
                           component={'span'}
@@ -201,11 +214,34 @@ export default function CommunicationPanel(props) {
                           {elem.organizationName}
                         </Typography>
                       </>
+                      </div>
+                      
+                      <div className={classes.chipContainer}>
+                          <Chip
+                            label={elem.scope === CommunicationScopeType.RESTRICTED ? t('labels:restricted') : t('labels:public')}
+                            color="primary"
+                            size="small"
+                            className={classes.chipStyle}
+                          />
+                          
+                         <> {elem.scope === CommunicationScopeType.RESTRICTED?(
+                         <Chip
+                            label={t('labels:' + elem.restriction.toLowerCase())}
+                            color="primary"
+                            size="small"
+                            className={classes.chipStyle}
+                         
+                          />
+                          ): null}</>
+                        </div>
+                        
+                        <div>
                       <Typography color="textSecondary">
                         {' '}
                         {formatter.format(new Date(elem.duration?.lowerBound as string))} -{' '}
                         {formatter.format(new Date(elem.duration?.upperBound as string))}
                       </Typography>
+                      </div>
                     </CardContent>
                     <CardActions className={classes.cardAction}>
                       <Typography color="textSecondary">
