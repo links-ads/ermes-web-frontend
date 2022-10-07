@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Grid } from '@material-ui/core'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
-import { CommunicationsApiFactory, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, HazardType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
+import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, HazardType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.contest'
 import { DialogEdit } from './map-dialog-edit.component'
@@ -41,6 +41,8 @@ export type EditStateType = {
   frequency: string
   dataType: string[]
   resolution: string
+  scope: CommunicationScopeType | null
+  restrictionType: CommunicationRestrictionType | null
 }
 
 export enum CoordinatorType {
@@ -51,7 +53,7 @@ export enum CoordinatorType {
 }
 
 export type EditActionType = {
-  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY" | "RESOLUTION"
+  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY" | "RESOLUTION" | "RESTRICTION" | "SCOPE"
   value?: Date | string | any
 }
 
@@ -67,7 +69,9 @@ const defaultEditState = {
   status: MissionStatusType.CREATED,
   frequency: "0",
   dataType: [],
-  resolution: "10"
+  resolution: "10",
+  restrictionType: CommunicationRestrictionType.NONE,
+  scope: null
 }
 
 
@@ -128,6 +132,18 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
         ...currentState,
         dataType: action.value
       }
+
+      case "RESTRICTION":
+        return {
+          ...currentState,
+          restrictionType: action.value as CommunicationRestrictionType
+        }
+
+        case "SCOPE":
+          return {
+            ...currentState,
+            scope: action.value as CommunicationScopeType
+          }
     case "FREQUENCY":
       var number = parseInt(action.value)
       return {
@@ -176,6 +192,7 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
           cancelLabel={t("maps:dialog_cancel")}
           onConfirm={() => {
             if (!checkInputForms(editState, dialogState)) {
+              console.log('error is true')
               setEditError(true)
             }
             else {
@@ -249,11 +266,19 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
 
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     // console.log("FREQUENCY",editState.frequency,typeof editState.frequency,isNaN(editState.frequency))
+    //console.log('hey1', dialogState ,editState)
     if (!editState.endDate) return false
     if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
     if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
-    if (dialogState.itemType === 'MapRequest' && ( isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0) return false
+    if (dialogState.itemType === 'MapRequest' && ((isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0)) return false
+    if (dialogState.itemType === 'Communication' && !(!!editState.scope || !!editState.restrictionType)) return false
+    if (dialogState.itemType === 'Communication' && !(checkRestrictionScope(editState.scope == CommunicationScopeType.RESTRICTED,editState.restrictionType != CommunicationRestrictionType.NONE))) return false
     return true
+  }
+
+  const checkRestrictionScope = (scopeCondition: boolean, restrictionCondition:boolean) =>{
+    if((scopeCondition && restrictionCondition) || (!scopeCondition && !restrictionCondition)) return true
+    else return false
   }
 
   const applyHandler = (editState: EditStateType, dialogState: DialogStateType) => {
@@ -325,6 +350,8 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
     switch (dialogState.itemType) {
       case 'Communication':
         baseObj['feature']['properties']['message'] = editState.description 
+        baseObj['feature']['properties']['scope'] = editState.scope as string
+        baseObj['feature']['properties']['restriction'] = editState.restrictionType as string
         break;
       case 'MapRequest':
         baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
