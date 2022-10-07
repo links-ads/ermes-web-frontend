@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useMemo} from 'react'
+import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -23,10 +23,11 @@ import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
 
-import { getLegendURL }  from '../../../utils/map.utils'
+import { getLegendURL } from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
+import { TeamsApiFactory } from 'ermes-ts-sdk'
 
 type MapFeature = CulturalProps
 
@@ -47,7 +48,6 @@ export function Map() {
   const [layerName, setLayerName] = useState<string>('')
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
-
     Object.keys((obj?.filters?.multicheckCategories as any).options).forEach((key) => {
       if ((obj?.filters?.multicheckCategories as any).options[key]) {
         newFilterList.push(key)
@@ -71,25 +71,25 @@ export function Map() {
     return newFilterList
   }
 
-  const initObject = JSON.parse(JSON.stringify(initObjectState))
+  const [initObject, updateInit] = useState(JSON.parse(JSON.stringify(initObjectState)))
 
   const appConfig = useContext<AppConfig>(AppConfigContext)
   initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
   initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
-  initObject.filters.report.content[2] = (profile?.role == ROLE_CITIZEN) ? 
+  initObject.filters.report.content[2] = (profile?.role == ROLE_CITIZEN) ?
     {
       name: 'hazard_visibility',
       options: ['Public'],
       type: 'select',
       selected: 'Public'
-    }  
-  : {
-    name: 'hazard_visibility',
-    options: ['Private', 'Public', 'All'],
-    type: 'select',
-    selected: 'Private'
-  }  
+    }
+    : {
+      name: 'hazard_visibility',
+      options: ['Private', 'Public', 'All'],
+      type: 'select',
+      selected: 'Private'
+    }
 
   let [storedFilters, changeItem, ,] = useMemoryState(
     'memstate-map',
@@ -119,6 +119,7 @@ export function Map() {
     forceUpdate()
   }
 
+
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
@@ -134,14 +135,14 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: false, layerClicked:null })
+  const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: false, layerClicked: null })
   const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
-  const [ legendLayer, setLegendLayer ] = useState('')
-  const [ metaLayer, setMetaLayer ] = useState('')
-  const [ currentLayerName, setCurrentLayerName ] = useState('')
+  const [legendLayer, setLegendLayer] = useState('')
+  const [metaLayer, setMetaLayer] = useState('')
+  const [currentLayerName, setCurrentLayerName] = useState('')
 
   const layerId2Tiles = useMemo(() => {
     if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
@@ -186,12 +187,10 @@ export function Map() {
               }
             })
           } else {
-
             if (layer['frequency'] === 'OnDemand') return
-
+            
             let namestimesDict: { [key: string]: string } = {}
             let namesmetaDict: { [key: string]: string } = {}
-
             layer['details'].forEach((detail) => {
               detail['timestamps'].forEach((timestamp) => {
                 namestimesDict[timestamp] = detail['name']
@@ -251,6 +250,54 @@ export function Map() {
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
 
+  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [teamsApiHandlerState, handleTeamsAPICall,] = useAPIHandler(false)
+
+  const [teamList, setTeamList] = useState<any>([])
+
+  useEffect(() => {
+    handleTeamsAPICall(() => { return teamsApiFactory.teamsGetTeams(1000) })
+  }, [teamsApiFactory, handleTeamsAPICall])
+
+/**
+ * when map loads, once the teams list is available heck if there were already teams filters selected, if 
+ * so then use that to get proper features
+ */
+  useEffect(() => {
+    let f: any = filtersObj?.filters?.persons
+    //once the team list is available (ids are available)
+    if (Object.keys(teamList).length > 0) {
+      let selected = f.content[1].selected
+      var arrayOfTeams: number[] = []
+      if (!!selected && selected.length > 0) {
+        for (let i = 0; i < selected.length; i++) {
+          //if teams selected in filters have corresponcence with ids available
+          let idFromContent = Number(!!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
+          //add them to array to use for new call
+          if (idFromContent >= 0)
+            arrayOfTeams.push(idFromContent)
+        }
+      }
+      //if there are conditions for filtering, then call getfeatures again with the filter
+      if(arrayOfTeams.length>0)
+        fetchGeoJson(arrayOfTeams)
+    }
+  }, [teamList])
+
+
+  useMemo(() => {
+    if (!teamsApiHandlerState.loading && !!teamsApiHandlerState.result && teamsApiHandlerState.result.data) {
+      //update team list 
+      let i = Object.fromEntries(teamsApiHandlerState.result.data.data.map(obj => [obj['id'], obj['name']]))
+      setTeamList(i)
+      //update starting filter object with actual team names from http 
+      let tmp = initObject
+      tmp.filters.persons.content[1].options = Object.values(i)
+      updateInit(tmp)
+    }
+  }, [teamsApiHandlerState])
+
+
   useEffect(() => {
     if (
       !filtersObj?.filters?.hasOwnProperty('multicheckActivities') &&
@@ -279,9 +326,34 @@ export function Map() {
     }
   }, [activitiesList, filtersObj, changeItem])
 
+
+  function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
+  }
+
+  /**
+   * when filters are updated then update the map features to show
+   */
   useEffect(() => {
     setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: false, layerClicked: null })
-    fetchGeoJson()
+    //when filters are applied use the ids[] of the selected teams in the fetchGeoJson call
+    let f: any = filtersObj?.filters?.persons
+    var arrayOfTeams: number[] | undefined = undefined
+    if (Object.keys(teamList).length > 0) {
+      let selected = f.content[1].selected
+      arrayOfTeams = []
+      //if selected exists and has some keys inside check if there are correspondences with the stored ids:keys values 
+      if (!!selected && selected.length > 0) {
+        for (let i = 0; i < selected.length; i++) {
+          let idFromContent = Number(!!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
+          if (idFromContent >= 0)
+            arrayOfTeams.push(idFromContent)
+        }
+      }
+      //if teams selections is empty reset arrayofteams to the default state (undefined)
+      if (arrayOfTeams.length === 0) arrayOfTeams = undefined
+    }
+    fetchGeoJson(arrayOfTeams)
     handleGetLayersCall(() => {
       return layersApiFactory.layersGetLayers(
         undefined,
@@ -302,8 +374,8 @@ export function Map() {
 
   useEffect(() => {
     setDateIndex(0)
-    if(layerSelection.multipleLayersAllowed)
-    return
+    if (layerSelection.multipleLayersAllowed)
+      return
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
       setTogglePlayer(true)
     } else {
@@ -311,21 +383,21 @@ export function Map() {
     }
   }, [layerSelection])
 
-  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number }| undefined>(undefined)
-  const [layersLegendPosition, setLayersLegendPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersLegendPosition, setLayersLegendPosition] = useState<{ x: number; y: number } | undefined>(undefined)
 
 
   const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: 60 } }, [])
-  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90,window.innerHeight - 350) } }, [])
-  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120,window.innerHeight - 300 - 450) } }, [])
-  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400,window.innerWidth-600), y: 60 } }, [])
-  
+  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90, window.innerHeight - 350) } }, [])
+  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) } }, [])
+  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400, window.innerWidth - 600), y: 60 } }, [])
+
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number }| undefined>(undefined)
+  const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number } | undefined>(undefined)
   const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
-  
+
   useEffect(() => {
     if (toggleSideDrawer) {
 
@@ -357,42 +429,40 @@ export function Map() {
   }, [toggleSideDrawer])
 
   useMemo(() => {
-    if(toggleSideDrawer){ 
-     
-      if(layersSelectVisibility){ //layers container is visible, move it
+    if (toggleSideDrawer) {
+      if (layersSelectVisibility) { //layers container is visible, move it
         //opening drawer
-        if(layersSelectContainerPosition == undefined)
-          setLayersSelectContainerPosition({x:470, y: layersSelectContainerDefaultCoord.y})
-        else if( layersSelectContainerPosition!.x < 450)
-          setLayersSelectContainerPosition({x:470, y: layersSelectContainerPosition!.y})
-      }
-      
-      if(togglePlayer){
-        if(layersPlayerPosition == undefined)
-          setLayersPlayerPosition({x:470, y: layersPlayerDefaultCoord.y})
-        else if( layersPlayerPosition!.x < 450)
-          setLayersPlayerPosition({x:470, y: layersPlayerPosition!.y})
+        if (layersSelectContainerPosition == undefined)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
+        else if (layersSelectContainerPosition!.x < 450)
+          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
       }
 
-      if(toggleActiveFilterTab){
-        if(floatingFilterContainerPosition == undefined)
-          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerDefaultCoord.y})
-        else if( floatingFilterContainerPosition!.x < 450)
-          setFloatingFilterContainerPosition({x:470, y: floatingFilterContainerPosition!.y})
-      }     
-  } else{
-    //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
-  }
+      if (togglePlayer) {
+        if (layersPlayerPosition == undefined)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerDefaultCoord.y })
+        else if (layersPlayerPosition!.x < 450)
+          setLayersPlayerPosition({ x: 470, y: layersPlayerPosition!.y })
+      }
 
+      if (toggleActiveFilterTab) {
+        if (floatingFilterContainerPosition == undefined)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
+        else if (floatingFilterContainerPosition!.x < 450)
+          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
+      }
+    } else {
+      //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+    }
   }, [toggleSideDrawer])
 
-  function changePlayer(value, metadataId, layerName){
+  function changePlayer(value, metadataId, layerName) {
     setLayerName(layerName)
-    if(toggleLegend){
+    if (toggleLegend) {
       setLegendLayer(value)
     }
-    if(toggleMeta){
-     setMetaLayer(metadataId)
+    if (toggleMeta) {
+      setMetaLayer(metadataId)
     }
   }
 
@@ -404,76 +474,76 @@ export function Map() {
   }, [layerName])
 
   useMemo(() => {
-    if(legendLayer){
+    if (legendLayer) {
       getLegend(legendLayer)
     }
   }, [legendLayer])
 
   useMemo(() => {
-    if(metaLayer){
+    if (metaLayer) {
       getMeta(metaLayer)
     }
   }, [metaLayer])
 
-  function formatMeta(result){
-    let res : [any, any] = ['','']
+  function formatMeta(result) {
+    let res: [any, any] = ['', '']
     let data = result.data
-     Object.keys(data).forEach(function(key) {
-       if(data[key] == "" || data[key] == null) {return}
-       if(data[key] !== undefined && data[key] !== null && typeof(data[key])  === 'object'){
-         let innerres = ''
-         Object.keys(data[key]).forEach(function(innerkey) {
-           if(data[key][innerkey] == "" || data[key][innerkey] == null) {return}
-           if(data[key][innerkey] !== undefined && data[key][innerkey] !== null && typeof(data[key][innerkey])  === 'object'){
-             let innerinnerres = ''
-             Object.keys(data[key][innerkey]).forEach(function(innerinnerkey) {
-               if(data[key][innerkey][innerinnerkey] == "" || data[key][innerkey][innerinnerkey] == null) {return}
-               innerinnerres += innerinnerkey+`: `+data[key][innerkey][innerinnerkey]+`, \n`
-             })
-             innerres+= innerinnerres
-           }
-           else innerres += innerkey+`: `+data[key][innerkey]+`, \n`
-         })
-         res.push([key, innerres])
-       }
-       else 
-       res.push([key, ''+data[key]])
-     })
-     res.splice(0,2)
-     return res
+    Object.keys(data).forEach(function (key) {
+      if (data[key] == "" || data[key] == null) { return }
+      if (data[key] !== undefined && data[key] !== null && typeof (data[key]) === 'object') {
+        let innerres = ''
+        Object.keys(data[key]).forEach(function (innerkey) {
+          if (data[key][innerkey] == "" || data[key][innerkey] == null) { return }
+          if (data[key][innerkey] !== undefined && data[key][innerkey] !== null && typeof (data[key][innerkey]) === 'object') {
+            let innerinnerres = ''
+            Object.keys(data[key][innerkey]).forEach(function (innerinnerkey) {
+              if (data[key][innerkey][innerinnerkey] == "" || data[key][innerkey][innerinnerkey] == null) { return }
+              innerinnerres += innerinnerkey + `: ` + data[key][innerkey][innerinnerkey] + `, \n`
+            })
+            innerres += innerinnerres
+          }
+          else innerres += innerkey + `: ` + data[key][innerkey] + `, \n`
+        })
+        res.push([key, innerres])
+      }
+      else
+        res.push([key, '' + data[key]])
+    })
+    res.splice(0, 2)
+    return res
   }
 
-function showImage(responseAsBlob) {
-  const imgUrl = URL.createObjectURL(responseAsBlob);
-  setLegendSrc(imgUrl)
-  setToggleLegend(true)
-}
-async function getLegend(layerName: string){
- const geoServerConfig = appConfig.geoServer
- const res = await fetch(getLegendURL(geoServerConfig,'40', '40' ,layerName))
- showImage(await res.blob());
-}
+  function showImage(responseAsBlob) {
+    const imgUrl = URL.createObjectURL(responseAsBlob);
+    setLegendSrc(imgUrl)
+    setToggleLegend(true)
+  }
+  async function getLegend(layerName: string) {
+    const geoServerConfig = appConfig.geoServer
+    const res = await fetch(getLegendURL(geoServerConfig, '40', '40', layerName))
+    showImage(await res.blob());
+  }
 
-function updateCurrentLayer(layerName: string){
-setCurrentLayerName(layerName)
-}
+  function updateCurrentLayer(layerName: string) {
+    setCurrentLayerName(layerName)
+  }
 
-function getMeta(metaId: string){
-  layersApiFactory.layersGetMetadata(
-    metaId,
-    {
-      headers: {
-        'Accept-Language': i18n.language
+  function getMeta(metaId: string) {
+    layersApiFactory.layersGetMetadata(
+      metaId,
+      {
+        headers: {
+          'Accept-Language': i18n.language
+        }
       }
-    }
-  ).then(result => {
-    const formattedres = formatMeta(result)
-    setLayerMeta(formattedres)
-    setToggleMeta(true)
-  })
- }
+    ).then(result => {
+      const formattedres = formatMeta(result)
+      setLayerMeta(formattedres)
+      setToggleMeta(true)
+    })
+  }
 
-///////
+  ///////
   return (
     <>
       <MapDrawer
@@ -494,6 +564,7 @@ function getMeta(metaId: string){
         getLegend={getLegend}
         getMeta={getMeta}
         forceUpdate={forceUpdate}
+        teamList={teamList}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
@@ -508,6 +579,7 @@ function getMeta(metaId: string){
           applyFiltersObj={applyFiltersObj}
           // resetFiltersObj={resetFiltersObj}
           initObj={initObject}
+          teamList={teamList}
         ></FloatingFilterContainer>
         {/* ) : null} */}
 
@@ -523,7 +595,7 @@ function getMeta(metaId: string){
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           getMeta={getMeta}
-          updateCurrentLayer = {updateCurrentLayer}
+          updateCurrentLayer={updateCurrentLayer}
           onPlayerChange={changePlayer}
           geoServerConfig={appConfig.geoServer}
           map={map}
@@ -538,7 +610,7 @@ function getMeta(metaId: string){
           imgSrc={legendSrc}
         />
 
-<PlayerMetadata 
+        <PlayerMetadata
           visibility={toggleMeta}
           defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
           position={layersMetaPosition}
@@ -597,8 +669,9 @@ function getMeta(metaId: string){
             layerSelection={layerSelection}
             layerId2Tiles={layerId2Tiles}
             dateIndex={dateIndex}
-            currentLayerName = {currentLayerName}
+            currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
+
           />
         </MapStateContextProvider>
       </MapContainer>

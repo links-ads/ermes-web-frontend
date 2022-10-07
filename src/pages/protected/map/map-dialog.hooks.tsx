@@ -266,7 +266,6 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
 
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     // console.log("FREQUENCY",editState.frequency,typeof editState.frequency,isNaN(editState.frequency))
-    //console.log('hey1', dialogState ,editState)
     if (!editState.endDate) return false
     if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
     if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false

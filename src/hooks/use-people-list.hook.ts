@@ -55,16 +55,15 @@ export default function usePeopleList() {
   const mounted = useRef(false)
 
   const fetchPeople = useCallback(
-    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (tot, personId, teamList?, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-
       repApiFactory
         .actionsGetActions(
           (filters?.datestart as any)?.selected,
           (filters?.dateend as any)?.selected,
           (filters?.persons as any).content[0].selected,
           undefined,
-          undefined,
+          teamList,
           (filters?.mapBounds as any).northEast[1],
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
@@ -83,14 +82,20 @@ export default function usePeopleList() {
         )
         .then((result) => {
           console.log('httpresult', result)
-          let newData: PersonActionDto[] = transformData(result.data.data) || []
-
+          let newData: PersonActionDto[] = result.data.data || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          dispatch({
+          if(!!personId){
+            dispatch({
+            type: 'RESULT',
+            value: newData.filter(e=> e.id === personId),
+            tot: totToDown
+          })}
+          else {
+            dispatch({
             type: 'RESULT',
             value: newData,
             tot: totToDown
-          })
+          })}
         })
         .catch((err) => {
           console.log('httperror', err, err.code, errorData)

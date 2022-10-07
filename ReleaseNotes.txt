@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Added Scope and Restriction to Communication ref #83, fixed ref #84
+- Feature - Added Team to persons panel and added teams to filters (#82)
 
 Ver. 1.9.0 - 2022-09-29
 -----------------------

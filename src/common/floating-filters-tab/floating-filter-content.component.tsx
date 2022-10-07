@@ -80,7 +80,6 @@ export function Tab1(props) {
 
   // Filter state from the parent component
   const filters = props.filters
-
   //inside states which will keep track of the start and end dates
   const [selectedStartDate, setStartDate] = useState<Date | null>(
     filters.datestart.selected ? new Date(filters.datestart.selected) : null
@@ -275,7 +274,7 @@ export function Tab1(props) {
                               </InputLabel>
                               <Select
                                 labelId="demo-simple-select-label"
-                                id="demo-simple-select"
+                                id={"demo-simple-select"+elem.name}
                                 value={elem.selected}
                                 renderValue={(v) => t('labels:' + (v as String).toLowerCase())}
                                 onChange={(event) => {
@@ -316,9 +315,8 @@ export function Tab1(props) {
                                       event.target.value
                                     )
                                   ) {
-                                    newFilter[widget].content[i].selected = newFilter[
-                                      widget
-                                    ].content[i].selected.filter((e) => e !== event.target.value)
+                                    newFilter[widget].content[i].selected = 
+                                    newFilter[widget].content[i].selected.filter((e) => e !== event.target.value)
                                   } else {
                                     newFilter[widget].content[i].selected.push(event.target.value)
                                   }

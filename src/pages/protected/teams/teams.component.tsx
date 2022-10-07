@@ -97,15 +97,12 @@ const RenderMembersTables = (
   // Return lookup table with the possible users to be selected
 
   const membersIds = useMemo(() => rowData?.members?.map((mem) => {
-    console.log('heymem', mem)
     return mem.fusionAuthUserGuid}) || [], [rowData])
   const genLookupObject = () => {
     let persons: any = {}
-    console.log('heyusers', Object.entries(users)[0])
     Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
       persons[value.user.id] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
     })
-    console.log('heypersons', persons)
     return persons
   }
 
@@ -161,7 +158,6 @@ console.log('Rdatas', rowData)
       columns={localizeMemColumns(t, genLookupObject, membersIds)}
       editable={{
         onRowAdd: async (newData: any) => {
-          console.log('heyadding team member upd', newData)
           const ids: string[] = membersIds.concat([newData.fusionAuthUserGuid])
           const newTeamMemInput: SetTeamMembersInput = {
             teamId: rowData.id,
