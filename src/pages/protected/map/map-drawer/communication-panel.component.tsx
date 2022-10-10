@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
@@ -93,10 +93,12 @@ export default function CommunicationPanel(props) {
     setSearchText(e.target.value)
   }
 
+  const [prevSearchText, setPrevSearchText] = React.useState('')
   // on click of the search button
   const searchInComm = () => {
-    if (searchText !== undefined) {
+    if (searchText !== undefined && searchText != prevSearchText) {
       applyFilterByText(searchText)
+      setPrevSearchText(searchText)
     }
   }
 
@@ -117,7 +119,7 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  },[getCommsData]) // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[]) // removed [getcommsdata] cause it was being called on filter search
 
   // Fix height of the list when the window is resized
   useEffect(() => {

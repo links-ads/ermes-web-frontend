@@ -99,6 +99,7 @@ export default function FloatingFilterContainer(props) {
 
   //if teamList has changed then update the filters with the new teams availables
   useEffect(() => {
+    if(!!props.teamList){
     if(Object.keys(props.teamList).length>0){
       var l:string[] = []
       for(let key in props.teamList){
@@ -108,6 +109,7 @@ export default function FloatingFilterContainer(props) {
     tmp.persons.content[1].options = l
     setFilters(tmp)
   }
+}
   }, [props.teamList])
 
   const resetFilters = () => {

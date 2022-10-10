@@ -81,7 +81,7 @@ export default function usePeopleList() {
           }
         )
         .then((result) => {
-          console.log('httpresult', result)
+          //console.log('httpresult', result)
           let newData: PersonActionDto[] = result.data.data || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
           if(!!personId){
@@ -117,6 +117,8 @@ export default function usePeopleList() {
     if (mounted.current) {
       fetchPeople(
         0,
+        undefined, 
+        undefined,
         (data) => {
           return data
         },

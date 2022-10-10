@@ -90,7 +90,7 @@ export default function useReportList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar]
+    [repApiFactory, displayErrorSnackbar, querySearch]
   )
 
   const applyFilterReloadData = (newFilters) => {
@@ -98,6 +98,7 @@ export default function useReportList() {
     // setFilters(newFilters)
   }
   const applySearchFilterReloadData = (query: string) => {
+    console.log('pallyingfilters', query)
     dispatch(initialState)
     setQuerySearch(query)
   }

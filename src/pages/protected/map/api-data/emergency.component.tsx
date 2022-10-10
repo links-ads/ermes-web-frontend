@@ -1003,7 +1003,9 @@ export function EmergencyContent({
   }, [missDetails])
 
   useEffect(() => {
-    if (!peopData.isLoading) {
+    if (!peopData.isLoading ) {
+      let teamTemp = peopData.data.filter(e=> e.id === rest.id)
+      if(!!teamTemp && teamTemp.length>0)
       rest.setPersonTeam(peopData.data.filter(e=> e.id === rest.id)[0].teamName)
     }
   }, [peopData])

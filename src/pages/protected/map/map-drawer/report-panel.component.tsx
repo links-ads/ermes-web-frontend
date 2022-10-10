@@ -111,10 +111,14 @@ export default function ReportPanel(props) {
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
+
+  const [prevSearchText, setPrevSearchText] = React.useState('')
+
   // on click of the search button
-  const searchInComm = () => {
-    if (searchText !== undefined) {
+  const searchInReport = () => {
+    if (searchText !== undefined && searchText != prevSearchText) {
       applyFilterByText(searchText)
+      setPrevSearchText(searchText)
     }
   }
 
@@ -130,7 +134,7 @@ export default function ReportPanel(props) {
         return data
       }
     )
-  }, [getRepsData])
+  }, [])
 
   // Fix height of the list when the window is resized
   useEffect(() => {
@@ -154,7 +158,7 @@ export default function ReportPanel(props) {
           <IconButton
             aria-label="search"
             color="inherit"
-            onClick={searchInComm}
+            onClick={searchInReport}
             className={classes.searchButton}
           >
             <SearchIcon />
