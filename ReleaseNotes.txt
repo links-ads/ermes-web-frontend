@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Fixed Crash on Events and Social Maps (#87)
 
 Ver. 1.9.1 - 2022-10-07
 -----------------------

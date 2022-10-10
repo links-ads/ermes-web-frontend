@@ -33,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
     overflowY: 'scroll',
     height: '90%'
   },
+  resizedContainer: {
+    height: window.innerHeight - 270,
+    overflowY: 'scroll'
+  },
   card: {
     marginBottom: 15
   },
@@ -81,9 +85,13 @@ export default function PeoplePanel(props) {
   const handleSearchTextChange = (e) => {
     setSearchText(e.target.value)
   }
+  const [prevSearchText, setPrevSearchText] = React.useState('')
+
+  // on click of the search button
   const searchInPeople = () => {
-    if (searchText !== undefined) {
+    if (searchText !== undefined && searchText != prevSearchText) {
       applyFilterByText(searchText)
+      setPrevSearchText(searchText)
     }
   }
 
@@ -131,7 +139,7 @@ export default function PeoplePanel(props) {
         return data
       }
     )
-  }, [getPeopData])
+  }, [])
 
   // Fix height of the list when the window is resized
   useEffect(() => {
@@ -166,9 +174,9 @@ export default function PeoplePanel(props) {
       </span>
       {!peopData.isLoading ? (
         <div
-          className="container_without_search"
+        className={classes.resizedContainer}
           id="scrollableElem"
-          style={{ height: height - 280 }}
+          style={{ height: height - 270 }}
         >
           <ItemCounter itemCount={peopData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
@@ -176,6 +184,7 @@ export default function PeoplePanel(props) {
               next={() => {
                 getPeopData(
                   peopData.data.length,
+                  undefined,
                   undefined,
                   (data) => {
                     return data
@@ -197,6 +206,7 @@ export default function PeoplePanel(props) {
               scrollableTarget="scrollableElem"
             >
               {peopData.data.map((elem, i) => {
+                //console.log('elem', peopData.data.length)
                 return (
                   <CardWithPopup
                     key={'report' + String(elem.id)}
@@ -211,7 +221,7 @@ export default function PeoplePanel(props) {
                     spiderifierRef={props.spiderifierRef}
                     type="Person"
                   >
-                    <div className={classes.details}>
+                    
                       <CardContent className={classes.topCard}>
                         <div className={classes.headerBlock}>
                           <Box component="div" display="inline-block">
@@ -278,7 +288,7 @@ export default function PeoplePanel(props) {
                           <LocationOnIcon />
                         </IconButton>
                       </CardActions>
-                    </div>
+                    
                   </CardWithPopup>
                 )
               })}

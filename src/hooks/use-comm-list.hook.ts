@@ -58,7 +58,7 @@ export default function useCommList() {
   const fetchCommunications = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-
+console.log('6')
       commApiFactory
         .communicationsGetCommunications(
           (filters?.datestart as any)?.selected,
@@ -76,6 +76,7 @@ export default function useCommList() {
         .then((result) => {
           let newData: DTResultOfCommunicationDto[] = transformData(result.data.data) || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
+          console.log('nd', newData)
           dispatch({
             type: 'RESULT',
             value: newData,

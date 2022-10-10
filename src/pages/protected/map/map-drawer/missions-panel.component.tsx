@@ -87,12 +87,16 @@ export default function CommunicationPanel(props) {
     setSearchText(e.target.value)
   }
 
+  //check if search text is same as before, if so don't call it again
+  const [prevSearchText, setPrevSearchText] = React.useState('')
+
+  // on click of the search button
   const searchInMiss = () => {
-    if (searchText !== undefined) {
+    if (searchText !== undefined && searchText != prevSearchText) {
       applyFilterByText(searchText)
+      setPrevSearchText(searchText)
     }
   }
-
   // Calls the data only the first time is needed
   useEffect(() => {
     getMissionsData(
@@ -105,7 +109,7 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  },[getMissionsData])
+  },[])
 
   // Fix height of the list when the window is resized
   useEffect(() => {
