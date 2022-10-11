@@ -261,35 +261,44 @@ export default function ReportPanel(props) {
                             ? elem.description.substring(0, 37) + '...'
                             : elem.description}
                         </Typography>
+                        <div style={{display:'flex', flexDirection:'row'}}>
                         { !!elem.organizationName ? (
                         <>
                           <Typography
                             component={'span'}
-                            variant="caption"
+                            variant="body2"
                             color="textSecondary"
                             style={{ textTransform: 'uppercase' }}
                           >
                             {t('maps:organization')}:&nbsp;
                           </Typography>
                           <Typography component={'span'} variant="body1">
-                            {elem.organizationName}
+                      
+                            {elem.organizationName.length > 17
+                            ? elem.organizationName.substring(0, 14) + '...'
+                            : elem.organizationName}
                           </Typography>
                         </>
-                        ) : (
-                        <>
+                        ) : (null)}
+                        </div>
+                        <div style={{display:'flex', flexDirection:'row'}}>
+                           <>
                           <Typography
                             component={'span'}
-                            variant="caption"
+                            variant="body2"
                             color="textSecondary"
                             style={{ textTransform: 'uppercase' }}
                           >
                             {t('maps:creator')}:&nbsp;
                           </Typography>
                           <Typography component={'span'} variant="body1">
-                            {elem.displayName == null ? (elem.username == null ? elem.email : elem.username) : elem.displayName}
+                            
+                            {elem.displayName == null ? (elem.username == null ? elem.email : elem.username) : ( elem?.displayName.length > 20
+                            ? elem.displayName.substring(0, 20) + '...'
+                            : elem.displayName)}
                           </Typography>
                         </>
-                        )}
+                        </div>
                       </CardContent>
                       <CardActions className={classes.cardAction}>
                         <div className={classes.chipContainer}>
