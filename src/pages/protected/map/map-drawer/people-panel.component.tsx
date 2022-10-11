@@ -80,6 +80,7 @@ export default function PeoplePanel(props) {
   // Main data + search text field text
   const [peopData, getPeopData, , applyFilterByText] = usePeopleList()
   const [searchText, setSearchText] = React.useState('')
+  const [ teamListIDs, setTeamListIds] = React.useState([])
 
   // Search text field management functions
   const handleSearchTextChange = (e) => {
@@ -90,7 +91,19 @@ export default function PeoplePanel(props) {
   // on click of the search button
   const searchInPeople = () => {
     if (searchText !== undefined && searchText != prevSearchText) {
-      applyFilterByText(searchText)
+      let selected = props.filters.content[1].selected
+      let teamList = props.teamList
+      
+      var arrayOfTeams: number [] = []
+      if(!!selected && selected.length>0){
+        for(let i =0; i<selected.length; i++){
+          let idFromContent = Number(!!getKeyByValue(teamList,selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
+          if(idFromContent>=0)
+            arrayOfTeams.push(idFromContent)
+        }
+   
+      }
+      applyFilterByText(searchText, (arrayOfTeams.length>0) ? arrayOfTeams : undefined,)
       setPrevSearchText(searchText)
     }
   }
@@ -122,11 +135,11 @@ export default function PeoplePanel(props) {
       for(let i =0; i<selected.length; i++){
         let idFromContent = Number(!!getKeyByValue(teamList,selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
         if(idFromContent>=0)
-        arrayOfTeams.push(idFromContent)
+          arrayOfTeams.push(idFromContent)
       }
  
     }
-
+  
     getPeopData(
       0,
       undefined,

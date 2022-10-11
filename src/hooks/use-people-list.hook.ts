@@ -46,6 +46,8 @@ export default function usePeopleList() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
   const { i18n } = useTranslation()
+
+  const [ searchFilter, setSearchFilter] = useState<Number [] | undefined>(undefined)
   
   const [storedFilters, , ] = useMemoryState(
     'memstate-map',
@@ -53,6 +55,14 @@ export default function usePeopleList() {
     false
   )
   const mounted = useRef(false)
+  const getTeamList = (teamList) => {
+    if(!!searchFilter && (Object.keys(searchFilter).length > 0)){
+       return searchFilter
+    }
+    else {
+      return teamList != undefined ? (Object.keys(teamList).length > 0 ? teamList : undefined) : undefined
+    }
+  }
 
   const fetchPeople = useCallback(
     (tot, personId, teamList?, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -63,7 +73,7 @@ export default function usePeopleList() {
           (filters?.dateend as any)?.selected,
           (filters?.persons as any).content[0].selected,
           undefined,
-          teamList,
+          getTeamList(teamList),
           (filters?.mapBounds as any).northEast[1],
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
@@ -109,9 +119,10 @@ export default function usePeopleList() {
     // dispatch(initialState)
     // setFilters(newFilters)
   }
-  const applySearchFilterReloadData = (query: string) => {
+  const applySearchFilterReloadData = (query: string, teamList?) => {
     dispatch(initialState)
-    setSearchText(query)
+   setSearchText(query)
+   setSearchFilter(teamList)
   }
   useEffect(() => {
     if (mounted.current) {
