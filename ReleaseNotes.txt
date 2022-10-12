@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Fixed opacity slider bug, crash on layer time slider (#89) 
 
 Ver. 1.9.2 - 2022-10-10
 -----------------------

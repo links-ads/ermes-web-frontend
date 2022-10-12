@@ -149,6 +149,8 @@ export function LayersPlayer(props) {
     return insideData.timestamps[value]
   }
 
+ 
+
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
     event.stopPropagation();
     const opacity: number = newValue as number
@@ -167,6 +169,7 @@ export function LayersPlayer(props) {
     } else {
       setDateIndex(0)
     }
+
   },[])
 
   async function playPause() {
@@ -174,8 +177,9 @@ export function LayersPlayer(props) {
   }
   
   function formatDate(date: string){
-    
-    return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+    if(!!date)
+      return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+    else return undefined
   }
 
   useEffect(() => {
@@ -264,7 +268,7 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps ? formatDate(layerProps['timestamps'][dateIndex]) : null}
+          {layerProps ? (!!formatDate(layerProps['timestamps'][dateIndex]) ? formatDate(layerProps['timestamps'][dateIndex]) : formatDate(layerProps['timestamps'][0])) : null}
         </Typography>
         <div className={classes.playerContainer}>
           {insideData.timestamps.length > 1 ? (
@@ -284,6 +288,7 @@ export function LayersPlayer(props) {
                   color="secondary"
                   onChange={(event, value) => {
                     setDateIndex(value)
+                    setOpacity(100)     
                   }}
                 />
               </div>
