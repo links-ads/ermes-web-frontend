@@ -17,7 +17,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { strictEqual } from 'assert'
 import { AppConfig, AppConfigContext } from '../../../config'
-import { ROLE_ORGANIZATION_MANAGER, ROLE_TEAM_LEADER, ROLE_DECISION_MAKER, ROLE_FIRST_RESPONDER } from '../../../App.const'
+import { ROLE_ORGANIZATION_MANAGER, ROLE_TEAM_LEADER, ROLE_DECISION_MAKER, ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
 
 const options: Options<any> = {
   sorting: true,
@@ -53,11 +53,10 @@ function localizeColumns(
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
-  //const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1)
-  const UserRoles = [ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER,ROLE_FIRST_RESPONDER]
-  const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
+  const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1).filter((r) => r != ROLE_CITIZEN) //removed citizen option
+  //const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
+  const defaultRole = ROLE_FIRST_RESPONDER
   type UserRolesType = typeof UserRoles[number]
-
   return [
     {
       title: t('admin:user_avatar'),
@@ -75,7 +74,7 @@ function localizeColumns(
       ),
       initialEditValue: ''
     },
-    { title: t('admin:user_username'), field: 'user.displayName' == null ? ('user.username' == null ? 'user.email' : 'user.username') : 'user.displayName'},
+    { title: t('admin:user_username'), field: 'user.username' == null ? ('user.displayName' == null ? 'user.email' : 'user.displayName') : 'user.username'},
     { title: t('admin:user_email'), field: 'user.email' },
     {
       // Selector of the roles, showing them as chips
@@ -96,7 +95,7 @@ function localizeColumns(
             )})}
         </div>
     },
-      initialEditValue: [],
+      initialEditValue: defaultRole,
       editComponent: (cellData) => {
         if (cellData.rowData.user === undefined) {
           cellData.rowData.user = {
@@ -143,10 +142,8 @@ function localizeColumns(
     {
       title: t('admin:user_org_name'),
       field: 'organization.id',
-      editable: "onAdd",
       lookup: orgLookup,
-      emptyValue: empty,
-      initialEditValue: lookupKeys.length > 1 ? undefined : empty
+      emptyValue: ''
     }
   ]
 }
@@ -226,7 +223,7 @@ export function Users() {
               const newUserInput: UpdateProfileInput = {
                 user: {
                   ...newData.user,
-                  roles: newData['user.roles'],
+                  roles: newData.user.roles,
                   imageUrl: newData['user.imageUrl']
                 },
                 organizationId: newData.organization?.id || newData['organization.id']
