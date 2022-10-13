@@ -55,6 +55,13 @@ export const TweetCard = (props) => {
         return uniqueMedias
     }
 
+    const makeHttps = (url: string) =>{
+        if(url.includes('https:')){
+        return url
+    }
+        else return url.replace('http:', 'https:')
+    }
+
     const renderTweetMedia = (uniqueMedias, expanded) => {
         if (uniqueMedias == null || uniqueMedias.length === 0)
             return null;
@@ -70,7 +77,7 @@ export const TweetCard = (props) => {
                             return (
                                 <div key={media.id_str} style={{ margin: 'auto', textAlign: 'center' }} >
                                     {(media.type === 'PHOTO') ?
-                                        (<img src={media.url} alt='' width='80%' style={{ cursor: 'pointer' }}
+                                        (<img src={makeHttps(media.url)} alt='' width='80%' style={{ cursor: 'pointer' }}
                                             onClick={() => window.open(media.url)} />) :
                                         (media.type === 'VIDEO') ?
                                             (<video controls width='80%'>
