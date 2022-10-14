@@ -2,6 +2,7 @@ Ver.
 -----------------------
 - Bugfix - Fixed opacity slider bug, crash on layer time slider (#89) 
 - Feature - Fixed search function in panels with active filters, shown always report creator (#90)
+- Bugfix - made tweet photos https instead of http on master branch (#92)
 
 - Bugfix - Fixed event tweet background color (#91)
 
