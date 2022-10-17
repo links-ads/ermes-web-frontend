@@ -1,11 +1,12 @@
 {
   "envTag": "",
+  "gamificationUrl":"https://safersblobstoragedev.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
   },
   "i18n": {
-    "ns": ["common", "errors"],
+    "ns": ["common", "errors", "gamification"],
     "defaultNS": "common",
     "fallbackNS": "common",
     "whitelist": ["en", "it"],

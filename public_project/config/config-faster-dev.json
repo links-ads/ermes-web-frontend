@@ -1,5 +1,6 @@
 {
   "envTag": "",
+  "gamificationUrl":"https://fasterblobstorage.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": [
       "dark",
@@ -10,7 +11,8 @@
   "i18n": {
     "ns": [
       "common",
-      "errors"
+      "errors", 
+      "gamification"
     ],
     "defaultNS": "common",
     "fallbackNS": "common",

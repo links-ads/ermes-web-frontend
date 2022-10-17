@@ -5,6 +5,7 @@ Ver.
 - Feature - Added organization change when modifying users, fixed roles and username fields when sending (#85)
 - Bugfix - Fixed event tweet background color (#91)
 - Bugfix - made tweet photos https instead of http on master branch (#92)
+- Feature - Updated gamification citizen page with url for icons, removed local images, added gamification translation files (#88)
 
 Ver. 1.9.2 - 2022-10-10
 -----------------------

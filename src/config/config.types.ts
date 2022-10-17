@@ -106,4 +106,6 @@ export interface AppConfig {
   isMobileDevice: boolean
   // user filter tags that needs to be excluded from the tag list 
   userTagsFilter?: UserTagsFilter 
+  // url of azure resources for gamification icons in leaderboards
+  gamificationUrl?: string
 }

@@ -82,7 +82,7 @@
   "leaderboard": "Leaderboard",
   "user_current_status":  "Stato corrente: {{currentStatus}}",
   "user_team": "Team: {{team}}",
-  "user_level":"Livello: {{level}}",
+  "user_level":"Livello:",
   "leader_points": "Punti",
   "leader_gpos": "Posizione Globale",
   "leader_level": "Livello",

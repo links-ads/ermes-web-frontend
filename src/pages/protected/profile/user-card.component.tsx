@@ -71,32 +71,54 @@ export const UserCard = memo(function UserCard() {
           />
         </AvatarContainer>
         {isDebug && (
+          <div style={{display:'flex'}}>
+             <Typography variant="body2" color="textSecondary" component="p"  style={{ textTransform: 'uppercase', marginRight:'5px', fontWeight:'bold' }}>
+             Id: 
+           </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-            <b>Id: </b> {profile.user.id}
+         {profile.user.id}
           </Typography>
+          </div>
         )}
         {profile.role !== 'citizen' ? (USER_KEYS.map(([tkey, userField], i) =>
           profile[userField] || profile.user[userField] ? (
-            <Typography key={i} variant="body2" color="textSecondary" component="p">
-              {t(tkey, {
-                [userField]:
-                  userField === 'role'
-                    ? t('common:role_' + profile.role) : ((userField === 'organization' && typeof profile[userField] !== 'undefined')
-                        ? profile?.organization?.name : (userField === 'currentStatus' && typeof profile[userField] !== 'undefined') ? profile.currentStatus 
-                    : profile.user[userField]) 
-              })}
-            </Typography>
+            <div style={{display:'flex'}}>
+              <Typography variant="body2" color="textSecondary" component="p"  style={{ textTransform: 'uppercase', marginRight:'5px', fontWeight:'bold' }}>
+              {t('admin:'+tkey)}
+           </Typography>
+           <Typography variant="body2" color="textSecondary" component="p"  >
+           {
+               userField === 'role'
+                 ? t('common:role_' + profile.role) : ((userField === 'organization' && typeof profile[userField] !== 'undefined')
+                     ? profile?.organization?.name : (userField === 'currentStatus' && typeof profile[userField] !== 'undefined') ? profile.currentStatus 
+                 : profile.user[userField]) 
+           }
+           </Typography>
+            </div>
           ) : null
         )) : (
           <div>
-        <Typography variant="body2" color="textSecondary" component="p">
-          {'username:'+(profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)}
-        </Typography>
-        { !!(profile as any).level ? (<Typography variant="body2" color="textSecondary" component="p">
-          { //wait for sdk
-          t('common:user_level',  { level: (profile as any).level })
-          }
-        </Typography>) : null}
+ <div style={{display:'flex'}}>
+<Typography variant="body2" color="textSecondary" component="p"  style={{ textTransform: 'uppercase', marginRight:'5px', fontWeight:'bold' }}>
+           { t('labels:username')+':'}
+           </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+         {(profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)}
+          </Typography>
+          </div>
+    
+        { !!(profile as any).level ? (
+ <div style={{display:'flex'}}>
+
+<Typography variant="body2" color="textSecondary" component="p"  style={{ textTransform: 'uppercase', marginRight:'5px', fontWeight:'bold' }}>
+           {  t('common:user_level')}
+           </Typography>
+          <Typography variant="body2" color="textSecondary" component="p">
+         {(profile as any).level}
+          </Typography>
+  
+        </div>
+        ) : null}
         </div>
         )}
       </CardContent>
