@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo } from 'react'
+import React, { memo, useContext, useEffect, useMemo } from 'react'
 import Card from '@material-ui/core/Card'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -12,6 +12,7 @@ import styled from 'styled-components'
 import { RefreshButton } from '../../../common/common.components'
 import MaterialTable, { Column, Options } from 'material-table'
 import useLeaderboard from '../../../hooks/use-gamification.hook'
+import { AppConfig, AppConfigContext } from '../../../config'
 
 const options: Options<any> = {
   sorting: false,
@@ -36,7 +37,7 @@ export const UserLeaderboard = memo(function UserLeaderboard() {
       }
     } )
   }, [])
-
+  const appConfig = useContext<AppConfig>(AppConfigContext)
 
   return profile ? (
     <Card style={{ marginTop: '32px',
@@ -104,7 +105,7 @@ isLoading={statsState.isLoading}
             
                 <img
                   alt= {t('common:image_not_available')}
-                  src={process.env.PUBLIC_URL + "/svg/gamification/levels/" + rowData.levelName+'.svg'} 
+                  src={appConfig.gamificationUrl + "levels/" + rowData.levelName+'.svg'} 
                   // src={
                   //   !!rowData.competitors.levelName
                   //     ? rowData.user.imageUrl

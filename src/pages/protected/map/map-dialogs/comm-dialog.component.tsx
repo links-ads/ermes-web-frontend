@@ -94,7 +94,7 @@ export function CommunicationDialog(
                             dispatchEditAction({ type: "SCOPE", value: event.target.value })
                             if(event.target.value == CommunicationScopeType.PUBLIC)
                             dispatchEditAction({ type: "RESTRICTION", value: CommunicationRestrictionType.NONE })
-                            console.log('HEY', String(event.target.value),editState.scope, CommunicationScopeType.RESTRICTED,  event.target.value == CommunicationScopeType.PUBLIC)
+                            //console.log('HEY', String(event.target.value),editState.scope, CommunicationScopeType.RESTRICTED,  event.target.value == CommunicationScopeType.PUBLIC)
                         }}
                     >
                         {scopeTypes.map((e) => (

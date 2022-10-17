@@ -3,6 +3,7 @@ Ver.
 - Bugfix - Fixed opacity slider bug, crash on layer time slider (#89) 
 - Feature - Fixed search function in panels with active filters, shown always report creator (#90)
 - Bugfix - made tweet photos https instead of http on master branch (#92)
+- Feature - Updated gamification citizen page with url for icons, removed local images, added gamification translation files (#88)
 
 Ver. 1.9.2 - 2022-10-10
 -----------------------
