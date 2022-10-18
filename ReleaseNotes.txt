@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 1.9.3 - 2022-10-14
+-----------------------
 - Bugfix - Fixed opacity slider bug, crash on layer time slider (#89) 
 - Feature - Fixed search function in panels with active filters, shown always report creator (#90)
 - Feature - Added organization change when modifying users, fixed roles and username fields when sending (#85)
