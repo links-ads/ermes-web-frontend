@@ -26,9 +26,12 @@ import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import DeleteIcon from '@material-ui/icons/Delete'
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import SkipNextIcon from '@material-ui/icons/SkipNext'
-import { LayerImportStatusType, MapRequestStatusType } from 'ermes-ts-sdk'
+import { CommunicationRestrictionType, LayerImportStatusType, MapRequestStatusType, MissionStatusType } from 'ermes-ts-sdk'
 import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
+import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
+import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -190,11 +193,71 @@ export default function MapRequestsPanel(props) {
     return () => window.removeEventListener('resize', resizeHeight)
   })
   const [deletionState, deleteMapRequest] = useDeleteMapRequest()
+  const [fetchingStateById, getMapRequestById] = useMapRequestById()
   const DeleteRequest = (partnerName: string, id: string) => {
     let listTodelete: string[] = ([partnerName + '.' + id])
     deleteMapRequest(listTodelete)
   }
 
+  const FetchRequest = (id: string) => {
+    getMapRequestById(
+      id,
+      (data) => {
+        return data
+      },
+      {},
+      (data) => {
+        return data
+      })
+  }
+const [ copyState, setCopystate ] = useState<any | null>(null)
+  useEffect(() => {
+
+    if (!!fetchingStateById.data.feature) {
+      let fetchedArea = JSON.parse(fetchingStateById.data.feature.geometry)
+   
+      let ids: string [] = []
+        if(fetchingStateById.data.feature.properties.mapRequestLayers.length>0){
+          for(let i=0; i<fetchingStateById.data.feature.properties.mapRequestLayers.length; i++){
+            ids.push(fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId.toString())
+          }
+        }
+        const defaultEditState = {
+          title: "",
+          coordinatorType: CoordinatorType.NONE,
+          orgId: -1,
+          teamId: -1,
+          userId: -1,
+          startDate: !!fetchingStateById.data.feature.properties.duration.lowerBound? new Date(fetchingStateById.data.feature.properties.duration.lowerBound) : new Date(),
+          endDate: !!fetchingStateById.data.feature.properties.duration.upperBound? new Date(fetchingStateById.data.feature.properties.duration.upperBound): null,
+          description: "",
+          status: MissionStatusType.CREATED,
+          frequency: !!fetchingStateById.data.feature.properties.frequency?fetchingStateById.data.feature.properties.frequency:"0",
+          dataType: ids.length>0 ? ids : [],
+          resolution: !!fetchingStateById.data.feature.properties.resolution?fetchingStateById.data.feature.properties.resolution:"10",
+          restrictionType: CommunicationRestrictionType.NONE,
+          scope: null
+        }
+        setCopystate(defaultEditState)
+        let areaObject = {'type':'Feature','properties':{}, 'geometry':fetchedArea}
+        showFeaturesDialog('create', 'MapRequest','', areaObject)
+    }
+  }, [fetchingStateById])
+
+  const onFeatureDialogClose = useCallback(
+    (status: DialogResponseType) => {
+      console.debug('onFeatureDialogClose', status)
+      // clearFeatureEdit()
+
+      if (status === 'confirm') {
+        console.log('onFeatureDialogClose [confirm]')
+        props.fetchGeoJson(undefined)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+  const showFeaturesDialog = useMapDialog(onFeatureDialogClose, copyState)
   useEffect(() => {
     if (!!deletionState.data.deletedMapRequestCodes) {
 
@@ -306,6 +369,7 @@ export default function MapRequestsPanel(props) {
                     getLegend={getLegend}
                     getMeta={getMeta}
                     DeleteRequest={DeleteRequest}
+                    FetchRequestById={FetchRequest}
                   />
                   )
                 })}
@@ -367,9 +431,6 @@ function MapRequestCard(props) {
     event.stopPropagation();
     const opacity: number = newValue as number
     //setOpacity(opacity)
-
-    console.log('evval', event.target.value, opacity, name)
-
     props.map.setPaintProperty(
       //layerName,
       name,
@@ -391,7 +452,6 @@ function MapRequestCard(props) {
   }
 
   function formatDate(date: string) {
-
     // return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
     return new Date(date as string).toLocaleDateString('it')
   }
@@ -403,7 +463,6 @@ function MapRequestCard(props) {
           return layerArray[i]
       }
     }
-
     return null
   }
 
@@ -573,6 +632,15 @@ function MapRequestCard(props) {
     return tr
   }
 
+
+  // const duplicateDialog = () => {
+  //   //RESUME FROM HERE
+  //   showFeaturesDialog(
+  //     'duplicate',
+  //     'MapRequest',
+  //     editingFeatureId ? editingFeatureId + '' : ''
+  //   )
+  // }
   return (
     <CardWithPopup
       key={'map-request' + String(elem.id)}
@@ -589,22 +657,31 @@ function MapRequestCard(props) {
     >
       <CardContent key={elem.code}>
         <div className={classes.headerBlock} key={elem.code + '_sub'}>
-          <Box component="div" display="inline-block" key={elem.code + '_box'}>
-            <Typography
-              gutterBottom
-              variant="h5"
-              component="h2"
-              style={{ marginBottom: '0px' }}
-            >
-              {elem.code}
-            </Typography>
-          </Box>
-          {(elem.status != MapRequestStatusType.CANCELED) ?(
-          <IconButton
-            onClick={() => props.DeleteRequest('links', elem.code)}>
-            <DeleteIcon />
-          </IconButton>
-          ):null}
+          <div>
+            <Box component="div" display="inline-block" key={elem.code + '_box'}>
+
+              <Typography
+                gutterBottom
+                variant="h5"
+                component="h2"
+                style={{ marginBottom: '0px' }}
+              >
+                {elem.code}
+              </Typography>
+            </Box>
+          </div>
+          <div>
+            <IconButton
+              onClick={() => props.FetchRequestById(elem.id)}>
+              <FileCopyIcon />
+            </IconButton>
+            {(elem.status != MapRequestStatusType.CANCELED) ? (
+              <IconButton
+                onClick={() => props.DeleteRequest('links', elem.code)}>
+                <DeleteIcon />
+              </IconButton>
+            ) : null}
+          </div>
         </div>
         <div className={classes.pos}>
           <div >

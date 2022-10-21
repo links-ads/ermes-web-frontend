@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Bugfix - added default english language to social tweets (#94)
+- Feature - Added option to duplicate map requests (#93)
 
 Ver. 1.9.3 - 2022-10-14
 -----------------------

@@ -105,7 +105,6 @@ const mapRequestCard = (
   latitude,
   longitude
 ) => {
-  console.log(details)
   return (
     <Card elevation={0}>
       <CardContent style={{ paddingTop: '10px' }}>
