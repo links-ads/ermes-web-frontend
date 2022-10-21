@@ -77,11 +77,9 @@ const defaultEditState = {
 
 export function useMapDialog(onDialogClose: (data: any) => void, customState: any | null) {
   const initialEditState = useMemo(() => { 
-    console.log(customState)
     if(!!customState) return customState 
     else return defaultEditState }, [customState])
   const setinitialEditState = (customState) => { 
-      console.log('customstate', customState)
       if(customState!=null) return customState 
       else return defaultEditState }
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
@@ -316,15 +314,15 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
       case 'MapRequest':
         console.log("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
         hideDialog() //hide dialog immediately since success and errors are shown externally
-        // handleAPICall(() => {
-        // return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
-        // },successMessage , () => {
-        //   //hideDialog()
-        //   onDialogClose('confirm')
-        // }, () => {
-        //   //hideDialog()
-        //   onDialogClose('cancel')
-        // })
+        handleAPICall(() => {
+        return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
+        },successMessage , () => {
+          //hideDialog()
+          onDialogClose('confirm')
+        }, () => {
+          //hideDialog()
+          onDialogClose('cancel')
+        })
         break;
       case 'Communication':
         console.log("CREATE COMMUNICATION with ", getFeatureDto(editState, dialogState))

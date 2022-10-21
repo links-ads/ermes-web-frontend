@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Added option to duplicate map requests (#93)
 
 Ver. 1.9.3 - 2022-10-14
 -----------------------

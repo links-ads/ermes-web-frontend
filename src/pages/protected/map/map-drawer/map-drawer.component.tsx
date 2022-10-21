@@ -188,6 +188,7 @@ export default function MapDrawer(props) {
               getLegend={props.getLegend}
               getMeta={props.getMeta}
               forceUpdate={props.forceUpdate}
+              fetchGeoJson = {props.fetchGeoJson}
             />
           </TabPanel>
 

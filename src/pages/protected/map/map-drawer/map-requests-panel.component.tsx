@@ -216,10 +216,10 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
     if (!!fetchingStateById.data.feature) {
       let fetchedArea = JSON.parse(fetchingStateById.data.feature.geometry)
    
-      let ids: any [] = []
+      let ids: string [] = []
         if(fetchingStateById.data.feature.properties.mapRequestLayers.length>0){
           for(let i=0; i<fetchingStateById.data.feature.properties.mapRequestLayers.length; i++){
-            ids.push(fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId)
+            ids.push(fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId.toString())
           }
         }
         const defaultEditState = {
@@ -431,9 +431,6 @@ function MapRequestCard(props) {
     event.stopPropagation();
     const opacity: number = newValue as number
     //setOpacity(opacity)
-
-    console.log('evval', event.target.value, opacity, name)
-
     props.map.setPaintProperty(
       //layerName,
       name,
@@ -455,7 +452,6 @@ function MapRequestCard(props) {
   }
 
   function formatDate(date: string) {
-
     // return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
     return new Date(date as string).toLocaleDateString('it')
   }
@@ -467,7 +463,6 @@ function MapRequestCard(props) {
           return layerArray[i]
       }
     }
-
     return null
   }
 
