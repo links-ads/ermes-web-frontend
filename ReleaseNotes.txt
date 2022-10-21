@@ -1,5 +1,8 @@
 Ver.
 -----------------------
+
+Ver. 1.9.4 - 2022-10-21
+-----------------------
 - Bugfix - added default english language to social tweets (#94)
 - Feature - Updated gamification citizen page with url for icons, removed local images, added gamification translation files (#88)
 - Bugfix - Fixed event tweet background color (#91)
