@@ -12,6 +12,18 @@ export interface FiltersType {
 
 }
 
+export interface FiltersSocialType {
+    datestart: Date
+    dateend: Date
+    languageSelect?: string []
+    hazardSelect?: []
+    infoTypeSelect?: []
+    informativeSelect?: string,
+    southWest?:[number,number] | undefined,
+    northEast?:[number,number] | undefined
+
+}
+
 const filterReducer = (currentFilters: FiltersType, action: any): FiltersType => {
     switch (action.type) {
         case 'START_DATE':
