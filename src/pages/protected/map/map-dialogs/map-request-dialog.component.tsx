@@ -44,6 +44,7 @@ export function MapRequestDialog(
     }, [])
 
     const dataTypeOptions = useMemo(() => {
+        
         if (Object.entries(apiHandlerState.result).length === 0)
             return []
         else {
@@ -62,7 +63,7 @@ export function MapRequestDialog(
         }
 
     }, [apiHandlerState])
-
+console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
@@ -120,12 +121,12 @@ export function MapRequestDialog(
                             dispatchEditAction({ type: "DATATYPE", value: event.target.value })
                         }}
                     >
-                        {Object.entries(dataTypeOptions).map((e) => (
+                        {Object.entries(dataTypeOptions).map((e) => {console.log('datatype e', e, typeof(e[0])); return(
                             <MenuItem key={e[0]} value={e[0]}>
                                 <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
                                 <ListItemText primary={e[1]} />
                             </MenuItem>
-                        ))}
+                        )})}
                     </Select>
                     {(editError && editState.dataType.length<1)?
                     (
