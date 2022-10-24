@@ -49,6 +49,6 @@
     "url": "https://api-test.shelter-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator", "first_responder"]
+    "filters": ["administrator","user", "admin"]
   }
 }

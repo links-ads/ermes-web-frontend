@@ -49,6 +49,6 @@
     "url": "https://api-test.faster-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator", "first_responder"]
+    "filters": ["administrator","user", "admin"]
   }
 }

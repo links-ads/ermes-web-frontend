@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Bugfix - Fixed filters for viewing and editing users roles (#95)
 
 Ver. 1.9.4 - 2022-10-21
 -----------------------

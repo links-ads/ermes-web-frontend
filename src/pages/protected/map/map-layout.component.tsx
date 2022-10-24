@@ -178,7 +178,6 @@ export function MapLayout(props) {
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
       if (status === 'confirm') {
-        console.log('onFeatureDialogClose [confirm]')
         props.fetchGeoJson(undefined)
       }
     },

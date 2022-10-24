@@ -68,9 +68,6 @@
     "url": "https://api-dev.faster-project.cloud"
   },
   "userTagsFilter": {
-    "filters": [
-      "administrator",
-      "first_responder"
-    ]
+    "filters": ["administrator","user", "admin"]
   }
 }

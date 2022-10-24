@@ -53,6 +53,10 @@ function localizeColumns(
 ): Column<ProfileDto>[] {
   const lookupKeys = Object.keys(orgLookup)
   const empty = lookupKeys[0]
+
+  /**
+   * UserRoles controls what roles tags are available in visualization/edit, the filter value is found in config.json/userTagsFilter
+   */
   const UserRoles = (rolesData.map((r) => r.name) as string[]).filter((r) => userTagsFilter.indexOf(r) === -1).filter((r) => r != ROLE_CITIZEN) //removed citizen option
   //const defaultRole = (rolesData as any[]).find((r) => r.default)?.name
   const defaultRole = ROLE_FIRST_RESPONDER
@@ -88,7 +92,6 @@ function localizeColumns(
         // when not editing, render them as a list of chips
         return <div className={classes.chipContainer}>
           { rowData?.user?.roles?.map((value) => {
-           // console.log('rowdata', value)
            return ( UserRoles.indexOf(value) !== -1 ? (
               <Chip key={value} label={t('common:role_' + value)} size="small" className={classes.chipStyle} />
             ) : null
@@ -154,14 +157,16 @@ export function Users() {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const userAPIFactory = UsersApiFactory(backendAPIConfig)
+  //fetch active roles from server
   const [rolesData, fetchRoles] = useRolesList()
 
   const { displayErrorSnackbar } = useSnackbars()
+  //fetch active users from server
   const { usersData, isUserLoading, loadUsers, setUserUpdating, updating } = useUsersList()
-//console.log('med',usersData)
   const isOverallLoading: boolean = updating || isOrgLoading || isUserLoading
   const [runningSelectorID, setRunningSelectorID] = useState(0)
   const appConfig = useContext<AppConfig>(AppConfigContext)
+  //get filter list from env config
   const userTagsFilter = appConfig.userTagsFilter?.filters
 
   const localization = useMemo(

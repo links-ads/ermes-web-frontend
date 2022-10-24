@@ -368,8 +368,6 @@ function MapRequestCard(props) {
     const opacity: number = newValue as number
     //setOpacity(opacity)
 
-    console.log('evval', event.target.value, opacity, name)
-
     props.map.setPaintProperty(
       //layerName,
       name,
