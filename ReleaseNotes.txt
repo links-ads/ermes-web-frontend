@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - Fixed filters for viewing and editing users roles (#95)
+
+Ver. 1.9.4 - 2022-10-21
+-----------------------
 - Bugfix - added default english language to social tweets (#94)
 - Feature - Added option to duplicate map requests (#93)
 

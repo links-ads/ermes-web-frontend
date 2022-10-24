@@ -431,6 +431,7 @@ function MapRequestCard(props) {
     event.stopPropagation();
     const opacity: number = newValue as number
     //setOpacity(opacity)
+
     props.map.setPaintProperty(
       //layerName,
       name,
