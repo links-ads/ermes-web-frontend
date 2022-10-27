@@ -1,5 +1,6 @@
 {
   "envTag": "",
+  "gamificationUrl":"https://fasterblobstorage.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": [
       "dark",
@@ -10,7 +11,8 @@
   "i18n": {
     "ns": [
       "common",
-      "errors"
+      "errors", 
+      "gamification"
     ],
     "defaultNS": "common",
     "fallbackNS": "common",
@@ -66,9 +68,6 @@
     "url": "https://api-dev.faster-project.cloud"
   },
   "userTagsFilter": {
-    "filters": [
-      "administrator",
-      "first_responder"
-    ]
+    "filters": ["administrator","user", "admin"]
   }
 }

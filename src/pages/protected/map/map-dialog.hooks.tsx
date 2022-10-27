@@ -202,7 +202,6 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
           cancelLabel={t("maps:dialog_cancel")}
           onConfirm={() => {
             if (!checkInputForms(editState, dialogState)) {
-              console.log('error is true')
               setEditError(true)
             }
             else {

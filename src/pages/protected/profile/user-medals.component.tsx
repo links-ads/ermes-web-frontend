@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useContext } from 'react'
 import Card from '@material-ui/core/Card'
 import CardHeader from '@material-ui/core/CardHeader'
 import CardActions from '@material-ui/core/CardActions'
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import {  useUser } from '../../../state/auth/auth.hooks'
 import { Avatar } from '@material-ui/core'
 import styled from 'styled-components'
+import { AppConfig, AppConfigContext } from '../../../config'
 const AvatarContainer = styled.div.attrs({ className: 'avatar-container' })`
   display: flex;
   flex-grow: 1;
@@ -51,6 +52,7 @@ export const UserMedals = memo(function UserMedals() {
   const { profile } = useUser()
   const uMedals = (profile as any).medals
 //console.log('med',uMedals)
+const appConfig = useContext<AppConfig>(AppConfigContext)
   return profile ? (
     <Card style={{ margin: 'auto',
             
@@ -105,7 +107,8 @@ export const UserMedals = memo(function UserMedals() {
           
               <img
                 alt= {t('common:image_not_available')}
-                src={process.env.PUBLIC_URL + "/svg/gamification/medals/" + (rowData as any).name+'.svg'} 
+                src={appConfig.gamificationUrl + "medals/" +(rowData as any).name+'.svg'} 
+               
                 // src={
                 //   !!rowData.competitors.levelName
                 //     ? rowData.user.imageUrl
@@ -116,7 +119,14 @@ export const UserMedals = memo(function UserMedals() {
             ),
             initialEditValue: ''
           },
-            { title: t('common:description'), field:'name'},
+            { title: t('common:description'), field:'name',
+            render: (rowData) => {
+              return <Typography>
+              {t('gamification:'+(rowData as any).name.toLowerCase())}
+            </Typography>
+             
+               }
+          },
         
           ]}
 

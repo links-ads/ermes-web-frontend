@@ -1,7 +1,7 @@
 import { Typography } from '@material-ui/core';
 import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import React from 'react';
-import { FiltersType } from '../common/filters/reducer';
+import { FiltersSocialType, FiltersType } from '../common/filters/reducer';
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface';
 import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
 
@@ -145,6 +145,20 @@ export const getDefaultFilterArgs = (mapConfig) => {
     southWest: mapConfig?.mapBounds?.southWest || DEFAULT_MAP_BOUNDS.southWest,
     northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
   } as FiltersType
+}
+
+export const getDefaultFilterSocialArgs = (mapConfig) => {
+  const currentDate = new Date()
+  return {
+    datestart: new Date(currentDate.valueOf() - _MS_PER_DAY),
+    dateend: currentDate,
+    languageSelect: [SocialModuleLanguageType.EN],
+    hazardSelect: [],
+    infoTypeSelect: [],
+    informativeSelect: 'true',
+    southWest: mapConfig?.mapBounds?.southWest || DEFAULT_MAP_BOUNDS.southWest,
+    northEast: mapConfig?.mapBounds?.northEast || DEFAULT_MAP_BOUNDS.northEast
+  } as FiltersSocialType
 }
 
 export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoNames, renderInformative = true) => {

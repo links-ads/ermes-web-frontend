@@ -439,7 +439,6 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
 
 const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) => {
   if (!data.isLoading) {
-    console.log('Dettagli', data)
     return (
       <>
         <Card elevation={0}>

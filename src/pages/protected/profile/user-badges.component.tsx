@@ -1,33 +1,11 @@
-import React, { memo } from 'react'
+import React, { memo, useContext } from 'react'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import MaterialTable, { Column, Options } from 'material-table'
 import Typography from '@material-ui/core/Typography'
 import { useTranslation } from 'react-i18next'
 import {  useUser } from '../../../state/auth/auth.hooks'
-import styled from 'styled-components'
-const AvatarContainer = styled.div.attrs({ className: 'avatar-container' })`
-  display: flex;
-  flex-grow: 1;
-  width: 100%;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 0px 32px 16px 32px;
-  box-sizing: border-box;
-`
-
-const StyledTable = styled(MaterialTable)`
-  .mat-table{
-    overflow-x: scroll;
-    overflow-y: auto;
-    
-      }
-  .mat-cell, .mat-header-cell {
-
-  }
-`
-
-
+import { AppConfig, AppConfigContext } from '../../../config'
 const options: Options<any> = {
   sorting: false,
   search: false,
@@ -43,6 +21,7 @@ export const UserBadges = memo(function UserBadges() {
 
   const { profile } = useUser()
   const uBadges = (profile as any).badges
+  const appConfig = useContext<AppConfig>(AppConfigContext)
 
   return profile ? (
     <Card style={{ margin: 'auto',
@@ -68,7 +47,6 @@ export const UserBadges = memo(function UserBadges() {
           }
           //options={options}
           options={{ ...options, minBodyHeight: '326px', maxBodyHeight: '326px' }}
-          //localization={localization}
           data={uBadges}
           columns={ 
             [
@@ -99,19 +77,20 @@ export const UserBadges = memo(function UserBadges() {
           
               <img
                 alt= {t('common:image_not_available')}
-                src={process.env.PUBLIC_URL + "/svg/gamification/badges/" + (rowData as any).name+'.svg'} 
-                // src={
-                //   !!rowData.competitors.levelName
-                //     ? rowData.user.imageUrl
-                //     : 'https://via.placeholder.com/40x40.png?text=' + t('common:image_not_available')
-                // }
+                src={appConfig.gamificationUrl + "badges/" +(rowData as any).name+'.svg'} 
                 style={{ width: 40, borderRadius: '50%' }}
               />
             ),
             initialEditValue: ''
           },
-           { title: t('common:description'), field:'name'},
-        
+           { title: t('common:description'),
+            field:'name',
+            render:(rowData)=>(
+              <Typography>
+          {t('gamification:'+ rowData.name.toLowerCase())}
+            </Typography>
+            )
+          },
           ]}
 
         />

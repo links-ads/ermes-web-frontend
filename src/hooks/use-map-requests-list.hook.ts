@@ -72,7 +72,6 @@ export default function useMapRequestList() {
                 undefined)
                 .then((result) => {
                     let newData: MapRequestDto[] = transformData(result.data.data) || [] // Where is MapRequestsDto
-                    console.log('NEW DATA MAP REQUEST', newData)
                     let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
                     dispatch({
                         type: 'RESULT',
