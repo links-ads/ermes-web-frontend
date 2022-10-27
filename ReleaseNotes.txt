@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 1.10.0 - 2022-10-27
+-----------------------
 - Feature - Added option to duplicate map requests (#93)
 - Bugfix - Fixed filters for viewing and editing users roles (#95)
 
