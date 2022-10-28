@@ -5,7 +5,8 @@ import TodayIcon from '@material-ui/icons/Today'
 
 import {
     MuiPickersUtilsProvider,
-    DateTimePicker
+    DateTimePicker, 
+    DatePicker
 } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
 
@@ -28,7 +29,7 @@ export function MapRequestDialog(
         editError
     }: React.PropsWithChildren<GenericDialogProps>
 ) {
-    const { dateFormat } = useLanguage()
+    //const { dateFormat } = useLanguage()
     const { t } = useTranslation(['maps', 'labels'])
     const endAdornment = useMemo(() => {
         return (<IconButton>
@@ -43,13 +44,17 @@ export function MapRequestDialog(
         handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
     }, [])
 
+/**
+ * object that represents the list elements in the createmaprequest layers dropdown;
+ * typescript and javascript keep the dictionaries ordered by key, so the elements
+ * order is different from what comes form the apis
+ */
     const dataTypeOptions = useMemo(() => {
         
         if (Object.entries(apiHandlerState.result).length === 0)
             return []
         else {
             const entries = [] as any[]
-
             apiHandlerState.result.data.layerGroups.forEach(group => {
                 group.subGroups.forEach(subGroup => {
                     subGroup.layers.forEach(layer => {
@@ -59,7 +64,7 @@ export function MapRequestDialog(
                     })
                 })
             })
-            return Object.fromEntries(entries)
+            return Object.fromEntries(entries) //this method orders elements by the keys, could be a way to sort the contents of a dictionary
         }
 
     }, [apiHandlerState])
@@ -68,35 +73,44 @@ console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
         <Grid container direction='column'>
             <Grid container direction='row'>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <DateTimePicker
+                    <DatePicker
                         style={{ paddingTop: 0, marginTop: 0 }}
                         variant="inline"
-                        format={dateFormat}
+                        format={"dd/MM/yyyy"}
                         margin="normal"
                         id="start-date-picker-inline"
                         label={t('common:date_picker_test_start')}
                         value={editState.startDate}
-                        onChange={d => dispatchEditAction({ type: 'START_DATE', value: d as Date })}
+                       
+                        onChange={d => {
+                            if(d!=null){
+                                let d1 = new Date(d?.setHours(0,0,0,0))
+                                return dispatchEditAction({ type: 'START_DATE', value: d1 as Date })
+                            }}}
                         disableFuture={false}
                         autoOk={true}
-                        ampm={false}
+                      
                         clearable={true}
                         InputProps={{
                             endAdornment: endAdornment
                         }}
                     />
-                    <DateTimePicker
+                    <DatePicker
                         style={{ paddingTop: 0, marginTop: 0 }}
                         variant="inline"
-                        format={dateFormat}
+                        format={"dd/MM/yyyy"}
                         margin="normal"
                         id="end-date-picker-inline"
                         label={t('common:date_picker_test_end')}
                         value={editState.endDate}
-                        onChange={d => dispatchEditAction({ type: 'END_DATE', value: d as Date })}
+                        onChange={d => {
+                            if(d!=null){
+                                let d1 = new Date(d?.setHours(23,59,59,0))
+                                return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
+                            }}}
                         disableFuture={false}
                         autoOk={true}
-                        ampm={false}
+                       
                         error={editError && !editState.endDate}
                         helperText={editError && !editState.endDate && t("maps:mandatory_field")}
                         minDate={editState.startDate}

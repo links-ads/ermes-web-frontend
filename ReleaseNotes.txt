@@ -1,6 +1,10 @@
 Ver.
 -----------------------
 - Bugfix - Fixed filters for viewing and editing users roles (#95)
+- Bugfix - implemented spider closing on click on map, fixed maprequest timestamps, removed HRs selection from mapRequest creation ref #97 when selecting 
+more than one datatype in the maprequest, if there are more than one timestamp the sliders of timestamp and opacity have problems for the datatypes that 
+are not the last one selected, the problem is probably located in map-request-panel.component.tsx and map-layout.component.tsx, when choosing the layer to 
+modify (add/remove) and the sliders' layer target
 
 Ver. 1.9.4 - 2022-10-21
 -----------------------

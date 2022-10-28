@@ -113,17 +113,20 @@ export function LayersPlayer(props) {
   const [opacity, setOpacity] = useState<number>(100);
   const { t } = useTranslation(['maps'])
   const [ layerName, setLayerName ] = useState('')
+
   const layerProps = useMemo(()=>{
     switch(layerSelection.isMapRequest){
       case NO_LAYER_SELECTED:
         return null
-      case 0:
+      case 0: //it's not a maprequestlayer, picking layerId2Tiles[0][dataypeId of the layer selected]
         return layerId2Tiles[layerSelection.isMapRequest][layerSelection.dataTypeId]
-      case 1:
+      case 1: //it's a maprequestlayer, picking layerId2Tiles[1][id of the maprequest element clicked][dataypeId of the layer selected]
+
         setLayerName(layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId].names[0])
         return layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId]
     }
   },[layerSelection])
+
   const insideData = {
     name: layerProps
       ? layerProps.name
@@ -142,6 +145,12 @@ export function LayersPlayer(props) {
   // console.log('LayersPlayer', props.layerId2Tiles)
   // console.log('LayerID', props.layerSelection)
 
+  /**
+   * updates the values then the slider is moved
+   * at the moment metadatas and labels are the same for each timestamp
+   * @param value the index of the slider
+   * @returns the timestamp to visualize as title
+   */
   function valuetext(value) {
     setLayerName(insideData.labels[value])
     props.onPlayerChange(insideData.labels[value], insideData.metadatas[value], insideData.name)

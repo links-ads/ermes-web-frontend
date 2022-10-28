@@ -13,7 +13,7 @@ import { Typography } from '@material-ui/core';
 import Paper from '@material-ui/core/Paper';
 
 import SocialMap from './map/map-layout.component';
-import { filterObjApplyHandler, getDefaultFilterArgs, getDefaultFilterSocialArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
+import { filterObjApplyHandler,  getDefaultFilterSocialArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
 import InteractiveMap from 'react-map-gl';
 
 import useFilters from '../../../hooks/use-filters.hook'
@@ -53,6 +53,7 @@ const SocialComponent = (props) => {
     const [shownData, setShownData] = useState({ size: 0, data: [] as any[] })
     const [tabValue, setTabValue] = React.useState(0);
     
+    //retreive the language filter from user filters configuration
     const [socialFiltersMem, setSocialFiltersMem, , ] = useMemoryState('memstate-social',JSON.stringify(getDefaultFilterSocialArgs(mapConfig)))
     const [socialFiltersState, setSocialFiltersState] = useState(JSON.parse(socialFiltersMem!))
 

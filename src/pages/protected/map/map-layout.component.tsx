@@ -185,6 +185,8 @@ export function MapLayout(props) {
     []
   )
 
+
+
   // Display wizard or confirm dialog for features
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose, null)
 
@@ -195,8 +197,11 @@ export function MapLayout(props) {
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
   const [activeSources, setActiveSources] = useState<any>({})
-  const removeSource = (arr, element) => { let tmp = arr; delete tmp[element]; return tmp }
+  const removeSourceFromArray = (arr, element) => { let tmp = arr; delete tmp[element]; return tmp }
 
+  /**
+   * method that adds and removes different layers on map
+   */
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     const mapTileId = geoLayerState.tileId
@@ -214,6 +219,7 @@ export function MapLayout(props) {
       )
       source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }
 
+      //if the layer is not a maprequest only one layer can be on the map, just remove the source
       if (!props.layerSelection.multipleLayersAllowed) {
         try {
           if (mapTileId !== null) {
@@ -224,13 +230,15 @@ export function MapLayout(props) {
           console.error('An error occurred', err)
         }
       }
+      //it is a maprequest, multiple layers can be active
       else {
-
+        //the first element of the active sources (the active layers)
         let firstkey = (Object.keys(activeSources)[0] != null ? Object.keys(activeSources)[0].split("_")[0]  : '')
+        //selected is the name of the maprequest
         let selected = props.layerSelection.layerClicked.split("_")[0]
         var tmp=activeSources
+        //if firstkey and selected are different, we are swapping maprequest so we must clear the map
         if(firstkey !== selected){
-          
           try {
             for(let key in activeSources){
               let titletoremove = activeSources[key]
@@ -244,11 +252,30 @@ export function MapLayout(props) {
             console.error('An error occurred', err)
           }
         }
+        //if the maprequest is the same, we still must check if we are only changing timestamps cause if so we need to remove the previous
+        try {
+
+            let tryTitletoremove = activeSources[props.layerSelection.layerClicked]
+            if(!!tryTitletoremove){
+              if (map.getLayer(tryTitletoremove)) {
+                map.removeLayer(tryTitletoremove)
+                map.removeSource(tryTitletoremove)
+                //removing only the tryTitletoremove element form the activesources array
+                let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
+                tmp = removedSource
+              }
+            }
+
+          
+        } catch (err) {
+          console.error('An error occurred', err)
+        }
+  
         
         tmp[props.layerSelection.layerClicked]= geoLayerName
         setActiveSources(tmp)
-        //}
       }
+
       map.addSource(geoLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
@@ -276,8 +303,7 @@ export function MapLayout(props) {
           try {
 
             let titletoremove = activeSources[props.layerSelection.layerClicked]
-            let removedSource = removeSource(activeSources, props.layerSelection.layerClicked)
-
+            let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
             setActiveSources(removedSource)
             if (map.getLayer(titletoremove)) {
               map.removeLayer(titletoremove)
@@ -291,9 +317,21 @@ export function MapLayout(props) {
         }
       }
     }
-
   }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
+  
+  const handleOpacityChangeLocal =  useMemo(() =>  {
+    const map = mapViewRef.current?.getMap()!
+    const opacity: number = props.singleLayerOpacityStatus[0] as number
 
+    if(!!map && !!props.singleLayerOpacityStatus){
+    map.setPaintProperty(
+      //layerName,
+      props.singleLayerOpacityStatus[1],
+      'raster-opacity',
+      props.singleLayerOpacityStatus[0] / 100
+    )}
+   },[props.singleLayerOpacityStatus]
+  )
   useEffect(
     () => {
       if (editingFeatureType !== null) {

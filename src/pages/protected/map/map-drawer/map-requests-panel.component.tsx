@@ -155,7 +155,6 @@ export default function MapRequestsPanel(props) {
   const [height, setHeight] = React.useState(window.innerHeight)
   const [activeL, setActiveL] = useState<string[]>([])
   const [activeParent, setParent] = useState('')
-  const [dateIndex, setDateIndex] = useState<number>(0)
 
   const resizeHeight = () => {
     setHeight(window.innerHeight)
@@ -290,7 +289,6 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
     }
   }, [deletionState])
 
-
   return (
     <div className="container">
       <span>
@@ -346,7 +344,7 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
               }
               scrollableTarget="scrollableElem"
             >
-              {mapRequestsData.data
+              {mapRequestsData.data //sFilter is ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable'], so it filters out the other statuses
                 .filter(e => sFilter.includes(e.status))   //use the filters to visualize the maprequests in side panel without having to open and close it
                 .map((elem, i) => {
                   return (<MapRequestCard
@@ -359,17 +357,20 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
                     spiderifierRef={props.spiderifierRef}
                     layerSelection={props.layerSelection}
                     setLayerSelection={props.setLayerSelection}
-                    layerId2Tiles={props.layerId2Tiles}
+                    layerId2Tiles={props.layerId2Tiles} //in props.layerId2Tiles[1] are the maprequests datas
                     activeParent={activeParent}
                     setParent={setParent}
                     activeL={activeL}
                     setActiveL={setActiveL}
-                    setDateIndex={setDateIndex}
-                    dateIndex={dateIndex}
+                    setDateIndex={props.setDateIndex}
+                    dateIndex={props.dateIndex}
                     getLegend={getLegend}
                     getMeta={getMeta}
                     DeleteRequest={DeleteRequest}
                     FetchRequestById={FetchRequest}
+                    updateCurrentLayer={props.updateCurrentLayer}
+                    onPlayerChange = {props.onPlayerChange}
+                    handleOpacityChange={props.handleOpacityChange}
                   />
                   )
                 })}
@@ -395,30 +396,48 @@ function MapRequestCard(props) {
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   const classes = useStyles()
 
-  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef, layerSelection, setLayerSelection, setParent, activeParent, setActiveL, activeL, dateIndex, getMeta, getLegend, setDateIndex } = props
+  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef,  setLayerSelection,
+     setParent, activeParent, setActiveL, activeL, dateIndex, getMeta, getLegend, setDateIndex,  handleOpacityChange } = props
 
+  /**
+   * 
+   * @param arr The original array
+   * @param element the element to remove
+   * @returns the array without the element
+   */
   const removeSource = (arr, element) => { let tmp = arr.filter(item => item !== element); return tmp }
 
+  /**
+   * this method handles the radiobutton for each layer on a mapRequest, tho coordinate it
+   * with adding and removing it in the map
+   */
   const handleRadioClick = (event: any) => {
     let selected = event.target.value.split("_")[1]
     let parent = event.target.value.split("_")[0]
     var tmp = ['']
-    //if ((layerSelection.mapRequestCode === elem.code) && (selected === layerSelection.dataTypeId)) {
-    if (!getcheckedState(event.target.value)) { //se mnon è checked 
+
+    //if the layer is not checked
+    if (!getcheckedState(event.target.value)) { 
+      //check if the maprequest element already has active layers, if it has
       if (activeParent == parent) {
+        //prepare by adding the layer to the array of active layers
         tmp = [...activeL, event.target.value]
-        // setActiveL([...activeL, event.target.value])
       }
       else {
+        //if it is not already the layers, clear the active array by reinitializing with only the current element
         tmp = [event.target.value]
-        //setActiveL([event.target.value])
+        //set the parent maprequest as active
         setParent(parent)
       }
+      //update the map
       setLayerSelection({ isMapRequest: 1, mapRequestCode: elem.code, dataTypeId: selected, multipleLayersAllowed: true, layerClicked: event.target.value })
-    } else { //se è checked
+    } else { 
+      //if it is checked, remove it from the list of selected layers
       tmp = removeSource(activeL, event.target.value)
+      //remove it from the map
       setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: true, layerClicked: event.target.value })
     }
+    //update the list of active layers with the tmp array
     setActiveL(tmp)
   }
 
@@ -426,20 +445,28 @@ function MapRequestCard(props) {
     return (activeL.includes(id))
   })
 
-
-  const handleOpacityChange = (event: any, newValue: number | number[], name: string) => {
+/**
+ * 
+ * @param event 
+ * @param newValue new opacity
+ * @param name name of the layer to change opacity to
+ */
+  const handleOpacityChangeLocal = (event: any, newValue: number | number[], name: string) => {
     event.stopPropagation();
-    const opacity: number = newValue as number
-    //setOpacity(opacity)
 
+    const opacity: number = newValue as number
     props.map.setPaintProperty(
       //layerName,
       name,
       'raster-opacity',
       opacity / 100
     )
+   // handleOpacityChange([opacity, name])
   }
 
+  /**
+   * handles when the user has gone to the end of the timestamps slider
+   */
   const skipNext = useCallback(async (dateIndex: number, timestampsLength: number, setDateIndex) => {
     if (dateIndex < timestampsLength - 1) {
       setDateIndex(dateIndex + 1)
@@ -453,10 +480,15 @@ function MapRequestCard(props) {
   }
 
   function formatDate(date: string) {
-    // return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
     return new Date(date as string).toLocaleDateString('it')
   }
 
+  /**
+   * 
+   * @param layerArray the array of maprequestlayers
+   * @param layerId the datatypeid of the layer I want
+   * @returns the layer object (es. [errorMessage:null  layerDataTypeId:36001  mapRequestCode:"mr00000021" status:"Completed"])
+   */
   const getSingleLayer = (layerArray: any[], layerId: string) => {
     if (!!layerArray) {
       for (let i = 0; i < layerArray.length; i++) {
@@ -467,6 +499,14 @@ function MapRequestCard(props) {
     return null
   }
 
+  /**
+   * A single layer of the maprequest element
+   * @param lArr array of data containing, for each array element [errorMessage:null  layerDataTypeId:36003 mapRequestCode:"mr00000022" status:"Completed"]
+   * lArr is created in getMapRequestsData() mapRequestsData.data.[for each element].mapRequestLayers
+   * @param layerDataP dictionary of elements each being (corresponding to the same lArr elem) [key: 36003 content: metadataId, name, names, namesTimes, timestamps]
+   * layerDataP is created in src/pages/protected/map/map.compontent.tsx/Map()/layerId2Tiles = useMemo(...)
+   * @returns 
+   */
   const singleAccordionElement = (lArr: any[], layerDataP: any) => {
 
     let tr: any[] = []
@@ -475,6 +515,7 @@ function MapRequestCard(props) {
       let layerData = layerDataP[dataTypeId]
       if (!!layerData) {
         if (lArr[i].status == LayerImportStatusType.COMPLETED) {
+          //show the complete layout only if the status of the mapRequest is completed
           tr.push(
             <div style={{ marginTop: '5px', marginBottom: '5px' }} >
               <div style={{ display: 'flex', flexDirection: 'row' }}>
@@ -526,11 +567,15 @@ function MapRequestCard(props) {
                       layerData.timestamps.length > 1 ? (
                         <span className={classes.spanContainer}>
                           <div className={classes.sliderContainer} style={{ marginTop: '10px', marginLeft: '5px' }}>
+                            {/**
+                             * Slider of the timestamps of the layers in each maprequesty
+                             */
+                            }
                             <Slider
                               className={classes.slider}
                               aria-label="Temperature"
                               defaultValue={0}
-
+                              //getAriaValueText={valuetext}
                               valueLabelDisplay="on"
                               step={1}
                               //value={dateIndex}
@@ -540,6 +585,7 @@ function MapRequestCard(props) {
                               color="secondary"
                               onChange={(event, value) => {
                                 setDateIndex(value)
+                                //valuetext(value)
                               }}
                             />
                           </div>
@@ -586,7 +632,7 @@ function MapRequestCard(props) {
                       color="secondary"
                       disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
                       onChange={(event, value) => {
-                        handleOpacityChange(event, value, layerData.names[dateIndex])
+                        handleOpacityChangeLocal(event, value, layerData.names[dateIndex])
                       }}
                     //onChange={layerData.names[dateIndex]}
                     />
@@ -632,16 +678,6 @@ function MapRequestCard(props) {
     }
     return tr
   }
-
-
-  // const duplicateDialog = () => {
-  //   //RESUME FROM HERE
-  //   showFeaturesDialog(
-  //     'duplicate',
-  //     'MapRequest',
-  //     editingFeatureId ? editingFeatureId + '' : ''
-  //   )
-  // }
   return (
     <CardWithPopup
       key={'map-request' + String(elem.id)}
