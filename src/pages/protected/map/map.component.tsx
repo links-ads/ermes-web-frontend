@@ -165,21 +165,42 @@ export function Map() {
     mapRequestDataTypes = [...new Set(mapRequestDataTypes)]
 
     let data2Tiles = {}
+    /**dictionary of key: "name of the maprequest" -  content: another dictionary that has
+    * as key the datatypeid (es. Incendio e mappa area bruciata), as content 
+    * {
+    * name: the name associated to the datatypeid
+    * names: string[] the names of the layers containing the maprequests 
+    * namesTimes: dictionary key: timestamp content: name of the layer corresponding at the timestamp (they are the same of names)
+    * timestamps: string[] of timestamps
+    * }
+    * */
     let mapRequestData2Tiles = {}
 
     getLayersState.result.data['layerGroups'].forEach((group) => {
       group['subGroups'].forEach((subGroup) => {
         subGroup['layers'].forEach((layer) => {
-
-          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {
+          //if the layer is of a datatype that I know is in a mapRequest
+          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {        
             layer['details'].forEach((detail) => {
+              //check if that layer belongs to the result of a maprequest
               if (detail['mapRequestCode']) {
+                //add the request name as key to the mapRequestData2Tiles dictionary
                 if (!(detail['mapRequestCode'] in mapRequestData2Tiles)) {
                   mapRequestData2Tiles[detail['mapRequestCode']] = {}
                 }
+                /**if the datatypeid is not yet into the mapRequestData2Tiles[maprequestname] that has it
+                 * insert into the dataype element the datatypeid name
+                 * and create an epty dictionary nameTimes to be used after this
+                 */
                 if (!(layer['dataTypeId'] in mapRequestData2Tiles[detail['mapRequestCode']])) {
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = { name: layer['name'], namesTimes: {} }
                 }
+                /**for each timestaps element in each detail, insert 
+                 * in the corresponding maprequest name element, 
+                 *    in the corresponding datatypeid,
+                 * the field 'metadataId' (the id needed when you call getmeta())
+                 * in the dictionary 'namesTimes' add the pair 
+                */
                 detail['timestamps'].forEach((timestamp) => {
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['metadataId'] = detail['metadata_Id']
                   mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][timestamp] = detail['name']
@@ -187,6 +208,7 @@ export function Map() {
               }
             })
           } else {
+            //frequency onDemand means it is a maprequest, already handled in the block above
             if (layer['frequency'] === 'OnDemand') return
             
             let namestimesDict: { [key: string]: string } = {}
@@ -211,6 +233,9 @@ export function Map() {
         })
       })
     })
+    /**
+     * add the fields 'timestamps' and 'names' to the mapRequestData2Tiles object
+     */
     Object.keys(mapRequestData2Tiles).forEach((mapRequestCode) => {
       Object.keys(mapRequestData2Tiles[mapRequestCode]).forEach((dataTypeId) => {
         mapRequestData2Tiles[mapRequestCode][dataTypeId]['timestamps'] = Object.keys(mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes'])
@@ -398,6 +423,8 @@ export function Map() {
   const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number } | undefined>(undefined)
   const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
 
+  const [ singleLayerOpacityStatus, handleOpacityChange ] = useState <[ number, string]> ([100, ''])
+
   useEffect(() => {
     if (toggleSideDrawer) {
 
@@ -456,6 +483,14 @@ export function Map() {
     }
   }, [toggleSideDrawer])
 
+
+
+  /**
+   * 
+   * @param value 
+   * @param metadataId 
+   * @param layerName 
+   */
   function changePlayer(value, metadataId, layerName) {
     setLayerName(layerName)
     if (toggleLegend) {
@@ -524,10 +559,18 @@ export function Map() {
     showImage(await res.blob());
   }
 
+  /**
+   * called when the user clicks on another layer
+   * @param layerName the name of the new layer to be displayed on map
+   */
   function updateCurrentLayer(layerName: string) {
     setCurrentLayerName(layerName)
   }
 
+  /**
+   * called when metadata button is clicked
+   * @param metaId the metadataid of the layer to display data of
+   */
   function getMeta(metaId: string) {
     layersApiFactory.layersGetMetadata(
       metaId,
@@ -565,6 +608,9 @@ export function Map() {
         getMeta={getMeta}
         forceUpdate={forceUpdate}
         teamList={teamList}
+        updateCurrentLayer={updateCurrentLayer}
+        onPlayerChange = {changePlayer}
+        handleOpacityChange = {handleOpacityChange}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
@@ -671,6 +717,7 @@ export function Map() {
             dateIndex={dateIndex}
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
+            singleLayerOpacityStatus = {singleLayerOpacityStatus}
 
           />
         </MapStateContextProvider>

@@ -188,6 +188,9 @@ export default function MapDrawer(props) {
               getLegend={props.getLegend}
               getMeta={props.getMeta}
               forceUpdate={props.forceUpdate}
+              updateCurrentLayer={props.updateCurrentLayer}
+              onPlayerChange = {props.onPlayerChange}
+              handleOpacityChange = {props.handleOpacityChange}
             />
           </TabPanel>
 

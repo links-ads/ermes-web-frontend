@@ -39,9 +39,9 @@ export function onMapLeftClickHandler<T extends object>(
   const clear = (map: mapboxgl.Map) => {
     setLeftClickedFeature(null)
     setRightClickedFeature(null)
-    // if (spiderifierRef.current && mapViewRef.current) {
-    //   spiderifierRef.current.clearSpiders(map)
-    // }
+    if (spiderifierRef.current && mapViewRef.current) {  //this if enables the closing of the spider iff it is open and user clicks somewhere on the map
+      spiderifierRef.current.clearSpiders(map)
+    }
   }
 
   if (map && Array.isArray(features) && features.length > 0) {

@@ -58,7 +58,7 @@ export default function useCommList() {
   const fetchCommunications = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-console.log('6')
+
       commApiFactory
         .communicationsGetCommunications(
           (filters?.datestart as any)?.selected,

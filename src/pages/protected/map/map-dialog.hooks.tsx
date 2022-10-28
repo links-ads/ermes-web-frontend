@@ -56,14 +56,18 @@ export type EditActionType = {
   type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY" | "RESOLUTION" | "RESTRICTION" | "SCOPE"
   value?: Date | string | any
 }
-
+const getStartDayDate = () =>{
+  let d = new Date()
+  let d1 = new Date(d.setHours(0,0,0,0))
+  return d1
+}
 const defaultEditState = {
   title: "",
   coordinatorType: CoordinatorType.NONE,
   orgId: -1,
   teamId: -1,
   userId: -1,
-  startDate: new Date(),
+  startDate: getStartDayDate(),
   endDate: null,
   description: "",
   status: MissionStatusType.CREATED,
@@ -74,7 +78,12 @@ const defaultEditState = {
   scope: null
 }
 
-
+/**
+ * 
+ * @param currentState the status of the create poup to be modified
+ * @param action the action broadcasted
+ * @returns 
+ */
 const editReducer = (currentState: EditStateType, action: EditActionType): EditStateType => {
   switch (action.type) {
     case 'START_DATE':
@@ -264,8 +273,13 @@ export function useMapDialog(onDialogClose: (data: any) => void) {
     }
   }
 
+  /**
+   *  method that checks if the forms are filled and the parameters correct once the user clicks 'confirm' in a create popup
+   * @param editState state representing all the parameters to check
+   * @param dialogState type of the popup 
+   * @returns 
+   */
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
-    // console.log("FREQUENCY",editState.frequency,typeof editState.frequency,isNaN(editState.frequency))
     if (!editState.endDate) return false
     if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
     if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
