@@ -178,7 +178,6 @@ export function MapLayout(props) {
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
       if (status === 'confirm') {
-        console.log('onFeatureDialogClose [confirm]')
         props.fetchGeoJson(undefined)
       }
     },
@@ -189,7 +188,7 @@ export function MapLayout(props) {
 
 
   // Display wizard or confirm dialog for features
-  const showFeaturesDialog = useMapDialog(onFeatureDialogClose)
+  const showFeaturesDialog = useMapDialog(onFeatureDialogClose, null)
 
   // Variable checked to draw polygons to the map
   const [polyToMap, setPolyToMap] = useState<undefined | { feature }>(undefined)

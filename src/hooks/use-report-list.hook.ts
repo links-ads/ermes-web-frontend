@@ -98,7 +98,6 @@ export default function useReportList() {
     // setFilters(newFilters)
   }
   const applySearchFilterReloadData = (query: string) => {
-    console.log('pallyingfilters', query)
     dispatch(initialState)
     setQuerySearch(query)
   }

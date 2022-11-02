@@ -5,6 +5,12 @@ more than one datatype in the maprequest, if there are more than one timestamp t
 are not the last one selected, the problem is probably located in map-request-panel.component.tsx and map-layout.component.tsx, when choosing the layer to 
 modify (add/remove) and the sliders' layer target
 
+
+Ver. 1.10.0 - 2022-10-27
+-----------------------
+- Feature - Added option to duplicate map requests (#93)
+- Bugfix - Fixed filters for viewing and editing users roles (#95)
+
 Ver. 1.9.4 - 2022-10-21
 -----------------------
 - Bugfix - added default english language to social tweets (#94)

@@ -611,6 +611,7 @@ export function Map() {
         updateCurrentLayer={updateCurrentLayer}
         onPlayerChange = {changePlayer}
         handleOpacityChange = {handleOpacityChange}
+        fetchGeoJson={fetchGeoJson}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}

@@ -49,6 +49,6 @@
     "url": "https://api-test.safers-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator"]
+    "filters": ["administrator","user", "admin"]
   }
 }

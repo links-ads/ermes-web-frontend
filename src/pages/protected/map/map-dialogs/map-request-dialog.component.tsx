@@ -50,6 +50,7 @@ export function MapRequestDialog(
  * order is different from what comes form the apis
  */
     const dataTypeOptions = useMemo(() => {
+        
         if (Object.entries(apiHandlerState.result).length === 0)
             return []
         else {
@@ -67,7 +68,7 @@ export function MapRequestDialog(
         }
 
     }, [apiHandlerState])
-
+console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
