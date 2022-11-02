@@ -2,7 +2,7 @@ Ver.
 -----------------------
 
 
-Ver. 1.10.1 - 2022-10-27
+Ver. 2.0.0 - 2022-10-27
 -----------------------
 - Bugfix - implemented spider closing on click on map, fixed maprequest timestamps, removed HRs selection from mapRequest creation ref #97 when selecting 
 more than one datatype in the maprequest, if there are more than one timestamp the sliders of timestamp and opacity have problems for the datatypes that 
