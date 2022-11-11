@@ -188,10 +188,10 @@ export default function MapDrawer(props) {
               getLegend={props.getLegend}
               getMeta={props.getMeta}
               forceUpdate={props.forceUpdate}
-              fetchGeoJson = {props.fetchGeoJson}
               updateCurrentLayer={props.updateCurrentLayer}
               onPlayerChange = {props.onPlayerChange}
               handleOpacityChange = {props.handleOpacityChange}
+              fetchGeoJson = {props.fetchGeoJson}
             />
           </TabPanel>
 

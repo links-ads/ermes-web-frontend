@@ -1,15 +1,26 @@
 Ver.
 -----------------------
 - Bugfix - Fixed filters for viewing and editing users roles (#95)
+
+
+Ver. 2.0.0 - 2022-10-27
+-----------------------
 - Bugfix - implemented spider closing on click on map, fixed maprequest timestamps, removed HRs selection from mapRequest creation ref #97 when selecting 
 more than one datatype in the maprequest, if there are more than one timestamp the sliders of timestamp and opacity have problems for the datatypes that 
 are not the last one selected, the problem is probably located in map-request-panel.component.tsx and map-layout.component.tsx, when choosing the layer to 
 modify (add/remove) and the sliders' layer target
 
+
+Ver. 1.10.0 - 2022-10-27
+-----------------------
+- Feature - Added option to duplicate map requests (#93)
+- Bugfix - Fixed filters for viewing and editing users roles (#95)
+
 Ver. 1.9.4 - 2022-10-21
 -----------------------
 - Bugfix - added default english language to social tweets (#94)
-- Feature - Added option to duplicate map requests (#93)
+- Feature - Updated gamification citizen page with url for icons, removed local images, added gamification translation files (#88)
+- Bugfix - Fixed event tweet background color (#91)
 
 Ver. 1.9.3 - 2022-10-14
 -----------------------
