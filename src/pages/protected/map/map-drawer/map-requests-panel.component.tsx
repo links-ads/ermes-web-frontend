@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,16 @@ import CardWithPopup from './card-with-popup.component'
 
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { Accordion, AccordionDetails, AccordionSummary, Box, FormControl, FormControlLabel, Checkbox, FormGroup } from '@material-ui/core'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  FormControl,
+  FormControlLabel,
+  Checkbox,
+  FormGroup
+} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'
@@ -26,9 +35,14 @@ import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import DeleteIcon from '@material-ui/icons/Delete'
-import FileCopyIcon from '@material-ui/icons/FileCopy';
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
-import { CommunicationRestrictionType, LayerImportStatusType, MapRequestStatusType, MissionStatusType } from 'ermes-ts-sdk'
+import {
+  CommunicationRestrictionType,
+  LayerImportStatusType,
+  MapRequestStatusType,
+  MissionStatusType
+} from 'ermes-ts-sdk'
 import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
 import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
@@ -122,27 +136,24 @@ const useStyles = makeStyles((theme) => ({
   },
   playerContainer: {
     paddingTop: '5px',
-    width: '90%',
+    width: '90%'
   },
   spanContainer: {
     display: 'flex',
     flexDirection: 'row',
     width: '100%'
-
   },
 
   oneDatapoint: {
-
     width: '100%',
     textAlign: 'center',
     color: theme.palette.text.disabled
   },
 
   separator: {
-
     backgroundColor: theme.palette.primary.contrastText,
     height: '1px'
-  },
+  }
 }))
 
 export default function MapRequestsPanel(props) {
@@ -185,7 +196,8 @@ export default function MapRequestsPanel(props) {
       }
     )
   }, [getMapRequestsData])
-  const sFilter: string[] = props.filters.content.filter(e => e.name === 'map_request_status')[0].selected
+  const sFilter: string[] = props.filters.content.filter((e) => e.name === 'map_request_status')[0]
+    .selected
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
@@ -194,7 +206,7 @@ export default function MapRequestsPanel(props) {
   const [deletionState, deleteMapRequest] = useDeleteMapRequest()
   const [fetchingStateById, getMapRequestById] = useMapRequestById()
   const DeleteRequest = (partnerName: string, id: string) => {
-    let listTodelete: string[] = ([partnerName + '.' + id])
+    let listTodelete: string[] = [partnerName + '.' + id]
     deleteMapRequest(listTodelete)
   }
 
@@ -207,39 +219,53 @@ export default function MapRequestsPanel(props) {
       {},
       (data) => {
         return data
-      })
+      }
+    )
   }
-const [ copyState, setCopystate ] = useState<any | null>(null)
+  const [copyState, setCopystate] = useState<any | null>(null)
   useEffect(() => {
-
     if (!!fetchingStateById.data.feature) {
       let fetchedArea = JSON.parse(fetchingStateById.data.feature.geometry)
-   
-      let ids: string [] = []
-        if(fetchingStateById.data.feature.properties.mapRequestLayers.length>0){
-          for(let i=0; i<fetchingStateById.data.feature.properties.mapRequestLayers.length; i++){
-            ids.push(fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId.toString())
-          }
+
+      let ids: string[] = []
+      if (fetchingStateById.data.feature.properties.mapRequestLayers.length > 0) {
+        for (
+          let i = 0;
+          i < fetchingStateById.data.feature.properties.mapRequestLayers.length;
+          i++
+        ) {
+          ids.push(
+            fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId.toString()
+          )
         }
-        const defaultEditState = {
-          title: "",
-          coordinatorType: CoordinatorType.NONE,
-          orgId: -1,
-          teamId: -1,
-          userId: -1,
-          startDate: !!fetchingStateById.data.feature.properties.duration.lowerBound? new Date(fetchingStateById.data.feature.properties.duration.lowerBound) : new Date(),
-          endDate: !!fetchingStateById.data.feature.properties.duration.upperBound? new Date(fetchingStateById.data.feature.properties.duration.upperBound): null,
-          description: "",
-          status: MissionStatusType.CREATED,
-          frequency: !!fetchingStateById.data.feature.properties.frequency?fetchingStateById.data.feature.properties.frequency:"0",
-          dataType: ids.length>0 ? ids : [],
-          resolution: !!fetchingStateById.data.feature.properties.resolution?fetchingStateById.data.feature.properties.resolution:"10",
-          restrictionType: CommunicationRestrictionType.NONE,
-          scope: null
-        }
-        setCopystate(defaultEditState)
-        let areaObject = {'type':'Feature','properties':{}, 'geometry':fetchedArea}
-        showFeaturesDialog('create', 'MapRequest','', areaObject)
+      }
+      const defaultEditState = {
+        title: '',
+        coordinatorType: CoordinatorType.NONE,
+        orgId: -1,
+        teamId: -1,
+        userId: -1,
+        startDate: !!fetchingStateById.data.feature.properties.duration.lowerBound
+          ? new Date(fetchingStateById.data.feature.properties.duration.lowerBound)
+          : new Date(),
+        endDate: !!fetchingStateById.data.feature.properties.duration.upperBound
+          ? new Date(fetchingStateById.data.feature.properties.duration.upperBound)
+          : null,
+        description: '',
+        status: MissionStatusType.CREATED,
+        frequency: !!fetchingStateById.data.feature.properties.frequency
+          ? fetchingStateById.data.feature.properties.frequency
+          : '0',
+        dataType: ids.length > 0 ? ids : [],
+        resolution: !!fetchingStateById.data.feature.properties.resolution
+          ? fetchingStateById.data.feature.properties.resolution
+          : '10',
+        restrictionType: CommunicationRestrictionType.NONE,
+        scope: null
+      }
+      setCopystate(defaultEditState)
+      let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
+      showFeaturesDialog('create', 'MapRequest', '', areaObject)
     }
   }, [fetchingStateById])
 
@@ -259,14 +285,12 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose, copyState)
   useEffect(() => {
     if (!!deletionState.data.deletedMapRequestCodes) {
-
       if (deletionState.data.deletedMapRequestCodes?.length > 0) {
         let elemToChange: string = deletionState.data.deletedMapRequestCodes[0].split('.')[1]
         var indexToChange: number = -1
 
         for (let i = 0; i < mapRequestsData.data.length; i++) {
           if (mapRequestsData.data[i].code == elemToChange) {
-
             indexToChange = i
           }
         }
@@ -283,7 +307,6 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
               return data
             }
           )
-
         }
       }
     }
@@ -319,7 +342,9 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
-          <ItemCounter itemCount={mapRequestsData.data.filter(e => sFilter.includes(e.status)).length} />
+          <ItemCounter
+            itemCount={mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length}
+          />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -335,7 +360,12 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
                 )
               }}
               dataLength={mapRequestsData.data.length}
-              hasMore={mapRequestsData.data.length >= mapRequestsData.data.filter(e => sFilter.includes(e.status)).length ? false : true}
+              hasMore={
+                mapRequestsData.data.length >=
+                mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length
+                  ? false
+                  : true
+              }
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -345,33 +375,34 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data //sFilter is ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable'], so it filters out the other statuses
-                .filter(e => sFilter.includes(e.status))   //use the filters to visualize the maprequests in side panel without having to open and close it
+                .filter((e) => sFilter.includes(e.status)) //use the filters to visualize the maprequests in side panel without having to open and close it
                 .map((elem, i) => {
-                  return (<MapRequestCard
-                    key={'map_request_card_' + i}
-                    elem={elem}
-                    setGoToCoord={props.setGoToCoord}
-                    map={props.map}
-                    setMapHoverState={props.setMapHoverState}
-                    spiderLayerIds={props.spiderLayerIds}
-                    spiderifierRef={props.spiderifierRef}
-                    layerSelection={props.layerSelection}
-                    setLayerSelection={props.setLayerSelection}
-                    layerId2Tiles={props.layerId2Tiles} //in props.layerId2Tiles[1] are the maprequests datas
-                    activeParent={activeParent}
-                    setParent={setParent}
-                    activeL={activeL}
-                    setActiveL={setActiveL}
-                    setDateIndex={props.setDateIndex}
-                    dateIndex={props.dateIndex}
-                    getLegend={getLegend}
-                    getMeta={getMeta}
-                    DeleteRequest={DeleteRequest}
-                    updateCurrentLayer={props.updateCurrentLayer}
-                    onPlayerChange = {props.onPlayerChange}
-                    handleOpacityChange={props.handleOpacityChange}
-                    FetchRequestById={FetchRequest}
-                  />
+                  return (
+                    <MapRequestCard
+                      key={'map_request_card_' + i}
+                      elem={elem}
+                      setGoToCoord={props.setGoToCoord}
+                      map={props.map}
+                      setMapHoverState={props.setMapHoverState}
+                      spiderLayerIds={props.spiderLayerIds}
+                      spiderifierRef={props.spiderifierRef}
+                      layerSelection={props.layerSelection}
+                      setLayerSelection={props.setLayerSelection}
+                      layerId2Tiles={props.layerId2Tiles} //in props.layerId2Tiles[1] are the maprequests datas
+                      activeParent={activeParent}
+                      setParent={setParent}
+                      activeL={activeL}
+                      setActiveL={setActiveL}
+                      setDateIndex={props.setDateIndex}
+                      dateIndex={props.dateIndex}
+                      getLegend={getLegend}
+                      getMeta={getMeta}
+                      DeleteRequest={DeleteRequest}
+                      updateCurrentLayer={props.updateCurrentLayer}
+                      onPlayerChange={props.onPlayerChange}
+                      handleOpacityChange={props.handleOpacityChange}
+                      FetchRequestById={FetchRequest}
+                    />
                   )
                 })}
             </InfiniteScroll>
@@ -383,7 +414,6 @@ const [ copyState, setCopystate ] = useState<any | null>(null)
 }
 
 function MapRequestCard(props) {
-
   const { t } = useTranslation(['common', 'maps'])
 
   const [playing, setPlaying] = useState(false)
@@ -396,63 +426,93 @@ function MapRequestCard(props) {
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
   const classes = useStyles()
 
-  const { elem, setGoToCoord, map, setMapHoverState, spiderLayerIds, spiderifierRef,  setLayerSelection,
-     setParent, activeParent, setActiveL, activeL, dateIndex, getMeta, getLegend, setDateIndex,  handleOpacityChange } = props
+  const {
+    elem,
+    setGoToCoord,
+    map,
+    setMapHoverState,
+    spiderLayerIds,
+    spiderifierRef,
+    setLayerSelection,
+    setParent,
+    activeParent,
+    setActiveL,
+    activeL,
+    dateIndex,
+    getMeta,
+    getLegend,
+    setDateIndex,
+    handleOpacityChange
+  } = props
 
   /**
-   * 
+   *
    * @param arr The original array
    * @param element the element to remove
    * @returns the array without the element
    */
-  const removeSource = (arr, element) => { let tmp = arr.filter(item => item !== element); return tmp }
+  const removeSource = (arr, element) => {
+    let tmp = arr.filter((item) => item !== element)
+    return tmp
+  }
 
   /**
    * this method handles the radiobutton for each layer on a mapRequest, tho coordinate it
    * with adding and removing it in the map
    */
   const handleRadioClick = (event: any) => {
-    let selected = event.target.value.split("_")[1]
-    let parent = event.target.value.split("_")[0]
+    let selected = event.target.value.split('_')[1]
+    let parent = event.target.value.split('_')[0]
     var tmp = ['']
 
     //if the layer is not checked
-    if (!getcheckedState(event.target.value)) { 
+    if (!getcheckedState(event.target.value)) {
       //check if the maprequest element already has active layers, if it has
       if (activeParent == parent) {
         //prepare by adding the layer to the array of active layers
         tmp = [...activeL, event.target.value]
-      }
-      else {
+      } else {
         //if it is not already the layers, clear the active array by reinitializing with only the current element
         tmp = [event.target.value]
         //set the parent maprequest as active
         setParent(parent)
       }
       //update the map
-      setLayerSelection({ isMapRequest: 1, mapRequestCode: elem.code, dataTypeId: selected, multipleLayersAllowed: true, layerClicked: event.target.value })
-    } else { 
+      setLayerSelection({
+        isMapRequest: 1,
+        mapRequestCode: elem.code,
+        dataTypeId: selected,
+        multipleLayersAllowed: true,
+        layerClicked: event.target.value
+      })
+    } else {
       //if it is checked, remove it from the list of selected layers
       tmp = removeSource(activeL, event.target.value)
       //remove it from the map
-      setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: true, layerClicked: event.target.value })
+      setLayerSelection({
+        isMapRequest: NO_LAYER_SELECTED,
+        mapRequestCode: NO_LAYER_SELECTED,
+        dataTypeId: NO_LAYER_SELECTED,
+        multipleLayersAllowed: true,
+        layerClicked: event.target.value
+      })
     }
     //update the list of active layers with the tmp array
     setActiveL(tmp)
   }
 
-  const getcheckedState = ((id: string) => {
-    return (activeL.includes(id))
-  })
+  const getcheckedState = (id: string) => {
+    return activeL.includes(id)
+  }
 
-/**
- * 
- * @param event 
- * @param newValue new opacity
- * @param name name of the layer to change opacity to
- */
+  /**
+   *
+   * @param event
+   * @param newValue new opacity
+   * @param name name of the layer to change opacity to
+   */
   const handleOpacityChangeLocal = (event: any, newValue: number | number[], name: string) => {
-    event.stopPropagation();
+    event.stopPropagation()
 
     const opacity: number = newValue as number
     props.map.setPaintProperty(
@@ -461,19 +521,22 @@ function MapRequestCard(props) {
       'raster-opacity',
       opacity / 100
     )
-   // handleOpacityChange([opacity, name])
+    // handleOpacityChange([opacity, name])
   }
 
   /**
    * handles when the user has gone to the end of the timestamps slider
    */
-  const skipNext = useCallback(async (dateIndex: number, timestampsLength: number, setDateIndex) => {
-    if (dateIndex < timestampsLength - 1) {
-      setDateIndex(dateIndex + 1)
-    } else {
-      setDateIndex(0)
-    }
-  }, [])
+  const skipNext = useCallback(
+    async (dateIndex: number, timestampsLength: number, setDateIndex) => {
+      if (dateIndex < timestampsLength - 1) {
+        setDateIndex(dateIndex + 1)
+      } else {
+        setDateIndex(0)
+      }
+    },
+    []
+  )
 
   async function playPause() {
     setPlaying(!playing)
@@ -484,7 +547,7 @@ function MapRequestCard(props) {
   }
 
   /**
-   * 
+   *
    * @param layerArray the array of maprequestlayers
    * @param layerId the datatypeid of the layer I want
    * @returns the layer object (es. [errorMessage:null  layerDataTypeId:36001  mapRequestCode:"mr00000021" status:"Completed"])
@@ -492,8 +555,7 @@ function MapRequestCard(props) {
   const getSingleLayer = (layerArray: any[], layerId: string) => {
     if (!!layerArray) {
       for (let i = 0; i < layerArray.length; i++) {
-        if (layerArray[i].layerDataTypeId == layerId)
-          return layerArray[i]
+        if (layerArray[i].layerDataTypeId == layerId) return layerArray[i]
       }
     }
     return null
@@ -505,10 +567,9 @@ function MapRequestCard(props) {
    * lArr is created in getMapRequestsData() mapRequestsData.data.[for each element].mapRequestLayers
    * @param layerDataP dictionary of elements each being (corresponding to the same lArr elem) [key: 36003 content: metadataId, name, names, namesTimes, timestamps]
    * layerDataP is created in src/pages/protected/map/map.compontent.tsx/Map()/layerId2Tiles = useMemo(...)
-   * @returns 
+   * @returns
    */
   const singleAccordionElement = (lArr: any[], layerDataP: any) => {
-
     let tr: any[] = []
     for (let i = 0; i < lArr.length; i++) {
       let dataTypeId = lArr[i].layerDataTypeId
@@ -517,27 +578,32 @@ function MapRequestCard(props) {
         if (lArr[i].status == LayerImportStatusType.COMPLETED) {
           //show the complete layout only if the status of the mapRequest is completed
           tr.push(
-            <div style={{ marginTop: '5px', marginBottom: '5px' }} >
+            <div style={{ marginTop: '5px', marginBottom: '5px' }}>
               <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <FormControlLabel style={{ flex: 2 }}
+                <FormControlLabel
+                  style={{ flex: 2 }}
                   key={dataTypeId}
-                  value={elem.code + "_" + dataTypeId}
-                  control={<Checkbox
-                    onClick={handleRadioClick}
-                    checked={getcheckedState(elem.code + "_" + dataTypeId)}
-                  />}
+                  value={elem.code + '_' + dataTypeId}
+                  control={
+                    <Checkbox
+                      onClick={handleRadioClick}
+                      checked={getcheckedState(elem.code + '_' + dataTypeId)}
+                    />
+                  }
                   label={layerData['name']}
                 />
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
-
                   <IconButton
                     onClick={() => {
-                      if (typeof (layerData.metadataId) == 'object')
+                      if (typeof layerData.metadataId == 'object')
                         getMeta(layerData.metadataId[dateIndex])
-                      else if (typeof (layerData.metadataId) == 'string')
+                      else if (typeof layerData.metadataId == 'string')
                         getMeta(layerData.metadataId)
                       else
-                        console.log('no metadata procedure implemented for type', typeof (layerData.metadataId))
+                        console.log(
+                          'no metadata procedure implemented for type',
+                          typeof layerData.metadataId
+                        )
                     }}
                   >
                     <MetaIcon />
@@ -552,73 +618,76 @@ function MapRequestCard(props) {
                 </div>
               </div>
               {
-
                 <div>
                   <div style={{ display: 'flex', flexDirection: 'row' }}>
-                    <Typography >
-                      {t('labels:status')}:&nbsp;
-                    </Typography>
-                    <Typography >
-                      {t('labels:' + getSingleLayer(elem.mapRequestLayers, dataTypeId).status.toLowerCase())}
+                    <Typography>{t('labels:status')}:&nbsp;</Typography>
+                    <Typography>
+                      {t(
+                        'labels:' +
+                          getSingleLayer(elem.mapRequestLayers, dataTypeId).status.toLowerCase()
+                      )}
                     </Typography>
                   </div>
                   <div className={classes.playerContainer}>
-                    {
-                      layerData.timestamps.length > 1 ? (
-                        <span className={classes.spanContainer}>
-                          <div className={classes.sliderContainer} style={{ marginTop: '10px', marginLeft: '5px' }}>
-                            {/**
-                             * Slider of the timestamps of the layers in each maprequesty
-                             */
-                            }
-                            <Slider
-                              className={classes.slider}
-                              aria-label="Temperature"
-                              defaultValue={0}
-                              //getAriaValueText={valuetext}
-                              valueLabelDisplay="on"
-                              step={1}
-                              //value={dateIndex}
-                              disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
-                              min={0}
-                              max={layerData.timestamps.length - 1}
-                              color="secondary"
-                              onChange={(event, value) => {
-                                setDateIndex(value)
-                                //valuetext(value)
-                              }}
-                            />
-                          </div>
-                          <div className={classes.buttonsContainer} style={{ paddingTop: '10px' }}>
-                            <IconButton aria-label="play/pause" onClick={playPause}>
-                              {playing ? (
-                                <PauseIcon style={{ height: 45, width: 45 }} />
-                              ) : (
-                                <PlayArrowIcon style={{ height: 45, width: 45 }} />
-                              )}
-                            </IconButton>
-                            <IconButton
-                              aria-label="next"
-                              onClick={() => skipNext(dateIndex, layerData.timestamps.length, setDateIndex)}
-                            >
-                              <SkipNextIcon />
-                            </IconButton>
-                          </div>
-                        </span>
-                      ) : (
-                        <div>
-                          <Typography >
-                            {'Timestamp: ' + formatDate(layerData.timestamps[0])}
-                          </Typography>
+                    {layerData.timestamps.length > 1 ? (
+                      <span className={classes.spanContainer}>
+                        <div
+                          className={classes.sliderContainer}
+                          style={{ marginTop: '10px', marginLeft: '5px' }}
+                        >
+                          {/**
+                           * Slider of the timestamps of the layers in each maprequesty
+                           */}
+                          <Slider
+                            className={classes.slider}
+                            aria-label="Temperature"
+                            defaultValue={0}
+                            //getAriaValueText={valuetext}
+                            valueLabelDisplay="on"
+                            step={1}
+                            //value={dateIndex}
+                            disabled={!getcheckedState(elem.code + '_' + dataTypeId)}
+                            min={0}
+                            max={layerData.timestamps.length - 1}
+                            color="secondary"
+                            onChange={(event, value) => {
+                              setDateIndex(value)
+                              //valuetext(value)
+                            }}
+                          />
                         </div>
-                      )
-                    }
+                        <div className={classes.buttonsContainer} style={{ paddingTop: '10px' }}>
+                          <IconButton aria-label="play/pause" onClick={playPause}>
+                            {playing ? (
+                              <PauseIcon style={{ height: 45, width: 45 }} />
+                            ) : (
+                              <PlayArrowIcon style={{ height: 45, width: 45 }} />
+                            )}
+                          </IconButton>
+                          <IconButton
+                            aria-label="next"
+                            onClick={() =>
+                              skipNext(dateIndex, layerData.timestamps.length, setDateIndex)
+                            }
+                          >
+                            <SkipNextIcon />
+                          </IconButton>
+                        </div>
+                      </span>
+                    ) : (
+                      <div>
+                        <Typography>
+                          {'Timestamp: ' + formatDate(layerData.timestamps[0])}
+                        </Typography>
+                      </div>
+                    )}
                   </div>
-                  <div className={classes.sliderContainer} style={{ paddingTop: '5px', alignItems: 'flex-start' }} >
+                  <div
+                    className={classes.sliderContainer}
+                    style={{ paddingTop: '5px', alignItems: 'flex-start' }}
+                  >
                     <label htmlFor="opacity-slider" style={{ marginRight: '10px' }}>
-                      <Typography >
-                        {t('maps:opacity')}:&nbsp;
-                      </Typography >
+                      <Typography>{t('maps:opacity')}:&nbsp;</Typography>
                     </label>
                     <Slider
                       id={layerData.name}
@@ -630,50 +699,39 @@ function MapRequestCard(props) {
                       max={100}
                       aria-label={layerData.name}
                       color="secondary"
-                      disabled={!getcheckedState(elem.code + "_" + dataTypeId)}
+                      disabled={!getcheckedState(elem.code + '_' + dataTypeId)}
                       onChange={(event, value) => {
                         handleOpacityChangeLocal(event, value, layerData.names[dateIndex])
                       }}
-                    //onChange={layerData.names[dateIndex]}
+                      //onChange={layerData.names[dateIndex]}
                     />
                   </div>
                 </div>
-
               }
               <div className={classes.separator} />
             </div>
           )
-        }
-        else tr.push(
-          <div>
-            <Typography >
-              {lArr[i].layerDataTypeId}
-            </Typography>
+        } else
+          tr.push(
+            <div>
+              <Typography>{lArr[i].layerDataTypeId}</Typography>
 
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-              <Typography >
-                {t('labels:status')}:&nbsp;
-              </Typography>
-              <Typography >
-                {lArr[i].status}
-              </Typography>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-              {lArr[i].status == LayerImportStatusType.ERROR ?
-                (
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                <Typography>{t('labels:status')}:&nbsp;</Typography>
+                <Typography>{lArr[i].status}</Typography>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'row' }}>
+                {lArr[i].status == LayerImportStatusType.ERROR ? (
                   <div>
-                    <Typography >
-                      {t('common:Message')}:&nbsp;
-                    </Typography>
-                    <Typography >
-                      {'' + lArr[i].errorMessage}
-                    </Typography>
-                  </div>) : null
-              }
-            </div>
+                    <Typography>{t('common:Message')}:&nbsp;</Typography>
+                    <Typography>{'' + lArr[i].errorMessage}</Typography>
+                  </div>
+                ) : null}
+              </div>
 
-            <div className={classes.separator} />
-          </div>)
+              <div className={classes.separator} />
+            </div>
+          )
       }
     }
     return tr
@@ -695,32 +753,24 @@ function MapRequestCard(props) {
         <div className={classes.headerBlock} key={elem.code + '_sub'}>
           <div>
             <Box component="div" display="inline-block" key={elem.code + '_box'}>
-
-              <Typography
-                gutterBottom
-                variant="h5"
-                component="h2"
-                style={{ marginBottom: '0px' }}
-              >
+              <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
                 {elem.code}
               </Typography>
             </Box>
           </div>
           <div>
-            <IconButton
-              onClick={() => props.FetchRequestById(elem.id)}>
+            <IconButton onClick={() => props.FetchRequestById(elem.id)}>
               <FileCopyIcon />
             </IconButton>
-            {(elem.status != MapRequestStatusType.CANCELED) ? (
-              <IconButton
-                onClick={() => props.DeleteRequest('links', elem.code)}>
+            {elem.status != MapRequestStatusType.CANCELED ? (
+              <IconButton onClick={() => props.DeleteRequest('links', elem.code)}>
                 <DeleteIcon />
               </IconButton>
             ) : null}
           </div>
         </div>
         <div className={classes.pos}>
-          <div >
+          <div>
             <Typography
               component={'span'}
               variant="caption"
@@ -736,7 +786,7 @@ function MapRequestCard(props) {
           </div>
         </div>
         <div className={classes.pos}>
-          <div >
+          <div>
             <Typography
               component={'span'}
               variant="caption"
@@ -744,7 +794,6 @@ function MapRequestCard(props) {
               style={{ textTransform: 'uppercase' }}
             >
               {t('common:Frequency')}:&nbsp;
-
             </Typography>
             <Typography component={'span'} variant="body1">
               {elem.frequency}
@@ -753,7 +802,7 @@ function MapRequestCard(props) {
           </div>
         </div>
         <div className={classes.pos}>
-          <div >
+          <div>
             <Typography
               component={'span'}
               variant="caption"
@@ -761,7 +810,6 @@ function MapRequestCard(props) {
               style={{ textTransform: 'uppercase' }}
             >
               {t('common:Resolution')}:&nbsp;
-
             </Typography>
             <Typography component={'span'} variant="body1">
               {elem.resolution}
@@ -772,7 +820,6 @@ function MapRequestCard(props) {
         <div className={classes.pos}>
           {['layer', 'status'].map((type, index) => {
             if (elem[type]) {
-
               return (
                 <>
                   <div key={'label_status_' + index}>
@@ -796,30 +843,31 @@ function MapRequestCard(props) {
           })}
         </div>
         <div className={classes.pos}>
-          {(elem.status === MapRequestStatusType.CONTENT_AVAILABLE) && (elem.code in props.layerId2Tiles[1]) && (
-            <Accordion>
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls="panel1a-content"
-                id="panel1a-header"
-              >
-                <Typography>Layers</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FormControl component="fieldset" fullWidth={true}>
-                  <FormGroup
-                    aria-label="gender"
-                  >
-                    { //Single element of layers accordion list
-                      singleAccordionElement(elem.mapRequestLayers, props.layerId2Tiles[1][elem.code])
-                    }
-
-                  </FormGroup>
-                </FormControl>
-              </AccordionDetails>
-            </Accordion>
-          )
-          }
+          {elem.status === MapRequestStatusType.CONTENT_AVAILABLE &&
+            elem.code in props.layerId2Tiles[1] && (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>Layers</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FormControl component="fieldset" fullWidth={true}>
+                    <FormGroup aria-label="gender">
+                      {
+                        //Single element of layers accordion list
+                        singleAccordionElement(
+                          elem.mapRequestLayers,
+                          props.layerId2Tiles[1][elem.code]
+                        )
+                      }
+                    </FormGroup>
+                  </FormControl>
+                </AccordionDetails>
+              </Accordion>
+            )}
         </div>
       </CardContent>
       <CardActions className={classes.cardAction}>
@@ -830,8 +878,8 @@ function MapRequestCard(props) {
         </Typography>
         <IconButton
           size="small"
-          onClick={() => setGoToCoord(
-            {
+          onClick={() =>
+            setGoToCoord({
               latitude: elem?.centroid?.latitude as number,
               longitude: elem?.centroid?.longitude as number
             })

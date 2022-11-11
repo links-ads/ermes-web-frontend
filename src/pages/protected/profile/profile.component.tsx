@@ -5,11 +5,12 @@ import { Grid } from '@material-ui/core';
 import { UserMedals } from './user-medals.component';
 import { UserLeaderboard } from './user-leaderboard.component';
 import { useUser } from '../../../state/auth/auth.hooks'
+import { ROLE_CITIZEN } from '../../../App.const';
 
 export function Profile() {
   const { profile } = useUser()
 
-  return profile?.role == 'citizen' ? (
+  return profile?.role === ROLE_CITIZEN ? (
     <div style={{ height: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
       <Grid container spacing={1} style={{ marginTop: '10px',  marginBottom: '32px', justifyContent: 'space-evenly' }}>
       <Grid container spacing={1} style={{ marginTop: '10px', justifyContent: 'space-between', width:'95%' }}>

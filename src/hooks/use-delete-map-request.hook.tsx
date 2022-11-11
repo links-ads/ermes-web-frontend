@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo } from 'react'
+import { useReducer, useMemo } from 'react'
 import { MapRequestsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 

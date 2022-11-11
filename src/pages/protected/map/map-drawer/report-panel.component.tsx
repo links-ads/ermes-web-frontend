@@ -116,7 +116,7 @@ export default function ReportPanel(props) {
 
   // on click of the search button
   const searchInReport = () => {
-    if (searchText !== undefined && searchText != prevSearchText) {
+    if (searchText !== undefined && searchText !== prevSearchText) {
       applyFilterByText(searchText)
       setPrevSearchText(searchText)
     }

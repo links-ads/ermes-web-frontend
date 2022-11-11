@@ -10,14 +10,13 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { AdministrationContainer, RefreshButton } from '../../../common/common.components'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
-import { Box, Checkbox, Chip, ListItemText, MenuItem, OutlinedInput, Select } from '@material-ui/core'
+import { Chip, ListItemText, MenuItem, OutlinedInput, Select } from '@material-ui/core'
 import useRolesList from '../../../hooks/use-roles.hook'
-import { RoleDto, UserDto } from 'ermes-backoffice-ts-sdk'
+import { RoleDto } from 'ermes-backoffice-ts-sdk'
 import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
-import { strictEqual } from 'assert'
 import { AppConfig, AppConfigContext } from '../../../config'
-import { ROLE_ORGANIZATION_MANAGER, ROLE_TEAM_LEADER, ROLE_DECISION_MAKER, ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
+import { ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
 
 const options: Options<any> = {
   sorting: true,
