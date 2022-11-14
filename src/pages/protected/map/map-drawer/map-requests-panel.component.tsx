@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 
 import useMapRequestList from '../../../../hooks/use-map-requests-list.hook'
-import CardWithPopup from './card-with-popup.component'
+import CardWithPopup from './drawer-cards/card-with-popup.component'
 
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'

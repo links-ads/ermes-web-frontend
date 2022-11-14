@@ -4,7 +4,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 
 import useMissionsList from '../../../../hooks/use-missions-list.hook'
-import CardWithPopup from './card-with-popup.component'
+import CardWithPopup from './drawer-cards/card-with-popup.component'
 
 import { makeStyles } from '@material-ui/core/styles'
 import CardActions from '@material-ui/core/CardActions'

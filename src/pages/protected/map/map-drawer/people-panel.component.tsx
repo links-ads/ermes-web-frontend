@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 
-import CardWithPopup from './card-with-popup.component'
+import CardWithPopup from './drawer-cards/card-with-popup.component'
 import List from '@material-ui/core/List'
 import CardActions from '@material-ui/core/CardActions'
 import CardContent from '@material-ui/core/CardContent'

@@ -15,7 +15,7 @@ import Typography from '@material-ui/core/Typography'
 
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common'
 import { useTranslation } from 'react-i18next'
-import CardWithPopup from './card-with-popup.component'
+import CardWithPopup from './drawer-cards/card-with-popup.component'
 import SearchIcon from '@material-ui/icons/Search'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import CircularProgress from '@material-ui/core/CircularProgress'
