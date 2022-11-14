@@ -46,6 +46,7 @@ import {
 import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
 import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
+import SearchBar from '../../../../common/search-bar.component'
 
 const useStyles = makeStyles((theme) => ({
   searchField: {
@@ -314,28 +315,11 @@ export default function MapRequestsPanel(props) {
 
   return (
     <div className="container">
-      <span>
-        <TextField
-          id="outlined-basic"
-          label={t('common:search')}
-          variant="outlined"
-          size="small"
-          className={classes.searchField}
-          onChange={handleSearchTextChange}
-        />
-        {!mapRequestsData.isLoading ? (
-          <IconButton
-            aria-label="search"
-            color="inherit"
-            onClick={searchInMiss}
-            className={classes.searchButton}
-          >
-            <SearchIcon />
-          </IconButton>
-        ) : (
-          <CircularProgress color="secondary" size={30} className={classes.searchButton} />
-        )}
-      </span>
+      <SearchBar
+        isLoading={mapRequestsData.isLoading}
+        changeTextHandler={handleSearchTextChange}
+        clickHandler={searchInMiss}
+      />
       {!mapRequestsData.isLoading ? (
         <div
           className={classes.fixHeightcontainer}
