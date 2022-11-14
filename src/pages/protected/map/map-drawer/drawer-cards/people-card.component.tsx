@@ -6,17 +6,11 @@ import CardWithPopup from "./card-with-popup.component";
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import classes from './people-card.module.scss'
 import { useTranslation } from "react-i18next";
+import DrawerCardProps from "../../../../../models/DrawerCardProps";
 
 const ENTITY_TYPE = EntityType.PERSON
 
-const PeopleCard: React.FC<{
-  elem: any
-  map: any
-  setMapHoverState: any
-  spiderLayerIds: any
-  spiderifierRef: any
-  flyToCoords: any
-}> = (props) => {
+const PeopleCard: React.FC<DrawerCardProps> = (props) => {
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
   const timestamp = FormatDate(elem.timestamp)
   const { t } = useTranslation(['maps'])

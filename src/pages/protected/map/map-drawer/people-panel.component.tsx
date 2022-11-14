@@ -93,8 +93,7 @@ export default function PeoplePanel(props) {
   })
 
   return (
-    <div className="container_without_search">
-      {/* Search box */}
+    <div className="containerWithSearch">
       <SearchBar
         isLoading={peopData.isLoading}
         changeTextHandler={handleSearchTextChange}
@@ -102,7 +101,7 @@ export default function PeoplePanel(props) {
       />
       {!peopData.isLoading ? (
         <div
-          className={classes.resizedContainer}
+          className={classes.fixHeightContainer}
           id="scrollableElem"
           style={{ height: height - 270 }}
         >

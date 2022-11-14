@@ -6,6 +6,7 @@ import CardWithPopup from "./card-with-popup.component";
 import classes from './communication-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
+import DrawerCardProps from "../../../../../models/DrawerCardProps";
 
 const useStyles = makeStyles((theme) => ({
   chipStyle: {
@@ -17,15 +18,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const CommunicationCard: React.FC<{
-  key: number
-  elem: any
-  map: any
-  setMapHoverState: any
-  spiderLayerIds: any
-  spiderifierRef: any
-  flyToCoords: any
-}> = (props) => {
+const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const { key, elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
   const style = useStyles()
@@ -45,7 +38,7 @@ const CommunicationCard: React.FC<{
       spiderLayerIds={spiderLayerIds}
       id={elem.id}
       spiderifierRef={spiderifierRef}
-      type={EntityType.COMMUNICATION} 
+      type={EntityType.COMMUNICATION}
     >
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
@@ -108,7 +101,10 @@ const CommunicationCard: React.FC<{
         <IconButton
           size="small"
           onClick={() =>
-            props.flyToCoords(elem?.centroid?.latitude as number, elem?.centroid?.longitude as number)
+            props.flyToCoords(
+              elem?.centroid?.latitude as number,
+              elem?.centroid?.longitude as number
+            )
           }
           className={classes.viewInMap}
         >

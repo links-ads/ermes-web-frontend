@@ -7,15 +7,9 @@ import CardWithPopup from "./card-with-popup.component";
 import classes from './report-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
+import DrawerCardProps from "../../../../../models/DrawerCardProps";
 
-const ReportCard: React.FC<{
-  elem: any
-  map: any
-  setMapHoverState: any
-  spiderLayerIds: any
-  spiderifierRef: any
-  flyToCoords: any
-}> = (props) => {
+const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
   const { t } = useTranslation(['common', 'maps', 'social'])
   const timestamp = FormatDate(elem.timestamp)
