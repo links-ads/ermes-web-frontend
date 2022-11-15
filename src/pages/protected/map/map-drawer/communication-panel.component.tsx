@@ -86,7 +86,7 @@ export default function CommunicationPanel(props) {
                 )
               }}
               dataLength={commsData.data.length}
-              hasMore={commsData.data.length >= commsData.tot ? false : true}
+              hasMore={commsData.data.length < commsData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>

@@ -123,7 +123,7 @@ export default function PeoplePanel(props) {
                 )
               }}
               dataLength={peopData.data.length}
-              hasMore={peopData.data.length >= peopData.tot ? false : true}
+              hasMore={peopData.data.length < peopData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>

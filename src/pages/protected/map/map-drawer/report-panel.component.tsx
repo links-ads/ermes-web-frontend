@@ -89,7 +89,7 @@ export default function ReportPanel(props) {
                 )
               }}
               dataLength={repsData.data.length}
-              hasMore={repsData.data.length >= repsData.tot ? false : true}
+              hasMore={repsData.data.length < repsData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>

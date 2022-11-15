@@ -87,7 +87,7 @@ export default function CommunicationPanel(props) {
                 )
               }}
               dataLength={missionsData.data.length}
-              hasMore={missionsData.data.length >= missionsData.tot ? false : true}
+              hasMore={missionsData.data.length < missionsData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
