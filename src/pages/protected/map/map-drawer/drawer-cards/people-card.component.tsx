@@ -61,7 +61,7 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
                     {t('maps:' + type)}:&nbsp;{' '}
                   </Typography>
                   <Typography component={'span'} variant="body1">
-                    {t('maps:' + elem[type])}
+                    {elem[type]}
                   </Typography>
                   <br />
                 </>
