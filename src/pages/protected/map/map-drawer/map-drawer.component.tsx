@@ -1,6 +1,6 @@
 // Page which manages the tabs in the left drawer
 
-import React from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { IconButton } from '@material-ui/core'
@@ -18,6 +18,9 @@ import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
 import MissionsPanel from './missions-panel.component'
 import MapRequestsPanel from './map-requests-panel.component'
+import { useAPIConfiguration } from '../../../../hooks/api-hooks';
+import useAPIHandler from '../../../../hooks/use-api-handler';
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -67,6 +70,36 @@ export default function MapDrawer(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { t } = useTranslation('maps')
+  const {
+    mapRequestsSettings,
+    updateMapRequestsSettings,
+    setMapRequestsSettings,
+    availableLayers
+  } = props
+
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
+  useEffect(() => {
+    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+  }, [])  
+
+  const layersDefinition = useMemo(() => {
+    if (Object.entries(apiHandlerState.result).length === 0) return {}
+    else {
+      const entries = [] as any[]
+      apiHandlerState.result.data.layerGroups.forEach((group) => {
+        group.subGroups.forEach((subGroup) => {
+          subGroup.layers.forEach((layer) => {
+            if (layer.frequency === 'OnDemand') {
+              entries[layer.dataTypeId] = layer.name
+            }
+          })
+        })
+      })
+      return entries
+    }
+  }, [apiHandlerState])
 
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
@@ -98,7 +131,7 @@ export default function MapDrawer(props) {
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
             style={{ width: '60px', marginLeft: '25px' }}
-          // disabled={disabled}
+            // disabled={disabled}
           >
             <ArrowBackIcon />
           </IconButton>
@@ -166,7 +199,7 @@ export default function MapDrawer(props) {
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
-              filters= {props.filtersObj.filters.persons}
+              filters={props.filtersObj.filters.persons}
               teamList={props.teamList}
             />
           </TabPanel>
@@ -174,27 +207,22 @@ export default function MapDrawer(props) {
           {/* MAP REQUESTS */}
           <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
             <MapRequestsPanel
-              filters= {props.filtersObj.filters.mapRequests}
+              filters={props.filtersObj.filters.mapRequests}
               setGoToCoord={props.setGoToCoord}
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
-              layerSelection={props.layerSelection}
-              setLayerSelection={props.setLayerSelection}
-              layerId2Tiles={props.layerId2Tiles}
-              setDateIndex={props.setDateIndex}
-              dateIndex={props.dateIndex}
               getLegend={props.getLegend}
               getMeta={props.getMeta}
-              forceUpdate={props.forceUpdate}
-              updateCurrentLayer={props.updateCurrentLayer}
-              onPlayerChange = {props.onPlayerChange}
-              handleOpacityChange = {props.handleOpacityChange}
-              fetchGeoJson = {props.fetchGeoJson}
+              fetchGeoJson={props.fetchGeoJson}
+              mapRequestsSettings={mapRequestsSettings}
+              updateMapRequestsSettings={updateMapRequestsSettings}
+              setMapRequestsSettings={setMapRequestsSettings}
+              availableLayers={availableLayers}
+              layersDefinition={layersDefinition}
             />
           </TabPanel>
-
         </SwipeableViews>
         <AppBar
           position="static"

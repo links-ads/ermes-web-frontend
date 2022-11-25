@@ -28,6 +28,10 @@ import { PlayerMetadata } from './map-popup-meta.component'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
 import { TeamsApiFactory } from 'ermes-ts-sdk'
+import MapRequestState, {
+  LayerSettingsState,
+  MapRequestLayerState
+} from '../../../models/mapRequest/MapRequestState'
 
 type MapFeature = CulturalProps
 
@@ -44,8 +48,59 @@ export function Map() {
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
-  const { i18n } = useTranslation();
+  const { i18n } = useTranslation()
   const [layerName, setLayerName] = useState<string>('')
+
+  const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>()
+
+  const updateMapRequestsSettings = (
+    mrCode: string,
+    dataTypeId: number,
+    newValue: number,
+    actionType: string
+  ) => {
+    if (!mapRequestsSettings) return
+    const currentMr = mapRequestsSettings[mrCode]
+    let updatedSettings: MapRequestState
+    if (currentMr) {
+      const currentLayer = currentMr[dataTypeId]
+      let newSettings: LayerSettingsState = { ...currentLayer }
+      if (currentLayer) {
+        switch (actionType) {
+          case 'OPACITY':
+            newSettings.opacity = newValue
+            break
+          case 'TIMESTAMP':
+            newSettings.dateIndex = newValue
+            if (currentLayer.activeLayer !== '')
+              newSettings.toBeRemovedLayer = currentLayer.activeLayer
+            newSettings.activeLayer =
+              currentLayer.timestampsToFiles[
+                currentLayer.availableTimestamps[newSettings.dateIndex]
+              ]
+            break
+          case 'ISCHECKED':
+            newSettings.isChecked = !!newValue
+
+
+            //if (currentLayer.activeLayer !== '')
+            newSettings.toBeRemovedLayer = currentLayer.activeLayer
+            newSettings.activeLayer = newSettings.isChecked
+              ? currentLayer.timestampsToFiles[
+                  currentLayer.availableTimestamps[currentLayer.dateIndex]
+                ]
+              : ''
+            break
+          default:
+            break
+        }
+        updatedSettings = {...mapRequestsSettings}
+        updatedSettings[mrCode][dataTypeId] = newSettings
+        setMapRequestsSettings(updatedSettings)
+      }
+    }
+  }
+
   const getFilterList = (obj) => {
     let newFilterList: Array<string> = []
     Object.keys((obj?.filters?.multicheckCategories as any).options).forEach((key) => {
@@ -77,19 +132,20 @@ export function Map() {
   initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
   initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
   initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
-  initObject.filters.report.content[2] = (profile?.role == ROLE_CITIZEN) ?
-    {
-      name: 'hazard_visibility',
-      options: ['Public'],
-      type: 'select',
-      selected: 'Public'
-    }
-    : {
-      name: 'hazard_visibility',
-      options: ['Private', 'Public', 'All'],
-      type: 'select',
-      selected: 'Private'
-    }
+  initObject.filters.report.content[2] =
+    profile?.role == ROLE_CITIZEN
+      ? {
+          name: 'hazard_visibility',
+          options: ['Public'],
+          type: 'select',
+          selected: 'Public'
+        }
+      : {
+          name: 'hazard_visibility',
+          options: ['Private', 'Public', 'All'],
+          type: 'select',
+          selected: 'Private'
+        }
 
   let [storedFilters, changeItem, ,] = useMemoryState(
     'memstate-map',
@@ -119,7 +175,6 @@ export function Map() {
     forceUpdate()
   }
 
-
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
@@ -135,8 +190,14 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [layerSelection, setLayerSelection] = React.useState({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: false, layerClicked: null })
-  const [getLayersState, handleGetLayersCall,] = useAPIHandler(false)
+  const [layerSelection, setLayerSelection] = React.useState({
+    isMapRequest: NO_LAYER_SELECTED,
+    mapRequestCode: NO_LAYER_SELECTED,
+    dataTypeId: NO_LAYER_SELECTED,
+    multipleLayersAllowed: false,
+    layerClicked: null
+  })
+  const [getLayersState, handleGetLayersCall] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
@@ -153,10 +214,8 @@ export function Map() {
     getLayersState.result.data['layerGroups'].forEach((group) => {
       group['subGroups'].forEach((subGroup) => {
         subGroup['layers'].forEach((layer) => {
-
           layer['details'].forEach((detail) => {
-            if (detail['mapRequestCode'])
-              mapRequestDataTypes.push(layer['dataTypeId'])
+            if (detail['mapRequestCode']) mapRequestDataTypes.push(layer['dataTypeId'])
           })
         })
       })
@@ -166,21 +225,21 @@ export function Map() {
 
     let data2Tiles = {}
     /**dictionary of key: "name of the maprequest" -  content: another dictionary that has
-    * as key the datatypeid (es. Incendio e mappa area bruciata), as content 
-    * {
-    * name: the name associated to the datatypeid
-    * names: string[] the names of the layers containing the maprequests 
-    * namesTimes: dictionary key: timestamp content: name of the layer corresponding at the timestamp (they are the same of names)
-    * timestamps: string[] of timestamps
-    * }
-    * */
+     * as key the datatypeid (es. Incendio e mappa area bruciata), as content
+     * {
+     * name: the name associated to the datatypeid
+     * names: string[] the names of the layers containing the maprequests
+     * namesTimes: dictionary key: timestamp content: name of the layer corresponding at the timestamp (they are the same of names)
+     * timestamps: string[] of timestamps
+     * }
+     * */
     let mapRequestData2Tiles = {}
 
     getLayersState.result.data['layerGroups'].forEach((group) => {
       group['subGroups'].forEach((subGroup) => {
         subGroup['layers'].forEach((layer) => {
           //if the layer is of a datatype that I know is in a mapRequest
-          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {        
+          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {
             layer['details'].forEach((detail) => {
               //check if that layer belongs to the result of a maprequest
               if (detail['mapRequestCode']) {
@@ -190,27 +249,34 @@ export function Map() {
                 }
                 /**if the datatypeid is not yet into the mapRequestData2Tiles[maprequestname] that has it
                  * insert into the dataype element the datatypeid name
-                 * and create an epty dictionary nameTimes to be used after this
+                 * and create an empty dictionary nameTimes to be used after this
                  */
                 if (!(layer['dataTypeId'] in mapRequestData2Tiles[detail['mapRequestCode']])) {
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = { name: layer['name'], namesTimes: {} }
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = {
+                    name: layer['name'],
+                    namesTimes: {}
+                  }
                 }
-                /**for each timestaps element in each detail, insert 
-                 * in the corresponding maprequest name element, 
+                /**for each timestaps element in each detail, insert
+                 * in the corresponding maprequest name element,
                  *    in the corresponding datatypeid,
                  * the field 'metadataId' (the id needed when you call getmeta())
-                 * in the dictionary 'namesTimes' add the pair 
-                */
+                 * in the dictionary 'namesTimes' add the pair
+                 */
                 detail['timestamps'].forEach((timestamp) => {
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['metadataId'] = detail['metadata_Id']
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][timestamp] = detail['name']
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']][
+                    'metadataId'
+                  ] = detail['metadata_Id']
+                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][
+                    timestamp
+                  ] = detail['name']
                 })
               }
             })
           } else {
             //frequency onDemand means it is a maprequest, already handled in the block above
             if (layer['frequency'] === 'OnDemand') return
-            
+
             let namestimesDict: { [key: string]: string } = {}
             let namesmetaDict: { [key: string]: string } = {}
             layer['details'].forEach((detail) => {
@@ -236,12 +302,22 @@ export function Map() {
     /**
      * add the fields 'timestamps' and 'names' to the mapRequestData2Tiles object
      */
+    let mrSettings: MapRequestState
     Object.keys(mapRequestData2Tiles).forEach((mapRequestCode) => {
+      
       Object.keys(mapRequestData2Tiles[mapRequestCode]).forEach((dataTypeId) => {
-        mapRequestData2Tiles[mapRequestCode][dataTypeId]['timestamps'] = Object.keys(mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes'])
-        mapRequestData2Tiles[mapRequestCode][dataTypeId]['names'] = Object.values(mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes'])
+        mapRequestData2Tiles[mapRequestCode][dataTypeId]['timestamps'] = Object.keys(
+          mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes']
+        )
+        mapRequestData2Tiles[mapRequestCode][dataTypeId]['names'] = Object.values(
+          mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes']
+        )
       })
     })
+    
+    //mrSetting initialization moved inside map request panel
+    mrSettings = {}
+    setMapRequestsSettings(mrSettings)
     return [data2Tiles, mapRequestData2Tiles]
   }, [getLayersState])
 
@@ -260,13 +336,11 @@ export function Map() {
               dataTypeId: layer['dataTypeId']
             })
           }
-
         })
         if (layerData.length > 0)
           subGroupData.push({ name: subGroup['subGroup'], layers: layerData })
       })
-      if (subGroupData.length > 0)
-        groupData.push({ name: group['group'], subGroups: subGroupData })
+      if (subGroupData.length > 0) groupData.push({ name: group['group'], subGroups: subGroupData })
     })
     return groupData
   }, [getLayersState])
@@ -276,18 +350,20 @@ export function Map() {
   const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
 
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [teamsApiHandlerState, handleTeamsAPICall,] = useAPIHandler(false)
+  const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
 
   const [teamList, setTeamList] = useState<any>([])
 
   useEffect(() => {
-    handleTeamsAPICall(() => { return teamsApiFactory.teamsGetTeams(1000) })
+    handleTeamsAPICall(() => {
+      return teamsApiFactory.teamsGetTeams(1000)
+    })
   }, [teamsApiFactory, handleTeamsAPICall])
 
-/**
- * when map loads, once the teams list is available heck if there were already teams filters selected, if 
- * so then use that to get proper features
- */
+  /**
+   * when map loads, once the teams list is available heck if there were already teams filters selected, if
+   * so then use that to get proper features
+   */
   useEffect(() => {
     let f: any = filtersObj?.filters?.persons
     //once the team list is available (ids are available)
@@ -297,31 +373,35 @@ export function Map() {
       if (!!selected && selected.length > 0) {
         for (let i = 0; i < selected.length; i++) {
           //if teams selected in filters have corresponcence with ids available
-          let idFromContent = Number(!!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
+          let idFromContent = Number(
+            !!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1
+          )
           //add them to array to use for new call
-          if (idFromContent >= 0)
-            arrayOfTeams.push(idFromContent)
+          if (idFromContent >= 0) arrayOfTeams.push(idFromContent)
         }
       }
       //if there are conditions for filtering, then call getfeatures again with the filter
-      if(arrayOfTeams.length>0)
-        fetchGeoJson(arrayOfTeams)
+      if (arrayOfTeams.length > 0) fetchGeoJson(arrayOfTeams)
     }
   }, [teamList])
 
-
   useMemo(() => {
-    if (!teamsApiHandlerState.loading && !!teamsApiHandlerState.result && teamsApiHandlerState.result.data) {
-      //update team list 
-      let i = Object.fromEntries(teamsApiHandlerState.result.data.data.map(obj => [obj['id'], obj['name']]))
+    if (
+      !teamsApiHandlerState.loading &&
+      !!teamsApiHandlerState.result &&
+      teamsApiHandlerState.result.data
+    ) {
+      //update team list
+      let i = Object.fromEntries(
+        teamsApiHandlerState.result.data.data.map((obj) => [obj['id'], obj['name']])
+      )
       setTeamList(i)
-      //update starting filter object with actual team names from http 
+      //update starting filter object with actual team names from http
       let tmp = initObject
       tmp.filters.persons.content[1].options = Object.values(i)
       updateInit(tmp)
     }
   }, [teamsApiHandlerState])
-
 
   useEffect(() => {
     if (
@@ -351,28 +431,34 @@ export function Map() {
     }
   }, [activitiesList, filtersObj, changeItem])
 
-
   function getKeyByValue(object, value) {
-    return Object.keys(object).find(key => object[key] === value);
+    return Object.keys(object).find((key) => object[key] === value)
   }
 
   /**
    * when filters are updated then update the map features to show
    */
   useEffect(() => {
-    setLayerSelection({ isMapRequest: NO_LAYER_SELECTED, mapRequestCode: NO_LAYER_SELECTED, dataTypeId: NO_LAYER_SELECTED, multipleLayersAllowed: false, layerClicked: null })
+    setLayerSelection({
+      isMapRequest: NO_LAYER_SELECTED,
+      mapRequestCode: NO_LAYER_SELECTED,
+      dataTypeId: NO_LAYER_SELECTED,
+      multipleLayersAllowed: false,
+      layerClicked: null
+    })
     //when filters are applied use the ids[] of the selected teams in the fetchGeoJson call
     let f: any = filtersObj?.filters?.persons
     var arrayOfTeams: number[] | undefined = undefined
     if (Object.keys(teamList).length > 0) {
       let selected = f.content[1].selected
       arrayOfTeams = []
-      //if selected exists and has some keys inside check if there are correspondences with the stored ids:keys values 
+      //if selected exists and has some keys inside check if there are correspondences with the stored ids:keys values
       if (!!selected && selected.length > 0) {
         for (let i = 0; i < selected.length; i++) {
-          let idFromContent = Number(!!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1)
-          if (idFromContent >= 0)
-            arrayOfTeams.push(idFromContent)
+          let idFromContent = Number(
+            !!getKeyByValue(teamList, selected[i]) ? getKeyByValue(teamList, selected[i]) : -1
+          )
+          if (idFromContent >= 0) arrayOfTeams.push(idFromContent)
         }
       }
       //if teams selections is empty reset arrayofteams to the default state (undefined)
@@ -385,7 +471,7 @@ export function Map() {
         undefined,
         filtersObj!.filters!.datestart['selected'],
         filtersObj!.filters!.dateend['selected'],
-        undefined,//TODO: add MapRequestCode management
+        undefined, //TODO: add MapRequestCode management
         true,
         {
           headers: {
@@ -396,11 +482,9 @@ export function Map() {
     })
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
-
   useEffect(() => {
     setDateIndex(0)
-    if (layerSelection.multipleLayersAllowed)
-      return
+    if (layerSelection.multipleLayersAllowed) return
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
       setTogglePlayer(true)
     } else {
@@ -408,27 +492,46 @@ export function Map() {
     }
   }, [layerSelection])
 
-  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [layersLegendPosition, setLayersLegendPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
+  const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
+  const [layersLegendPosition, setLayersLegendPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
 
+  const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
+    return { x: 60, y: 60 }
+  }, [])
+  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
+    return { x: 60, y: Math.max(90, window.innerHeight - 350) }
+  }, [])
+  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
+    return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) }
+  }, [])
+  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
+    return { x: Math.max(400, window.innerWidth - 600), y: 60 }
+  }, [])
 
-  const floatingFilterContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: 60 } }, [])
-  const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(90, window.innerHeight - 350) } }, [])
-  const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) } }, [])
-  const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => { return { x: Math.max(400, window.innerWidth - 600), y: 60 } }, [])
-
-  const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<{ x: number; y: number } | undefined>(undefined)
-  const [layersMetaPosition, setLayersMetaPosition] = useState<{ x: number; y: number } | undefined>(undefined)
+  const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
+  const [layersMetaPosition, setLayersMetaPosition] = useState<
+    { x: number; y: number } | undefined
+  >(undefined)
   const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
 
-  const [ singleLayerOpacityStatus, handleOpacityChange ] = useState <[ number, string]> ([100, ''])
+  const [singleLayerOpacityStatus, handleOpacityChange] = useState<[number, string]>([100, ''])
 
   useEffect(() => {
     if (toggleSideDrawer) {
-
-      if (layersSelectVisibility) { //layers container is visible, move it
+      if (layersSelectVisibility) {
+        //layers container is visible, move it
         //opening drawer
         if (layersSelectContainerPosition == undefined)
           setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
@@ -452,12 +555,12 @@ export function Map() {
     } else {
       //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
     }
-
   }, [toggleSideDrawer])
 
   useMemo(() => {
     if (toggleSideDrawer) {
-      if (layersSelectVisibility) { //layers container is visible, move it
+      if (layersSelectVisibility) {
+        //layers container is visible, move it
         //opening drawer
         if (layersSelectContainerPosition == undefined)
           setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
@@ -483,13 +586,11 @@ export function Map() {
     }
   }, [toggleSideDrawer])
 
-
-
   /**
-   * 
-   * @param value 
-   * @param metadataId 
-   * @param layerName 
+   *
+   * @param value
+   * @param metadataId
+   * @param layerName
    */
   function changePlayer(value, metadataId, layerName) {
     setLayerName(layerName)
@@ -502,7 +603,7 @@ export function Map() {
   }
 
   /**
-   * close the mappopupseries component when we change layer 
+   * close the mappopupseries component when we change layer
    */
   useMemo(() => {
     setDblClickFeatures(null)
@@ -524,39 +625,49 @@ export function Map() {
     let res: [any, any] = ['', '']
     let data = result.data
     Object.keys(data).forEach(function (key) {
-      if (data[key] == "" || data[key] == null) { return }
-      if (data[key] !== undefined && data[key] !== null && typeof (data[key]) === 'object') {
+      if (data[key] == '' || data[key] == null) {
+        return
+      }
+      if (data[key] !== undefined && data[key] !== null && typeof data[key] === 'object') {
         let innerres = ''
         Object.keys(data[key]).forEach(function (innerkey) {
-          if (data[key][innerkey] == "" || data[key][innerkey] == null) { return }
-          if (data[key][innerkey] !== undefined && data[key][innerkey] !== null && typeof (data[key][innerkey]) === 'object') {
+          if (data[key][innerkey] == '' || data[key][innerkey] == null) {
+            return
+          }
+          if (
+            data[key][innerkey] !== undefined &&
+            data[key][innerkey] !== null &&
+            typeof data[key][innerkey] === 'object'
+          ) {
             let innerinnerres = ''
             Object.keys(data[key][innerkey]).forEach(function (innerinnerkey) {
-              if (data[key][innerkey][innerinnerkey] == "" || data[key][innerkey][innerinnerkey] == null) { return }
+              if (
+                data[key][innerkey][innerinnerkey] == '' ||
+                data[key][innerkey][innerinnerkey] == null
+              ) {
+                return
+              }
               innerinnerres += innerinnerkey + `: ` + data[key][innerkey][innerinnerkey] + `, \n`
             })
             innerres += innerinnerres
-          }
-          else innerres += innerkey + `: ` + data[key][innerkey] + `, \n`
+          } else innerres += innerkey + `: ` + data[key][innerkey] + `, \n`
         })
         res.push([key, innerres])
-      }
-      else
-        res.push([key, '' + data[key]])
+      } else res.push([key, '' + data[key]])
     })
     res.splice(0, 2)
     return res
   }
 
   function showImage(responseAsBlob) {
-    const imgUrl = URL.createObjectURL(responseAsBlob);
+    const imgUrl = URL.createObjectURL(responseAsBlob)
     setLegendSrc(imgUrl)
     setToggleLegend(true)
   }
   async function getLegend(layerName: string) {
     const geoServerConfig = appConfig.geoServer
     const res = await fetch(getLegendURL(geoServerConfig, '40', '40', layerName))
-    showImage(await res.blob());
+    showImage(await res.blob())
   }
 
   /**
@@ -572,18 +683,17 @@ export function Map() {
    * @param metaId the metadataid of the layer to display data of
    */
   function getMeta(metaId: string) {
-    layersApiFactory.layersGetMetadata(
-      metaId,
-      {
+    layersApiFactory
+      .layersGetMetadata(metaId, {
         headers: {
           'Accept-Language': i18n.language
         }
-      }
-    ).then(result => {
-      const formattedres = formatMeta(result)
-      setLayerMeta(formattedres)
-      setToggleMeta(true)
-    })
+      })
+      .then((result) => {
+        const formattedres = formatMeta(result)
+        setLayerMeta(formattedres)
+        setToggleMeta(true)
+      })
   }
 
   ///////
@@ -609,9 +719,13 @@ export function Map() {
         forceUpdate={forceUpdate}
         teamList={teamList}
         updateCurrentLayer={updateCurrentLayer}
-        onPlayerChange = {changePlayer}
-        handleOpacityChange = {handleOpacityChange}
+        onPlayerChange={changePlayer}
+        handleOpacityChange={handleOpacityChange}
         fetchGeoJson={fetchGeoJson}
+        mapRequestsSettings={mapRequestsSettings}
+        updateMapRequestsSettings={updateMapRequestsSettings}
+        setMapRequestsSettings={setMapRequestsSettings}
+        availableLayers={getLayersState?.result.data}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
@@ -718,8 +832,7 @@ export function Map() {
             dateIndex={dateIndex}
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
-            singleLayerOpacityStatus = {singleLayerOpacityStatus}
-
+            singleLayerOpacityStatus={singleLayerOpacityStatus}
           />
         </MapStateContextProvider>
       </MapContainer>
