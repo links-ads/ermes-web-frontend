@@ -6,7 +6,7 @@ import {
   Slider,
   Typography
 } from '@material-ui/core'
-import React, {  useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import LegendIcon from '@material-ui/icons/FilterNone'
 import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
@@ -15,9 +15,7 @@ import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { useTranslation } from 'react-i18next'
 import classes from './maprequest-card.module.scss'
 import { FormatDate } from '../../../../../utils/date.utils'
-import {
-  LayerSettingsState
-} from '../../../../../models/mapRequest/MapRequestState'
+import { LayerSettingsState } from '../../../../../models/mapRequest/MapRequestState'
 import { tileJSONIfy } from '../../../../../utils/map.utils'
 import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
@@ -65,7 +63,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-
 const MapRequestAccordionItem: React.FC<{
   getMeta: any
   getLegend: any
@@ -73,13 +70,7 @@ const MapRequestAccordionItem: React.FC<{
   currentLayer: LayerSettingsState
   updateMapRequestsSettings: any
 }> = (props) => {
-  const {
-    getMeta,
-    getLegend,
-    currentLayer,
-    map,
-    updateMapRequestsSettings
-  } = props
+  const { getMeta, getLegend, currentLayer, map, updateMapRequestsSettings } = props
   const { t } = useTranslation(['common', 'maps'])
   const style = useStyles()
   const [playing, setPlaying] = useState(false)
@@ -87,12 +78,10 @@ const MapRequestAccordionItem: React.FC<{
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
 
-
   const isCheckedHandler = (event: any) => {
     if (!event.target.checked) setPlaying(false)
     updateMapRequestsSettings(mapRequestCode, dataTypeId, !isChecked, 'ISCHECKED')
   }
-
 
   const changeDateHandler = (event, value) => {
     event.stopPropagation()
@@ -121,23 +110,19 @@ const MapRequestAccordionItem: React.FC<{
   const changeOpacityHandler = (event, value) => {
     event.stopPropagation()
     updateMapRequestsSettings(mapRequestCode, dataTypeId, value, 'OPACITY')
-    
-    map.setPaintProperty(
-      currentLayer.activeLayer,
-      'raster-opacity',
-      value / 100
-    )
+
+    map.setPaintProperty(currentLayer.activeLayer, 'raster-opacity', value / 100)
   }
 
   useEffect(() => {
     if (!currentLayer) return
-    if (currentLayer.toBeRemovedLayer !== '') {
+    if (currentLayer.toBeRemovedLayer !== '' && map.getLayer(currentLayer.toBeRemovedLayer)) {
       map.removeLayer(currentLayer.toBeRemovedLayer)
       map.removeSource(currentLayer.toBeRemovedLayer)
     }
 
     const layerName = currentLayer.activeLayer
-    if(layerName != ''){
+    if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(
         map,
         layerName,
@@ -171,11 +156,7 @@ const MapRequestAccordionItem: React.FC<{
 
   if (!currentLayer || currentLayer.mapRequestCode === '') return <div></div>
 
-  const errorTooltip = (
-    <ErrorMessagesTooltip
-      errors={currentLayer.errorMessages}
-    />
-  )
+  const errorTooltip = <ErrorMessagesTooltip errors={currentLayer.errorMessages} />
 
   return (
     <div style={{ marginTop: '5px', marginBottom: '5px' }}>

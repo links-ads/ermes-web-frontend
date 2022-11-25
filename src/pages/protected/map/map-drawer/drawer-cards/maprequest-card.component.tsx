@@ -151,7 +151,6 @@ const MapRequestCard: React.FC<{
           {mapRequestInfo.status === MapRequestStatusType.CONTENT_AVAILABLE && (
             <MapRequestAccordion
               key={mapRequestInfo.code!}
-              layers={mapRequestInfo.mapRequestLayers}
               getMeta={getMeta}
               getLegend={getLegend}
               map={map}

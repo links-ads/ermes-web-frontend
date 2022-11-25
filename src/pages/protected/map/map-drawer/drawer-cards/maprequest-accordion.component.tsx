@@ -11,22 +11,15 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MapRequestAccordionItem from './maprequest-accordion-item.component'
 
 const MapRequestAccordion: React.FC<{
-  layers
   getMeta
   getLegend
   map
   mapRequestSettings
   updateMapRequestsSettings
 }> = (props) => {
-  const {
-    layers,
-    getMeta,
-    getLegend,
-    map,
-    mapRequestSettings,
-    updateMapRequestsSettings,
-  } = props
+  const { getMeta, getLegend, map, mapRequestSettings, updateMapRequestsSettings } = props
 
+  if (!mapRequestSettings) return <div />
   return (
     <Accordion>
       <AccordionSummary
@@ -39,19 +32,16 @@ const MapRequestAccordion: React.FC<{
       <AccordionDetails>
         <FormControl component="fieldset" fullWidth={true}>
           <FormGroup aria-label="gender">
-            {
-              Object.keys(mapRequestSettings).map(key => (
-              //layers.map((item, index) => (
-                <MapRequestAccordionItem
-                  key={'layers_' + key}
-                  getMeta={getMeta}
-                  getLegend={getLegend}
-                  map={map}
-                  currentLayer={mapRequestSettings[key]}
-                  updateMapRequestsSettings={updateMapRequestsSettings}
-                />
-              ))
-            }
+            {Object.keys(mapRequestSettings).map((key) => (
+              <MapRequestAccordionItem
+                key={'layers_' + key}
+                getMeta={getMeta}
+                getLegend={getLegend}
+                map={map}
+                currentLayer={mapRequestSettings[key]}
+                updateMapRequestsSettings={updateMapRequestsSettings}
+              />
+            ))}
           </FormGroup>
         </FormControl>
       </AccordionDetails>

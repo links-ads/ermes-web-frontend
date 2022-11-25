@@ -81,9 +81,6 @@ export function Map() {
             break
           case 'ISCHECKED':
             newSettings.isChecked = !!newValue
-
-
-            //if (currentLayer.activeLayer !== '')
             newSettings.toBeRemovedLayer = currentLayer.activeLayer
             newSettings.activeLayer = newSettings.isChecked
               ? currentLayer.timestampsToFiles[

@@ -8,7 +8,6 @@ import {
   CommunicationRestrictionType,
   LayerImportStatusType,
   MapRequestDto,
-  MapRequestStatusType,
   MissionStatusType
 } from 'ermes-ts-sdk'
 import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
@@ -219,33 +218,18 @@ const MapRequestsPanel: React.FC<{
     []
   )
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose, copyState)
+
   useEffect(() => {
-    if (!!deletionState.data.deletedMapRequestCodes) {
-      if (deletionState.data.deletedMapRequestCodes?.length > 0) {
-        let elemToChange: string = deletionState.data.deletedMapRequestCodes[0].split('.')[1]
-        var indexToChange: number = -1
-
-        for (let i = 0; i < mapRequestsData.data.length; i++) {
-          if (mapRequestsData.data[i].code == elemToChange) {
-            indexToChange = i
-          }
-        }
-        if (indexToChange >= 0) {
-          mapRequestsData.data[indexToChange].status = MapRequestStatusType.CANCELED
-
-          getMapRequestsData(
-            0,
-            (data) => {
-              return data
-            },
-            {},
-            (data) => {
-              return data
-            }
-          )
-        }
+    getMapRequestsData(
+      0,
+      (data) => {
+        return data
+      },
+      {},
+      (data) => {
+        return data
       }
-    }
+    )
   }, [deletionState])
 
   return (
