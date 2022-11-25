@@ -86,7 +86,7 @@ const MapRequestsPanel: React.FC<{
               )
               newMrLayerState[layer.layerDataTypeId!].mapRequestCode = mr.code!
               newMrLayerState[layer.layerDataTypeId!].dataTypeId = layer.layerDataTypeId!
-              if (layersDefinition) 
+              if (layersDefinition)
                 newMrLayerState[layer.layerDataTypeId!].name =
                   layersDefinition[layer.layerDataTypeId!]
             })
@@ -111,10 +111,18 @@ const MapRequestsPanel: React.FC<{
                         settings.metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode
                         settings.dataTypeId = layer.dataTypeId!
+                        let timestamps: string[] = [...settings.availableTimestamps]
                         detail.timestamps!.forEach((timestamp) => {
                           settings.timestampsToFiles[timestamp] = detail.name!
-                          settings.availableTimestamps.push(timestamp)
+                          timestamps.push(timestamp)
                         })
+                        //keep availableTimestamp sorted
+                        settings.availableTimestamps = timestamps
+                          .map((item) => {
+                            return { dateString: item, dateValue: new Date(item) }
+                          })
+                          .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                          .map((item) => item.dateString)
                       }
                     }
                   })

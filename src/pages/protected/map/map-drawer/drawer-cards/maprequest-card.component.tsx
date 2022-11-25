@@ -40,7 +40,7 @@ const MapRequestCard: React.FC<{
     updateMapRequestsSettings
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
-  const upperBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
+  const upperBoundDate = FormatDate(mapRequestInfo.duration?.upperBound!)
 
   return (
     <CardWithPopup

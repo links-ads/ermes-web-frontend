@@ -144,6 +144,7 @@ const MapRequestAccordionItem: React.FC<{
         },
         'clusters'
       )
+      map.setPaintProperty(currentLayer.activeLayer, 'raster-opacity', currentLayer.opacity / 100)
     }
   }, [currentLayer.isChecked, currentLayer.dateIndex])
 
@@ -157,6 +158,10 @@ const MapRequestAccordionItem: React.FC<{
   if (!currentLayer || currentLayer.mapRequestCode === '') return <div></div>
 
   const errorTooltip = <ErrorMessagesTooltip errors={currentLayer.errorMessages} />
+
+  const valueLabelFormat = (dateIndex: number) => {
+    return FormatDate(currentLayer.availableTimestamps[dateIndex])
+  }
 
   return (
     <div style={{ marginTop: '5px', marginBottom: '5px' }}>
@@ -221,7 +226,8 @@ const MapRequestAccordionItem: React.FC<{
                         aria-label="Temperature"
                         defaultValue={0}
                         //getAriaValueText={valuetext}
-                        valueLabelDisplay="on"
+                        valueLabelDisplay="auto"
+                        valueLabelFormat={valueLabelFormat}
                         step={1}
                         value={dateIndex}
                         disabled={!isChecked}
