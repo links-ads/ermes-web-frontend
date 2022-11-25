@@ -9,12 +9,13 @@ import {
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MapRequestAccordionItem from './maprequest-accordion-item.component'
+import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
 
 const MapRequestAccordion: React.FC<{
   getMeta
   getLegend
   map
-  mapRequestSettings
+  mapRequestSettings: MapRequestLayerState
   updateMapRequestsSettings
 }> = (props) => {
   const { getMeta, getLegend, map, mapRequestSettings, updateMapRequestsSettings } = props

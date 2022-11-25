@@ -21,6 +21,7 @@ import MapRequestsPanel from './map-requests-panel.component'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks';
 import useAPIHandler from '../../../../hooks/use-api-handler';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
+import LayerDefinition from '../../../../models/layers/LayerDefinition';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -87,7 +88,7 @@ export default function MapDrawer(props) {
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
     else {
-      const entries = [] as any[]
+      let entries: LayerDefinition = {}
       apiHandlerState.result.data.layerGroups.forEach((group) => {
         group.subGroups.forEach((subGroup) => {
           subGroup.layers.forEach((layer) => {

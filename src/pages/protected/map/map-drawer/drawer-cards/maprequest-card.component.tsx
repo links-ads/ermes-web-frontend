@@ -9,6 +9,7 @@ import FileCopyIcon from '@material-ui/icons/FileCopy'
 import classes from './maprequest-card.module.scss'
 import { MapRequestDto, MapRequestStatusType } from "ermes-ts-sdk";
 import MapRequestAccordion from "./maprequest-accordion.component";
+import { MapRequestLayerState } from "../../../../../models/mapRequest/MapRequestState";
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -21,7 +22,7 @@ const MapRequestCard: React.FC<{
   getLegend
   deleteRequest
   fetchRequestById
-  mapRequestSettings
+  mapRequestSettings: MapRequestLayerState
   updateMapRequestsSettings
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])

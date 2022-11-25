@@ -21,6 +21,7 @@ import MapRequestState, {
   MapRequestLayerState
 } from '../../../../models/mapRequest/MapRequestState'
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
+import LayerDefinition from '../../../../models/layers/LayerDefinition'
 
 const MapRequestsPanel: React.FC<{
   filters
@@ -36,7 +37,7 @@ const MapRequestsPanel: React.FC<{
   updateMapRequestsSettings
   setMapRequestsSettings
   availableLayers
-  layersDefinition
+  layersDefinition: LayerDefinition
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
 
