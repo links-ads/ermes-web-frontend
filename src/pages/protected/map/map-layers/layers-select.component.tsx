@@ -55,10 +55,6 @@ export function LayersSelectContainer(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
-  useEffect(() => {
-    //console.log('position changed',props.position)
-    
-  }, [props.position])
 
   const handleAccordionChange =
     (panel: string, type: 'main' | 'sub') =>

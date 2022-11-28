@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Grid } from '@material-ui/core'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
-import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, HazardType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
+import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.contest'
 import { DialogEdit } from './map-dialog-edit.component'
@@ -290,11 +290,15 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
    */
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     if (!editState.endDate) return false
-    if ((dialogState.itemType === 'Mission' || dialogState.itemType === 'Communication') && editState.description.length === 0) return false
-    if (dialogState.itemType === 'Mission' && editState.coordinatorType === CoordinatorType.NONE) return false
-    if (dialogState.itemType === 'MapRequest' && ((isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0)) return false
-    if (dialogState.itemType === 'Communication' && !(!!editState.scope || !!editState.restrictionType)) return false
-    if (dialogState.itemType === 'Communication' && !(checkRestrictionScope(editState.scope == CommunicationScopeType.RESTRICTED,editState.restrictionType != CommunicationRestrictionType.NONE))) return false
+    if ((dialogState.itemType === EntityType.MISSION || dialogState.itemType === EntityType.COMMUNICATION) && editState.description.length === 0) return false
+    if (
+      dialogState.itemType === EntityType.MISSION &&
+      editState.coordinatorType === CoordinatorType.NONE
+    )
+      return false
+    if (dialogState.itemType === EntityType.MAP_REQUEST && ((isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0)) return false
+    if (dialogState.itemType === EntityType.COMMUNICATION && !(!!editState.scope || !!editState.restrictionType)) return false
+    if (dialogState.itemType === EntityType.COMMUNICATION && !(checkRestrictionScope(editState.scope == CommunicationScopeType.RESTRICTED,editState.restrictionType != CommunicationRestrictionType.NONE))) return false
     return true
   }
 
@@ -371,18 +375,18 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
       }
     }
     switch (dialogState.itemType) {
-      case 'Communication':
+      case EntityType.COMMUNICATION:
         baseObj['feature']['properties']['message'] = editState.description 
         baseObj['feature']['properties']['scope'] = editState.scope as string
         baseObj['feature']['properties']['restriction'] = editState.restrictionType as string
         break;
-      case 'MapRequest':
+      case EntityType.MAP_REQUEST:
         baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
         baseObj['feature']['properties']['resolution'] = parseInt(editState.resolution)
         if (editState.dataType.length > 0)
           baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map(d=>parseInt(d))
         break;
-      case 'Mission':
+      case EntityType.MISSION:
         baseObj['feature']['properties']['title'] = editState.title 
         baseObj['feature']['properties']['description'] = editState.description 
         baseObj['feature']['properties']['currentStatus'] = editState.status as string

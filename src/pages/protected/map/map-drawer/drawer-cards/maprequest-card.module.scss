@@ -1,0 +1,56 @@
+.card {
+  margin-bottom: 15px;
+}
+.chipContainer {
+  width: 100%;
+}
+.cardAction {
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-top: 4px;
+  padding-bottom: 8px;
+  padding-right: 0px;
+}
+.cardList {
+  overflow-y: scroll;
+  height: 90%;
+}
+.details {
+  display: block;
+}
+.cover {
+  width: 30%;
+  height: 183px;
+}
+.topCard {
+  padding-bottom: 0px;
+}
+.headerBlock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.pos {
+  margin-top: 0px;
+}
+.sliderContainer {
+  display: flex;
+  width: 85%;
+  height: 50px;
+  vertical-align: '-moz-middle-with-baseline';
+  align-items: flex-end;
+}
+.playerContainer {
+  padding-top: 5px;
+  width: 90%;
+}
+.spanContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+.viewInMap {
+  text-align: right;
+  width: 10%;
+  margin-right: 8px;
+}

@@ -1,0 +1,27 @@
+@function get-vw($target) {
+  $vw-context: (1000 * 0.01) * 1px;
+  @return ($target/$vw-context) * 1vw;
+}
+
+$window-width: get-vw(72px);
+
+.searchField {
+  margin-top: 20;
+  width: 88%;
+  margin-bottom: 20;
+}
+.searchButton {
+  margin-bottom: 20;
+  margin-top: 20;
+  padding: 9;
+  margin-left: 6;
+}
+.viewInMap {
+  text-align: right;
+  width: 10%;
+  margin-right: 8px;
+}
+.fixHeightContainer {
+  height: $window-width;
+  overflow-y: scroll;
+}

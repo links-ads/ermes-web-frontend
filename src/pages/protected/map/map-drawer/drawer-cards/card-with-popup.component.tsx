@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import Card from '@material-ui/core/Card'
-import { queryHoveredFeature } from '../../../../common/map/map-common'
-import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils'
+import { queryHoveredFeature } from '../../../../../common/map/map-common'
+import { updatePointFeatureLayerIdFilter } from '../../../../../utils/map.utils'
 import { makeStyles } from '@material-ui/core/styles'
 
 const CLUSTER_LAYER_ID = 'clusters'
