@@ -40,7 +40,6 @@ const MapRequestsPanel: React.FC<{
   layersDefinition: LayerDefinition
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
-
   const [searchText, setSearchText] = React.useState('')
   const [mapRequestsData, getMapRequestsData, applyFilterByText] = useMapRequestList()
   const {
@@ -242,7 +241,7 @@ const MapRequestsPanel: React.FC<{
   }, [deletionState])
 
   return (
-    <div className="container">
+    <div className="containerWithSearch">
       <SearchBar
         isLoading={mapRequestsData.isLoading}
         changeTextHandler={handleSearchTextChange}
@@ -250,14 +249,15 @@ const MapRequestsPanel: React.FC<{
       />
       {!mapRequestsData.isLoading ? (
         <div
-          className={classes.fixHeightcontainer}
+          className={classes.fixHeightContainer}
           id="scrollableElem"
-          style={{ height: height - 270 }}
+          style={{ height: height - 280 }}
         >
           <ItemCounter
-            itemCount={mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length}
+            //itemCount={mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length}
+            itemCount={mapRequestsData.tot}
           />
-          <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
+          <List component="span" aria-label="main mailbox folders">
             <InfiniteScroll
               next={() => {
                 getMapRequestsData(
@@ -273,10 +273,11 @@ const MapRequestsPanel: React.FC<{
               }}
               dataLength={mapRequestsData.data.length}
               hasMore={
-                mapRequestsData.data.length >=
-                mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length
-                  ? false
-                  : true
+                mapRequestsData.data.length < mapRequestsData.tot
+                // mapRequestsData.data.length >=
+                // mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length
+                //   ? false
+                //   : true
               }
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
@@ -287,7 +288,7 @@ const MapRequestsPanel: React.FC<{
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data //sFilter is ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable'], so it filters out the other statuses
-                .filter((e) => sFilter.includes(e.status)) //use the filters to visualize the maprequests in side panel without having to open and close it
+                //.filter((e) => sFilter.includes(e.status)) //use the filters to visualize the maprequests in side panel without having to open and close it
                 .map((elem, i) => {
                   return (
                     <MapRequestCard
@@ -310,7 +311,9 @@ const MapRequestsPanel: React.FC<{
             </InfiniteScroll>
           </List>
         </div>
-      ) : null}
+      ) : (
+        <h4>{t('common:loading')}</h4>
+      )}
     </div>
   )
 }
