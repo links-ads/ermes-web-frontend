@@ -29,8 +29,7 @@ import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
 import { TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
-  LayerSettingsState,
-  MapRequestLayerState
+  LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
 
 type MapFeature = CulturalProps

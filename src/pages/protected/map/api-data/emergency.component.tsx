@@ -900,6 +900,7 @@ export function EmergencyContent({
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
+  //OLD: must be sobstituted with useMapRequestList -> fetchMapRequestById
   const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
   const [peopData, getPeopData, applyFilterByText] = usePeopleList()
@@ -971,23 +972,31 @@ export function EmergencyContent({
         )
         break
       case 'Person':
-          getPeopData(
-            0,
-            rest.id,
-            undefined,
-            (data) => {
-              return data
-            },
-            {},
-            (data) => {
-              return data
-            }
-          )
-       break
+        getPeopData(
+          0,
+          rest.id,
+          undefined,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
       default:
         break
     }
-  }, [rest.id, fetchRepDetails,fetchCategoriesList, fetchCommDetails, fetchMissDetails, fetchMapReqDetails,type])
+  }, [
+    rest.id,
+    fetchRepDetails,
+    fetchCategoriesList,
+    fetchCommDetails,
+    fetchMissDetails,
+    fetchMapReqDetails,
+    type
+  ])
 
   // useEffect(() => {
   //   console.log('REP DETAILS', repDetails)
@@ -1001,10 +1010,10 @@ export function EmergencyContent({
   }, [missDetails])
 
   useEffect(() => {
-    if (!peopData.isLoading ) {
-      let teamTemp = peopData.data.filter(e=> e.id === rest.id)
-      if(!!teamTemp && teamTemp.length>0)
-      rest.setPersonTeam(peopData.data.filter(e=> e.id === rest.id)[0].teamName)
+    if (!peopData.isLoading) {
+      let teamTemp = peopData.data.filter((e) => e.id === rest.id)
+      if (!!teamTemp && teamTemp.length > 0)
+        rest.setPersonTeam(peopData.data.filter((e) => e.id === rest.id)[0].teamName)
     }
   }, [peopData])
 

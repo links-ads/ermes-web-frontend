@@ -8,11 +8,9 @@ import {
   CommunicationRestrictionType,
   LayerImportStatusType,
   MapRequestDto,
-  MissionStatusType
+  MapRequestStatusType
 } from 'ermes-ts-sdk'
-import useDeleteMapRequest from '../../../../hooks/use-delete-map-request.hook'
 import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
-import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import MapRequestCard from './drawer-cards/maprequest-card.component'
@@ -41,7 +39,13 @@ const MapRequestsPanel: React.FC<{
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [mapRequestsData, getMapRequestsData, applyFilterByText] = useMapRequestList()
+  const [
+    mapRequestsData,
+    getMapRequestsData,
+    applyFilterByText,
+    deleteMapRequest,
+    fetchMapRequestById
+  ] = useMapRequestList()
   const {
     mapRequestsSettings,
     updateMapRequestsSettings,
@@ -68,10 +72,9 @@ const MapRequestsPanel: React.FC<{
     }
   }
 
-  // Calls the data only the first time is needed
-  useEffect(() => {
+  const fetchData = () => {
     getMapRequestsData(
-      0,
+      mapRequestsData.data.length,
       (data: MapRequestDto[]) => {
         console.log(availableLayers)
         data.forEach((mr) => {
@@ -138,23 +141,20 @@ const MapRequestsPanel: React.FC<{
         return data
       }
     )
-  }, [getMapRequestsData])
-  const sFilter: string[] = props.filters.content.filter((e) => e.name === 'map_request_status')[0]
-    .selected
+  }
+
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-  const [deletionState, deleteMapRequest] = useDeleteMapRequest()
-  const [fetchingStateById, getMapRequestById] = useMapRequestById()
-  const deleteRequest = (partnerName: string, id: string) => {
-    let listTodelete: string[] = [partnerName + '.' + id]
-    deleteMapRequest(listTodelete)
+  
+  const deleteMR = (id: string) => {
+    deleteMapRequest([id])
   }
 
   const fetchRequest = (id: string) => {
-    getMapRequestById(
+    fetchMapRequestById(
       id,
       (data) => {
         return data
@@ -167,19 +167,14 @@ const MapRequestsPanel: React.FC<{
   }
   const [copyState, setCopystate] = useState<any | null>(null)
   useEffect(() => {
-    if (!!fetchingStateById.data.feature) {
-      let fetchedArea = JSON.parse(fetchingStateById.data.feature.geometry)
+    if (mapRequestsData.selectedMr && mapRequestsData.selectedMr.feature) {
+      const mr = mapRequestsData.selectedMr
+      let fetchedArea = JSON.parse(mr.feature.geometry)
 
       let ids: string[] = []
-      if (fetchingStateById.data.feature.properties.mapRequestLayers.length > 0) {
-        for (
-          let i = 0;
-          i < fetchingStateById.data.feature.properties.mapRequestLayers.length;
-          i++
-        ) {
-          ids.push(
-            fetchingStateById.data.feature.properties.mapRequestLayers[i].layerDataTypeId.toString()
-          )
+      if (mr.feature.properties.mapRequestLayers.length > 0) {
+        for (let i = 0; i < mr.feature.properties.mapRequestLayers.length; i++) {
+          ids.push(mr.feature.properties.mapRequestLayers[i].layerDataTypeId.toString())
         }
       }
       const defaultEditState = {
@@ -188,20 +183,18 @@ const MapRequestsPanel: React.FC<{
         orgId: -1,
         teamId: -1,
         userId: -1,
-        startDate: !!fetchingStateById.data.feature.properties.duration.lowerBound
-          ? new Date(fetchingStateById.data.feature.properties.duration.lowerBound)
+        startDate: !!mr.feature.properties.duration.lowerBound
+          ? new Date(mr.feature.properties.duration.lowerBound)
           : new Date(),
-        endDate: !!fetchingStateById.data.feature.properties.duration.upperBound
-          ? new Date(fetchingStateById.data.feature.properties.duration.upperBound)
+        endDate: !!mr.feature.properties.duration.upperBound
+          ? new Date(mr.feature.properties.duration.upperBound)
           : null,
         description: '',
-        status: MissionStatusType.CREATED,
-        frequency: !!fetchingStateById.data.feature.properties.frequency
-          ? fetchingStateById.data.feature.properties.frequency
-          : '0',
+        status: MapRequestStatusType.REQUEST_SUBMITTED,
+        frequency: !!mr.feature.properties.frequency ? mr.feature.properties.frequency : '0',
         dataType: ids.length > 0 ? ids : [],
-        resolution: !!fetchingStateById.data.feature.properties.resolution
-          ? fetchingStateById.data.feature.properties.resolution
+        resolution: !!mr.feature.properties.resolution
+          ? mr.feature.properties.resolution
           : '10',
         restrictionType: CommunicationRestrictionType.NONE,
         scope: null
@@ -210,15 +203,11 @@ const MapRequestsPanel: React.FC<{
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
       showFeaturesDialog('create', 'MapRequest', '', areaObject)
     }
-  }, [fetchingStateById])
+  }, [mapRequestsData.selectedMr])
 
   const onFeatureDialogClose = useCallback(
     (status: DialogResponseType) => {
-      console.debug('onFeatureDialogClose', status)
-      // clearFeatureEdit()
-
       if (status === 'confirm') {
-        console.log('onFeatureDialogClose [confirm]')
         props.fetchGeoJson(undefined)
       }
     },
@@ -227,18 +216,10 @@ const MapRequestsPanel: React.FC<{
   )
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose, copyState)
 
+  // Calls the data only the first time is needed
   useEffect(() => {
-    getMapRequestsData(
-      0,
-      (data) => {
-        return data
-      },
-      {},
-      (data) => {
-        return data
-      }
-    )
-  }, [deletionState])
+    fetchData()
+  }, [])
 
   return (
     <div className="containerWithSearch">
@@ -254,31 +235,13 @@ const MapRequestsPanel: React.FC<{
           style={{ height: height - 280 }}
         >
           <ItemCounter
-            //itemCount={mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length}
             itemCount={mapRequestsData.tot}
           />
           <List component="span" aria-label="main mailbox folders">
             <InfiniteScroll
-              next={() => {
-                getMapRequestsData(
-                  mapRequestsData.data.length,
-                  (data) => {
-                    return data
-                  },
-                  {},
-                  (data) => {
-                    return data
-                  }
-                )
-              }}
+              next={fetchData}
               dataLength={mapRequestsData.data.length}
-              hasMore={
-                mapRequestsData.data.length < mapRequestsData.tot
-                // mapRequestsData.data.length >=
-                // mapRequestsData.data.filter((e) => sFilter.includes(e.status)).length
-                //   ? false
-                //   : true
-              }
+              hasMore={mapRequestsData.data.length < mapRequestsData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -287,8 +250,7 @@ const MapRequestsPanel: React.FC<{
               }
               scrollableTarget="scrollableElem"
             >
-              {mapRequestsData.data //sFilter is ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable'], so it filters out the other statuses
-                //.filter((e) => sFilter.includes(e.status)) //use the filters to visualize the maprequests in side panel without having to open and close it
+              {mapRequestsData.data
                 .map((elem, i) => {
                   return (
                     <MapRequestCard
@@ -301,7 +263,7 @@ const MapRequestsPanel: React.FC<{
                       spiderifierRef={props.spiderifierRef}
                       getLegend={getLegend}
                       getMeta={getMeta}
-                      deleteRequest={deleteRequest}
+                      deleteMR={deleteMR}
                       fetchRequestById={fetchRequest}
                       mapRequestSettings={mapRequestsSettings[elem.code]}
                       updateMapRequestsSettings={updateMapRequestsSettings}

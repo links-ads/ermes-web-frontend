@@ -1,12 +1,12 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { MapRequestsApiFactory, MapRequestDto } from 'ermes-ts-sdk' // MapRequestDto
+import { MapRequestsApiFactory, MapRequestDto, MapRequestStatusType, GetEntityByIdOutputOfMapRequestDto } from 'ermes-ts-sdk' // MapRequestDto
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
-const initialState = { error: false, isLoading: true, data: [], tot: 0 }
+const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedMr: {} }
 
 const reducer = (currentState, action) => {
     switch (action.type) {
@@ -16,15 +16,17 @@ const reducer = (currentState, action) => {
                 isLoading: true,
                 data: [],
                 error: false,
-                tot: action.tot
+                tot: action.tot,
+                selectedMr: {}
             }
         case 'RESULT':
             return {
-                ...currentState,
-                isLoading: false,
-                data: action.value, //was data: [...currentState.data, ...action.value],  but then results keep adding each call
-                error: false,
-                tot: action.tot
+              ...currentState,
+              isLoading: false,
+              data: [...currentState.data, ...action.value],
+              error: false,
+              tot: action.tot,
+              selectedMr: {}
             }
         case 'ERROR':
             return {
@@ -32,7 +34,40 @@ const reducer = (currentState, action) => {
                 isLoading: false,
                 data: action.value,
                 hasMore: false,
-                error: true
+                error: true,
+                selectedMr: {}
+            }
+        case 'DELETE':
+            const toBeDeletedCode = action.value[0]
+            const mrToUpdateIndex =  currentState.data.map(item => item.code).indexOf(toBeDeletedCode)
+            if(mrToUpdateIndex < 0){
+              return {
+                ...currentState,
+                isLoading: true,
+                data: [],
+                error: false,
+                tot: action.tot,
+                selectedMr: {}
+              }
+            }
+            currentState.data[mrToUpdateIndex].status = MapRequestStatusType.CANCELED
+            
+            return {
+              ...currentState,
+              isLoading: false,
+              data: [...currentState.data],
+              hasMore: false,
+              error: false,
+              selectedMr: {}
+            }
+        case 'FETCHBYID':
+            return {
+              ...currentState,
+              isLoading: false,
+              data: [...currentState.data],
+              hasMore: false,
+              error: false,
+              selectedMr: action.value
             }
     }
     return initialState
@@ -46,6 +81,7 @@ export default function useMapRequestList() {
     const maprequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig), [backendAPIConfig])
     const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
     const mounted = useRef(false)
+    const housePartner = 'links.'
     const [storedFilters, , ] = useMemoryState(
         'memstate-map',
         null,
@@ -106,5 +142,41 @@ export default function useMapRequestList() {
             mounted.current = true
         }
     }, [textQuery,fetchMapRequests])
-    return [dataState, fetchMapRequests, applySearchQueryReloadData]
+
+    const deleteMapRequest = (listToDelete: string[]) => {
+        maprequestApiFactory
+          .mapRequestsDeleteMapRequest(listToDelete.map((item) => housePartner + item))
+          .then((result) => {
+            const deletedCodes: string[] = result.data.deletedMapRequestCodes!.map(
+              (item) => item.split(housePartner).length >= 1 ?  item.split(housePartner)[1] : item
+            )
+            dispatch({ type: 'DELETE', value: deletedCodes })
+          })
+          .catch((error) => {
+            dispatch({ type: 'ERROR', value: error.message })
+          })
+    }
+
+    const fetchMapRequestById = useCallback(
+      (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+        maprequestApiFactory
+          .mapRequestsGetMapRequestById(id, true)
+          .then((result) => {
+            let newData: GetEntityByIdOutputOfMapRequestDto = transformData(result.data)
+            sideEffect(newData)
+            dispatch({ type: 'FETCHBYID', value: newData })
+          })
+          .catch(() => {
+            dispatch({ type: 'ERROR', value: errorData })
+          })
+      },
+      [maprequestApiFactory]
+    )
+    return [
+      dataState,
+      fetchMapRequests,
+      applySearchQueryReloadData,
+      deleteMapRequest,
+      fetchMapRequestById
+    ]
 }

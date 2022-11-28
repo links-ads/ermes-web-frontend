@@ -20,7 +20,7 @@ const MapRequestCard: React.FC<{
   spiderifierRef
   getMeta
   getLegend
-  deleteRequest
+  deleteMR
   fetchRequestById
   mapRequestSettings: MapRequestLayerState
   updateMapRequestsSettings
@@ -69,7 +69,7 @@ const MapRequestCard: React.FC<{
               <FileCopyIcon />
             </IconButton>
             {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
-              <IconButton onClick={() => props.deleteRequest('links', mapRequestInfo.code)}>
+              <IconButton onClick={() => props.deleteMR(mapRequestInfo.code)}>
                 <DeleteIcon />
               </IconButton>
             ) : null}
