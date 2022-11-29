@@ -50,7 +50,7 @@ export function Map() {
   const { i18n } = useTranslation()
   const [layerName, setLayerName] = useState<string>('')
 
-  const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>()
+  const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>({})
 
   const updateMapRequestsSettings = (
     mrCode: string,
@@ -311,9 +311,6 @@ export function Map() {
       })
     })
     
-    //mrSetting initialization moved inside map request panel
-    mrSettings = {}
-    setMapRequestsSettings(mrSettings)
     return [data2Tiles, mapRequestData2Tiles]
   }, [getLayersState])
 
