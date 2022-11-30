@@ -97,7 +97,7 @@ const MapRequestsPanel: React.FC<{
         })
 
         //Merge the info from getLayers into map request
-        if (availableLayers)
+        if (availableLayers && availableLayers.layerGroups)
           availableLayers.layerGroups.forEach((group: LayerGroupDto) => {
             group.subGroups!.forEach((subGroup: LayerSubGroupDto) => {
               subGroup.layers!.forEach((layer: LayerDto) => {
