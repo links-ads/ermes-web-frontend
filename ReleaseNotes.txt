@@ -2,6 +2,10 @@ Ver.
 -----------------------
 
 
+Ver. 2.1.0 - 2022-11-30
+-----------------------
+- Bugfix - Refactoring of map request management (#98)
+
 Ver. 2.0.0 - 2022-10-27
 -----------------------
 - Bugfix - implemented spider closing on click on map, fixed maprequest timestamps, removed HRs selection from mapRequest creation ref #97 when selecting 
