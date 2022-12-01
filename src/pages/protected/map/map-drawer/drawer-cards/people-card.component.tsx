@@ -16,7 +16,6 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['maps'])
   return (
     <CardWithPopup
-      key={ENTITY_TYPE + String(elem.id)}
       keyID={ENTITY_TYPE + String(elem.id)}
       latitude={elem?.location?.latitude as number}
       longitude={elem?.location?.longitude as number}

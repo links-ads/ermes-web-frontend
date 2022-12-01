@@ -354,7 +354,7 @@ export function Map() {
   }, [teamsApiFactory, handleTeamsAPICall])
 
   /**
-   * when map loads, once the teams list is available heck if there were already teams filters selected, if
+   * when map loads, once the teams list is available check if there were already teams filters selected, if
    * so then use that to get proper features
    */
   useEffect(() => {
@@ -374,7 +374,8 @@ export function Map() {
         }
       }
       //if there are conditions for filtering, then call getfeatures again with the filter
-      if (arrayOfTeams.length > 0) fetchGeoJson(arrayOfTeams)
+      if (arrayOfTeams.length > 0) 
+        fetchGeoJson(arrayOfTeams)
     }
   }, [teamList])
 

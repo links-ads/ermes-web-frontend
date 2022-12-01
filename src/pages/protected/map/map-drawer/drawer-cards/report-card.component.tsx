@@ -16,7 +16,6 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const theme = useTheme()
   return (
     <CardWithPopup
-      key={'report' + String(elem.id)}
       keyID={'report' + String(elem.id)}
       latitude={elem!.location!.latitude as number}
       longitude={elem!.location!.longitude as number}
@@ -35,7 +34,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
             ? elem.mediaURIs[0].thumbnailURI
             : 'https://via.placeholder.com/400x200.png?text=' + t('common:image_not_available')
         }
-        title="Contemplative Reptile"
+        title="Report title"
       />
       <div className={classes.details}>
         <CardContent className={classes.topCard}>

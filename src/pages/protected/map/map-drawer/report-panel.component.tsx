@@ -98,7 +98,7 @@ export default function ReportPanel(props) {
               }
               scrollableTarget="scrollableElem"
             >
-              {repsData.data.map((elem, i) => (
+              {repsData.data.map((elem, i) =>
                 <ReportCard
                   key={i}
                   elem={elem}
@@ -108,7 +108,7 @@ export default function ReportPanel(props) {
                   spiderifierRef={props.spiderifierRef}
                   flyToCoords={flyToCoords}
                 />
-              ))}
+              )}
             </InfiniteScroll>
           </List>
         </div>

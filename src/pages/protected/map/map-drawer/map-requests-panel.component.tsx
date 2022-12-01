@@ -76,7 +76,6 @@ const MapRequestsPanel: React.FC<{
     getMapRequestsData(
       mapRequestsData.data.length,
       (data: MapRequestDto[]) => {
-        console.log(availableLayers)
         data.forEach((mr) => {
           var currentMr = mapRequestsSettings[mr.code!]
           let newMrLayerState = new MapRequestLayerState()
@@ -251,10 +250,9 @@ const MapRequestsPanel: React.FC<{
               scrollableTarget="scrollableElem"
             >
               {mapRequestsData.data
-                .map((elem, i) => {
-                  return (
+                .map((elem, i) => 
                     <MapRequestCard
-                      key={'map_request_card_' + i}
+                      key={elem.code}
                       mapRequestInfo={elem}
                       setGoToCoord={props.setGoToCoord}
                       map={props.map}
@@ -268,8 +266,7 @@ const MapRequestsPanel: React.FC<{
                       mapRequestSettings={mapRequestsSettings[elem.code]}
                       updateMapRequestsSettings={updateMapRequestsSettings}
                     />
-                  )
-                })}
+                )}
             </InfiniteScroll>
           </List>
         </div>

@@ -12,13 +12,12 @@ import DrawerCardProps from "../../../../../models/DrawerCardProps";
 const ENTITY_TYPE = EntityType.MISSION
 
 const MissionCard: React.FC<DrawerCardProps> = (props) => {
-  const { key, elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
+  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
   const { t } = useTranslation(['common', 'maps'])
   const lowerBoundDate = FormatDate(elem.duration?.lowerBound)
   const upperBoundDate = FormatDate(elem.duration?.lowerBound)
   return (
     <CardWithPopup
-      key={ENTITY_TYPE + String(elem.id)}
       keyID={ENTITY_TYPE + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}

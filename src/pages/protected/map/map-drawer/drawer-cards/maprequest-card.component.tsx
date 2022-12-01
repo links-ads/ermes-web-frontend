@@ -44,7 +44,6 @@ const MapRequestCard: React.FC<{
 
   return (
     <CardWithPopup
-      key={'map-request' + String(mapRequestInfo.id)}
       keyID={'map-request' + String(mapRequestInfo.id)}
       latitude={mapRequestInfo!.centroid!.latitude as number}
       longitude={mapRequestInfo!.centroid!.longitude as number}
@@ -55,10 +54,10 @@ const MapRequestCard: React.FC<{
       id={mapRequestInfo.id}
       spiderifierRef={spiderifierRef}
     >
-      <CardContent key={mapRequestInfo.code!}>
-        <div className={classes.headerBlock} key={mapRequestInfo.code + '_sub'}>
+      <CardContent>
+        <div className={classes.headerBlock}>
           <div>
-            <Box component="div" display="inline-block" key={mapRequestInfo.code + '_box'}>
+            <Box component="div" display="inline-block">
               <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
                 {mapRequestInfo.code}
               </Typography>
@@ -127,7 +126,6 @@ const MapRequestCard: React.FC<{
           {['layer', 'status'].map((type, index) => {
             if (mapRequestInfo[type]) {
               return (
-                <>
                   <div key={'label_status_' + index}>
                     <Typography
                       component={'span'}
@@ -142,7 +140,6 @@ const MapRequestCard: React.FC<{
                     </Typography>
                     <br />
                   </div>
-                </>
               )
             }
             return null
@@ -151,7 +148,6 @@ const MapRequestCard: React.FC<{
         <div className={classes.pos}>
           {mapRequestInfo.status === MapRequestStatusType.CONTENT_AVAILABLE && (
             <MapRequestAccordion
-              key={mapRequestInfo.code!}
               getMeta={getMeta}
               getLegend={getLegend}
               map={map}
