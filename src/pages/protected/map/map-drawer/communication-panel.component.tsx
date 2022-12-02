@@ -7,6 +7,7 @@ import ItemCounter from './item-counter'
 import CommunicationCard from './drawer-cards/communication-card.component'
 import classes from './map-drawer.module.scss'
 import SearchBar from '../../../../common/search-bar.component'
+import { EntityType } from 'ermes-ts-sdk'
 
 export default function CommunicationPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
@@ -49,7 +50,25 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  },[]) // removed [getcommsdata] cause it was being called on filter search
+  }, []) // removed [getcommsdata] cause it was being called on filter search
+
+  //reload data when a new communication is created from the map
+  useEffect(() => {
+    if (props.communicationCounter > 0){ 
+      getCommsData(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        },
+        true
+      )
+      props.resetListCounter(EntityType.COMMUNICATION)
+    }
+  }, [props.communicationCounter]) 
 
   // Fix height of the list when the window is resized
   useEffect(() => {

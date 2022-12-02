@@ -10,65 +10,74 @@ const initialState = { error: false, isLoading: true, data: [], tot: 0, selected
 
 const reducer = (currentState, action) => {
     switch (action.type) {
-        case 'FETCH':
-            return {
-                ...currentState,
-                isLoading: true,
-                data: [],
-                error: false,
-                tot: action.tot,
-                selectedMr: {}
-            }
-        case 'RESULT':
-            return {
-              ...currentState,
-              isLoading: false,
-              data: [...currentState.data, ...action.value],
-              error: false,
-              tot: action.tot,
-              selectedMr: {}
-            }
-        case 'ERROR':
-            return {
-                ...currentState,
-                isLoading: false,
-                data: action.value,
-                hasMore: false,
-                error: true,
-                selectedMr: {}
-            }
-        case 'DELETE':
-            const toBeDeletedCode = action.value[0]
-            const mrToUpdateIndex =  currentState.data.map(item => item.code).indexOf(toBeDeletedCode)
-            if(mrToUpdateIndex < 0){
-              return {
-                ...currentState,
-                isLoading: true,
-                data: [],
-                error: false,
-                tot: action.tot,
-                selectedMr: {}
-              }
-            }
-            currentState.data[mrToUpdateIndex].status = MapRequestStatusType.CANCELED
-            
-            return {
-              ...currentState,
-              isLoading: false,
-              data: [...currentState.data],
-              hasMore: false,
-              error: false,
-              selectedMr: {}
-            }
-        case 'FETCHBYID':
-            return {
-              ...currentState,
-              isLoading: false,
-              data: [...currentState.data],
-              hasMore: false,
-              error: false,
-              selectedMr: action.value
-            }
+      case 'FETCH':
+        return {
+          ...currentState,
+          isLoading: true,
+          data: [],
+          error: false,
+          tot: action.tot,
+          selectedMr: {}
+        }
+      case 'RESULT':
+        return {
+          ...currentState,
+          isLoading: false,
+          data: [...currentState.data, ...action.value],
+          error: false,
+          tot: action.tot,
+          selectedMr: {}
+        }
+      case 'ERROR':
+        return {
+          ...currentState,
+          isLoading: false,
+          data: action.value,
+          hasMore: false,
+          error: true,
+          selectedMr: {}
+        }
+      case 'DELETE':
+        const toBeDeletedCode = action.value[0]
+        const mrToUpdateIndex = currentState.data.map((item) => item.code).indexOf(toBeDeletedCode)
+        if (mrToUpdateIndex < 0) {
+          return {
+            ...currentState,
+            isLoading: true,
+            data: [],
+            error: false,
+            tot: action.tot,
+            selectedMr: {}
+          }
+        }
+        currentState.data[mrToUpdateIndex].status = MapRequestStatusType.CANCELED
+
+        return {
+          ...currentState,
+          isLoading: false,
+          data: [...currentState.data],
+          hasMore: false,
+          error: false,
+          selectedMr: {}
+        }
+      case 'FETCHBYID':
+        return {
+          ...currentState,
+          isLoading: false,
+          data: [...currentState.data],
+          hasMore: false,
+          error: false,
+          selectedMr: action.value
+        }
+      case 'INITIALIZE':
+        return {
+          ...currentState,
+          isLoading: false,
+          data: [...action.value],
+          hasMore: false,
+          error: true,
+          tot: action.tot
+        }
     }
     return initialState
 }
@@ -88,7 +97,7 @@ export default function useMapRequestList() {
         false
     )
     const fetchMapRequests = useCallback(
-        (tot, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { }) => {
+        (tot, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { }, initialize = false) => {
             const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
             maprequestApiFactory.mapRequestsGetMapRequests(
                 (filters?.datestart as any)?.selected,
@@ -109,11 +118,19 @@ export default function useMapRequestList() {
                 .then((result) => {
                     let newData: MapRequestDto[] = transformData(result.data.data) || [] // Where is MapRequestsDto
                     let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-                    dispatch({
+                    if (initialize) {
+                      dispatch({
+                        type: 'INITIALIZE',
+                        value: newData,
+                        tot: totToDown
+                      })
+                    } else {
+                      dispatch({
                         type: 'RESULT',
                         value: newData,
                         tot: totToDown
-                    })
+                      })
+                    }
                 })
                 .catch((err) => {
                     displayErrorSnackbar(err)

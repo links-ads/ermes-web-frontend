@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Grid, IconButton,TextField,FormControl,InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText } from '@material-ui/core'
+import { Grid, IconButton,TextField,FormControl,InputLabel, MenuItem, Select, FormHelperText } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import DateFnsUtils from '@date-io/date-fns'
@@ -18,7 +18,6 @@ import { CommunicationRestrictionType, CommunicationScopeType } from 'ermes-ts-s
 
 export function CommunicationDialog(
     {
-        operationType,
         editState,
         dispatchEditAction,
         editError

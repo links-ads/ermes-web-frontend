@@ -34,6 +34,15 @@ const reducer = (currentState, action) => {
         hasMore: false,
         error: true
       }
+    case 'INITIALIZE':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: [...action.value],
+        hasMore: false,
+        error: true,
+        tot: action.tot
+      }
   }
   return initialState
 }
@@ -52,7 +61,7 @@ export default function useMissionsList() {
     false
   )
   const fetchMissions = useCallback(
-    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}, initialize = false) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       missionsApiFactory
         .missionsGetMissions(
@@ -72,13 +81,20 @@ export default function useMissionsList() {
         )
         .then((result) => {
           let newData: MissionDto[] = transformData(result.data.data) || []
-
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          dispatch({
-            type: 'RESULT',
-            value: newData,
-            tot: totToDown
-          })
+          if (initialize) {
+            dispatch({
+              type: 'INITIALIZE',
+              value: newData,
+              tot: totToDown
+            })
+          } else {
+            dispatch({
+              type: 'RESULT',
+              value: newData,
+              tot: totToDown
+            })
+          }
         })
         .catch((err) => {
           displayErrorSnackbar(err)

@@ -132,7 +132,7 @@ export default function PeoplePanel(props) {
               }
               scrollableTarget="scrollableElem"
             >
-              {peopData.data.map((elem, i) => 
+              {peopData.data.map((elem, i) => (
                 <PeopleCard
                   key={i}
                   elem={elem}
@@ -142,7 +142,7 @@ export default function PeoplePanel(props) {
                   spiderifierRef={props.spiderifierRef}
                   flyToCoords={flyToCoords}
                 />
-              )}
+              ))}
             </InfiniteScroll>
           </List>
         </div>

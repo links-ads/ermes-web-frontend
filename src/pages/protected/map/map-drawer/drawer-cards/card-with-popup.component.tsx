@@ -28,7 +28,6 @@ export default function CardWithPopup(props) {
 
   return (
     <Card
-      key={props.keyID}
       className={`${props.className} ${classes.root}`}
       raised={true}
       onPointerEnter={() => {

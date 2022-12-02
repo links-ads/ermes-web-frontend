@@ -47,10 +47,10 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
           </Box>
         </div>
         <div className={classes.pos}>
-          {['status', 'activityName', 'organizationName', 'teamName'].map((type) => {
+          {['status', 'activityName', 'organizationName', 'teamName'].map((type, index) => {
             if (elem[type]) {
               return (
-                <>
+                <div key={type+index}>
                   <Typography
                     component={'span'}
                     variant="caption"
@@ -63,7 +63,7 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
                     {elem[type]}
                   </Typography>
                   <br />
-                </>
+                </div>
               )
             }
             return null

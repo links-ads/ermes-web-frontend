@@ -24,7 +24,7 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
   const style = useStyles()
 
   const lowerBoundDate = FormatDate(elem.duration?.lowerBound)
-  const upperBoundDate = FormatDate(elem.duration?.lowerBound)
+  const upperBoundDate = FormatDate(elem.duration?.upperBound)
 
   return (
     <CardWithPopup
