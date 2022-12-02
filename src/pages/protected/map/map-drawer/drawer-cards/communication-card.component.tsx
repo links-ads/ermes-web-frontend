@@ -20,16 +20,15 @@ const useStyles = makeStyles((theme) => ({
 
 const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
-  const { key, elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
+  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
   const style = useStyles()
 
   const lowerBoundDate = FormatDate(elem.duration?.lowerBound)
-  const upperBoundDate = FormatDate(elem.duration?.lowerBound)
+  const upperBoundDate = FormatDate(elem.duration?.upperBound)
 
   return (
     <CardWithPopup
-      key={'communication' + String(key)}
-      keyID={'communication' + String(key)}
+      keyID={'communication' + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}
       className={classes.card}

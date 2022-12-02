@@ -75,16 +75,10 @@ const defaultEditState = {
   dataType: [],
   resolution: "10",
   restrictionType: CommunicationRestrictionType.NONE,
-  scope: null
+  scope: CommunicationScopeType.PUBLIC
 }
 
-/**
- * 
- * @param currentState the status of the create poup to be modified
- * @param action the action broadcasted
- * @returns 
- */
-export function useMapDialog(onDialogClose: (data: any) => void, customState: any | null) {
+export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) => void, customState: any | null) {
   const initialEditState = useMemo(() => { 
     if(!!customState) return customState 
     else return defaultEditState }, [customState])
@@ -221,7 +215,7 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
           onCancel={() => {
             console.debug('Dialog Canceled')
             hideDialog()
-            onDialogClose('cancel')
+            onDialogClose('cancel', EntityType.OTHER)
           }}
         >
 
@@ -322,10 +316,10 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
           return missionsApiFactory.missionsCreateOrUpdateMission(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMissionInput)
         },successMessage , () => {
           hideDialog()
-          onDialogClose('confirm')
+          onDialogClose('confirm', EntityType.MISSION)
         }, () => {
           hideDialog()
-          onDialogClose('cancel')
+          onDialogClose('cancel', EntityType.OTHER)
         })
         break;
       case 'MapRequest':
@@ -335,10 +329,10 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
         return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
         },successMessage , () => {
           //hideDialog()
-          onDialogClose('confirm')
+          onDialogClose('confirm', EntityType.MAP_REQUEST)
         }, () => {
           //hideDialog()
-          onDialogClose('cancel')
+          onDialogClose('cancel', EntityType.OTHER)
         })
         break;
       case 'Communication':
@@ -347,10 +341,10 @@ export function useMapDialog(onDialogClose: (data: any) => void, customState: an
           return commApiFactory.communicationsCreateOrUpdateCommunication(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateCommunicationInput)
         }, successMessage, () => {
           hideDialog()
-          onDialogClose('confirm')
+          onDialogClose('confirm', EntityType.COMMUNICATION)
         }, () => {
           hideDialog()
-          onDialogClose('cancel')
+          onDialogClose('cancel', EntityType.OTHER)
         })
         break;
     }

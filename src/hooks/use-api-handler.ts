@@ -56,7 +56,7 @@ const useAPIHandler = (withSnackbars: boolean = true) => {
         .then((result) => {
           dispatch({ type: 'RESULT', value: result })
           if (withSnack) displaySuccessSnackbar(successMessage)
-          successCallback()
+          successCallback(result)
         })
         .catch((error) => {
           dispatch({ type: 'ERROR' })

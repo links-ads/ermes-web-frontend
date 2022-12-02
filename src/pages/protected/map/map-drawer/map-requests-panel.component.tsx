@@ -6,6 +6,7 @@ import List from '@material-ui/core/List'
 import ItemCounter from './item-counter'
 import {
   CommunicationRestrictionType,
+  EntityType,
   LayerImportStatusType,
   MapRequestDto,
   MapRequestStatusType
@@ -36,6 +37,8 @@ const MapRequestsPanel: React.FC<{
   setMapRequestsSettings
   availableLayers
   layersDefinition: LayerDefinition
+  mapRequestCounter: number
+  resetListCounter
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
@@ -72,11 +75,10 @@ const MapRequestsPanel: React.FC<{
     }
   }
 
-  const fetchData = () => {
+  const fetchData = (initialize: boolean = false) => {
     getMapRequestsData(
       mapRequestsData.data.length,
       (data: MapRequestDto[]) => {
-        console.log(availableLayers)
         data.forEach((mr) => {
           var currentMr = mapRequestsSettings[mr.code!]
           let newMrLayerState = new MapRequestLayerState()
@@ -139,7 +141,8 @@ const MapRequestsPanel: React.FC<{
       {},
       (data) => {
         return data
-      }
+      },
+      initialize
     )
   }
 
@@ -148,7 +151,7 @@ const MapRequestsPanel: React.FC<{
     window.addEventListener('resize', resizeHeight)
     return () => window.removeEventListener('resize', resizeHeight)
   })
-  
+
   const deleteMR = (id: string) => {
     deleteMapRequest([id])
   }
@@ -193,9 +196,7 @@ const MapRequestsPanel: React.FC<{
         status: MapRequestStatusType.REQUEST_SUBMITTED,
         frequency: !!mr.feature.properties.frequency ? mr.feature.properties.frequency : '0',
         dataType: ids.length > 0 ? ids : [],
-        resolution: !!mr.feature.properties.resolution
-          ? mr.feature.properties.resolution
-          : '10',
+        resolution: !!mr.feature.properties.resolution ? mr.feature.properties.resolution : '10',
         restrictionType: CommunicationRestrictionType.NONE,
         scope: null
       }
@@ -221,6 +222,14 @@ const MapRequestsPanel: React.FC<{
     fetchData()
   }, [])
 
+  //reload data when a new communication is created from the map
+  useEffect(() => {
+    if (props.mapRequestCounter > 0) {
+      fetchData(true)
+      props.resetListCounter(EntityType.MAP_REQUEST)
+    }
+  }, [props.mapRequestCounter])
+
   return (
     <div className="containerWithSearch">
       <SearchBar
@@ -234,9 +243,7 @@ const MapRequestsPanel: React.FC<{
           id="scrollableElem"
           style={{ height: height - 280 }}
         >
-          <ItemCounter
-            itemCount={mapRequestsData.tot}
-          />
+          <ItemCounter itemCount={mapRequestsData.tot} />
           <List component="span" aria-label="main mailbox folders">
             <InfiniteScroll
               next={fetchData}
@@ -250,26 +257,23 @@ const MapRequestsPanel: React.FC<{
               }
               scrollableTarget="scrollableElem"
             >
-              {mapRequestsData.data
-                .map((elem, i) => {
-                  return (
-                    <MapRequestCard
-                      key={'map_request_card_' + i}
-                      mapRequestInfo={elem}
-                      setGoToCoord={props.setGoToCoord}
-                      map={props.map}
-                      setMapHoverState={props.setMapHoverState}
-                      spiderLayerIds={props.spiderLayerIds}
-                      spiderifierRef={props.spiderifierRef}
-                      getLegend={getLegend}
-                      getMeta={getMeta}
-                      deleteMR={deleteMR}
-                      fetchRequestById={fetchRequest}
-                      mapRequestSettings={mapRequestsSettings[elem.code]}
-                      updateMapRequestsSettings={updateMapRequestsSettings}
-                    />
-                  )
-                })}
+              {mapRequestsData.data.map((elem, i) => (
+                <MapRequestCard
+                  key={elem.code}
+                  mapRequestInfo={elem}
+                  setGoToCoord={props.setGoToCoord}
+                  map={props.map}
+                  setMapHoverState={props.setMapHoverState}
+                  spiderLayerIds={props.spiderLayerIds}
+                  spiderifierRef={props.spiderifierRef}
+                  getLegend={getLegend}
+                  getMeta={getMeta}
+                  deleteMR={deleteMR}
+                  fetchRequestById={fetchRequest}
+                  mapRequestSettings={mapRequestsSettings[elem.code]}
+                  updateMapRequestsSettings={updateMapRequestsSettings}
+                />
+              ))}
             </InfiniteScroll>
           </List>
         </div>

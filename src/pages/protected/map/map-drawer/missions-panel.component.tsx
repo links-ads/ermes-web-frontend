@@ -7,12 +7,13 @@ import ItemCounter from './item-counter'
 import MissionCard from './drawer-cards/mission-card.component'
 import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
+import { EntityType } from 'ermes-ts-sdk'
 
 export default function CommunicationPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
   const [missionsData, getMissionsData, applyFilterByText] = useMissionsList()
-  
+
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
@@ -50,7 +51,25 @@ export default function CommunicationPanel(props) {
         return data
       }
     )
-  },[])
+  }, [])
+
+  //reload data when a new communication is created from the map
+  useEffect(() => {
+    if (props.missionCounter > 0) {
+      getMissionsData(
+        0,
+        (data) => {
+          return data
+        },
+        {},
+        (data) => {
+          return data
+        },
+        true
+      )
+      props.resetListCounter(EntityType.MISSION)
+    }
+  }, [props.missionCounter])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

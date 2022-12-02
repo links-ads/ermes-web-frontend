@@ -178,6 +178,8 @@ export default function MapDrawer(props) {
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
+              communicationCounter={props.communicationCounter}
+              resetListCounter={props.resetListCounter}
             />
           </TabPanel>
 
@@ -189,6 +191,8 @@ export default function MapDrawer(props) {
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
+              missionCounter={props.missionCounter}
+              resetListCounter={props.resetListCounter}
             />
           </TabPanel>
 
@@ -222,6 +226,8 @@ export default function MapDrawer(props) {
               setMapRequestsSettings={setMapRequestsSettings}
               availableLayers={availableLayers}
               layersDefinition={layersDefinition}
+              mapRequestCounter={props.mapRequestCounter}
+              resetListCounter={props.resetListCounter}
             />
           </TabPanel>
         </SwipeableViews>
