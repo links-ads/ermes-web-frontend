@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Add element in drawer when a new entity is created from the map
 
 Ver. 2.1.0 - 2022-11-30
 -----------------------
