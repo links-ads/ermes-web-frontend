@@ -15,8 +15,8 @@
   },
   "mapboxgl": {
     "apiKey": "1234567890",
-    "mapServerURL": "https://maps.faster-project.cloud",
-    "mapStylesURL": "https://maps.faster-project.cloud/map-assets/faster/map-styles/",
+    "mapServerURL": "https://longisland.polito.it",
+    "mapStylesURL": "https://longisland.polito.it/map-assets/i-react/map-styles/",
     "mapViewport": {
       "latitude": 45.3,
       "longitude": 7.23,
