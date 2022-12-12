@@ -222,7 +222,6 @@ const MapRequestAccordionItem: React.FC<{
                       style={{ marginTop: '10px', marginLeft: '5px' }}
                     >
                       <Slider
-                        className={style.slider}
                         aria-label="Temperature"
                         defaultValue={0}
                         //getAriaValueText={valuetext}

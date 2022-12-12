@@ -284,7 +284,6 @@ export function LayersPlayer(props) {
             <span className={classes.spanContainer}>
               <div className={classes.sliderContainer}>
                 <Slider
-                  className={classes.slider}
                   aria-label="Temperature"
                   defaultValue={0}
                   getAriaValueText={valuetext}
