@@ -27,7 +27,7 @@ import { getLegendURL } from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
-import { TeamsApiFactory } from 'ermes-ts-sdk'
+import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
   LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
@@ -354,7 +354,7 @@ export function Map() {
   }, [teamsApiFactory, handleTeamsAPICall])
 
   /**
-   * when map loads, once the teams list is available heck if there were already teams filters selected, if
+   * when map loads, once the teams list is available check if there were already teams filters selected, if
    * so then use that to get proper features
    */
   useEffect(() => {
@@ -374,7 +374,8 @@ export function Map() {
         }
       }
       //if there are conditions for filtering, then call getfeatures again with the filter
-      if (arrayOfTeams.length > 0) fetchGeoJson(arrayOfTeams)
+      if (arrayOfTeams.length > 0) 
+        fetchGeoJson(arrayOfTeams)
     }
   }, [teamList])
 
@@ -689,6 +690,46 @@ export function Map() {
       })
   }
 
+  const [communicationCounter, setCommunicationCounter] = useState(0)
+  const [missionCounter, setMissionCounter] = useState(0)
+  const [mapRequestCounter, setMapRequestCounter] = useState(0)
+  const refreshList = (entityType: EntityType) => {
+    let counter = 0
+    switch (entityType) {
+      case EntityType.COMMUNICATION:
+        counter = communicationCounter + 1
+        setCommunicationCounter(counter)
+        break
+      case EntityType.MISSION:
+        counter = missionCounter + 1
+        setMissionCounter(counter)
+        break
+      case EntityType.MAP_REQUEST:
+        counter = mapRequestCounter + 1
+        setMapRequestCounter(counter)
+        break
+      default:
+        break
+    }
+    
+  }
+
+  const resetListCounter = (entityType: EntityType) => {
+    switch (entityType) {
+      case EntityType.COMMUNICATION:
+        setCommunicationCounter(0)
+        break
+      case EntityType.MISSION:
+        setMissionCounter(0)
+        break
+      case EntityType.MAP_REQUEST:
+        setMapRequestCounter(0)
+        break
+      default:
+        break
+    }
+  }
+
   ///////
   return (
     <>
@@ -719,6 +760,10 @@ export function Map() {
         updateMapRequestsSettings={updateMapRequestsSettings}
         setMapRequestsSettings={setMapRequestsSettings}
         availableLayers={getLayersState?.result.data}
+        communicationCounter={communicationCounter}
+        missionCounter={missionCounter}
+        mapRequestCounter={mapRequestCounter}
+        resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
@@ -826,6 +871,7 @@ export function Map() {
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
             singleLayerOpacityStatus={singleLayerOpacityStatus}
+            refreshList={refreshList}
           />
         </MapStateContextProvider>
       </MapContainer>

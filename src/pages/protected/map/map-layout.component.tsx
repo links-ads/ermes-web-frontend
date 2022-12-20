@@ -56,6 +56,7 @@ import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import { PlayerButton } from './map-player/player-button.component'
+import { EntityType } from 'ermes-ts-sdk'
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -173,12 +174,13 @@ export function MapLayout(props) {
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
-    (status: DialogResponseType) => {
+    (status: DialogResponseType, entityType: EntityType = EntityType.OTHER) => {
       console.debug('onFeatureDialogClose', status)
       clearFeatureEdit()
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
       if (status === 'confirm') {
         props.fetchGeoJson(undefined)
+        props.refreshList(entityType)        
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

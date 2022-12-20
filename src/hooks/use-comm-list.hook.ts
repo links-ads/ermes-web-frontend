@@ -34,6 +34,15 @@ const reducer = (currentState, action) => {
         hasMore: false,
         error: true
       }
+    case 'INITIALIZE':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: [...action.value],
+        hasMore: false,
+        error: true,
+        tot: action.tot
+      }
   }
   return initialState
 }
@@ -56,7 +65,7 @@ export default function useCommList() {
   )
 
   const fetchCommunications = useCallback(
-    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}, initialize = false) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       commApiFactory
         .communicationsGetCommunications(
@@ -75,11 +84,21 @@ export default function useCommList() {
         .then((result) => {
           let newData: DTResultOfCommunicationDto[] = transformData(result.data.data) || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          dispatch({
-            type: 'RESULT',
-            value: newData,
-            tot: totToDown
-          })
+          if(initialize){
+            dispatch({
+              type: 'INITIALIZE',
+              value: newData,
+              tot: totToDown
+            })
+          }
+          else
+          {
+            dispatch({
+              type: 'RESULT',
+              value: newData,
+              tot: totToDown
+            })
+          }
         })
         .catch((err) => {
           displayErrorSnackbar(err)
@@ -108,5 +127,22 @@ export default function useCommList() {
       mounted.current = true
     }
   }, [searchText])
+
+  const getCommunicationById = (communicationId) => {
+    commApiFactory
+      .communicationsGetCommunicationById(communicationId)
+      .then((response) => {
+        const newCommm = response.data.feature?.properties
+        dispatch({
+          type: 'ADD_COMMUNICATION',
+          value: newCommm,
+          tot: 0
+        })
+      })
+      .catch((err) => {
+        displayErrorSnackbar(err)
+        dispatch({ type: 'ERROR', value: [] })
+      })
+  }
   return [dataState, fetchCommunications, applySearchFilterReloadData]
 }

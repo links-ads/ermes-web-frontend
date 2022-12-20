@@ -21,7 +21,6 @@ import useAPIHandler from '../../../../hooks/use-api-handler';
 
 export function CommunicationDialog(
     {
-        operationType,
         editState,
         dispatchEditAction,
         editError
