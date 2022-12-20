@@ -121,12 +121,13 @@ const MapRequestsPanel: React.FC<{
                           timestamps.push(timestamp)
                         })
                         //keep availableTimestamp sorted
-                        settings.availableTimestamps = timestamps
+                        //use Set to ensure timestamps are unique inside the final array
+                        settings.availableTimestamps = Array.from(new Set(timestamps
                           .map((item) => {
                             return { dateString: item, dateValue: new Date(item) }
                           })
                           .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
-                          .map((item) => item.dateString)
+                          .map((item) => item.dateString)))
                       }
                     }
                   })

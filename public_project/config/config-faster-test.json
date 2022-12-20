@@ -23,8 +23,8 @@
       "zoom": 2.5
     },
     "mapBounds": {
-      "southWest": [-47.7766,24.9285],
-      "northEast": [61.2366,60.3175]
+      "southWest": [-47.7766, 24.9285],
+      "northEast": [61.2366, 60.3175]
     }
   },
   "geoServer": {
