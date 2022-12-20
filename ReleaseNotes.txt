@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.2.0 - 2022-12-20
+-----------------------
 - Feature - List of receivers when Communication restriction type is set to 'Organization' (#101)
 - Bugfix - Add element in drawer when a new entity is created from the map
 
