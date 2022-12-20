@@ -43,6 +43,7 @@ export type EditStateType = {
   resolution: string
   scope: CommunicationScopeType | null
   restrictionType: CommunicationRestrictionType | null
+  organizationReceiverIds: number[]
 }
 
 export enum CoordinatorType {
@@ -53,7 +54,20 @@ export enum CoordinatorType {
 }
 
 export type EditActionType = {
-  type: "START_DATE" | "END_DATE" | "DESCRIPTION" | "COORDINATOR" | "TITLE" | "STATUS" | "RESET" | "DATATYPE" | "FREQUENCY" | "RESOLUTION" | "RESTRICTION" | "SCOPE"
+  type:
+    | 'START_DATE'
+    | 'END_DATE'
+    | 'DESCRIPTION'
+    | 'COORDINATOR'
+    | 'TITLE'
+    | 'STATUS'
+    | 'RESET'
+    | 'DATATYPE'
+    | 'FREQUENCY'
+    | 'RESOLUTION'
+    | 'RESTRICTION'
+    | 'SCOPE'
+    | 'ORGANIZATIONRECEIVERIDS'
   value?: Date | string | any
 }
 const getStartDayDate = () =>{
@@ -62,20 +76,21 @@ const getStartDayDate = () =>{
   return d1
 }
 const defaultEditState = {
-  title: "",
+  title: '',
   coordinatorType: CoordinatorType.NONE,
   orgId: -1,
   teamId: -1,
   userId: -1,
   startDate: getStartDayDate(),
   endDate: null,
-  description: "",
+  description: '',
   status: MissionStatusType.CREATED,
-  frequency: "0",
+  frequency: '0',
   dataType: [],
-  resolution: "10",
+  resolution: '10',
   restrictionType: CommunicationRestrictionType.NONE,
-  scope: CommunicationScopeType.PUBLIC
+  scope: CommunicationScopeType.PUBLIC,
+  organizationReceiverIds: []
 }
 
 export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) => void, customState: any | null) {
@@ -130,57 +145,69 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
           case CoordinatorType.TEAM:
             return {
               ...currentState,
-              coordinatorType:action.value.coordId as number !== -1 ? CoordinatorType.TEAM : CoordinatorType.ORGANIZATION,
+              coordinatorType:
+                (action.value.coordId as number) !== -1
+                  ? CoordinatorType.TEAM
+                  : CoordinatorType.ORGANIZATION,
               teamId: action.value.coordId as number,
               userId: -1
             }
           case CoordinatorType.USER:
             return {
               ...currentState,
-              coordinatorType:action.value.coordId as number !== -1 ? CoordinatorType.USER : CoordinatorType.TEAM,
+              coordinatorType:
+                (action.value.coordId as number) !== -1
+                  ? CoordinatorType.USER
+                  : CoordinatorType.TEAM,
               userId: action.value.coordId as number
             }
-          default: return currentState
+          default:
+            return currentState
         }
-      case "STATUS":
+      case 'STATUS':
         return {
           ...currentState,
           status: action.value as MissionStatusType
         }
-      case "DATATYPE":
+      case 'DATATYPE':
         return {
           ...currentState,
           dataType: action.value
         }
-  
-        case "RESTRICTION":
-          return {
-            ...currentState,
-            restrictionType: action.value as CommunicationRestrictionType
-          }
-  
-          case "SCOPE":
-            return {
-              ...currentState,
-              scope: action.value as CommunicationScopeType
-            }
-      case "FREQUENCY":
-        var number = parseInt(action.value)
+
+      case 'RESTRICTION':
         return {
           ...currentState,
-          frequency: (isNaN(number) || number < 0) ? "0" : (number > 30) ? "30" : number.toString()
+          restrictionType: action.value as CommunicationRestrictionType
         }
-      case "RESOLUTION":
+
+      case 'SCOPE':
+        return {
+          ...currentState,
+          scope: action.value as CommunicationScopeType
+        }
+      case 'ORGANIZATIONRECEIVERIDS':
+        return {
+          ...currentState,
+          organizationReceiverIds: action.value as number[]
+        }
+      case 'FREQUENCY':
         var number = parseInt(action.value)
         return {
           ...currentState,
-          resolution: (isNaN(number) || number < 0) ? "0" : (number > 60) ? "60" : number.toString()
+          frequency: isNaN(number) || number < 0 ? '0' : number > 30 ? '30' : number.toString()
+        }
+      case 'RESOLUTION':
+        var number = parseInt(action.value)
+        return {
+          ...currentState,
+          resolution: isNaN(number) || number < 0 ? '0' : number > 60 ? '60' : number.toString()
         }
       case 'RESET':
-       return setinitialEditState(customState)
-        //return defaultEditState
+        return setinitialEditState(customState)
+      //return defaultEditState
       default:
-        throw new Error("Invalid action type")
+        throw new Error('Invalid action type')
     }
   }
 
@@ -291,14 +318,21 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
     )
       return false
     if (dialogState.itemType === EntityType.MAP_REQUEST && ((isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0)) return false
-    if (dialogState.itemType === EntityType.COMMUNICATION && !(!!editState.scope || !!editState.restrictionType)) return false
-    if (dialogState.itemType === EntityType.COMMUNICATION && !(checkRestrictionScope(editState.scope == CommunicationScopeType.RESTRICTED,editState.restrictionType != CommunicationRestrictionType.NONE))) return false
+    if (dialogState.itemType === EntityType.COMMUNICATION)
+    { 
+      if (!(!!editState.scope || !!editState.restrictionType)) return false
+      if (editState.scope == CommunicationScopeType.RESTRICTED)
+      {
+        if(editState.restrictionType == CommunicationRestrictionType.NONE)
+          return false;
+        if (
+          editState.restrictionType == CommunicationRestrictionType.ORGANIZATION &&
+          (!editState.organizationReceiverIds || editState.organizationReceiverIds.length === 0)
+        )
+          return false
+      }
+    }
     return true
-  }
-
-  const checkRestrictionScope = (scopeCondition: boolean, restrictionCondition:boolean) =>{
-    if((scopeCondition && restrictionCondition) || (!scopeCondition && !restrictionCondition)) return true
-    else return false
   }
 
   const applyHandler = (editState: EditStateType, dialogState: DialogStateType) => {
@@ -373,6 +407,8 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         baseObj['feature']['properties']['message'] = editState.description 
         baseObj['feature']['properties']['scope'] = editState.scope as string
         baseObj['feature']['properties']['restriction'] = editState.restrictionType as string
+        baseObj['feature']['properties']['organizationReceiverIds'] =
+          editState.organizationReceiverIds
         break;
       case EntityType.MAP_REQUEST:
         baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
