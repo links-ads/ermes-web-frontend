@@ -9,11 +9,11 @@ For the table present in the dashboard, the original material-table is used beca
 */
 // import MaterialTable, { Column } from 'material-table'
 import MaterialTable, { Column } from '@material-table/core'
-
+import { forwardRef } from 'react';
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { Paper, TextField, Checkbox, FormControlLabel } from '@material-ui/core'
-import { CheckBoxOutlineBlank, CheckBox } from '@material-ui/icons'
+import { Paper, TextField, Checkbox, FormControlLabel, Tooltip } from '@material-ui/core'
+import { CheckBoxOutlineBlank, CheckBox, Edit } from '@material-ui/icons'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {
   TeamsApiAxiosParamCreator,
@@ -59,47 +59,34 @@ function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
     }
   ]
 }
-function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds: Array<any>): Column<TeamOutputDto>[] {
-  const selectUsersList = genLookupObject();
-  const teamMembers = membersIds.map( elem => { 
-    let member = {
-      id: elem.fusionAuthUserGuid, 
-      name: elem.displayName
-    };
-    return member;
-  });
-  const teamMembersIds = teamMembers.map( elem => elem.id) as string[];
-  let lookupPeople = {};
-  selectUsersList.forEach( user => lookupPeople[user.id] = user.name);
+function localizeMemColumns(t: TFunction, genLookupObject: Function, membersList: Array<any>, membersTeamId: string): Column<TeamOutputDto>[] {
+  const [ selectUsersList, lookupPeople ] = genLookupObject(); 
+  // icons for checkbox multi select
   const icon = <CheckBoxOutlineBlank fontSize="small" />;
   const checkedIcon = <CheckBox fontSize="small" />;
   return [{
-    title: t('admin:team_mem_name'), field: 'fusionAuthUserGuid', lookup: lookupPeople,
-    initialEditValue: teamMembers,
+    title: t('admin:team_mem_name'), 
+    field: 'id', 
+    lookup: lookupPeople,
+    initialEditValue: membersList,
     editComponent: props => {
       return (      
       <Autocomplete
         multiple
-        id="size-small-standard-multi"
+        id={`autocomplete-${membersTeamId}`}
+        key={`autocomplete-${membersTeamId}`}
         size="small"
         options={selectUsersList}
         getOptionLabel={(option) => option.name}
-        autoSelect
-        getOptionSelected={ (option) => option.selected}
+        getOptionSelected={(option, value) => option.id === value.id}
         renderOption={(option, { selected }) => (
           <FormControlLabel
             key={option.id}
             control={<Checkbox
-              id={option.id}
               icon={icon}
               checkedIcon={checkedIcon}
               style={{ marginRight: 8 }}
-              checked={option.selected}
-              value={option.id}
-              onChange={ (event) => {
-                console.log(event.target);
-                option.selected = event.target.checked
-              }}
+              checked={selected}
             />}
             label={option.name}
           />
@@ -134,25 +121,40 @@ const RenderMembersTables = (
 ) => {
   // Return lookup table with the possible users to be selected
 
-  const membersIds = useMemo(() => rowData?.members?.map((mem) => {
-    return mem}) || [], [rowData])
-  const genLookupObject = () => {
-    let persons: any = {}
-    // filter by organization id
-    let organizationUsers = users.filter( user => user.organization.id === rowData.organization.id);
-    // map to user object with id and name to display
-    let selectUsers = organizationUsers.map( elem => { 
-      let selectUser = {
-        id: elem.user.id, 
-        name: elem.user.displayName ? elem.user.displayName : elem.user.username ? elem.user.username : elem.user.email,
-        selected: membersIds.map( user => user.fusionAuthUserGuid).includes(elem.user.id)
-      };
-      return selectUser });
+  const membersTeamId = rowData.id;
 
-    // Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
-    //   persons[value.user.id] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
-    // })
-    return selectUsers;
+  const membersList = useMemo(
+    () =>
+      rowData?.members?.map((member) => {
+        let memberObj = {
+          id: member.fusionAuthUserGuid,
+          name: member.displayName
+        }
+        return memberObj
+      }) || [],
+    [rowData]
+  );
+  
+  const genLookupObject = () => {
+    // filter by organization id
+    let organizationUsers = users.filter((user) => user.organization.id === rowData.organization.id)
+    // generate lookup object
+    let lookupPeople = {}
+    // map to user object with id and name to display
+    let selectUsers = organizationUsers.map((elem) => {
+      let selectUser = {
+        id: elem.user.id,
+        name: elem.user.displayName
+          ? elem.user.displayName
+          : elem.user.username
+          ? elem.user.username
+          : elem.user.email
+      }
+      lookupPeople[selectUser.id] = selectUser.name
+      return selectUser
+    })
+
+    return [selectUsers, lookupPeople]
   }
 
   // Sync the new members setting, after the user edited
@@ -184,6 +186,7 @@ const RenderMembersTables = (
   }
   return (
       <MaterialTable
+        key={membersTeamId}
         isLoading={usersLoading}
         components={{
           Container: (props) => <Paper className="insideTable table-wrap-style" elevation={0} {...props} />
@@ -198,29 +201,30 @@ const RenderMembersTables = (
           addRowPosition: 'first', // When adding a new element, where to add it (top or bottom)
           actionsColumnIndex: -1 // In which position is the actions column, -1 is the last,
         }}
-        data={rowData.members!}
+        data={membersList}
         style={{
           margin: '0px',
           height: '100%',
           width: '100%'
         }}
-        columns={localizeMemColumns(t, genLookupObject, membersIds)}
+        columns={localizeMemColumns(t, genLookupObject, membersList, membersTeamId)}
+        icons={{
+          Add: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+        }}
         editable={{
           onRowAdd: async (newData: any) => {
-            const ids: string[] = membersIds.concat(newData.fusionAuthUserGuid)
+            const selectedMembersIds = newData.id.map((elem) => elem.id) as string[]
             const newTeamMemInput: SetTeamMembersInput = {
               teamId: rowData.id,
-              membersGuids: ids
+              membersGuids: selectedMembersIds
             }
             await SetTeamMembsFromInput(newTeamMemInput)
           },
           onRowDelete: async (oldData: any) => {
-            let ids: string[] = [...membersIds]
-            const i = ids.indexOf(String(oldData!.fusionAuthUserGuid))
-            ids.splice(i, 1)
+            const newMembersIds = membersList.filter((m) => m.id !== oldData!.id).map((m) => m.id) as string[]
             const newTeamMemInput: SetTeamMembersInput = {
               teamId: rowData.id,
-              membersGuids: ids
+              membersGuids: newMembersIds
             }
             await SetTeamMembsFromInput(newTeamMemInput)
           }
