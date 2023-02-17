@@ -12,7 +12,7 @@ import MaterialTable, { Column } from '@material-table/core'
 import { forwardRef } from 'react';
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { Paper, TextField, Checkbox, FormControlLabel, Tooltip } from '@material-ui/core'
+import { Paper, TextField, Checkbox, FormControlLabel } from '@material-ui/core'
 import { CheckBoxOutlineBlank, CheckBox, Edit } from '@material-ui/icons'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {
@@ -65,7 +65,7 @@ function localizeMemColumns(t: TFunction, genLookupObject: Function, membersList
   const icon = <CheckBoxOutlineBlank fontSize="small" />;
   const checkedIcon = <CheckBox fontSize="small" />;
   return [{
-    title: t('admin:team_mem_name'), 
+    title: "id",
     field: 'id', 
     lookup: lookupPeople,
     initialEditValue: membersList,
@@ -136,12 +136,10 @@ const RenderMembersTables = (
   );
   
   const genLookupObject = () => {
-    // filter by organization id
-    let organizationUsers = users.filter((user) => user.organization.id === rowData.organization.id)
     // generate lookup object
     let lookupPeople = {}
     // map to user object with id and name to display
-    let selectUsers = organizationUsers.map((elem) => {
+    let selectUsers = users.map((elem) => {
       let selectUser = {
         id: elem.user.id,
         name: elem.user.displayName
@@ -157,18 +155,19 @@ const RenderMembersTables = (
     return [selectUsers, lookupPeople]
   }
 
+  const membersColumns = useMemo(() => localizeMemColumns(t, genLookupObject, membersList, membersTeamId), [membersList, membersTeamId]);
+
   // Sync the new members setting, after the user edited
   const SetTeamMembsFromInput = async (newTeamMemInput) => {
     try {
       // loading ON
       setUpdating(true)
-      await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput)
+      await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput);
       await loadTeams() // refresh
+      displaySuccessSnackbar(t('admin:team_members_update_success'));
     } catch (err) {
       displayErrorSnackbar((err as any)?.response?.data.error as String)
-    } finally {
-      // console.log('DOWNLOAD TEAMS, HERE WE GO: ', rowData)
-      displaySuccessSnackbar(t('admin:team_members_update_success'));
+    } finally {      
       // loading OFF
       setUpdating(false)
     }
@@ -207,7 +206,7 @@ const RenderMembersTables = (
           height: '100%',
           width: '100%'
         }}
-        columns={localizeMemColumns(t, genLookupObject, membersList, membersTeamId)}
+        columns={membersColumns}
         icons={{
           Add: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
         }}
