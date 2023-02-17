@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - team management improvement (#102)
 
 Ver. 2.2.0 - 2022-12-20
 -----------------------
