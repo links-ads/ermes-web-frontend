@@ -114,7 +114,7 @@ export default function GetApiGeoJson() {
     )
 
     const downloadGeoJson = useCallback(
-      (teamIds, entityTypes, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      (teamIds, entityTypes, activityIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
         const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters;
         repApiFactory
           .geoJsonDownloadFeatureCollection(
@@ -134,7 +134,7 @@ export default function GetApiGeoJson() {
             (filters?.mapRequests as any).content[2].selected,
             (filters?.mapRequests as any).content[1].selected,
             (filters?.mapRequests as any).content[0].selected,
-            undefined,
+            activityIds,
             teamIds,
             (filters?.report as any).content[2].selected,
             (filters?.report as any).content[3].selected,

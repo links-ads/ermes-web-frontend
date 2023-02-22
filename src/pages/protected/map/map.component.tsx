@@ -741,7 +741,7 @@ export function Map() {
   }, [downloadUrl])
 
   const downloadGeojsonFeatureCollectionHandler = () => {
-    // teams
+    // teams - get team ids selected
     let selectedTeamIds : number[] = [];
     let selectedTeams = (filtersObj?.filters?.persons as any).content[1].selected;
     if (teamList && Object.keys(teamList).length > 0 && selectedTeams.length > 0){
@@ -752,15 +752,35 @@ export function Map() {
         }
       });        
     }
-    // entities
+    // filters map
+    enum entityType { ReportRequest = 'ReportRequest', Person = 'Person' };
+    // entities - get entity types selected (Communication, MapRequest, Mission, Report) except for ReportRequest
     let selectedEntityTypes : string[] = [];
     let entityOptions = (filtersObj?.filters?.multicheckCategories as any).options;
     Object.keys(entityOptions).forEach( key => {
-      if (entityOptions[key]){
+      if (entityOptions[key] && key !== entityType.ReportRequest){ 
         selectedEntityTypes.push(key);
       }
     });
-    downloadGeoJson(selectedTeamIds, selectedEntityTypes);
+    // entity person - if any type of person status has been selected, add 'Person' to entity types
+    let entityPersonOptions = (filtersObj?.filters?.multicheckPersons as any).options;
+    for (const key of Object.keys(entityPersonOptions)){
+      if(entityPersonOptions[key]){
+        selectedEntityTypes.push(entityType.Person);
+        break;
+      }
+    }
+    // activities - get ids if any activity has been selected
+    let selectedActivityIds : number[] = [];
+    let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options;
+    if (activitiesList.length > 0){
+      Object.keys(entityActiviyOptions).forEach( key => {
+        if(entityActiviyOptions[key]){
+          selectedActivityIds.push(activitiesList.find( activity => activity.name === key)?.id as number);
+        }
+      })
+    }    
+    downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
   }
 
   ///////
