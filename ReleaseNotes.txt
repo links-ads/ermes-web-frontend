@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Added option to download features collection (#103)
 
 Ver. 2.2.0 - 2022-12-20
 -----------------------
