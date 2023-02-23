@@ -8,11 +8,14 @@ import { useTranslation } from 'react-i18next'
 
 
 const initialState = {
-    error: false, isLoading: true, data: {
-        type: 'FeatureCollection',
-        features: [],
-        downloadUrl: ''
-    }, tot: 0
+  error: false,
+  isLoading: true,
+  data: {
+    type: 'FeatureCollection',
+    features: [],
+    downloadUrl: ''
+  },
+  tot: 0
 }
 
 const reducer = (currentState, action) => {
@@ -34,6 +37,13 @@ const reducer = (currentState, action) => {
                 isLoading: false,
                 data: { ...action.value },
                 error: false
+            }
+        case 'DOWNLOAD': 
+            return {
+              ...currentState,
+              isLoading: false,
+              data: { ...currentState.data, downloadUrl: action.value },
+              error: false
             }
         case 'ERROR':
             return {
@@ -114,8 +124,15 @@ export default function GetApiGeoJson() {
     )
 
     const downloadGeoJson = useCallback(
-      (teamIds, entityTypes, activityIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-        const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters;
+      (
+        teamIds,
+        entityTypes,
+        activityIds,
+        transformData = (data) => {},
+        errorData = {},
+        sideEffect = (data) => {}
+      ) => {
+        const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
         repApiFactory
           .geoJsonDownloadFeatureCollection(
             (filters?.datestart as any)?.selected
@@ -149,11 +166,8 @@ export default function GetApiGeoJson() {
             const base_url = backendAPIConfig.basePath
             const downloadUrl = `${base_url}/File/DownloadTempFile?fileType=${fileType}&fileToken=${fileToken}&fileName=${fileName}`
             dispatch({
-              type: 'RESULT',
-              value: {
-                ...initialState.data,
-                downloadUrl: downloadUrl
-              }
+              type: 'DOWNLOAD',
+              value: downloadUrl
             })
             displaySuccessSnackbar(t('maps:download_successful'))
           })

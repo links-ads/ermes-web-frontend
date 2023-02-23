@@ -753,12 +753,11 @@ export function Map() {
       });        
     }
     // filters map
-    enum entityType { ReportRequest = 'ReportRequest', Person = 'Person' };
-    // entities - get entity types selected (Communication, MapRequest, Mission, Report) except for ReportRequest
+    // entities - get entity types selected (Communication, MapRequest, Mission, Report) except for 'ReportRequest'
     let selectedEntityTypes : string[] = [];
     let entityOptions = (filtersObj?.filters?.multicheckCategories as any).options;
     Object.keys(entityOptions).forEach( key => {
-      if (entityOptions[key] && key !== entityType.ReportRequest){ 
+      if (entityOptions[key] && key !== EntityType.REPORT_REQUEST){ 
         selectedEntityTypes.push(key);
       }
     });
@@ -766,7 +765,7 @@ export function Map() {
     let entityPersonOptions = (filtersObj?.filters?.multicheckPersons as any).options;
     for (const key of Object.keys(entityPersonOptions)){
       if(entityPersonOptions[key]){
-        selectedEntityTypes.push(entityType.Person);
+        selectedEntityTypes.push(EntityType.PERSON);
         break;
       }
     }
