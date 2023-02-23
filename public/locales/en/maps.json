@@ -80,5 +80,7 @@
   "one_datapoint": "Only one data point available for this date range",
   "layer":"Layer",
   "opacity": "Opacity",
-  "creator": "Creator"
+  "creator": "Creator",
+  "download_successful": "File downloaded successfully!",
+  "download_button": "Download"
 }

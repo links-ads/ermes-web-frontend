@@ -85,6 +85,7 @@ export const MapHeadDrawer = (props) => {
             {t('social:map_button_label')}
           </Button>
         </Grid>
+        {props.children ? <Grid item>{props.children}</Grid> : undefined}
       </Grid>
     </div>
   )

@@ -81,5 +81,7 @@
   "one_datapoint": "Solo un timestamp disponibile per questo layer",
   "layer":"Layer",
   "opacity": "Trasparenza",
-  "creator": "Creatore"
+  "creator": "Creatore",
+  "download_successful": "Il file è stato scaricato con successo!",
+  "download_button": "Scarica"  
 }

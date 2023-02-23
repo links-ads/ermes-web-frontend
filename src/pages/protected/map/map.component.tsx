@@ -342,7 +342,7 @@ export function Map() {
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
-  const [prepGeoData, fetchGeoJson] = GetApiGeoJson()
+  const [prepGeoData, fetchGeoJson, downloadGeoJson ] = GetApiGeoJson()
 
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
@@ -732,6 +732,58 @@ export function Map() {
     }
   }
 
+  // Download geojson
+  const { downloadUrl } = prepGeoData.data;
+  
+  useEffect(()=>{
+    if(downloadUrl.length > 0){
+      // download geojson file
+      window.location.href = downloadUrl;
+    }
+  }, [downloadUrl])
+
+  const downloadGeojsonFeatureCollectionHandler = () => {
+    // teams - get team ids selected
+    let selectedTeamIds : number[] = [];
+    let selectedTeams = (filtersObj?.filters?.persons as any).content[1].selected;
+    if (teamList && Object.keys(teamList).length > 0 && selectedTeams.length > 0){
+      selectedTeams.forEach(selectedTeam => {
+        let teamId = getKeyByValue(teamList, selectedTeam);
+        if (teamId){
+          selectedTeamIds.push(Number(teamId));
+        }
+      });        
+    }
+    // filters map
+    // entities - get entity types selected (Communication, MapRequest, Mission, Report) except for 'ReportRequest'
+    let selectedEntityTypes : string[] = [];
+    let entityOptions = (filtersObj?.filters?.multicheckCategories as any).options;
+    Object.keys(entityOptions).forEach( key => {
+      if (entityOptions[key] && key !== EntityType.REPORT_REQUEST){ 
+        selectedEntityTypes.push(key);
+      }
+    });
+    // entity person - if any type of person status has been selected, add 'Person' to entity types
+    let entityPersonOptions = (filtersObj?.filters?.multicheckPersons as any).options;
+    for (const key of Object.keys(entityPersonOptions)){
+      if(entityPersonOptions[key]){
+        selectedEntityTypes.push(EntityType.PERSON);
+        break;
+      }
+    }
+    // activities - get ids if any activity has been selected
+    let selectedActivityIds : number[] = [];
+    let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options;
+    if (activitiesList.length > 0){
+      Object.keys(entityActiviyOptions).forEach( key => {
+        if(entityActiviyOptions[key]){
+          selectedActivityIds.push(activitiesList.find( activity => activity.name === key)?.id as number);
+        }
+      })
+    }    
+    downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
+  }
+
   ///////
   return (
     <>
@@ -873,7 +925,8 @@ export function Map() {
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
             singleLayerOpacityStatus={singleLayerOpacityStatus}
-            refreshList={refreshList}
+            refreshList={refreshList}            
+            downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />
         </MapStateContextProvider>
       </MapContainer>

@@ -50,7 +50,7 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Collapse, createStyles, Fab } from '@material-ui/core'
+import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -696,7 +696,15 @@ export function MapLayout(props) {
         mapViewport={viewport}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}
-      />
+      >
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={props.downloadGeojsonFeatureCollection}
+        >
+          {t('maps:download_button')}
+        </Button>
+      </MapHeadDrawer>
       <InteractiveMap
         {...viewport}
         mapStyle={mapTheme?.style}

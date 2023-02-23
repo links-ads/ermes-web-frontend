@@ -4,6 +4,7 @@ Ver.
 - Bugfix - Add element in drawer when a new entity is created from the map
 - Feature - List of receivers when Communication restriction type is set to 'Organization' (#101)
 - Feature - team management improvement (#102)
+- Feature - Added option to download features collection (#103)
 
 Ver. 2.2.0 - 2022-12-20
 -----------------------
