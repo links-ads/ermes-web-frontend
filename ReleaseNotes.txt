@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Added option to download features collection (#103)
+- Feature - team management improvement (#102)
 
 Ver. 2.2.0 - 2022-12-20
 -----------------------

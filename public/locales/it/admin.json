@@ -24,6 +24,8 @@
   "team_org_name" :  "Organizzazione",
   "team_people_count" : "# persone",
   "team_select_members" : "Seleziona un team per vedere i suoi membri",
+  "team_choose_members": "Scegli i membri del team",
+  "team_members_update_success": "Team aggiornato con successo!", 
   "decision_maker": "Decision Maker",
   "first_responder": "First Responder",
   "organization_manager": "Organization Manager",

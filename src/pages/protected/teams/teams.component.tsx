@@ -9,10 +9,12 @@ For the table present in the dashboard, the original material-table is used beca
 */
 // import MaterialTable, { Column } from 'material-table'
 import MaterialTable, { Column } from '@material-table/core'
-
+import { forwardRef } from 'react';
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { ListItemText, MenuItem, Paper, Select } from '@material-ui/core'
+import { Paper, TextField, Checkbox, FormControlLabel } from '@material-ui/core'
+import { CheckBoxOutlineBlank, CheckBox, Edit } from '@material-ui/icons'
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import {
   TeamsApiAxiosParamCreator,
   TeamsApiFactory,
@@ -57,28 +59,50 @@ function localizeColumns(t: TFunction, orgLookup): Column<TeamOutputDto>[] {
     }
   ]
 }
-function localizeMemColumns(t: TFunction, genLookupObject: Function, membersIds: string[]): Column<TeamOutputDto>[] {
-  const lookupObj = genLookupObject()
-  const orgUsersEntries = Object.entries(lookupObj)
-  const availableOrgUsers = orgUsersEntries.filter(entry => !membersIds.includes(entry[0]))
+function localizeMemColumns(t: TFunction, genLookupObject: Function, membersList: Array<any>, membersTeamId: string): Column<TeamOutputDto>[] {
+  const [ selectUsersList, lookupPeople ] = genLookupObject(); 
+  // icons for checkbox multi select
+  const icon = <CheckBoxOutlineBlank fontSize="small" />;
+  const checkedIcon = <CheckBox fontSize="small" />;
   return [{
-    title: t('admin:team_mem_name'), field: 'fusionAuthUserGuid', lookup: lookupObj,
-    initialEditValue: availableOrgUsers.length > 0 ? availableOrgUsers[0][0] : undefined,
+    title: "id",
+    field: 'id', 
+    lookup: lookupPeople,
+    initialEditValue: membersList,
     editComponent: props => {
-      return (<Select
-        value={props.value || ''}
-        onChange={(e) => props.onChange(e.target.value)}
-      >
-        {/* shows only user not already included in this team or the user currently in edit mode */}
-        {orgUsersEntries.filter(entry => !membersIds.includes((entry[0])) || props.rowData.id === parseInt(entry[0]))
-          .map((entry) => (
-            <MenuItem
-              key={entry[0]}
-              value={entry[0]}
-            >
-              <ListItemText primary={entry[1] as string} />
-            </MenuItem>))}
-      </Select>)
+      return (      
+      <Autocomplete
+        multiple
+        id={`autocomplete-${membersTeamId}`}
+        key={`autocomplete-${membersTeamId}`}
+        size="small"
+        options={selectUsersList}
+        getOptionLabel={(option) => option.name}
+        getOptionSelected={(option, value) => option.id === value.id}
+        renderOption={(option, { selected }) => (
+          <FormControlLabel
+            key={option.id}
+            control={<Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />}
+            label={option.name}
+          />
+        )}
+        disableCloseOnSelect
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="standard"
+            label={t('admin:team_choose_members')}
+          />
+        )}        
+        value={props.value}
+        onChange={(event, newValue) => props.onChange(newValue)}
+      />
+      )
     }
   }]
 }
@@ -91,32 +115,59 @@ const RenderMembersTables = (
   setUpdating,
   teamAPIFactory,
   displayErrorSnackbar,
+  displaySuccessSnackbar,
   loadTeams,
   localization
 ) => {
   // Return lookup table with the possible users to be selected
 
-  const membersIds = useMemo(() => rowData?.members?.map((mem) => {
-    return mem.fusionAuthUserGuid}) || [], [rowData])
+  const membersTeamId = rowData.id;
+
+  const membersList = useMemo(
+    () =>
+      rowData?.members?.map((member) => {
+        let memberObj = {
+          id: member.fusionAuthUserGuid,
+          name: member.displayName
+        }
+        return memberObj
+      }) || [],
+    [rowData]
+  );
+  
   const genLookupObject = () => {
-    let persons: any = {}
-    Object.entries(users).filter((entry: [string, any]) => entry[1].organization.id === rowData.organization.id).forEach(([key, value]: any) => {
-      persons[value.user.id] = (value.user.displayName == null ? (value.user.username == null ? value.user.email : value.user.username) : value.user.displayName)
+    // generate lookup object
+    let lookupPeople = {}
+    // map to user object with id and name to display
+    let selectUsers = users.map((elem) => {
+      let selectUser = {
+        id: elem.user.id,
+        name: elem.user.displayName
+          ? elem.user.displayName
+          : elem.user.username
+          ? elem.user.username
+          : elem.user.email
+      }
+      lookupPeople[selectUser.id] = selectUser.name
+      return selectUser
     })
-    return persons
+
+    return [selectUsers, lookupPeople]
   }
+
+  const membersColumns = useMemo(() => localizeMemColumns(t, genLookupObject, membersList, membersTeamId), [membersList, membersTeamId]);
 
   // Sync the new members setting, after the user edited
   const SetTeamMembsFromInput = async (newTeamMemInput) => {
     try {
       // loading ON
       setUpdating(true)
-      await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput)
+      await teamAPIFactory.teamsSetTeamMembers(newTeamMemInput);
       await loadTeams() // refresh
+      displaySuccessSnackbar(t('admin:team_members_update_success'));
     } catch (err) {
       displayErrorSnackbar((err as any)?.response?.data.error as String)
-    } finally {
-      console.log('DOWNLOAD TEAMS, HERE WE GO: ', rowData)
+    } finally {      
       // loading OFF
       setUpdating(false)
     }
@@ -133,59 +184,51 @@ const RenderMembersTables = (
     )
   }
   return (
-    <MaterialTable
-      isLoading={usersLoading}
-      components={{
-        Container: (props) => <Paper className="insideTable table-wrap-style" elevation={0} {...props} />
-      }}
-      title={rowData.name}
-      localization={localization}
-      options={{
-        // toolbar: false,
-        // showTitle: false,
-        paging: false,
-        search: false,
-        addRowPosition: 'first', // When adding a new element, where to add it (top or bottom)
-        actionsColumnIndex: -1 // In which position is the actions column, -1 is the last,
-      }}
-      data={rowData.members!}
-      style={{
-        margin: '0px',
-        height: '100%',
-        width: '100%'
-      }}
-      columns={localizeMemColumns(t, genLookupObject, membersIds)}
-      editable={{
-        onRowAdd: async (newData: any) => {
-          const ids: string[] = membersIds.concat([newData.fusionAuthUserGuid])
-          const newTeamMemInput: SetTeamMembersInput = {
-            teamId: rowData.id,
-            membersGuids: ids
+      <MaterialTable
+        key={membersTeamId}
+        isLoading={usersLoading}
+        components={{
+          Container: (props) => <Paper className="insideTable table-wrap-style" elevation={0} {...props} />
+        }}
+        title={rowData.name}
+        localization={localization}
+        options={{
+          // toolbar: false,
+          // showTitle: false,
+          paging: false,
+          search: false,
+          addRowPosition: 'first', // When adding a new element, where to add it (top or bottom)
+          actionsColumnIndex: -1 // In which position is the actions column, -1 is the last,
+        }}
+        data={membersList}
+        style={{
+          margin: '0px',
+          height: '100%',
+          width: '100%'
+        }}
+        columns={membersColumns}
+        icons={{
+          Add: forwardRef((props, ref) => <Edit {...props} ref={ref} />),
+        }}
+        editable={{
+          onRowAdd: async (newData: any) => {
+            const selectedMembersIds = newData.id.map((elem) => elem.id) as string[]
+            const newTeamMemInput: SetTeamMembersInput = {
+              teamId: rowData.id,
+              membersGuids: selectedMembersIds
+            }
+            await SetTeamMembsFromInput(newTeamMemInput)
+          },
+          onRowDelete: async (oldData: any) => {
+            const newMembersIds = membersList.filter((m) => m.id !== oldData!.id).map((m) => m.id) as string[]
+            const newTeamMemInput: SetTeamMembersInput = {
+              teamId: rowData.id,
+              membersGuids: newMembersIds
+            }
+            await SetTeamMembsFromInput(newTeamMemInput)
           }
-          await SetTeamMembsFromInput(newTeamMemInput)
-        },
-        onRowUpdate: async (newData: any, oldData?: any) => {
-          let ids = [...membersIds]
-          const i = ids.indexOf(oldData!.fusionAuthUserGuid)
-          ids[i] = String(newData!.fusionAuthUserGuid)
-          const newTeamMemInput: SetTeamMembersInput = {
-            teamId: rowData.id,
-            membersGuids: ids
-          }
-          await SetTeamMembsFromInput(newTeamMemInput)
-        },
-        onRowDelete: async (oldData: any) => {
-          let ids: string[] = [...membersIds]
-          const i = ids.indexOf(String(oldData!.fusionAuthUserGuid))
-          ids.splice(i, 1)
-          const newTeamMemInput: SetTeamMembersInput = {
-            teamId: rowData.id,
-            membersGuids: ids
-          }
-          await SetTeamMembsFromInput(newTeamMemInput)
-        }
-      }}
-    />
+        }}
+      />
   )
 }
 
@@ -211,7 +254,7 @@ export function Teams() {
     loadTeams
   ] = useAxiosWithParamCreator<TmsApiPC, DTResultOfTeamOutputDto | undefined>(opts, false)
 
-  const { displayErrorSnackbar } = useSnackbars()
+  const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
   const teams: TeamOutputDto[] = result?.data || []
   const [updating, setUpdating] = useState<boolean>(false)
   const [data, setData] = useState<TeamOutputDto[]>(teams)
@@ -345,6 +388,7 @@ export function Teams() {
             setUpdating,
             teamAPIFactory,
             displayErrorSnackbar,
+            displaySuccessSnackbar,
             loadTeams,
             localization
           )}
