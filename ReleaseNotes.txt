@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.3.0
+-----------------------
 - Feature - Added option to download features collection (#103)
 - Feature - team management improvement (#102)
 
