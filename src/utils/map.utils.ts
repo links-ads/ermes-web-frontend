@@ -26,28 +26,6 @@ function makeLayerURL(layerNames,layerTime, geoServerConfig) {
   return `${baseUrl}/${suffix}?${urlParams}`
 }
 
-export function makeTimeSeriesURL(coord,layerName,geoServerConfig,timeRange){
-  const { baseUrl, suffix } = geoServerConfig
-  const params = {
-    service: 'WMS',
-    version: '1.1.0',
-    feature_count: '1',
-    x: "1",
-    y: "1",
-    srs: "EPSG:4326",
-    width: "101",
-    height: "101",
-    request: "GetTimeSeries",
-    info_format: "text/csv",
-    time: timeRange.join('/'),
-    bbox: [coord[0],coord[1],coord[0]+0.00001,coord[1]+0.00001].join('%2C'),
-    query_layers: layerName,
-    layers: layerName,
-  }
-  return `${baseUrl}/${suffix}?${composeParams(params)}`
-
-}
-
 export function getLegendURL(geoServerConfig, w, h ,layerName){
 
    const baseUrl = geoServerConfig?.baseUrl

@@ -3,8 +3,6 @@ import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.con
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
 
-import { makeTimeSeriesURL } from '../../../../utils/map.utils'
-
 /**
  * handler for left click on the map
  * @param mapViewRef
@@ -82,7 +80,6 @@ export function onMapLeftClickHandler<T extends object>(
  * @param mapViewRef
  * @param mapMode
  * @param geoLayerState
- * @param geoServerConfig
  * @param setDblClickFeatures
  * @param selectedFilters
  * @param evt
@@ -91,7 +88,6 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   geoLayerState,
-  geoServerConfig,
   getLayerTimeseries, 
   setDblClickFeatures,
   selectedFilters,
@@ -102,6 +98,7 @@ export async function onMapDoubleClickHandler<T extends object>(
     return
   }
   const coord = evt.lngLat
+  const geoSystem = 'EPSG:4326'
   // If a layer id displayed on the map
   if (geoLayerState.tileId && geoLayerState.tileSource['properties']['format'] === 'NetCDF') {
     evt.preventDefault()
@@ -110,7 +107,7 @@ export async function onMapDoubleClickHandler<T extends object>(
       selectedFilters.datestart.selected ? selectedFilters.datestart.selected : geoLayerState.tileSource['properties']['fromTime'] ,
       selectedFilters.dateend.selected ? selectedFilters.dateend.selected : geoLayerState.tileSource['properties']['toTime']
     ]
-    const lineChart = await getLayerTimeseries(coord, 'EPSG:4326', timeRange[0], timeRange[1]) // TODO: change crs parameter to const
+    const lineChart = await getLayerTimeseries(coord, geoSystem, timeRange[0], timeRange[1])
 
     // Check whether the point is in a layer or not
     if (lineChart.chartData.length <= 0) {

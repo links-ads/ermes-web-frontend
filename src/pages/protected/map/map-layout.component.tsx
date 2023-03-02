@@ -649,7 +649,6 @@ export function MapLayout(props) {
         mapViewRef,
         mapMode,
         geoLayerState,
-        geoServerConfig,
         getLayerTimeseriesHandler, 
         setDblClickFeatures,
         props.filtersObj.filters,
