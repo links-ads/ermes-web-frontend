@@ -92,6 +92,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapMode: MapMode,
   geoLayerState,
   geoServerConfig,
+  getLayerTimeseries, 
   setDblClickFeatures,
   selectedFilters,
   evt: PointerEvent
@@ -109,33 +110,19 @@ export async function onMapDoubleClickHandler<T extends object>(
       selectedFilters.datestart.selected ? selectedFilters.datestart.selected : geoLayerState.tileSource['properties']['fromTime'] ,
       selectedFilters.dateend.selected ? selectedFilters.dateend.selected : geoLayerState.tileSource['properties']['toTime']
     ]
-    const res = await fetch(makeTimeSeriesURL(coord, geoLayerState.tileId, geoServerConfig,timeRange)) 
-    const data = await res.text();
-    const dataArray = data.split("\n").slice(3, -1)
+    const lineChart = await getLayerTimeseries(coord, 'EPSG:4326', timeRange[0], timeRange[1]) // TODO: change crs parameter to const
+
     // Check whether the point is in a layer or not
-    if (dataArray.length <= 0) {
+    if (lineChart.chartData.length <= 0) {
       map?.zoomTo(map?.getZoom() + 1,{},{'fromCluster': true}) //Add eventData just to update map viewport
     }
     else {
       // The point is associated with features -> trigger data plot
-      console.debug("Point is associated with features", dataArray)
-      const dateOptions = {
-        dateStyle: 'short',
-        timeStyle: 'short',
-        hour12: false
-      } as Intl.DateTimeFormatOptions
-      const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+      console.debug("Point is associated with features", lineChart.chartData)
+      
       setDblClickFeatures({
         layer: geoLayerState.tileId,
-        data: {
-          'Value': dataArray.map(row => {
-            let rowArray = row.split(",")
-            return {
-              x: formatter.format(new Date(rowArray[0])),
-              y: parseFloat(rowArray[1])
-            }
-          })
-        }
+        data: lineChart
       })
     }
   }

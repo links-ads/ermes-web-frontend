@@ -57,6 +57,11 @@ import { tileJSONIfy } from '../../../utils/map.utils'
 import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import { PlayerButton } from './map-player/player-button.component'
 import { EntityType } from 'ermes-ts-sdk'
+import { useAPIConfiguration } from '../../../hooks/api-hooks'
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import LineChartProps, { LineChartData, PointChartData } from '../../../models/LineChartProps'
+import { geojsonToWKT } from "@terraformer/wkt"
+
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -171,6 +176,10 @@ export function MapLayout(props) {
       clearFeatureEdit
     }
   ] = useMapStateContext<EmergencyProps>()
+
+  // layer API
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -435,6 +444,95 @@ export function MapLayout(props) {
     }, 1000) //after 1 sec
   }
 
+  const { layerSelection, allLayers } = props
+
+  // map to LineChartData
+  const mapToLineChartData = useCallback((timeseries, layerName) => {
+    const dateOptions = {
+      dateStyle: 'short',
+      timeStyle: 'short',
+      hour12: false
+    } as Intl.DateTimeFormatOptions
+    const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+
+    let layerTimeseries = new LineChartData(
+      layerName,
+      timeseries.map(
+        (series) =>
+          new PointChartData(
+            formatter.format(new Date((series as any).dateTime)),
+            parseFloat((series as any).value)
+          )
+      )
+    )
+    return layerTimeseries
+  }, [])
+
+  // layer timeseries
+  const getLayerTimeseriesHandler = useCallback(
+    async (point, crs, startDate, endDate) => {
+      const selectedLayerId = layerSelection.dataTypeId
+      const layerId = Number(selectedLayerId)
+      const { layers, associatedLayers, groupedLayers } = allLayers
+      const selectedLayer = layers.find((layer) => layer.id === layerId)
+      const geojsonPoint = {
+        type: 'Point',
+        coordinates: point
+      }
+      const pointWKT = geojsonToWKT(geojsonPoint)
+      const parentLayerResult = await layersApiFactory.layersGetTimeSeries(
+        selectedLayerId,
+        pointWKT,
+        crs,
+        undefined,
+        undefined,
+        startDate,
+        endDate
+      )
+      const parentTimeseries = parentLayerResult.data.variables
+        ? parentLayerResult.data.variables.length > 0
+          ? parentLayerResult.data.variables[0].values
+          : []
+        : []
+
+      let chartData: LineChartData[] = []
+      if (parentTimeseries && parentTimeseries.length > 0) {
+        const layerTimeseries = mapToLineChartData(parentTimeseries, selectedLayer.name)
+        chartData.push(layerTimeseries)
+      }
+
+      // associated layers
+      const parentLayer = groupedLayers.find((layer) => layer.id === layerId)
+      if (parentLayer && parentLayer.children) {
+        for (let layer of parentLayer.children) {
+          const childLayerResult = await layersApiFactory.layersGetTimeSeries(
+            layer.id,
+            pointWKT,
+            crs,
+            undefined,
+            undefined,
+            startDate,
+            endDate
+          )
+          const childTimeseries = childLayerResult.data.variables
+            ? childLayerResult.data.variables.length > 0
+              ? childLayerResult.data.variables[0].values
+              : []
+            : []
+          if (childTimeseries && childTimeseries.length > 0) {
+            const layerTimeseries = mapToLineChartData(childTimeseries, layer.name)
+            chartData.push(layerTimeseries)
+          }
+        }
+      }
+
+      const lineChart = new LineChartProps(chartData)
+
+      return lineChart
+    },
+    [layerSelection]
+  )
+
   const onMapLoad = useCallback(
     () => {
       onMapLoadHandler(
@@ -552,6 +650,7 @@ export function MapLayout(props) {
         mapMode,
         geoLayerState,
         geoServerConfig,
+        getLayerTimeseriesHandler, 
         setDblClickFeatures,
         props.filtersObj.filters,
         evt

@@ -338,6 +338,62 @@ export function Map() {
     return groupData
   }, [getLayersState])
 
+  const allLayers = useMemo(() => {
+    if (Object.keys(getLayersState.result).length === 0) return null
+    if (!getLayersState.result.data.associatedLayers) return null
+    if (!getLayersState.result.data.layerGroups) return null
+
+    // layers
+    let mainLayers: any[] = []
+    getLayersState.result.data.layerGroups.forEach((group) => {
+      group.subGroups.forEach((subGroup) => {
+        mainLayers = mainLayers.concat(
+          subGroup.layers.map((layer) => {
+            return {
+              id: layer.dataTypeId,
+              name: layer.name
+            }
+          })
+        )
+      })
+    })
+
+    // associated layers
+    let associatedLayers = getLayersState.result.data.associatedLayers.map((al) => {
+      let parentLayer = mainLayers.find((layer) => layer.id === al.parentDataTypeId)
+      return {
+        id: al.dataTypeId,
+        name: al.name,
+        parentId: al.parentDataTypeId,
+        parentName: parentLayer.name
+      }
+    })
+
+    // layers with associated layers
+    let groupedAssociatedLayers = associatedLayers.reduce((acc, curr) => {
+      let parentLayer = acc.find((p) => p.id === curr.parentId)
+      if (parentLayer) {
+        let childrenLayers = parentLayer.children
+        childrenLayers.push({ id: curr.id, name: curr.name })
+        parentLayer.children = childrenLayers
+      } else {
+        let newParentLayer = {
+          id: curr.parentId,
+          name: curr.parentName,
+          children: [{ id: curr.id, name: curr.name }]
+        }
+        acc.push(newParentLayer)
+      }
+      return acc
+    }, [])
+
+    return {
+      layers: mainLayers,
+      associatedLayers: associatedLayers,
+      groupedLayers: groupedAssociatedLayers
+    }
+  }, [getLayersState])
+
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson, downloadGeoJson ] = GetApiGeoJson()
@@ -923,6 +979,7 @@ export function Map() {
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
             singleLayerOpacityStatus={singleLayerOpacityStatus}
+            allLayers={allLayers}
             refreshList={refreshList}            
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />

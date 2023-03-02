@@ -12,6 +12,8 @@ import { PieChartStats } from '../../../common/stats-cards.components'
 import { TableWidget } from './table-widget.component'
 import { LineChartWidget } from './line-chart-widge.component'
 
+import LineChartProps, { LineChartData, PointChartData } from '../../../models/LineChartProps'
+
 const WidgetBar = styled.div`
   width: 100%;
   height: 16px;
@@ -46,6 +48,16 @@ const FallbackComponent = (isLoading: boolean, isError: boolean, data: any, chil
         child
 }
 
+const mapLineChartData = (data) => {
+  if (!data) {
+    return data
+  }
+  let pointChartData = data.Active.map((point) => new PointChartData(point.x, point.y))
+  let lineChartData = new LineChartData(Object.keys(data)[0], pointChartData)
+  let lineChartProps = new LineChartProps([lineChartData])
+  return lineChartProps
+}
+
 export function Widget({
   wid,
   title,
@@ -76,7 +88,7 @@ export function Widget({
       WidgetChild = FallbackComponent(isLoading,isError,data,<TableWidget data={data} title={title} />)
       break
     case 'line':
-      WidgetChild = FallbackComponent(isLoading,isError,data,<LineChartWidget data={data} title={title} />)
+      WidgetChild = FallbackComponent(isLoading,isError,data,<LineChartWidget data={mapLineChartData(data)} />)
       break
     case 'test':
       WidgetChild = <TestWidget wid={wid} />
