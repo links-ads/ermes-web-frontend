@@ -926,7 +926,7 @@ export function Map() {
           layerData={layerMeta}
         />
 
-        {dblClickFeatures && (
+        {(dblClickFeatures && dblClickFeatures.showCard) && (
           <MapTimeSeries
             dblClickFeatures={dblClickFeatures}
             setDblClickFeatures={setDblClickFeatures}
@@ -934,6 +934,9 @@ export function Map() {
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
             layerName={layerName}
+            allLayers={allLayers}
+            selectedFilters={filtersObj?.filters}
+            layerSelection={layerSelection}
           />
         )}
         <LayersSelectContainer
@@ -978,8 +981,7 @@ export function Map() {
             dateIndex={dateIndex}
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
-            singleLayerOpacityStatus={singleLayerOpacityStatus}
-            allLayers={allLayers}
+            singleLayerOpacityStatus={singleLayerOpacityStatus}            
             refreshList={refreshList}            
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />

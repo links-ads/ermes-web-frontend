@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line'
 import { useTheme } from '@material-ui/core';
 import { ChartTooltip } from '../../../common/stats-cards.components';
-import LineChartProps from '../../../models/LineChartProps';
+import LineChartProps from '../../../models/chart/LineChartProps';
 
 export const LineChartWidget: React.FC<{data: LineChartProps}> = (
     props

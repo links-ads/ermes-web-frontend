@@ -12,7 +12,7 @@ import { PieChartStats } from '../../../common/stats-cards.components'
 import { TableWidget } from './table-widget.component'
 import { LineChartWidget } from './line-chart-widge.component'
 
-import LineChartProps, { LineChartData, PointChartData } from '../../../models/LineChartProps'
+import LineChartProps, { LineChartData, PointChartData } from '../../../models/chart/LineChartProps'
 
 const WidgetBar = styled.div`
   width: 100%;

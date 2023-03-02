@@ -88,40 +88,21 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   geoLayerState,
-  getLayerTimeseries, 
   setDblClickFeatures,
-  selectedFilters,
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
   if ((mapMode !== 'browse') || (!evt['leftButton'])) {
     return
   }
-  const coord = evt.lngLat
-  const geoSystem = 'EPSG:4326'
   // If a layer id displayed on the map
   if (geoLayerState.tileId && geoLayerState.tileSource['properties']['format'] === 'NetCDF') {
     evt.preventDefault()
     evt.stopImmediatePropagation()
-    const timeRange = [
-      selectedFilters.datestart.selected ? selectedFilters.datestart.selected : geoLayerState.tileSource['properties']['fromTime'] ,
-      selectedFilters.dateend.selected ? selectedFilters.dateend.selected : geoLayerState.tileSource['properties']['toTime']
-    ]
-    const lineChart = await getLayerTimeseries(coord, geoSystem, timeRange[0], timeRange[1])
-
-    // Check whether the point is in a layer or not
-    if (lineChart.chartData.length <= 0) {
-      map?.zoomTo(map?.getZoom() + 1,{},{'fromCluster': true}) //Add eventData just to update map viewport
-    }
-    else {
-      // The point is associated with features -> trigger data plot
-      console.debug("Point is associated with features", lineChart.chartData)
-      
-      setDblClickFeatures({
-        layer: geoLayerState.tileId,
-        data: lineChart
-      })
-    }
+    setDblClickFeatures({
+      showCard: true, 
+      coord: evt.lngLat
+    })
   }
 }
 

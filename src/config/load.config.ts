@@ -117,6 +117,7 @@ export async function loadConfig(): Promise<AppConfig> {
         defaultStyle: baseLayers[0].name,
         ...configOverride.mapboxgl
       },
+      crs: configOverride.crs!,
       envTag: process.env.NODE_ENV === 'production' ? configOverride.envTag : HOT_LOADER_ENVTAG
     }
     console.debug('Config loaded', config)
