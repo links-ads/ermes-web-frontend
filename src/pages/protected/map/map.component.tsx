@@ -790,7 +790,7 @@ export function Map() {
   const { downloadUrl } = prepGeoData.data;
   
   useEffect(()=>{
-    if(downloadUrl.length > 0){
+    if(downloadUrl && downloadUrl.length > 0){
       // download geojson file
       window.location.href = downloadUrl;
     }
@@ -831,7 +831,10 @@ export function Map() {
     if (activitiesList.length > 0){
       Object.keys(entityActiviyOptions).forEach( key => {
         if(entityActiviyOptions[key]){
-          selectedActivityIds.push(activitiesList.find( activity => activity.name === key)?.id as number);
+          let selectedActivity = activitiesList.find( activity => activity.name === key)
+          if(selectedActivity && selectedActivity.id){
+            selectedActivityIds.push(selectedActivity.id);
+          }          
         }
       })
     }    

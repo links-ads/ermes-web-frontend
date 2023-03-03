@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 const initialState = {
   error: false,
+  errorData: {},
   isLoading: true,
   data: {
     type: 'FeatureCollection',
@@ -50,11 +51,11 @@ const reducer = (currentState, action) => {
                 ...currentState,
                 isLoading: false,
                 data: {
-                    type: 'FeatureCollection',
-                    features: []
+                  ...currentState.data
                 },
                 hasMore: false,
-                error: true
+                error: true,
+                errorData: action.value
             }
     }
     return initialState
@@ -173,7 +174,7 @@ export default function GetApiGeoJson() {
           })
           .catch((err) => {
             displayErrorSnackbar(err)
-            dispatch({ type: 'ERROR', value: errorData })
+            dispatch({ type: 'ERROR', value: err })
           })
       },
       [repApiFactory, displayErrorSnackbar, displaySuccessSnackbar, storedFilters]

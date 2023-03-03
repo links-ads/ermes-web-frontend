@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-- Feature - Refactoring of map layers' timeseries
+- Feature - Refactoring of map layers' timeseries (#104)
 
 Ver. 2.3.0
 -----------------------

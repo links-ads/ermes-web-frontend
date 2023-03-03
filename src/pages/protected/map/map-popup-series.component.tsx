@@ -8,6 +8,7 @@ import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import LineChartProps, { LineChartData, PointChartData } from '../../../models/chart/LineChartProps'
 import { geojsonToWKT } from "@terraformer/wkt"
 import { AppConfig, AppConfigContext } from '../../../config'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
     titleContainer: {
@@ -38,6 +39,8 @@ export default function MapTimeSeries(props) {
 
     const [ lineChartData, setLineChartData] = useState(new LineChartProps([]))
     const [ isLoading, setIsLoading ] = useState(true)
+
+    const { t } = useTranslation(['social'])
 
     const appConfig = useContext<AppConfig>(AppConfigContext)
 
@@ -149,7 +152,7 @@ export default function MapTimeSeries(props) {
     }, [])
 
     const loader = <Grid container justifyContent="center"><CircularProgress color="secondary" disableShrink /></Grid>
-    const noData = <p> No data available</p>// TODO
+    const noData = <Grid container justifyContent="center"><Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid>
 
     return (
       <>
