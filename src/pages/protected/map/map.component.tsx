@@ -340,6 +340,62 @@ export function Map() {
     return groupData
   }, [getLayersState])
 
+  const allLayers = useMemo(() => {
+    if (Object.keys(getLayersState.result).length === 0) return null
+    if (!getLayersState.result.data.associatedLayers) return null
+    if (!getLayersState.result.data.layerGroups) return null
+
+    // layers
+    let mainLayers: any[] = []
+    getLayersState.result.data.layerGroups.forEach((group) => {
+      group.subGroups.forEach((subGroup) => {
+        mainLayers = mainLayers.concat(
+          subGroup.layers.map((layer) => {
+            return {
+              id: layer.dataTypeId,
+              name: layer.name
+            }
+          })
+        )
+      })
+    })
+
+    // associated layers
+    let associatedLayers = getLayersState.result.data.associatedLayers.map((al) => {
+      let parentLayer = mainLayers.find((layer) => layer.id === al.parentDataTypeId)
+      return {
+        id: al.dataTypeId,
+        name: al.name,
+        parentId: al.parentDataTypeId,
+        parentName: parentLayer.name
+      }
+    })
+
+    // layers with associated layers
+    let groupedAssociatedLayers = associatedLayers.reduce((acc, curr) => {
+      let parentLayer = acc.find((p) => p.id === curr.parentId)
+      if (parentLayer) {
+        let childrenLayers = parentLayer.children
+        childrenLayers.push({ id: curr.id, name: curr.name })
+        parentLayer.children = childrenLayers
+      } else {
+        let newParentLayer = {
+          id: curr.parentId,
+          name: curr.parentName,
+          children: [{ id: curr.id, name: curr.name }]
+        }
+        acc.push(newParentLayer)
+      }
+      return acc
+    }, [])
+
+    return {
+      layers: mainLayers,
+      associatedLayers: associatedLayers,
+      groupedLayers: groupedAssociatedLayers
+    }
+  }, [getLayersState])
+
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson, downloadGeoJson ] = GetApiGeoJson()
@@ -736,7 +792,7 @@ export function Map() {
   const { downloadUrl } = prepGeoData.data;
   
   useEffect(()=>{
-    if(downloadUrl.length > 0){
+    if(downloadUrl && downloadUrl.length > 0){
       // download geojson file
       window.location.href = downloadUrl;
     }
@@ -777,7 +833,10 @@ export function Map() {
     if (activitiesList.length > 0){
       Object.keys(entityActiviyOptions).forEach( key => {
         if(entityActiviyOptions[key]){
-          selectedActivityIds.push(activitiesList.find( activity => activity.name === key)?.id as number);
+          let selectedActivity = activitiesList.find( activity => activity.name === key)
+          if(selectedActivity && selectedActivity.id){
+            selectedActivityIds.push(selectedActivity.id);
+          }          
         }
       })
     }    
@@ -872,7 +931,7 @@ export function Map() {
           layerData={layerMeta}
         />
 
-        {dblClickFeatures && (
+        {(dblClickFeatures && dblClickFeatures.showCard) && (
           <MapTimeSeries
             dblClickFeatures={dblClickFeatures}
             setDblClickFeatures={setDblClickFeatures}
@@ -880,6 +939,9 @@ export function Map() {
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
             layerName={layerName}
+            allLayers={allLayers}
+            selectedFilters={filtersObj?.filters}
+            layerSelection={layerSelection}
           />
         )}
         <LayersSelectContainer
@@ -924,7 +986,7 @@ export function Map() {
             dateIndex={dateIndex}
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
-            singleLayerOpacityStatus={singleLayerOpacityStatus}
+            singleLayerOpacityStatus={singleLayerOpacityStatus}            
             refreshList={refreshList}            
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />

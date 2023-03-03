@@ -2,12 +2,13 @@ import React, { useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line'
 import { useTheme } from '@material-ui/core';
 import { ChartTooltip } from '../../../common/stats-cards.components';
+import LineChartProps from '../../../models/chart/LineChartProps';
 
-export const LineChartWidget = (
+export const LineChartWidget: React.FC<{data: LineChartProps}> = (
     props
 ) => {
     const theme = useTheme()
-
+    const { chartData, xValues } = props.data;
     // const formatTicks = (v) => {
     //     return v.length > 10 ? (
     //         <tspan>
@@ -18,25 +19,6 @@ export const LineChartWidget = (
     //         v
     //     );
     // }
-    const chartData = useMemo(() => {
-        const newData = [] as any[]
-        Object.entries(props.data).forEach(entry => {
-            newData.push({
-                id: entry[0],
-                data: entry[1]
-            })
-        })
-        return newData
-    }, [props.data])
-
-    const xValues = useMemo(() => {
-        let values = [] as number[]
-        Object.entries(props.data).forEach(entry => {
-            const newArr = (entry[1] as any[]).map(o => o.x)
-            values = values.concat(newArr)
-        })
-        return [...new Set(values)]
-    }, [props.data])
 
     return (
         <div

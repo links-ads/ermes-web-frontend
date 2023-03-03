@@ -3,8 +3,6 @@ import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.con
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
 
-import { makeTimeSeriesURL } from '../../../../utils/map.utils'
-
 /**
  * handler for left click on the map
  * @param mapViewRef
@@ -82,7 +80,6 @@ export function onMapLeftClickHandler<T extends object>(
  * @param mapViewRef
  * @param mapMode
  * @param geoLayerState
- * @param geoServerConfig
  * @param setDblClickFeatures
  * @param selectedFilters
  * @param evt
@@ -91,53 +88,21 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   geoLayerState,
-  geoServerConfig,
   setDblClickFeatures,
-  selectedFilters,
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
   if ((mapMode !== 'browse') || (!evt['leftButton'])) {
     return
   }
-  const coord = evt.lngLat
   // If a layer id displayed on the map
   if (geoLayerState.tileId && geoLayerState.tileSource['properties']['format'] === 'NetCDF') {
     evt.preventDefault()
     evt.stopImmediatePropagation()
-    const timeRange = [
-      selectedFilters.datestart.selected ? selectedFilters.datestart.selected : geoLayerState.tileSource['properties']['fromTime'] ,
-      selectedFilters.dateend.selected ? selectedFilters.dateend.selected : geoLayerState.tileSource['properties']['toTime']
-    ]
-    const res = await fetch(makeTimeSeriesURL(coord, geoLayerState.tileId, geoServerConfig,timeRange)) 
-    const data = await res.text();
-    const dataArray = data.split("\n").slice(3, -1)
-    // Check whether the point is in a layer or not
-    if (dataArray.length <= 0) {
-      map?.zoomTo(map?.getZoom() + 1,{},{'fromCluster': true}) //Add eventData just to update map viewport
-    }
-    else {
-      // The point is associated with features -> trigger data plot
-      console.debug("Point is associated with features", dataArray)
-      const dateOptions = {
-        dateStyle: 'short',
-        timeStyle: 'short',
-        hour12: false
-      } as Intl.DateTimeFormatOptions
-      const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
-      setDblClickFeatures({
-        layer: geoLayerState.tileId,
-        data: {
-          'Value': dataArray.map(row => {
-            let rowArray = row.split(",")
-            return {
-              x: formatter.format(new Date(rowArray[0])),
-              y: parseFloat(rowArray[1])
-            }
-          })
-        }
-      })
-    }
+    setDblClickFeatures({
+      showCard: true, 
+      coord: evt.lngLat
+    })
   }
 }
 

@@ -57,6 +57,7 @@ import { tileJSONIfy } from '../../../utils/map.utils'
 import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import { PlayerButton } from './map-player/player-button.component'
 import { EntityType } from 'ermes-ts-sdk'
+
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
@@ -434,6 +435,7 @@ export function MapLayout(props) {
       }
     }, 1000) //after 1 sec
   }
+  
 
   const onMapLoad = useCallback(
     () => {
@@ -551,9 +553,7 @@ export function MapLayout(props) {
         mapViewRef,
         mapMode,
         geoLayerState,
-        geoServerConfig,
         setDblClickFeatures,
-        props.filtersObj.filters,
         evt
       )
     },

@@ -1,10 +1,12 @@
-Ver.
+Ver. 
 -----------------------
 - Bugfix - Fixed filters for viewing and editing users roles (#95)
-- Bugfix - Add element in drawer when a new entity is created from the map
-- Feature - List of receivers when Communication restriction type is set to 'Organization' (#101)
-- Feature - team management improvement (#102)
+- Feature - Refactoring of map layers' timeseries (#104)
+
+Ver. 2.3.0
+-----------------------
 - Feature - Added option to download features collection (#103)
+- Feature - team management improvement (#102)
 
 Ver. 2.2.0 - 2022-12-20
 -----------------------

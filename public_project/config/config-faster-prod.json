@@ -27,6 +27,7 @@
       "northEast": [61.2366, 60.3175]
     }
   },
+  "crs": "EPSG:4326",
   "geoServer": {
     "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",

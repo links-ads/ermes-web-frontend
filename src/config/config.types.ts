@@ -96,6 +96,8 @@ export interface AppConfig {
   i18n?: i18NextConfig
   // Map configuration
   mapboxgl?: MapboxGlConfig
+  // Coordinate Reference System
+  crs: string
   // GeoServer configuration to retrieve layers
   geoServer?: GeoServerConfig
   // FusionAuth connection paramters

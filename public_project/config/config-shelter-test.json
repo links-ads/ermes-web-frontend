@@ -27,6 +27,7 @@
       "northEast": [61.2366,60.3175]
     }
   },
+  "crs": "EPSG:4326",
   "geoServer": {
     "baseUrl": "https://geoserver-test.shelter-project.cloud/geoserver/shelter",
     "suffix": "wms",
