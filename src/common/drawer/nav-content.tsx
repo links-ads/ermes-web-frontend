@@ -17,6 +17,7 @@ import SupervisedUserCircle from '@material-ui/icons/SupervisedUserCircle'
 import Watch from '@material-ui/icons/Watch'
 import GroupWorkIcon from '@material-ui/icons/GroupWork';
 import PublishIcon from '@material-ui/icons/Publish';
+import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
 import React, {useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
@@ -157,6 +158,11 @@ const admin: NavContentLinkConfig[] = [
     primaryText: 'common:page_import',
     icon: <PublishIcon />,
     to: '/import'
+  },
+  {
+    primaryText: 'common:page_uncompleted_users',
+    icon: <PersonAddDisabledIcon />,
+    to: '/uncompleted-users'
   }
 ]
 

@@ -38,6 +38,8 @@
   "page_users": "FASTER Users",
   "page_import": "Import Data",
   "page_about": "About",
+  "page_uncompleted_users": "Uncompleted Users",
+  "breadcrumb_uncompleted-users": "uncompleted users",
   "user_birth_date": "Birth date: {{birthDate}}",
   "user_email": "Email: {{email}}",
   "user_first_name": "Name: {{firstName}}",
