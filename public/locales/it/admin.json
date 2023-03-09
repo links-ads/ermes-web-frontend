@@ -22,7 +22,7 @@
   "user_org_name": "Organizzazione",
   "user_verified": "Verificato",
   "user_roles": "Ruoli",
-  "user_fusion_auth_id": "FusionAuth Id Utente",
+  "user_fusion_auth_id": "FusionAuth Id",
   "uncompleted_users": "Utenti non completati",
   "uncompleted_users_delete_success": "Utente eliminato con successo",
   "uncompleted_users_delete_error": "Utente non eliminato",
