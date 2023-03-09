@@ -4,7 +4,7 @@
   "body_deleteTooltip": "Delete",
   "body_editTooltip": "Edit",
   "body_filterRow_filterTooltip": "Filter",
-  "body_editRow_deleteText": "Are you sure delete this row?",
+  "body_editRow_deleteText": "Are you sure you want to delete this row?",
   "body_editRow_cancelTooltip": "Cancel",
   "body_editRow_saveTooltip": "Save",
   "grouping_placeholder": "Drag headers ...",

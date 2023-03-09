@@ -40,6 +40,11 @@ const ImportComponent = React.lazy(async () => {
   return { default: module.ImportRoute }
 })
 
+const UncompletedUsersComponent = React.lazy(async () => {
+  const module = await import('./uncompleted-users/uncompleted-users.route')
+  return { default: module.UncompletedUsersRoute }
+})
+
 const Administration = React.lazy(
   () => import('./administration/administration.component').then(module => ({ default: module.Administration }))
 );
@@ -233,6 +238,22 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
               }
             >
               <ImportComponent location={location} match={match} history={history}/>
+            </Suspense>
+          ) : (unAuthorizedContent(location))
+        }}
+      ></Route>
+      <Route
+        path={'/uncompleted-users'}
+        render={({ location }) => {
+          return controlAccess(location.pathname, profile.role) ? (
+            <Suspense
+              fallback={
+                <div className="full-screen centered">
+                  <CircularProgress color="secondary" size={120} />
+                </div>
+              }
+            >
+              <UncompletedUsersComponent location={location} match={match} history={history}/>
             </Suspense>
           ) : (unAuthorizedContent(location))
         }}

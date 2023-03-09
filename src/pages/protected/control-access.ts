@@ -17,6 +17,7 @@ const accessPolicy = [
     {link:/^\/organizations$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/import$/,users:[ROLE_ADMIN]},
+    {link:/^\/uncompleted-users$/,users:[ROLE_ADMIN]},
     {link:/^\/organizations\/users$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]},
     {link:/^\/organizations\/teams$/,users:[ROLE_ADMIN,ROLE_ORGANIZATION_MANAGER,ROLE_TEAM_LEADER,ROLE_DECISION_MAKER]}
 ]
