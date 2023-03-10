@@ -1,3 +1,8 @@
+Ver.
+-----------------------
+
+
+Ver 2.5.0 - 2023-03-10
 - Feature - Delete uncompleted users (#105)
 
 Ver. 2.4.0- 2023-03-06
