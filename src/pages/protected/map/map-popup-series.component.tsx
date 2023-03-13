@@ -83,7 +83,11 @@ export default function MapTimeSeries(props) {
             coordinates: point
           }
           const pointWKT = geojsonToWKT(geojsonPoint)
-          const parentLayerResult = await layersApiFactory.layersGetTimeSeries(
+          let layerPromises: any[] = []
+          let layerNames: string[] = []
+          let chartData: LineChartData[] = []
+
+          const parentLayerPromise = layersApiFactory.layersGetTimeSeries(
             selectedLayerId,
             pointWKT,
             appConfig.crs,
@@ -92,23 +96,14 @@ export default function MapTimeSeries(props) {
             startDate,
             endDate
           )
-          const parentTimeseries = parentLayerResult.data.variables
-            ? parentLayerResult.data.variables.length > 0
-              ? parentLayerResult.data.variables[0].values
-              : []
-            : []
-
-          let chartData: LineChartData[] = []
-          if (parentTimeseries && parentTimeseries.length > 0) {
-            const layerTimeseries = mapToLineChartData(parentTimeseries, selectedLayer.name)
-            chartData.push(layerTimeseries)
-          }
+          layerPromises.push(parentLayerPromise)
+          layerNames.push(selectedLayer.name)
 
           // associated layers
           const parentLayer = groupedLayers.find((layer) => layer.id === layerId)
           if (parentLayer && parentLayer.children) {
             for (let layer of parentLayer.children) {
-              const childLayerResult = await layersApiFactory.layersGetTimeSeries(
+              const childLayerPromise = await layersApiFactory.layersGetTimeSeries(
                 layer.id,
                 pointWKT,
                 appConfig.crs,
@@ -117,15 +112,37 @@ export default function MapTimeSeries(props) {
                 startDate,
                 endDate
               )
-              const childTimeseries = childLayerResult.data.variables
-                ? childLayerResult.data.variables.length > 0
-                  ? childLayerResult.data.variables[0].values
-                  : []
+              layerPromises.push(childLayerPromise)
+              layerNames.push(layer.name)
+            }
+          }
+
+          const promisesResult = await Promise.all(layerPromises)
+
+          for (let i = 0; i < promisesResult.length; i++) {
+            const result = promisesResult[i]
+            const layerName = layerNames[i]
+            const timeseries = result.data.variables
+              ? result.data.variables.length > 0
+                ? result.data.variables[0].values
                 : []
-              if (childTimeseries && childTimeseries.length > 0) {
-                const layerTimeseries = mapToLineChartData(childTimeseries, layer.name)
-                chartData.push(layerTimeseries)
-              }
+              : []
+
+            // order time series by dateTime
+            // timeseries?.sort((first, second) => {
+            //   let fTime = new Date(first.dateTime!)
+            //   let sTime = new Date(second.dateTime!)
+            //   if (fTime.getTime() < sTime.getTime()) {
+            //     return -1
+            //   } else if (fTime.getTime() > sTime.getTime()) {
+            //     return 1
+            //   }
+            //   return 0
+            // })
+
+            if (timeseries && timeseries.length > 0) {
+              const layerTimeseries = mapToLineChartData(timeseries, layerName)
+              chartData.push(layerTimeseries)
             }
           }
 
