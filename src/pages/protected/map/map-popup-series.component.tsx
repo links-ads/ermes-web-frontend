@@ -103,7 +103,7 @@ export default function MapTimeSeries(props) {
           const parentLayer = groupedLayers.find((layer) => layer.id === layerId)
           if (parentLayer && parentLayer.children) {
             for (let layer of parentLayer.children) {
-              const childLayerPromise = await layersApiFactory.layersGetTimeSeries(
+              const childLayerPromise = layersApiFactory.layersGetTimeSeries(
                 layer.id,
                 pointWKT,
                 appConfig.crs,
