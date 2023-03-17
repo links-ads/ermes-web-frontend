@@ -6,6 +6,9 @@ export const POLYGON_SOURCE_ID = 'polygon-source'
 export const POLYGON_LAYER_ID = 'polygon-layer'
 export const POLYGON_STROKE_ID = 'polygon-stroke'
 
+export const POSITION_SOURCE_ID = 'position-source'
+export const POSITION_LAYER_ID = 'position-point'
+
 export const DEFAULT_MAP_VIEWPORT: { latitude: number; longitude: number; zoom: number } = {
   latitude: 45.3,
   longitude: 7.23,
@@ -255,6 +258,66 @@ export const removePolyToMap = (map) => {
     map.removeLayer(POLYGON_LAYER_ID)
     map.removeLayer(POLYGON_STROKE_ID)
     map.removeSource(POLYGON_SOURCE_ID)
+  }
+}
+
+export const addUserClickedPoint = (
+  map: mapboxgl.Map | undefined,
+  longitude: number,
+  latitude: number
+) => {
+  if (!map) return
+  const source_data = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [longitude, latitude]
+        },
+        properties: {
+          id: 'user-position'
+        }
+      }
+    ]
+  } as unknown as GeoJSON.FeatureCollection
+
+  let s = map.getSource(POSITION_SOURCE_ID) as mapboxgl.GeoJSONSource
+
+  if (s === undefined) {
+    map.addSource(POSITION_SOURCE_ID, {
+      type: 'geojson',
+      data: source_data
+    })
+  } else {
+    s.setData(source_data)
+  }
+
+  if (map.getLayer(POSITION_LAYER_ID) === undefined) {
+    map.addLayer({
+      id: POSITION_LAYER_ID,
+      type: 'symbol',
+      source: POSITION_SOURCE_ID,
+      layout: {
+        'icon-image': 'position-pin',
+        'icon-allow-overlap': true,
+        'icon-size': 1.5,
+        'icon-anchor': 'bottom-right' // use bottom with regular pins
+      },
+      paint: {
+        //'fill-color': fillColor, // blue color fill
+        //'fill-opacity': 0.5
+      }
+    })
+  }
+}
+
+export const removeUserClickedPoint = (map) => {
+  let s = map.getSource(POSITION_SOURCE_ID) as mapboxgl.GeoJSONSource
+  if (s && map.getLayer(POSITION_LAYER_ID)) {
+    map.removeLayer(POSITION_LAYER_ID)
+    map.removeSource(POSITION_SOURCE_ID)
   }
 }
 

@@ -2,6 +2,7 @@ import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
+import { addUserClickedPoint, removeUserClickedPoint } from '../../../../common/map/map-common';
 
 /**
  * handler for left click on the map
@@ -20,6 +21,8 @@ export function onMapLeftClickHandler<T extends object>(
   setRightClickedFeature: PointUpdater<T>,
   setHoveredFeature: PointUpdater<T>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
+  viewport,
+  setViewport,
   evt: PointerEvent
 ) {
   if (mapMode !== 'browse') {
@@ -42,7 +45,27 @@ export function onMapLeftClickHandler<T extends object>(
     }
   }
 
+  // add position point at user's click on the map - do not add in case the user is clicking on feature
+  if (map && features && features.length === 0){
+    // check if users is clicking on the position point - if so, remove it
+    const userPositionFeatures = map.queryRenderedFeatures(evt.point, { layers: ['position-point'] });
+    if (userPositionFeatures && userPositionFeatures.length > 0){
+      removeUserClickedPoint(map);
+    }
+    else {
+      const [longitude, latitude] = evt.lngLat
+      addUserClickedPoint(map, longitude, latitude)
+      setViewport({
+        ...viewport,
+        latitude: evt.lngLat[1],
+        longitude: evt.lngLat[0]
+      })
+    }
+  } 
+
   if (map && Array.isArray(features) && features.length > 0) {
+    // remove user clicked point 
+    removeUserClickedPoint(map)
     // Set clicked info
     const layer = features[0]['layer']['id'] as string
     if (layer === 'unclustered-point') {

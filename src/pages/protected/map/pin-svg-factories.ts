@@ -35,7 +35,13 @@ function OldFashionedSVG(color: string, size: number, iconBorder: boolean = fals
   const viewBox = iconBorder ? '-40 -40 1124 1024' : '0 0 1024 960'
   let style = `fill:${color};`
   if (iconBorder) {
-    const borderColor = contrastColor(color)
+    let borderColor = ''
+    if (color === yellow[800]){
+      borderColor = '#3b2b01'
+    }
+    else{
+      borderColor = contrastColor(color)
+    }
     style += `stroke:${borderColor};stroke-width:100;stroke-linecap:round;fill-rule:nonzero;stroke-opacity:0.5`
   } else {
     style += 'stroke:none;'
@@ -110,6 +116,11 @@ export function getPinImages(
     (async (): Promise<[string, HTMLImageElement]> => [
       'hovered-pin',
       await SVGImage(yellow[500], 20, style, drawIconBorder)
+    ])(), 
+    // position point
+    (async (): Promise<[string, HTMLImageElement]> => [
+      'position-pin',
+      await SVGImage(yellow[800], 15, style, drawIconBorder)
     ])()
   ])
 }
