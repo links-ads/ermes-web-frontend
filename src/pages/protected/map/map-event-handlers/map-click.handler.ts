@@ -2,7 +2,25 @@ import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
-import { addUserClickedPoint, removeUserClickedPoint } from '../../../../common/map/map-common';
+import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID } from '../../../../common/map/map-common';
+
+const manageUserClickedPoint = (map, evt, updateViewportCoordinates) => {
+  // check if users is clicking on the position point - if so, remove it
+  const features = map.queryRenderedFeatures(evt.point);
+  if (features && features.length > 0){
+    const userFeatures = features.find( ({layer}) => layer.id === POSITION_LAYER_ID)
+    if (userFeatures){
+      removeUserClickedPoint(map);
+    }    
+  }
+  else {
+    const [longitude, latitude] = evt.lngLat
+    addUserClickedPoint(map, longitude, latitude)
+    // show coordinates of the point
+    updateViewportCoordinates(longitude, latitude)
+  }
+}
+
 
 /**
  * handler for left click on the map
@@ -12,6 +30,7 @@ import { addUserClickedPoint, removeUserClickedPoint } from '../../../../common/
  * @param setRightClickedFeature
  * @param setHoveredFeature
  * @param spiderifierRef
+ * @param updateViewportCoordinates
  * @param evt
  */
 export function onMapLeftClickHandler<T extends object>(
@@ -21,8 +40,7 @@ export function onMapLeftClickHandler<T extends object>(
   setRightClickedFeature: PointUpdater<T>,
   setHoveredFeature: PointUpdater<T>,
   spiderifierRef: React.MutableRefObject<Spiderifier | null>,
-  viewport,
-  setViewport,
+  updateViewportCoordinates,
   evt: PointerEvent
 ) {
   if (mapMode !== 'browse') {
@@ -46,21 +64,8 @@ export function onMapLeftClickHandler<T extends object>(
   }
 
   // add position point at user's click on the map - do not add in case the user is clicking on feature
-  if (map && features && features.length === 0){
-    // check if users is clicking on the position point - if so, remove it
-    const userPositionFeatures = map.queryRenderedFeatures(evt.point, { layers: ['position-point'] });
-    if (userPositionFeatures && userPositionFeatures.length > 0){
-      removeUserClickedPoint(map);
-    }
-    else {
-      const [longitude, latitude] = evt.lngLat
-      addUserClickedPoint(map, longitude, latitude)
-      setViewport({
-        ...viewport,
-        latitude: evt.lngLat[1],
-        longitude: evt.lngLat[0]
-      })
-    }
+  if (map && features && features.length === 0) {
+    manageUserClickedPoint(map, evt, updateViewportCoordinates)
   } 
 
   if (map && Array.isArray(features) && features.length > 0) {
@@ -105,6 +110,7 @@ export function onMapLeftClickHandler<T extends object>(
  * @param geoLayerState
  * @param setDblClickFeatures
  * @param selectedFilters
+ * @param updateViewportCoordinates
  * @param evt
  */
 export async function onMapDoubleClickHandler<T extends object>(
@@ -112,6 +118,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapMode: MapMode,
   geoLayerState,
   setDblClickFeatures,
+  updateViewportCoordinates,
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
@@ -122,6 +129,9 @@ export async function onMapDoubleClickHandler<T extends object>(
   if (geoLayerState.tileId && geoLayerState.tileSource['properties']['format'] === 'NetCDF') {
     evt.preventDefault()
     evt.stopImmediatePropagation()
+    // manage user clicked point
+    manageUserClickedPoint(map, evt, updateViewportCoordinates)
+
     setDblClickFeatures({
       showCard: true, 
       coord: evt.lngLat

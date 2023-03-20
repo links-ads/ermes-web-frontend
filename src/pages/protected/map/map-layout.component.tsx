@@ -527,6 +527,14 @@ export function MapLayout(props) {
   }, [])
   // Empty array ensures that effect is only run on mount and unmount
 
+  const updateViewportCoordinates = (longitude, latitude) => {
+    setViewport({
+      ...viewport,
+      latitude: latitude,
+      longitude: longitude
+    })
+  }
+
   // Called on left click
   const onMapClick = useCallback(
     (evt: PointerEvent) => {
@@ -539,8 +547,7 @@ export function MapLayout(props) {
         setRightClickedPoint,
         setHoveredPoint,
         spiderifierRef,
-        viewport,
-        setViewport,
+        updateViewportCoordinates,
         evt
       )
     },
@@ -556,6 +563,7 @@ export function MapLayout(props) {
         mapMode,
         geoLayerState,
         setDblClickFeatures,
+        updateViewportCoordinates,
         evt
       )
     },
