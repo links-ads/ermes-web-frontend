@@ -173,6 +173,8 @@ export function MapLayout(props) {
     }
   ] = useMapStateContext<EmergencyProps>()
 
+  const [ mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates ] = useState([] as any[])
+
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
     (status: DialogResponseType, entityType: EntityType = EntityType.OTHER) => {
@@ -208,7 +210,7 @@ export function MapLayout(props) {
   useEffect(() => {
     const map = mapViewRef.current?.getMap()!
     const mapTileId = geoLayerState.tileId
-    if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {
+    if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {    
       const layerProps = props.layerSelection.isMapRequest === 0 ?
         props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
         props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
@@ -220,7 +222,7 @@ export function MapLayout(props) {
         geoServerConfig,
         map.getBounds()
       )
-      source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }
+      source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }       
 
       //if the layer is not a maprequest only one layer can be on the map, just remove the source
       if (!props.layerSelection.multipleLayersAllowed) {
@@ -539,6 +541,7 @@ export function MapLayout(props) {
         setRightClickedPoint,
         setHoveredPoint,
         spiderifierRef,
+        setMapHeadDrawerCoordinates,
         evt
       )
     },
@@ -554,6 +557,7 @@ export function MapLayout(props) {
         mapMode,
         geoLayerState,
         setDblClickFeatures,
+        setMapHeadDrawerCoordinates,
         evt
       )
     },
@@ -694,6 +698,7 @@ export function MapLayout(props) {
         mapRef={mapViewRef}
         filterApplyHandler={() => filterApplyBoundsHandler()} //props.filterApplyHandler
         mapViewport={viewport}
+        coordinates={mapHeadDrawerCoordinates}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}
       >

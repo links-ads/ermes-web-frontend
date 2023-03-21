@@ -38,6 +38,7 @@ import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 import { CommunicationScopeType } from 'ermes-ts-sdk'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
+import { yellow } from '@material-ui/core/colors'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -758,7 +759,7 @@ Different types of ["ReportRequest", "Communication", "Mission", "Report", "Pers
 
 export type EmergencyType =
   // | 'ReportRequest'
-  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person'
+  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person' | 'LastPosition'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -770,7 +771,8 @@ export const EmergencyColorMap: ColorMapType = {
   Communication: blueGrey[800],
   Mission: green[400],
   Report: brown[800],
-  Person: lightBlue[800]
+  Person: lightBlue[800],
+  LastPosition: yellow[800]
 }
 
 interface IEmergencyProps {
