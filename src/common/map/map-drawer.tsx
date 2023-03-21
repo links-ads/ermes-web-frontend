@@ -31,6 +31,8 @@ export const MapHeadDrawer = (props) => {
   const classes = useStyles()
   const { t } = useTranslation(['social'])
 
+  const { coordinates } = props
+
   return (
     <div
       style={{
@@ -56,7 +58,7 @@ export const MapHeadDrawer = (props) => {
             {t('social:map_longitude')} :{' '}
           </Typography>
           <Typography display="inline" className={classes.headerBoldText} variant="h6">
-            {props.mapViewport.longitude.toFixed(2)}
+            {coordinates.length > 0 ? coordinates[0].toFixed(2) : props.mapViewport.longitude.toFixed(2)}
           </Typography>
         </Grid>
         <Grid item>
@@ -64,7 +66,7 @@ export const MapHeadDrawer = (props) => {
             {t('social:map_latitude')} :{' '}
           </Typography>
           <Typography display="inline" className={classes.headerBoldText} variant="h6">
-            {props.mapViewport.latitude.toFixed(2)}
+            {coordinates.length > 0 ? coordinates[1].toFixed(2) : props.mapViewport.latitude.toFixed(2)}
           </Typography>
         </Grid>
         <Grid item>

@@ -173,6 +173,8 @@ export function MapLayout(props) {
     }
   ] = useMapStateContext<EmergencyProps>()
 
+  const [ mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates ] = useState([] as any[])
+
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
     (status: DialogResponseType, entityType: EntityType = EntityType.OTHER) => {
@@ -527,14 +529,6 @@ export function MapLayout(props) {
   }, [])
   // Empty array ensures that effect is only run on mount and unmount
 
-  const updateViewportCoordinates = (longitude, latitude) => {
-    setViewport({
-      ...viewport,
-      latitude: latitude,
-      longitude: longitude
-    })
-  }
-
   // Called on left click
   const onMapClick = useCallback(
     (evt: PointerEvent) => {
@@ -547,7 +541,7 @@ export function MapLayout(props) {
         setRightClickedPoint,
         setHoveredPoint,
         spiderifierRef,
-        updateViewportCoordinates,
+        setMapHeadDrawerCoordinates,
         evt
       )
     },
@@ -563,7 +557,7 @@ export function MapLayout(props) {
         mapMode,
         geoLayerState,
         setDblClickFeatures,
-        updateViewportCoordinates,
+        setMapHeadDrawerCoordinates,
         evt
       )
     },
@@ -704,6 +698,7 @@ export function MapLayout(props) {
         mapRef={mapViewRef}
         filterApplyHandler={() => filterApplyBoundsHandler()} //props.filterApplyHandler
         mapViewport={viewport}
+        coordinates={mapHeadDrawerCoordinates}
         customStyle={{ barHeight: '48px' }}
         isLoading={false}
       >
