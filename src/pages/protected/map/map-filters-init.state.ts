@@ -1,17 +1,18 @@
 import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
+import { _MS_PER_DAY } from '../../../utils/utils.common'
 
 export const initObjectState = {
   tabs: 2,
   xystart: [60, 60],
   filters: {
     datestart: {
-      selected: null,
+      selected: new Date(new Date().valueOf() - _MS_PER_DAY * 3).toISOString(),
       type: 'date',
       tab: 1,
       clear: true
     },
     dateend: {
-      selected: null,
+      selected: new Date(new Date().valueOf() + _MS_PER_DAY * 7).toISOString(),
       type: 'date',
       tab: 1,
       clear: true
