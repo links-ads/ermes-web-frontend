@@ -6,7 +6,8 @@ import {
   Source,
   Layer,
   InteractiveMap,
-  PointerEvent
+  PointerEvent,
+  ExtraState
 } from 'react-map-gl'
 import { useMapPreferences } from '../../../state/preferences/preferences.hooks'
 import { useTranslation } from 'react-i18next'
@@ -29,7 +30,7 @@ import { EmergencyHoverPopup, EmergencyDetailsCard } from './api-data/emergency.
 import { ContextMenu } from './context-menu.component'
 import { DialogResponseType, useMapDialog } from './map-dialog.hooks'
 import { MapDraw, MapDrawRefProps } from './map-draw.components'
-import { useMapStateContext, ItemWithLatLng, ProvisionalFeatureType } from './map.contest'
+import { useMapStateContext, ItemWithLatLng, ProvisionalFeatureType, ProvisionalOperationType } from './map.contest'
 import {
   onMapLoadHandler,
   onMouseEnterHandler,
@@ -468,9 +469,10 @@ export function MapLayout(props) {
   const onMenuItemClick = useCallback(
     (
       evt: any,
-      operation?: 'create' | 'update' | 'delete',
+      operation?: ProvisionalOperationType,
       type?: ProvisionalFeatureType,
-      itemId?: string
+      itemId?: string,
+      data?: string
     ) => {
       // Open modal with creation/update/delete wizards
       if (operation && type) {
@@ -480,7 +482,11 @@ export function MapLayout(props) {
       if (!operation) return
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
-      } else {
+      }
+      else if (operation == 'copy' && data){
+          navigator.clipboard.writeText(data).then(a => alert(t("common:coordinates_copied_to_clipboard")));
+      }
+       else {
         if (type && ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
@@ -638,18 +644,22 @@ export function MapLayout(props) {
 
   useEffect(() => {
     if (goToCoord !== undefined) {
-      mapViewRef.current?.getMap().flyTo(
-        {
-          center: new mapboxgl.LngLat(goToCoord.longitude, goToCoord.latitude),
-          zoom: 15
-        },
-        {
-          how: 'fly',
-          longitude: goToCoord.longitude,
-          latitude: goToCoord.latitude,
-          zoom: 15
-        }
-      )
+      const map = mapViewRef.current?.getMap();
+      if(map){
+        const zoom = map.getZoom()
+        map.flyTo(
+          {
+            center: new mapboxgl.LngLat(goToCoord.longitude, goToCoord.latitude),
+            zoom: zoom
+          },
+          {
+            how: 'fly',
+            longitude: goToCoord.longitude,
+            latitude: goToCoord.latitude,
+            
+          }
+        )
+      }
       setGoToCoord(undefined)
     }
   }, [goToCoord, setGoToCoord])
@@ -688,6 +698,10 @@ export function MapLayout(props) {
     return geoLayerState.tileId ? [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds, geoLayerState.tileId] : [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]
   }, [geoLayerState, props.spiderLayerIds])
 
+  const customGetCursor = ({isDragging, isHovering}: ExtraState) => isDragging ?
+    'all-scroll' :
+  (isHovering ? 'pointer' : 'auto');
+
   return (
     <>
       <MapHeadDrawer
@@ -722,6 +736,7 @@ export function MapLayout(props) {
         ref={mapViewRef}
         width="100%"
         height="100%" //was  height="calc(100% + 30px)"
+        getCursor={customGetCursor}
       >
         <MapDraw
           ref={mapDrawRef}

@@ -25,7 +25,7 @@ export function onMapLeftClickHandler<T extends object>(
   if (mapMode !== 'browse') {
     return
   }
-  console.debug('Map: mouse CLICK', evt)
+  //console.debug('Map: mouse CLICK', evt)
   // Click intercepts also right click... :/
   // leftButton is added by react-map-gl
   if (!evt['leftButton']) {
@@ -37,7 +37,7 @@ export function onMapLeftClickHandler<T extends object>(
   const clear = (map: mapboxgl.Map) => {
     setLeftClickedFeature(null)
     setRightClickedFeature(null)
-    if (spiderifierRef.current && mapViewRef.current) {  //this if enables the closing of the spider iff it is open and user clicks somewhere on the map
+    if (spiderifierRef.current && mapViewRef.current) {  //this if enables the closing of the spider if it is open and user clicks somewhere on the map
       spiderifierRef.current.clearSpiders(map)
     }
   }
@@ -76,7 +76,7 @@ export function onMapLeftClickHandler<T extends object>(
 }
 
 /**
- * handler for left click on the map
+ * handler for double click on the map
  * @param mapViewRef
  * @param mapMode
  * @param geoLayerState
@@ -130,7 +130,7 @@ export function onMapRightClickHandler<T extends object>(
     // TODO Check
     return
   }
-  console.debug('Map: mouse CTX MENU', evt)
+  
   if (mapViewRef.current) {
     const map = mapViewRef.current.getMap()
     // Pad right clicked pixel

@@ -81,8 +81,7 @@ const EventContent = (props) => {
                     clearEventMap(map, props.setLeftClickState, props.leftClickState)
                     map?.flyTo(
                         {
-                            center: centroid,
-                            zoom: 8
+                            center: centroid
                         },
                         {
                             how: 'fly'

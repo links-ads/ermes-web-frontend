@@ -51,8 +51,8 @@ export type FeatureSelectionUpdater<T extends object = object> = (
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
 ) => void
 
-export type ProvisionalFeatureType = 'Report' | 'ReportRequest' | 'Mission' | 'Communication' | 'MapRequest' | 'Person'
-
+export type ProvisionalFeatureType = 'Report' | 'ReportRequest' | 'Mission' | 'Communication' | 'MapRequest' | 'Person' | 'Coordinates'
+export type ProvisionalOperationType = 'create' | 'update' | 'delete' | 'copy'
 // The Map State
 interface MapStateVariables<T extends object = object> {
   // Mapview stuff
