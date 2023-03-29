@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Map marker (#107)
+- Feature - Map review part 1 (#110)
 
 Ver. 2.5.1 - 2023-03-14
 -----------------------

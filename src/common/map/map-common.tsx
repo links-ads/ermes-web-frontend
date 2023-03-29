@@ -329,7 +329,8 @@ export const drawPolyToMap = (
   map.fitBounds(
     llb,
     {
-      padding: 150
+      padding: 150,
+      zoom: map.getZoom()
     },
     {
       how: 'fly'

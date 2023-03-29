@@ -95,6 +95,6 @@
   "Message": "Messaggio",
   "Creator":"Creatore",
   "Frequency": "Frequenza",
-  "Resolution": "Risoluzione"
-
+  "Resolution": "Risoluzione",
+  "coordinates_copied_to_clipboard": "Coordinate copiate in clipboard"
 }

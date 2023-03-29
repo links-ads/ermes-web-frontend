@@ -54,5 +54,6 @@
   "view_in_map": "Vedi in mappa",
   "image_not_available": "Immagine non disponibile",
   "page_events": "Eventi",
-  "number_of_items": "Numero di elementi"
+  "number_of_items": "Numero di elementi",
+  "coordinates_copied_to_clipboard": "Coordinate copiate in clipboard"
 }

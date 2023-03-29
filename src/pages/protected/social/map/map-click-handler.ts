@@ -40,6 +40,7 @@ export const mapClickHandler = (
         clickedPoint: { long: longitude, lat: latitude },
         pointFeatures: parseTweet(properties)
       }
+      
       map?.flyTo(
         {
           center: feature.geometry.coordinates,

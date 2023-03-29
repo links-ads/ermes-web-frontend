@@ -11,7 +11,7 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
   const destination = profile
     ? (dest.redirect_to && dest.redirect_to !== '/'
         ? dest.redirect_to
-        : profile?.defaultLandingPage
+        : '/map'
       )?.toString()
     : ''
   console.debug(
