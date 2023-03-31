@@ -59,7 +59,7 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
         case 'RESET':
             const currentDate = new Date()
             return {
-                datestart: new Date(currentDate.valueOf() - _MS_PER_DAY * 3),//(action.days || 1)),
+                datestart: new Date(currentDate.valueOf() - _MS_PER_DAY * 3),
                 dateend: new Date(currentDate.valueOf() + _MS_PER_DAY * 7),
                 languageSelect: [],
                 hazardSelect: [],

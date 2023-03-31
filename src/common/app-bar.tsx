@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react'
+import React, { memo, useContext } from 'react'
 // import { Header, SidebarTrigger, SidebarTriggerIcon } from '@mui-treasury/layout'
 import { BrandLogo } from './app-bar-widgets/brand-logo/brand-logo'
 import LanguageSelect from './app-bar-widgets/language-select'
@@ -16,7 +16,7 @@ import { useUser } from '../state/auth/auth.hooks'
 import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
 import { FiltersType } from './filters/reducer'
-import { _MS_PER_DAY } from '../utils/utils.common'
+import { FiltersContext } from '../state/filters.context'
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -30,15 +30,20 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
 
   const timefilterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
-  const [filterArgs, setFilterArgs] = useState<FiltersType>(
-    {
-      datestart: new Date(new Date().valueOf() - _MS_PER_DAY * 3 ),
-      dateend: new Date(new Date().valueOf() + _MS_PER_DAY * 7 )
-    })
-  
+  const appBarContext = useContext(FiltersContext)
+  const { filters, apply } = appBarContext
+
   return (
-    <Header color="primary" className={`header ${isAuthenticated ? 'logged-in' : 'not-logged-in'}`} style={{boxShadow:'0px 3px 3px -2px rgb(0 0 0 / 20%), 0px 3px 4px 0px rgb(0 0 0 / 14%), 0px 1px 8px 0px rgb(0 0 0 / 12%)'}}>
-      <Toolbar  style={{paddingLeft:'15px'}}>
+    <Header
+      color="primary"
+      className={`header ${isAuthenticated ? 'logged-in' : 'not-logged-in'}`}
+      style={{
+        boxShadow:
+          '0px 3px 3px -2px rgb(0 0 0 / 20%), 0px 3px 4px 0px rgb(0 0 0 / 14%), 0px 1px 8px 0px rgb(0 0 0 / 12%)',
+        height: 'auto'
+      }}
+    >
+      <Toolbar style={{ paddingLeft: '15px' }}>
         {isAuthenticated ? (
           <SidebarTrigger sidebarId="left_sidebar">
             {({ open }) => (open ? <Close /> : <Menu />)}
@@ -49,10 +54,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         <BrandLogo />
         <Spacer />
         {timefilterActive ? (
-          <DashboardFilters 
-            filters={filterArgs}
-            onFilterApply={(args) => setFilterArgs(args)}
-          />
+          <DashboardFilters filters={filters} onFilterApply={apply} />
         ) : (
           <TitleWidget />
         )}

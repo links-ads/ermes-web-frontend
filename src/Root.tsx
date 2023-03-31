@@ -11,6 +11,7 @@ import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
 import Backdrop from '@material-ui/core/Backdrop'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import styled from 'styled-components'
+import FiltersContextProvider from './state/filters.context'
 
 const RoutesWrapper = styled.div<{ leftSidebarCollapsed: boolean }>`
   margin-left: ${(props) => (props.leftSidebarCollapsed ? '64px' : '0px')};
@@ -69,9 +70,11 @@ export default function Root({
 
   return (
     <>
-      <AppBar />
-      <NavDrawer />
-      <MainContent isAuthenticated={isAuthenticated} />
+      <FiltersContextProvider>
+        <AppBar />      
+        <NavDrawer />
+        <MainContent isAuthenticated={isAuthenticated} />
+      </FiltersContextProvider>
       <GlobalFooter />
     </>
   )

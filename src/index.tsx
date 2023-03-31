@@ -15,6 +15,7 @@ import Axios from 'axios'
 import { getInitialState /* , USER_STORAGE_KEY */ } from './state/store.utils'
 import { AxiosHooksConfigurator } from './common/types'
 import { AUTH_ACTIONS } from './state/auth/auth.actions'
+import "antd/dist/antd.css";
 
 const isProduction = process.env.NODE_ENV === 'production'
 

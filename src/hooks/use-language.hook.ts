@@ -21,17 +21,21 @@ const useLanguage = () => {
 
 export default useLanguage;
 
-export const useLanguageForTimeWindow = () => {
+export const useFiltersLocale = () => {
     const { i18n } = useTranslation()
+    let locale = {}
     const getLanguageSettings = useCallback((language) => {
         switch(language)
         {
             case 'it':
-                return {dateFormat:"cccc dd MMMM yyyy", dateLocale:"it-IT"}
+                locale = require('antd/es/date-picker/locale/it_IT')
+                return locale
             case 'en':
-                return {dateFormat:"cccc MMMM dd yyyy", dateLocale:"en-US"}
+                locale = require('antd/es/date-picker/locale/en_US')
+                return locale
             default:
-                return {dateFormat:"cccc dd MMMM yyyy", dateLocale:"en-GB"}
+                locale = require('antd/es/date-picker/locale/en_GB')
+                return locale
         }
     },[])
     return getLanguageSettings(i18n.language)
