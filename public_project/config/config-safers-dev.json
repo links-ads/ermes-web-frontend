@@ -51,5 +51,6 @@
   },
   "userTagsFilter": {
     "filters": ["administrator","user", "admin"]
-  }
+  },
+  "importerBaseUrl" : "https://geoapi-dev.safers-project.cloud"
 }

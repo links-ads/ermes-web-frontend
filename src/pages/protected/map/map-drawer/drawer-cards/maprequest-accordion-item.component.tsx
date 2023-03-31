@@ -6,10 +6,12 @@ import {
   Slider,
   Typography
 } from '@material-ui/core'
-import React, { useContext, useEffect, useState } from 'react'
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import LegendIcon from '@material-ui/icons/FilterNone'
 import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import GetAppIcon from '@material-ui/icons/GetApp'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +21,8 @@ import { LayerSettingsState } from '../../../../../models/mapRequest/MapRequestS
 import { tileJSONIfy } from '../../../../../utils/map.utils'
 import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
+import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
+import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
 
 const useStyles = makeStyles((theme) => ({
   buttonsContainer: {
@@ -71,12 +75,17 @@ const MapRequestAccordionItem: React.FC<{
   updateMapRequestsSettings: any
 }> = (props) => {
   const { getMeta, getLegend, currentLayer, map, updateMapRequestsSettings } = props
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'labels'])
   const style = useStyles()
   const [playing, setPlaying] = useState(false)
+  const { displayErrorSnackbar } = useSnackbars()
   const { opacity, dateIndex, isChecked, mapRequestCode, dataTypeId, status } = currentLayer
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
+
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const importerBaseUrl = appConfig.importerBaseUrl
 
   const isCheckedHandler = (event: any) => {
     if (!event.target.checked) setPlaying(false)
@@ -91,6 +100,21 @@ const MapRequestAccordionItem: React.FC<{
   const onClickDateHandler = (event) => {
     event.stopPropagation()
     skipNext(dateIndex + 1)
+  }
+
+  const onDownloadHandler = async (event) => {
+    event.stopPropagation()
+    if (currentLayer.activeLayer && currentLayer.activeLayer.length > 0){
+        const layerName = currentLayer.activeLayer.split(':')[1]
+      const response = await layersApiFactory.layersGetFilename(layerName)
+      if(response.status === 200){
+        const { filename } = response.data;
+        if (filename && filename.length > 0)
+          window.location.href = importerBaseUrl + '/download?filename=' + filename
+      }
+    }
+    else
+      displayErrorSnackbar(t('contentnotavailable'))
   }
 
   const skipNext = (newValue) => {
@@ -256,6 +280,14 @@ const MapRequestAccordionItem: React.FC<{
                         disabled={!isChecked}
                       >
                         <SkipNextIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="download"
+                        onClick={onDownloadHandler}
+                        disabled={!isChecked}
+                        style={{ marginLeft: 10}}
+                      >
+                        <GetAppIcon />
                       </IconButton>
                     </div>
                   </span>

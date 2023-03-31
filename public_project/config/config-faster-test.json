@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl":"https://fasterblobstoragetest.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://fasterblobstoragetest.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -36,7 +36,7 @@
       "version": "1.3.0",
       "request": "GetMap",
       "srs": "EPSG:3857",
-      "bbox":"{bbox-epsg-3857}",
+      "bbox": "{bbox-epsg-3857}",
       "format": "image/png",
       "transparent": true
     }
@@ -50,6 +50,7 @@
     "url": "https://api-test.faster-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator","user", "admin"]
-  }
+    "filters": ["administrator", "user", "admin"]
+  },
+  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
 }
