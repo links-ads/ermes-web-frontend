@@ -31,6 +31,7 @@ import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
   LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
+import MapSearchHere from '../../../common/map/map-search-here'
 
 type MapFeature = CulturalProps
 
@@ -990,6 +991,7 @@ export function Map() {
           />
         </MapStateContextProvider>
       </MapContainer>
+      <MapSearchHere />
     </>
   )
 }
