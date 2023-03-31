@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Download file from Importer added (#112)
 
 Ver. 2.5.1 - 2023-03-14
 -----------------------
