@@ -47,9 +47,9 @@ export function DashboardLayout({
     [dashboardWidgetsConfig]
   )
 
-  const appBarContext = useContext(FiltersContext)
+  const filtersCtx = useContext(FiltersContext)
 
-  const { filters } = appBarContext
+  const { filters } = filtersCtx
 
   // const addWidget = useCallback(
   //   (type: WidgetType) => {

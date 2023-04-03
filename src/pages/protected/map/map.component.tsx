@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useMemo } from 'react'
+import React, { useState, useEffect, useReducer, useContext, useMemo, useCallback } from 'react'
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
@@ -31,6 +31,7 @@ import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
   LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
+import { FiltersContext } from '../../../state/filters.context'
 
 type MapFeature = CulturalProps
 
@@ -122,46 +123,36 @@ export function Map() {
     return newFilterList
   }
 
-  const [initObject, updateInit] = useState(JSON.parse(JSON.stringify(initObjectState)))
+  const filtersCtx = useContext(FiltersContext)
+  const { localStorageFilters: filtersObj, filters, applyDate, applyFilters, updateActivities, updateMapBounds, updateTeamList, resetFilters } = filtersCtx
+
+  //const [initObject, updateInit] = useState(JSON.parse(JSON.stringify(localStorageFilters)))
 
   const appConfig = useContext<AppConfig>(AppConfigContext)
-  initObject.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
-  initObject.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
-  initObject.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
-  initObject.filters.report.content[2] =
-    profile?.role == ROLE_CITIZEN
-      ? {
-          name: 'hazard_visibility',
-          options: ['Public'],
-          type: 'select',
-          selected: 'Public'
-        }
-      : {
-          name: 'hazard_visibility',
-          options: ['Private', 'Public', 'All'],
-          type: 'select',
-          selected: 'Private'
-        }
 
-  let [storedFilters, changeItem, ,] = useMemoryState(
-    'memstate-map',
-    JSON.stringify(JSON.parse(JSON.stringify(initObject))),
-    false
-  )
+  // let [storedFilters, changeItem, ,] = useMemoryState(
+  //   'memstate-map',
+  //   JSON.stringify(JSON.parse(JSON.stringify(initObject))),
+  //   false
+  // )
 
-  const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(
-    JSON.parse(storedFilters!) as unknown as FiltersDescriptorType
-  )
+  // const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(
+  //   localStorageFilters as unknown as FiltersDescriptorType
+  // )
 
   // set list of wanted type of emergencies (for filter)
   const [filterList, setFilterList] = useState<String[]>(getFilterList(filtersObj))
 
-  const applyFiltersObj = () => {
+  // Toggle for the side drawer
+  const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
+
+  const applyFiltersObj = useCallback((newFiltersObj) => {
     const newFilterList = getFilterList(filtersObj)
 
     setFilterList(newFilterList)
-    changeItem(JSON.stringify(filtersObj))
-    setFiltersObj(JSON.parse(JSON.stringify(filtersObj)))
+    // changeItem(JSON.stringify(filtersObj))
+    applyFilters(newFiltersObj)
+    //setFiltersObj(JSON.parse(JSON.stringify(filtersObj)))
     if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
@@ -169,10 +160,11 @@ export function Map() {
     // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
     // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
     forceUpdate()
-  }
+  }, [toggleSideDrawer, getFilterList, setFilterList, applyFilters, setToggleActiveFilterTab, forceUpdate])
 
-  // Toggle for the side drawer
-  const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
+  // useEffect(() => {
+  //   applyFiltersObj(filtersObj)
+  // }, [filters])
 
   const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
     undefined
@@ -447,9 +439,11 @@ export function Map() {
       )
       setTeamList(i)
       //update starting filter object with actual team names from http
-      let tmp = initObject
-      tmp.filters.persons.content[1].options = Object.values(i)
-      updateInit(tmp)
+      //let tmp = initObject
+      //tmp.filters.persons.content[1].options = Object.values(i)
+      // updateInit(tmp)
+      const teamNamesList = Object.values(i)
+      updateTeamList(teamNamesList)
     }
   }, [teamsApiHandlerState])
 
@@ -476,10 +470,10 @@ export function Map() {
           }
         }
       } as unknown as FiltersDescriptorType
-      setFiltersObj(newFilterObj)
-      changeItem(JSON.stringify(newFilterObj))
+      // setFiltersObj(newFilterObj)
+      updateActivities(activitiesObj)
     }
-  }, [activitiesList, filtersObj, changeItem])
+  }, [activitiesList, filtersObj, updateActivities])
 
   function getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value)
@@ -888,7 +882,8 @@ export function Map() {
           onPositionChange={setFloatingFilterContainerPosition}
           applyFiltersObj={applyFiltersObj}
           // resetFiltersObj={resetFiltersObj}
-          initObj={initObject}
+          initObj={filtersObj}
+          resetFilters={resetFilters}
           teamList={teamList}
         ></FloatingFilterContainer>
         {/* ) : null} */}
@@ -974,9 +969,9 @@ export function Map() {
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
             setSpiderifierRef={setSpiderifierRef}
-            filtersObj={filtersObj}
-            setFiltersObj={setFiltersObj}
-            changeItem={changeItem}
+            //filtersObj={filtersObj}
+            //setFiltersObj={setFiltersObj}
+            updateMapBounds={updateMapBounds}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
             layerSelection={layerSelection}

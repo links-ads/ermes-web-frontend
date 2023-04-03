@@ -17,6 +17,7 @@ import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
 import { FiltersType } from './filters/reducer'
 import { FiltersContext } from '../state/filters.context'
+import "antd/dist/antd.css";
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -31,7 +32,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   const timefilterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
   const appBarContext = useContext(FiltersContext)
-  const { filters, apply } = appBarContext
+  const { filters, applyDate } = appBarContext
 
   return (
     <Header
@@ -54,7 +55,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         <BrandLogo />
         <Spacer />
         {timefilterActive ? (
-          <DashboardFilters filters={filters} onFilterApply={apply} />
+          <DashboardFilters filters={filters} onFilterApply={applyDate} />
         ) : (
           <TitleWidget />
         )}
