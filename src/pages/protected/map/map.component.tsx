@@ -27,6 +27,7 @@ import MapRequestState, {
   LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
 import { FiltersContext } from '../../../state/filters.context'
+import { CircularProgress } from '@material-ui/core'
 
 type MapFeature = CulturalProps
 
@@ -129,7 +130,7 @@ export function Map() {
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
   const applyFiltersObj = useCallback((newFiltersObj) => {
-    const newFilterList = getFilterList(newFiltersObj) //filtersObj TODO
+    const newFilterList = getFilterList(newFiltersObj)
 
     setFilterList(newFilterList)
     applyFilters(newFiltersObj)
@@ -795,6 +796,9 @@ export function Map() {
     downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
   }
 
+  const { isLoading: isGeoDataloading} = prepGeoData
+  const loader = <div className="full-screen centered"><CircularProgress size={120}/></div>
+
   ///////
   return (
     <>
@@ -942,6 +946,8 @@ export function Map() {
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />
         </MapStateContextProvider>
+
+        {isGeoDataloading ? loader : undefined}
       </MapContainer>
     </>
   )

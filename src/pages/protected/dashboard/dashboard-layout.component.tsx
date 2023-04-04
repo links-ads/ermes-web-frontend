@@ -1,4 +1,4 @@
-import { useTheme } from '@material-ui/core'
+import { CircularProgress, useTheme } from '@material-ui/core'
 import React, { useCallback, useState, useEffect, useContext, useMemo } from 'react'
 import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
 import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'
@@ -130,27 +130,38 @@ export function DashboardLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dashboardWidgetsConfigHash, statsState.data]
   )
+
+  const loader = (
+    <div className="full-screen centered">
+      <CircularProgress color="secondary" size={120} />
+    </div>
+  )
+
   return (
     <>
-      <ResponsiveReactGridLayout
-        width={width}
-        containerPadding={[16, 16]}
-        className={className + ' layout'}
-        layouts={layouts}
-        rowHeight={rowHeight}
-        cols={LayoutCols}
-        compactType={'vertical'}
-        onBreakpointChange={onBreakpointChange}
-        // onLayoutChange={onLayoutChange}
-        onDragStop={onDragWidgetStop}
-        breakpoints={theme.breakpoints.values}
-        useCSSTransforms={true}
-        preventCollision={false}
-        resizeHandles={['se', 'sw', 'ne', 'nw']}
-        // onWidthChange={(args) => console.debug('Grid layout width change', args)}
-      >
-        {elements}
-      </ResponsiveReactGridLayout>
+      {statsState.isLoading ? (
+        loader
+      ) : (
+        <ResponsiveReactGridLayout
+          width={width}
+          containerPadding={[16, 16]}
+          className={className + ' layout'}
+          layouts={layouts}
+          rowHeight={rowHeight}
+          cols={LayoutCols}
+          compactType={'vertical'}
+          onBreakpointChange={onBreakpointChange}
+          // onLayoutChange={onLayoutChange}
+          onDragStop={onDragWidgetStop}
+          breakpoints={theme.breakpoints.values}
+          useCSSTransforms={true}
+          preventCollision={false}
+          resizeHandles={['se', 'sw', 'ne', 'nw']}
+          // onWidthChange={(args) => console.debug('Grid layout width change', args)}
+        >
+          {elements}
+        </ResponsiveReactGridLayout>
+      )}
       {/* <AddWidgetComponent addWidget={addWidget} /> */}
     </>
   )

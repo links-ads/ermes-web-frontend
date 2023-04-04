@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import { Button, Grid } from '@material-ui/core'
 import { DatePicker } from 'antd'
 
@@ -17,6 +17,7 @@ export const DashboardFilters = (props) => {
   const { t, i18n } = useTranslation(['social'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
+  const [ hasReset, setHasReset ] = useState(false)
 
   const classes = useStyles()
 
@@ -24,13 +25,30 @@ export const DashboardFilters = (props) => {
     props.onFilterApply({
       datestart: filters.datestart,
       dateend: filters.dateend
-    })
+    })    
   }
 
   const resetFilters = () => {
     dispatch({ type: 'RESET' })
-    applyFilters()
+    setHasReset(true)
   }
+
+  const updateStartDate = (date) => {
+    dispatch({ type: 'START_DATE', value: date?.toDate() })
+    setHasReset(false)
+  }
+
+  const updateEndDate = (date) => {
+    dispatch({ type: 'END_DATE', value: date?.toDate() })
+    setHasReset(false)
+  }
+
+  useEffect(() => {
+    if (hasReset){
+      applyFilters()
+      setHasReset(false)
+    }   
+  }, [hasReset])
 
   const locale = useFiltersLocale()
 
@@ -54,13 +72,13 @@ export const DashboardFilters = (props) => {
           </label>
           <DatePicker
             id="starting-date"
-            onChange={(date) => dispatch({ type: 'START_DATE', value: date?.toDate() })}
+            onChange={updateStartDate}
             showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
             defaultValue={moment(filters.datestart)}
             value={moment(filters.datestart)}
             allowClear
-            format="dddd DD MMMM YYYY - HH:mm"
-            style={{ width: '260px' }}
+            format="ddd DD MMMM YYYY - HH:mm"
+            style={{ width: '280px' }}
             locale={locale}
           />
         </Grid>
@@ -68,13 +86,13 @@ export const DashboardFilters = (props) => {
           <label style={{ display: 'flex', flexDirection: 'column' }}>{t('social:end_date')}</label>
           <DatePicker
             id="end-date"
-            onChange={(date) => dispatch({ type: 'END_DATE', value: date?.toDate() })}
+            onChange={updateEndDate}
             showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
             defaultValue={moment(filters.dateend)}
             value={moment(filters.dateend)}
             allowClear
-            format="dddd DD MMMM YYYY - HH:mm"
-            style={{ width: '260px' }}
+            format="ddd DD MMMM YYYY - HH:mm"
+            style={{ width: '280px' }}
           />
         </Grid>
       </Grid>
@@ -88,6 +106,7 @@ export const DashboardFilters = (props) => {
         <Grid>
           <Button
             className={classes.applyButton}
+            style={{textTransform: 'capitalize'}}
             onClick={applyFilters}
             size="small"
             color="primary"
@@ -99,6 +118,7 @@ export const DashboardFilters = (props) => {
         <Grid>
           <Button
             className={classes.resetButton}
+            style={{textTransform: 'capitalize'}}
             onClick={resetFilters}
             size="small"
             variant="contained"

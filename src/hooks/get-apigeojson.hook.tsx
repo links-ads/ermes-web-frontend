@@ -71,10 +71,11 @@ export default function GetApiGeoJson() {
         null,
         false
     )
-    const { t, i18n } = useTranslation();
-
+    const { t, i18n } = useTranslation();    
+    
     const fetchGeoJson = useCallback(
       (teamIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+        dispatch({ type: 'FETCH' })
         const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
         repApiFactory
           .geoJsonGetFeatureCollection(
