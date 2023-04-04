@@ -580,7 +580,6 @@ export function MapLayout(props) {
   )
 
   const filterApplyBoundsHandler = () => {
-    //const newFilterObj = JSON.parse(JSON.stringify(props.filtersObj))
     const bounds = getMapBounds(mapViewRef)
     // Keep the current filter if it is already a bounding box
     // This is to prevent a backend bug which returned null
@@ -596,9 +595,7 @@ export function MapLayout(props) {
     if (bounds!.southWest && bounds!.southWest[1] < -29.94539308554898) {
       bounds!.southWest[1] = -29.94539308554898
     }
-    //newFilterObj.filters.mapBounds = { ...bounds, zoom: getMapZoom(mapViewRef) }
     props.updateMapBounds({ ...bounds, zoom: getMapZoom(mapViewRef) })
-    //props.setFiltersObj(newFilterObj)
     props.forceUpdate()
   }
   // Update viewport state

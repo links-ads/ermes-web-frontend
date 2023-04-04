@@ -15,9 +15,7 @@ import Menu from '@material-ui/icons/Menu'
 import { useUser } from '../state/auth/auth.hooks'
 import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
-import { FiltersType } from './filters/reducer'
 import { FiltersContext } from '../state/filters.context'
-import "antd/dist/antd.css";
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -31,8 +29,8 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
 
   const timefilterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
-  const appBarContext = useContext(FiltersContext)
-  const { filters, applyDate } = appBarContext
+  const filtersCtx = useContext(FiltersContext)
+  const { filters, applyDate } = filtersCtx
 
   return (
     <Header

@@ -6,14 +6,15 @@ import { initObjectState } from '../pages/protected/map/map-filters-init.state'
 import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
 
-const appBarInitialState = {
+const filtersInitialState = {
   filtersLocalStorageObject: {},
   filters: {}
 }
 
+const localStorageKey = 'memstate-map'
+
 const updateFiltersLocalStorage = (filtersObj) => {
-  const key = 'memstate-map'
-  localStorage.setItem(key, JSON.stringify(JSON.parse(JSON.stringify(filtersObj))))
+  localStorage.setItem(localStorageKey, JSON.stringify(JSON.parse(JSON.stringify(filtersObj))))
 }
 
 const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
@@ -46,8 +47,7 @@ const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
 export const initializer = (userProfile, appConfig) => {
   let filtersArgs = {}
   let filtersObj = {} as any
-  const key = 'memstate-map'
-  let storedFilters = localStorage.getItem(key)
+  let storedFilters = localStorage.getItem(localStorageKey)
   if (storedFilters === null) {
     filtersObj = initObjectState
     filtersObj.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
@@ -113,19 +113,6 @@ export const filtersReducer = (currentState, action) => {
         filtersLocalStorageObject: newFiltersObject,
         filters: updatedFilters
       }
-    case 'UPDATE_CITIZEN':
-      const hazardContent = {
-        name: 'hazard_visibility',
-        options: ['Public'],
-        type: 'select',
-        selected: 'Public'
-      }
-      newFiltersObject.filters.report.content[2] = hazardContent
-      updateFiltersLocalStorage(newFiltersObject)
-      return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: action.filters
-      }
     case 'UPDATE_ACTIVITIES':
       const newActivities = action.activities
       newFiltersObject.filters.multicheckActivities = {
@@ -159,7 +146,7 @@ export const filtersReducer = (currentState, action) => {
       const isCitizen = action.isCitizen
       newFiltersObject = initObjectState
       newFiltersObject.filters.mapBounds = appConfigMapBounds
-      if (isCitizen){
+      if (isCitizen) {
         const citizenHazardContent = {
           name: 'hazard_visibility',
           options: ['Public'],
@@ -167,7 +154,7 @@ export const filtersReducer = (currentState, action) => {
           selected: 'Public'
         }
         newFiltersObject.filters.report.content[2] = citizenHazardContent
-      }      
+      }
       const resetFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
       updateFiltersLocalStorage(newFiltersObject)
       return {

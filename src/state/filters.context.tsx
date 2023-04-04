@@ -1,13 +1,14 @@
-import React, { createContext, useCallback, useEffect, useReducer, useContext } from 'react'
-import { filtersReducer, initializer } from '../hooks/use-app-bar-filters.hook'
+import React, { createContext, useCallback, useReducer, useContext } from 'react'
+import { filtersReducer, initializer } from '../hooks/use-filters-object.hook'
 import { useUser } from './auth/auth.hooks'
 import { AppConfigContext } from '../config/config.context'
 import { AppConfig } from '../config/config.types'
 import { ROLE_CITIZEN } from '../App.const'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { FiltersType } from '../common/filters/reducer'
 
 export const FiltersContext = createContext({
-  filters: {},
+  filters: {} as FiltersType,
   localStorageFilters: {} as FiltersDescriptorType | undefined,
   applyDate: (filters) => {},
   updateActivities: (activities) => {},

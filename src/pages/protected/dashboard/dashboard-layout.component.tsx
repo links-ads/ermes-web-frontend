@@ -49,7 +49,7 @@ export function DashboardLayout({
 
   const filtersCtx = useContext(FiltersContext)
 
-  const { filters } = filtersCtx
+  const { filters: filters } = filtersCtx
 
   // const addWidget = useCallback(
   //   (type: WidgetType) => {
@@ -60,7 +60,10 @@ export function DashboardLayout({
   // )
 
   useEffect(() => {
-    fetchStatistics(filters)
+    fetchStatistics({
+      startDate: filters.datestart,
+      endDate: filters.dateend
+    })
   }, [filters, fetchStatistics])
 
   // const removeWidget = useCallback(

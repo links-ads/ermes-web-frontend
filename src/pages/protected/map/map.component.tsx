@@ -4,14 +4,11 @@ import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
 import { MapStateContextProvider } from './map.contest'
 
-import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import FloatingFilterContainer from '../../../common/floating-filters-tab/floating-filter-container.component'
 import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
-import { useMemoryState } from '../../../hooks/use-memory-state.hook'
-import { initObjectState } from './map-filters-init.state'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import useAPIHandler from '../../../hooks/use-api-handler'
@@ -25,8 +22,6 @@ import MapTimeSeries from './map-popup-series.component'
 
 import { getLegendURL } from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
-import { useUser } from '../../../state/auth/auth.hooks'
-import { ROLE_CITIZEN } from '../../../App.const'
 import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
   LayerSettingsState
@@ -38,7 +33,6 @@ type MapFeature = CulturalProps
 export function Map() {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])
-  const { profile } = useUser()
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
@@ -126,19 +120,7 @@ export function Map() {
   const filtersCtx = useContext(FiltersContext)
   const { localStorageFilters: filtersObj, filters, applyDate, applyFilters, updateActivities, updateMapBounds, updateTeamList, resetFilters } = filtersCtx
 
-  //const [initObject, updateInit] = useState(JSON.parse(JSON.stringify(localStorageFilters)))
-
   const appConfig = useContext<AppConfig>(AppConfigContext)
-
-  // let [storedFilters, changeItem, ,] = useMemoryState(
-  //   'memstate-map',
-  //   JSON.stringify(JSON.parse(JSON.stringify(initObject))),
-  //   false
-  // )
-
-  // const [filtersObj, setFiltersObj] = useState<FiltersDescriptorType | undefined>(
-  //   localStorageFilters as unknown as FiltersDescriptorType
-  // )
 
   // set list of wanted type of emergencies (for filter)
   const [filterList, setFilterList] = useState<String[]>(getFilterList(filtersObj))
@@ -147,12 +129,10 @@ export function Map() {
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
   const applyFiltersObj = useCallback((newFiltersObj) => {
-    const newFilterList = getFilterList(filtersObj)
+    const newFilterList = getFilterList(newFiltersObj) //filtersObj TODO
 
     setFilterList(newFilterList)
-    // changeItem(JSON.stringify(filtersObj))
     applyFilters(newFiltersObj)
-    //setFiltersObj(JSON.parse(JSON.stringify(filtersObj)))
     if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
@@ -161,10 +141,6 @@ export function Map() {
     // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
     forceUpdate()
   }, [toggleSideDrawer, getFilterList, setFilterList, applyFilters, setToggleActiveFilterTab, forceUpdate])
-
-  // useEffect(() => {
-  //   applyFiltersObj(filtersObj)
-  // }, [filters])
 
   const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
     undefined
@@ -427,7 +403,7 @@ export function Map() {
     }
   }, [teamList])
 
-  useMemo(() => {
+  useEffect(() => {
     if (
       !teamsApiHandlerState.loading &&
       !!teamsApiHandlerState.result &&
@@ -439,9 +415,6 @@ export function Map() {
       )
       setTeamList(i)
       //update starting filter object with actual team names from http
-      //let tmp = initObject
-      //tmp.filters.persons.content[1].options = Object.values(i)
-      // updateInit(tmp)
       const teamNamesList = Object.values(i)
       updateTeamList(teamNamesList)
     }
@@ -458,19 +431,6 @@ export function Map() {
       activitiesList.forEach((elem) => {
         activitiesObj[elem!.name!] = true
       })
-      const newFilterObj = {
-        ...filtersObj,
-        filters: {
-          ...filtersObj!.filters,
-          multicheckActivities: {
-            title: 'multicheck_activities',
-            type: 'checkboxlist',
-            options: activitiesObj,
-            tab: 2
-          }
-        }
-      } as unknown as FiltersDescriptorType
-      // setFiltersObj(newFilterObj)
       updateActivities(activitiesObj)
     }
   }, [activitiesList, filtersObj, updateActivities])
@@ -969,8 +929,6 @@ export function Map() {
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
             setSpiderifierRef={setSpiderifierRef}
-            //filtersObj={filtersObj}
-            //setFiltersObj={setFiltersObj}
             updateMapBounds={updateMapBounds}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
