@@ -109,5 +109,7 @@ export interface AppConfig {
   // user filter tags that needs to be excluded from the tag list 
   userTagsFilter?: UserTagsFilter 
   // url of azure resources for gamification icons in leaderboards
-  gamificationUrl?: string
+  gamificationUrl?: string,
+  //base url of Importer module, to be used for downloading layer files
+  importerBaseUrl?: string
 }

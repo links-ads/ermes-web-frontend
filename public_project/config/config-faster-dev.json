@@ -1,29 +1,16 @@
 {
   "envTag": "",
-  "gamificationUrl":"https://fasterblobstorage.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://fasterblobstorage.blob.core.windows.net/gamification/",
   "ui": {
-    "availableThemes": [
-      "dark",
-      "light"
-    ],
+    "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
   },
   "i18n": {
-    "ns": [
-      "common",
-      "errors", 
-      "gamification"
-    ],
+    "ns": ["common", "errors", "gamification"],
     "defaultNS": "common",
     "fallbackNS": "common",
-    "whitelist": [
-      "en",
-      "it"
-    ],
-    "preload": [
-      "en",
-      "it"
-    ],
+    "whitelist": ["en", "it"],
+    "preload": ["en", "it"],
     "fallbackLng": "en"
   },
   "mapboxgl": {
@@ -63,6 +50,7 @@
     "url": "https://api-dev.faster-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator","user", "admin"]
-  }
+    "filters": ["administrator", "user", "admin"]
+  },
+  "importerBaseUrl": "https://geoapi-dev.safers-project.cloud"
 }
