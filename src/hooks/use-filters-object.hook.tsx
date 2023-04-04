@@ -1,5 +1,3 @@
-import React, { useCallback, useReducer } from 'react'
-
 import { FiltersType } from '../common/filters/reducer'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { initObjectState } from '../pages/protected/map/map-filters-init.state'
