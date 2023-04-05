@@ -109,15 +109,7 @@ export const DashboardFilters = (props) => {
             />
           </LocaleProvider>
         </Grid>
-      </Grid>
-      <Grid
-        container
-        direction={'row'}
-        justifyContent="center"
-        alignContent="center"
-        style={{ display: 'flex', flex: 1 }}
-      >
-        <Grid>
+        <Grid item style={{ marginLeft: 40 }}>
           <Button
             className={classes.applyButton}
             style={{ textTransform: 'capitalize' }}
@@ -129,7 +121,7 @@ export const DashboardFilters = (props) => {
             {t('social:filter_apply')}
           </Button>
         </Grid>
-        <Grid>
+        <Grid item>
           <Button
             className={classes.resetButton}
             style={{ textTransform: 'capitalize' }}
