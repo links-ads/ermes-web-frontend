@@ -1,6 +1,9 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import { Button, Grid } from '@material-ui/core'
-import { DatePicker } from 'antd'
+import { DatePicker, LocaleProvider } from 'antd'
+import { Locale } from 'antd/es/locale-provider'
+import it_IT from 'antd/es/locale/it_IT'
+import en_GB from 'antd/es/locale/en_GB'
 
 import { useTranslation } from 'react-i18next'
 
@@ -9,15 +12,18 @@ import filterReducer from '../../../common/filters/reducer'
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
-import { useFiltersLocale } from '../../../hooks/use-language.hook'
 import moment from 'moment'
+import 'moment/locale/it'
+import 'moment/locale/en-gb'
 import './filters.css'
 
 export const DashboardFilters = (props) => {
   const { t, i18n } = useTranslation(['social'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
-  const [ hasReset, setHasReset ] = useState(false)
+  const [hasReset, setHasReset] = useState(false)
+  const { language } = i18n
+  const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
 
   const classes = useStyles()
 
@@ -25,7 +31,7 @@ export const DashboardFilters = (props) => {
     props.onFilterApply({
       datestart: filters.datestart,
       dateend: filters.dateend
-    })    
+    })
   }
 
   const resetFilters = () => {
@@ -44,13 +50,16 @@ export const DashboardFilters = (props) => {
   }
 
   useEffect(() => {
-    if (hasReset){
+    if (hasReset) {
       applyFilters()
       setHasReset(false)
-    }   
+    }
   }, [hasReset])
 
-  const locale = useFiltersLocale()
+  useEffect(() => {
+    moment.locale(language)
+    setLocale(language === it_IT.locale ? it_IT : en_GB)
+  }, [language])
 
   return (
     <Grid
@@ -70,30 +79,35 @@ export const DashboardFilters = (props) => {
           <label style={{ display: 'flex', flexDirection: 'column' }}>
             {t('social:starting_date')}
           </label>
-          <DatePicker
-            id="starting-date"
-            onChange={updateStartDate}
-            showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
-            defaultValue={moment(filters.datestart)}
-            value={moment(filters.datestart)}
-            allowClear
-            format="ddd DD MMMM YYYY - HH:mm"
-            style={{ width: '280px' }}
-            locale={locale}
-          />
+          <LocaleProvider locale={locale}>
+            <DatePicker
+              id="starting-date"
+              onChange={updateStartDate}
+              showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
+              defaultValue={moment(filters.datestart)}
+              value={moment(filters.datestart)}
+              allowClear
+              format="ddd DD MMMM YYYY - HH:mm"
+              style={{ width: '280px' }}
+              locale={locale}
+            />
+          </LocaleProvider>
         </Grid>
         <Grid item style={{ marginLeft: 8 }}>
           <label style={{ display: 'flex', flexDirection: 'column' }}>{t('social:end_date')}</label>
-          <DatePicker
-            id="end-date"
-            onChange={updateEndDate}
-            showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
-            defaultValue={moment(filters.dateend)}
-            value={moment(filters.dateend)}
-            allowClear
-            format="ddd DD MMMM YYYY - HH:mm"
-            style={{ width: '280px' }}
-          />
+          <LocaleProvider locale={locale}>
+            <DatePicker
+              id="end-date"
+              onChange={updateEndDate}
+              showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
+              defaultValue={moment(filters.dateend)}
+              value={moment(filters.dateend)}
+              allowClear
+              format="ddd DD MMMM YYYY - HH:mm"
+              style={{ width: '280px' }}
+              locale={locale}
+            />
+          </LocaleProvider>
         </Grid>
       </Grid>
       <Grid
@@ -106,7 +120,7 @@ export const DashboardFilters = (props) => {
         <Grid>
           <Button
             className={classes.applyButton}
-            style={{textTransform: 'capitalize'}}
+            style={{ textTransform: 'capitalize' }}
             onClick={applyFilters}
             size="small"
             color="primary"
@@ -118,7 +132,7 @@ export const DashboardFilters = (props) => {
         <Grid>
           <Button
             className={classes.resetButton}
-            style={{textTransform: 'capitalize'}}
+            style={{ textTransform: 'capitalize' }}
             onClick={resetFilters}
             size="small"
             variant="contained"
