@@ -35,7 +35,7 @@ const FallbackComponent = (isLoading: boolean, isError: boolean, data: any, chil
   const { t } = useTranslation(['social'])
   return isLoading ?
     (<Grid container justifyContent='center' >
-      <CircularProgress size={80} />
+      <CircularProgress size={80} color='secondary'/>
     </Grid >) :
     isError ?
       (<Grid container justifyContent='center' alignItems='center' style={{height:'100%'}}>
