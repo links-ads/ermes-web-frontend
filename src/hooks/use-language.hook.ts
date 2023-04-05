@@ -20,23 +20,3 @@ const useLanguage = () => {
 }
 
 export default useLanguage;
-
-export const useFiltersLocale = () => {
-    const { i18n } = useTranslation()
-    let locale = {}
-    const getLanguageSettings = useCallback((language) => {
-        switch(language)
-        {
-            case 'it':
-                locale = require('antd/es/date-picker/locale/it_IT')
-                return locale
-            case 'en':
-                locale = require('antd/es/date-picker/locale/en_US')
-                return locale
-            default:
-                locale = require('antd/es/date-picker/locale/en_GB')
-                return locale
-        }
-    },[])
-    return getLanguageSettings(i18n.language)
-}
