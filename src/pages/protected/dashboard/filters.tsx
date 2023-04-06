@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
-import { Button, Grid } from '@material-ui/core'
+import { Button, Checkbox, FormControlLabel, Grid } from '@material-ui/core'
 import { DatePicker, LocaleProvider } from 'antd'
 import { Locale } from 'antd/es/locale-provider'
 import it_IT from 'antd/es/locale/it_IT'
@@ -16,6 +16,7 @@ import moment from 'moment'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import './filters.css'
+import { Favorite, FavoriteBorder } from '@material-ui/icons'
 
 export const DashboardFilters = (props) => {
   const { t, i18n } = useTranslation(['social'])
@@ -68,69 +69,121 @@ export const DashboardFilters = (props) => {
       justifyContent="space-around"
       className={classes.filterContainer}
     >
-      <Grid
-        container
-        direction={'row'}
-        justifyContent="center"
-        alignItems="center"
-        style={{ flex: 2 }}
-      >
-        <Grid item>
-          <label style={{ display: 'flex', flexDirection: 'column' }}>
-            {t('social:starting_date')}
-          </label>
-          <LocaleProvider locale={locale}>
-            <DatePicker
-              id="starting-date"
-              onChange={updateStartDate}
-              showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
-              defaultValue={moment(filters.datestart)}
-              value={moment(filters.datestart)}
-              allowClear
-              format="ddd DD MMMM YYYY - HH:mm"
-              style={{ width: '280px' }}
-              locale={locale}
+      <Grid direction={'column'}>
+        <Grid
+          container
+          direction={'row'}
+          justifyContent="center"
+          alignItems="center"
+          style={{ flex: 2 }}
+        >
+          <Grid item>
+            <label style={{ display: 'flex', flexDirection: 'column' }}>
+              {t('social:starting_date')}
+            </label>
+            <LocaleProvider locale={locale}>
+              <DatePicker
+                id="starting-date"
+                onChange={updateStartDate}
+                showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
+                defaultValue={moment(filters.datestart)}
+                value={moment(filters.datestart)}
+                allowClear
+                format="ddd DD MMMM YYYY - HH:mm"
+                style={{ width: '280px' }}
+                locale={locale}
+              />
+            </LocaleProvider>
+          </Grid>
+          <Grid item style={{ marginLeft: 8 }}>
+            <label style={{ display: 'flex', flexDirection: 'column' }}>
+              {t('social:end_date')}
+            </label>
+            <LocaleProvider locale={locale}>
+              <DatePicker
+                id="end-date"
+                onChange={updateEndDate}
+                showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
+                defaultValue={moment(filters.dateend)}
+                value={moment(filters.dateend)}
+                allowClear
+                format="ddd DD MMMM YYYY - HH:mm"
+                style={{ width: '280px' }}
+                locale={locale}
+              />
+            </LocaleProvider>
+          </Grid>
+          <Grid item style={{ marginLeft: 40 }}>
+            <Button
+              className={classes.applyButton}
+              style={{ textTransform: 'capitalize' }}
+              onClick={applyFilters}
+              size="small"
+              color="primary"
+              variant="contained"
+            >
+              {t('social:filter_apply')}
+            </Button>
+          </Grid>
+          <Grid item>
+            <Button
+              className={classes.resetButton}
+              style={{ textTransform: 'capitalize' }}
+              onClick={resetFilters}
+              size="small"
+              variant="contained"
+            >
+              {t('social:filter_reset')}
+            </Button>
+          </Grid>
+        </Grid>
+        <Grid
+          container
+          direction={'row'}
+          justifyContent="center"
+          alignItems="center"
+          style={{ flex: 2 }}
+        >
+          <Grid item sm={2}>
+            <FormControlLabel
+              control={
+                <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />
+              }
+              label={t('labels:persons')}
             />
-          </LocaleProvider>
-        </Grid>
-        <Grid item style={{ marginLeft: 8 }}>
-          <label style={{ display: 'flex', flexDirection: 'column' }}>{t('social:end_date')}</label>
-          <LocaleProvider locale={locale}>
-            <DatePicker
-              id="end-date"
-              onChange={updateEndDate}
-              showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
-              defaultValue={moment(filters.dateend)}
-              value={moment(filters.dateend)}
-              allowClear
-              format="ddd DD MMMM YYYY - HH:mm"
-              style={{ width: '280px' }}
-              locale={locale}
+          </Grid>
+          <Grid item sm={3}>
+          <FormControlLabel
+              control={
+                <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />
+              }
+              label={t('labels:report')}
             />
-          </LocaleProvider>
-        </Grid>
-        <Grid item style={{ marginLeft: 40 }}>
-          <Button
-            className={classes.applyButton}
-            style={{ textTransform: 'capitalize' }}
-            onClick={applyFilters}
-            size="small"
-            color="primary"
-            variant="contained"
-          >
-            {t('social:filter_apply')}
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button
-            className={classes.resetButton}
-            style={{ textTransform: 'capitalize' }}
-            onClick={resetFilters}
-            size="small"
-            variant="contained"
-          >
-            {t('social:filter_reset')}
-          </Button>
+          </Grid>
+          <Grid item sm={2}>
+          <FormControlLabel
+              control={
+                <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />
+              }
+              label={t('labels:mission')}
+            />
+          </Grid>
+          <Grid item sm={3}>
+          <FormControlLabel
+              control={
+                <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />
+              }
+              label={t('labels:Communication')}
+            />
+          </Grid>
+          <Grid item sm={2}>
+          <FormControlLabel
+              control={
+                <Checkbox icon={<FavoriteBorder />} checkedIcon={<Favorite />} name="checkedH" />
+              }
+              label={t('labels:map_request')}
+            />
+          </Grid>
         </Grid>
       </Grid>
     </Grid>
