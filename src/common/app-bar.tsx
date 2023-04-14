@@ -27,10 +27,10 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   const path = location.pathname.split('/')
   path.shift()
 
-  const timefilterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
+  const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
-  const { localStorageFilters, filters, applyDate } = filtersCtx
+  const { localStorageFilters, filters, applyDate, applyFilters } = filtersCtx
 
   return (
     <Header
@@ -52,8 +52,8 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         )}
         <BrandLogo />
         <Spacer />
-        {timefilterActive ? (
-          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} onFilterApply={applyDate} />
+        {filterActive ? (
+          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} onDateFilterApply={applyDate} onFilterApply={applyFilters} />
         ) : (
           <TitleWidget />
         )}
