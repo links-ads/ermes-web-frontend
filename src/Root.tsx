@@ -75,7 +75,7 @@ export default function Root({
         <NavDrawer />
         <MainContent isAuthenticated={isAuthenticated} />
       </FiltersContextProvider>
-      <GlobalFooter />
+      {/* <GlobalFooter /> */}
     </>
   )
 }
