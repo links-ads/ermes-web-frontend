@@ -72,7 +72,7 @@ export default function Root({
       <AppBar />
       <NavDrawer />
       <MainContent isAuthenticated={isAuthenticated} />
-      <GlobalFooter />
+      {/* <GlobalFooter /> */} {/*commented before Shelter Venice Demo, April 2023*/}
     </>
   )
 }
