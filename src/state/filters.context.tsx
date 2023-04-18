@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useReducer, useContext } from 'react'
-import { filtersReducer, initializer } from '../hooks/use-filters-object.hook'
+import { MapDrawerTabVisibility, filtersReducer, initializer } from '../hooks/use-filters-object.hook'
 import { useUser } from './auth/auth.hooks'
 import { AppConfigContext } from '../config/config.context'
 import { AppConfig } from '../config/config.types'
@@ -10,19 +10,21 @@ import { FiltersType } from '../common/filters/reducer'
 export const FiltersContext = createContext({
   filters: {} as FiltersType,
   localStorageFilters: {} as FiltersDescriptorType | undefined,
+  mapDrawerTabVisibility: {} as MapDrawerTabVisibility,
   applyDate: (filters) => {},
   updateActivities: (activities) => {},
   updateMapBounds: (mapBounds) => {},
   applyFilters: (filtersObj) => {},
   updateTeamList: (teamList) => {},
-  resetFilters: (appConfigMapBounds, isCitizen) => {}
+  resetFilters: (appConfigMapBounds, isCitizen) => {},
+  updateMapDrawerTabs: (tabName, tabVisibility) => {}
 })
 
 const FiltersContextProvider = (props) => {
   const { profile } = useUser()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const [filtersObj, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
-  const { filtersLocalStorageObject, filters } = filtersObj
+  const { filtersLocalStorageObject, filters, mapDrawerTabVisibility } = filtersObj
 
   const applyDateFilters = useCallback((filters) => {
     dispatch({
@@ -71,17 +73,27 @@ const FiltersContextProvider = (props) => {
     })
   }, [])
 
+  const updateMapDrawerTabs = useCallback((tabName, tabVisibility) => {
+    dispatch({
+      type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY', 
+      name: tabName,
+      visibility: tabVisibility
+    })
+  },[])
+
   return (
     <FiltersContext.Provider
       value={{
         filters: filters,
         localStorageFilters: filtersLocalStorageObject,
+        mapDrawerTabVisibility: mapDrawerTabVisibility, 
         applyDate: applyDateFilters,
         updateActivities: updateActivities,
         updateMapBounds: updateMapBounds,
         applyFilters: applyFilters,
         updateTeamList: updateTeamList,
-        resetFilters: resetFilters
+        resetFilters: resetFilters,
+        updateMapDrawerTabs: updateMapDrawerTabs
       }}
     >
       {props.children}

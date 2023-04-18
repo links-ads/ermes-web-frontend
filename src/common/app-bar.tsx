@@ -1,4 +1,4 @@
-import React, { memo, useContext } from 'react'
+import React, { memo, useContext, useEffect, useMemo } from 'react'
 // import { Header, SidebarTrigger, SidebarTriggerIcon } from '@mui-treasury/layout'
 import { BrandLogo } from './app-bar-widgets/brand-logo/brand-logo'
 import LanguageSelect from './app-bar-widgets/language-select'
@@ -16,6 +16,9 @@ import { useUser } from '../state/auth/auth.hooks'
 import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
 import { FiltersContext } from '../state/filters.context'
+import { TeamsApiFactory } from 'ermes-ts-sdk'
+import { useAPIConfiguration } from '../hooks/api-hooks'
+import useAPIHandler from '../hooks/use-api-handler'
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -30,7 +33,29 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
-  const { localStorageFilters, filters, applyDate, applyFilters } = filtersCtx
+  const { localStorageFilters, filters, mapDrawerTabVisibility, applyDate, applyFilters, updateTeamList, updateMapDrawerTabs } = filtersCtx
+
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
+
+  useEffect(() => {
+    handleTeamsAPICall(() => {
+      return teamsApiFactory.teamsGetTeams(1000)
+    })
+  }, [teamsApiFactory, handleTeamsAPICall])
+
+  useEffect(() => {
+    if (
+      !teamsApiHandlerState.loading &&
+      !!teamsApiHandlerState.result &&
+      teamsApiHandlerState.result.data
+    ) {
+      //update starting filter object with actual team names from http
+      const teamNamesList = teamsApiHandlerState.result.data.data.map(t => t.name)
+      updateTeamList(teamNamesList)
+    }
+  }, [teamsApiHandlerState])
 
   return (
     <Header
@@ -53,7 +78,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         <BrandLogo />
         <Spacer />
         {filterActive ? (
-          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} onDateFilterApply={applyDate} onFilterApply={applyFilters} />
+          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} mapDrawerTabVisibility={mapDrawerTabVisibility} onDateFilterApply={applyDate} onFilterApply={applyFilters} onFilterChecked={updateMapDrawerTabs} />
         ) : (
           <TitleWidget />
         )}

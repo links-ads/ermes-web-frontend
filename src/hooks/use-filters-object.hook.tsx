@@ -4,9 +4,24 @@ import { initObjectState } from '../pages/protected/map/map-filters-init.state'
 import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
 
+export interface MapDrawerTabVisibility {
+  Person: boolean
+  Report: boolean
+  Mission: boolean
+  Communication: boolean
+  MapRequest: boolean
+}
+
 const filtersInitialState = {
   filtersLocalStorageObject: {},
-  filters: {}
+  filters: {},
+  mapDrawerTabVisibility: {
+    Person: true,
+    Report: true,
+    Mission: true,
+    Communication: true,
+    MapRequest: true
+  }
 }
 
 const localStorageKey = 'memstate-map'
@@ -72,15 +87,28 @@ export const initializer = (userProfile, appConfig) => {
   filtersArgs = getDefaultFiltersFromLocalStorageObject(filtersObj)
   updateFiltersLocalStorage(filtersObj)
 
+  let tabVisibility = filtersInitialState.mapDrawerTabVisibility
+  tabVisibility.Communication = filtersObj.filters.multicheckCategories.options.Communication
+  tabVisibility.MapRequest = filtersObj.filters.multicheckCategories.options.MapRequest
+  tabVisibility.Mission = filtersObj.filters.multicheckCategories.options.Mission
+  tabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
+  tabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
+
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
-    filters: filtersArgs as FiltersType
+    filters: filtersArgs as FiltersType,
+    mapDrawerTabVisibility: filtersInitialState.mapDrawerTabVisibility as MapDrawerTabVisibility
   }
 }
 
 export const filtersReducer = (currentState, action) => {
-  const { filtersLocalStorageObject: currentFiltersObject, filters: currentFilters } = currentState
+  const {
+    filtersLocalStorageObject: currentFiltersObject,
+    filters: currentFilters,
+    mapDrawerTabVisibility: currentMapDrawerTabVisibility
+  } = currentState
   let newFiltersObject = currentFiltersObject
+  let newMapDrawerTabVisibility = currentMapDrawerTabVisibility
   switch (action.type) {
     case 'APPLY_DATE':
       const newFilters = action.filters
@@ -101,15 +129,22 @@ export const filtersReducer = (currentState, action) => {
       }
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: action.filters
+        filters: action.filters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility
       }
     case 'APPLY_FILTERS':
       newFiltersObject = action.filtersObject
       updateFiltersLocalStorage(newFiltersObject)
       const updatedFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
+      newMapDrawerTabVisibility.Communication = newFiltersObject.filters.multicheckCategories.options.Communication
+      newMapDrawerTabVisibility.MapRequest = newFiltersObject.filters.multicheckCategories.options.MapRequest
+      newMapDrawerTabVisibility.Mission = newFiltersObject.filters.multicheckCategories.options.Mission
+      newMapDrawerTabVisibility.Report = newFiltersObject.filters.multicheckCategories.options.Report
+      newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: updatedFilters
+        filters: updatedFilters,
+        mapDrawerTabVisibility: newMapDrawerTabVisibility
       }
     case 'UPDATE_ACTIVITIES':
       const newActivities = action.activities
@@ -122,14 +157,16 @@ export const filtersReducer = (currentState, action) => {
       updateFiltersLocalStorage(newFiltersObject)
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters
+        filters: currentFilters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility
       }
     case 'UPDATE_TEAM_LIST':
       const teamList = action.teamList
       newFiltersObject.filters.persons.content[1].options = teamList
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters
+        filters: currentFilters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility
       }
     case 'UPDATE_MAP_BOUNDS':
       const newMapBounds = action.mapBounds
@@ -137,7 +174,8 @@ export const filtersReducer = (currentState, action) => {
       updateFiltersLocalStorage(newFiltersObject)
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters
+        filters: currentFilters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility
       }
     case 'RESET':
       const appConfigMapBounds = action.appConfigMapBounds
@@ -157,7 +195,29 @@ export const filtersReducer = (currentState, action) => {
       updateFiltersLocalStorage(newFiltersObject)
       return {
         filtersLocalStorageObject: newFiltersObject,
-        filters: resetFilters
+        filters: resetFilters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+      }
+    case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
+      newMapDrawerTabVisibility[action.name] = action.visibility
+      if (action.name === 'Person'){
+        for (let key in newFiltersObject.filters.multicheckPersons.options){
+          newFiltersObject.filters.multicheckPersons.options[key] = action.visibility
+        }
+
+        for (let key in newFiltersObject.filters.multicheckActivities.options){
+          newFiltersObject.filters.multicheckActivities.options[key] = action.visibility
+        }
+      }
+      else {
+        newFiltersObject.filters.multicheckCategories.options[action.name] = action.visibility
+      }
+      
+      updateFiltersLocalStorage(newFiltersObject) 
+      return {
+        filtersLocalStorageObject: newFiltersObject,
+        filters: currentFilters,
+        mapDrawerTabVisibility: newMapDrawerTabVisibility
       }
     default:
       return currentState

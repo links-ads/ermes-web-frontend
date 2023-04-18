@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import {
   Button,
   Checkbox,
-  ClickAwayListener,
   FormControl,
   FormControlLabel,
   Grid,
-  Grow,
   IconButton,
   Input,
   InputLabel,
@@ -14,12 +12,12 @@ import {
   MenuItem,
   MenuList,
   Paper,
-  Popper,
-  Select as MUISelect,
+  Popover,
+  Select,
   SvgIcon,
   Typography
 } from '@material-ui/core'
-import { DatePicker, LocaleProvider, Select } from 'antd'
+import { DatePicker, LocaleProvider } from 'antd'
 import { Locale } from 'antd/es/locale-provider'
 import it_IT from 'antd/es/locale/it_IT'
 import en_GB from 'antd/es/locale/en_GB'
@@ -48,11 +46,25 @@ export const DashboardFilters = (props) => {
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
-  const { localStorageFilters } = props
+  const { localStorageFilters, mapDrawerTabVisibility, onFilterChecked } = props
   const { filters: allFilters } = localStorageFilters
+  const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
+  const [personChecked, setPersonChecked] = useState<boolean>(Person)
+  const [reportChecked, setReportChecked] = useState<boolean>(Report)
+  const [missionChecked, setMissionChecked] = useState<boolean>(Mission)
+  const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
+  const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [filtersState, setFiltersState] = useState(allFilters)
 
   const classes = useStyles()
+
+  useEffect(() => {
+    setPersonChecked(Person)
+    setReportChecked(Report)
+    setMissionChecked(Mission)
+    setCommunicationChecked(Communication)
+    setMapRequestChecked(MapRequest)
+  }, [Person, Report, Mission, Communication, MapRequest])
 
   const applyPersonFilters = (personFilters) => {
     const newFilters = filtersState
@@ -230,6 +242,8 @@ export const DashboardFilters = (props) => {
               emergencyLabel="Person"
               category={filtersState.persons}
               applyFilters={applyPersonFilters}
+              filterCheckedHandler={onFilterChecked}
+              isChecked={personChecked}
             />
           </Grid>
           <Grid item sm={3} direction="row" container>
@@ -240,6 +254,8 @@ export const DashboardFilters = (props) => {
               emergencyLabel="Report"
               category={filtersState.report}
               applyFilters={applyReportFilters}
+              filterCheckedHandler={onFilterChecked}
+              isChecked={reportChecked}
             />
           </Grid>
           <Grid item sm={2} direction="row" container>
@@ -250,6 +266,8 @@ export const DashboardFilters = (props) => {
               emergencyLabel="Mission"
               category={filtersState.mission}
               applyFilters={applyMissionFilters}
+              filterCheckedHandler={onFilterChecked}
+              isChecked={missionChecked}
             />
           </Grid>
           <Grid item sm={2} direction="row" container>
@@ -258,6 +276,8 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="Communication"
               emergencyLabel="Communication"
+              filterCheckedHandler={onFilterChecked}
+              isChecked={communicationChecked}
             />
           </Grid>
           <Grid item sm={3} direction="row" container>
@@ -268,6 +288,8 @@ export const DashboardFilters = (props) => {
               emergencyLabel="MapRequest"
               category={filtersState.mapRequests}
               applyFilters={applyMapRequestFilters}
+              isChecked={mapRequestChecked}
+              filterCheckedHandler={onFilterChecked}
             />
           </Grid>
         </Grid>
@@ -305,13 +327,19 @@ const CategoryPinIcon = (props) => {
 }
 
 const CategoryFilter = (props) => {
-  const { t, classes, label, category, applyFilters } = props
+  const { t, classes, label, category, applyFilters, isChecked, filterCheckedHandler } = props
   const [categoryFilters, setCategoryFilters] = useState(category)
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+  const open = Boolean(anchorEl)
+  const id = open ? 'simple-popover' : undefined
 
-  const [open, setOpen] = useState(false)
-  const anchorRef = useRef(null)
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
 
-  const { Option } = Select
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   // function that renders in the dropdown menu the names, if 3+ it adds dots to avoid cluttering
   const renderValues = (selected, prefix) => {
@@ -326,28 +354,13 @@ const CategoryFilter = (props) => {
       )
   }
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen)
-  }
-
-  const handleClose = (event) => {
-    if (anchorRef.current && (anchorRef.current as any).contains(event.target)) {
-      return
-    }
-
-    setOpen(false)
-  }
-
-  function handleListKeyDown(event) {
-    if (event.key === 'Tab') {
-      event.preventDefault()
-      setOpen(false)
-    }
+  const handleCheckBoxChange = (event, value) => {
+    filterCheckedHandler(event.target.value, value)
   }
 
   const applyCategoryFilters = useCallback(() => {
     applyFilters(categoryFilters)
-    setOpen(false)
+    handleClose()
   }, [])
 
   const resetCategoryFilters = useCallback(() => {
@@ -363,18 +376,8 @@ const CategoryFilter = (props) => {
     })
     setCategoryFilters({ ...newCategoryFilters })
     applyFilters(newCategoryFilters)
-    setOpen(false)
+    handleClose()
   }, [])
-
-  // return focus to the button when we transitioned from !open -> open
-  const prevOpen = useRef(open)
-  useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      ;(anchorRef.current as any).focus()
-    }
-
-    prevOpen.current = open
-  }, [open])
 
   return (
     <>
@@ -383,135 +386,107 @@ const CategoryFilter = (props) => {
           <Checkbox
             icon={<CategoryPinBorderIcon colorlabel={props.emergencyLabel} />}
             checkedIcon={<CategoryPinIcon colorlabel={props.emergencyLabel} />}
-            name="checkedH"
+            name={'checked-' + props.emergencyLabel}
             size="small"
+            onChange={handleCheckBoxChange}
+            value={props.emergencyLabel}
+            checked={isChecked}
           />
         }
         label={<Typography variant="body2">{t('labels:' + label)}</Typography>}
       />
       {category && category.content && category.content.length > 0 ? (
         <div>
-          <IconButton
-            ref={anchorRef}
-            aria-controls={open ? 'menu-list-grow' : undefined}
-            aria-haspopup="true"
-            onClick={handleToggle}
-          >
+          <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
             <ArrowDropDown fontSize="small" />
           </IconButton>
-          <Popper
-            key={'category-popper-' + label}
+          <Popover
+            id={id}
             open={open}
-            anchorEl={anchorRef.current}
-            role={undefined}
-            placement="bottom-end"
-            transition
-            disablePortal
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
           >
-            {({ TransitionProps, placement }) => (
-              <Grow
-                {...TransitionProps}
-                style={{
-                  transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom'
-                }}
-              >
-                <Paper key={'category-paper-' + label} elevation={3}>
-                  {/* <ClickAwayListener onClickAway={handleClose}> */}
-                  <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                    {category.content.map((elem, i) => (
-                      <div key={label + '-div-' + i}>
-                        <MenuItem key={label + '-' + i}>
-                          <FormControl fullWidth>
-                            <Select
-                              id={'demo-mutiple-checkbox_' + i}
-                              allowClear
-                              showArrow
-                              maxTagTextLength={5}
-                              maxTagCount={1}
-                              mode={elem.type === 'multipleselect' ? 'multiple' : 'default'}
-                              value={elem.selected}
-                              placeholder={t('labels:' + elem.name.toLowerCase())}
-                              onChange={(value) => {
-                                const newCategoryFilter = categoryFilters
-                                newCategoryFilter.content[i].selected = value
-                                setCategoryFilters({ ...newCategoryFilter })
-                              }}
-                            >
-                              {elem.options.map((value, key) => (
-                                <Option key={'category-select-' + key} value={value}>
-                                  {t('labels:' + value.toLowerCase())}
-                                </Option>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </MenuItem>
-                        <MenuItem key={label + '-' + (i + 6) * 10}>
-                          <FormControl fullWidth>
-                            <InputLabel id="demo-mutiple-checkbox-label">
-                              {t('labels:' + elem.name.toLowerCase())}
-                            </InputLabel>
-                            <MUISelect
-                              labelId={'demo-mutiple-checkbox-label_' + i}
-                              id={'demo-mutiple-checkbox_' + i}
-                              multiple={elem.type === 'multipleselect'}
-                              value={elem.selected}
-                              renderValue={
-                                elem.type === 'multipleselect'
-                                  ? (v) => renderValues(v, 'labels:')
-                                  : (v) => t('labels:' + (v as String).toLowerCase())
-                              }
-                              onChange={(event) => {
-                                const newCategoryFilter = categoryFilters
-                                const checkedOptions = event.target.value
-                                newCategoryFilter.content[i].selected = checkedOptions
-                                setCategoryFilters({ ...newCategoryFilter })
-                              }}
-                              input={<Input />}
-                            >
-                              {elem.options.map((value, key) => (
-                                <MenuItem key={'category-select-' + key} value={value}>
-                                  {elem.type === 'multipleselect' ? (
-                                    <>
-                                      <Checkbox checked={elem.selected.indexOf(value) > -1} />
-                                      <ListItemText primary={t('labels:' + value.toLowerCase())} />
-                                    </>
-                                  ) : (
-                                    t('labels:' + value.toLowerCase())
-                                  )}
-                                </MenuItem>
-                              ))}
-                            </MUISelect>
-                          </FormControl>
-                        </MenuItem>
-                      </div>
-                    ))}
-                    <MenuItem>
-                      <Button
-                        className={classes.applyButton}
-                        style={{ textTransform: 'capitalize' }}
-                        onClick={applyCategoryFilters}
-                        size="small"
-                        color="primary"
-                        variant="contained"
-                      >
-                        {t('social:filter_apply')}
-                      </Button>
-                      <Button
-                        className={classes.resetButton}
-                        style={{ textTransform: 'capitalize' }}
-                        onClick={resetCategoryFilters}
-                        size="small"
-                        variant="contained"
-                      >
-                        {t('social:filter_reset')}
-                      </Button>
-                    </MenuItem>
-                  </MenuList>
-                  {/* </ClickAwayListener> */}
-                </Paper>
-              </Grow>
-            )}
-          </Popper>
+            <Paper key={'category-paper-' + label} elevation={3}>
+              <MenuList autoFocusItem={open} id="menu-list-grow">
+                {category.content.map((elem, i) => {
+                  if (elem.name === 'hazard_status' || elem.name === 'hazard_content') {
+                    return null
+                  } else {
+                    return (
+                      <MenuItem key={label + '-' + (i + 6) * 10}>
+                        <FormControl fullWidth>
+                          <InputLabel id="demo-mutiple-checkbox-label">
+                            {t('labels:' + elem.name.toLowerCase())}
+                          </InputLabel>
+                          <Select
+                            labelId={'demo-mutiple-checkbox-label_' + i}
+                            id={'demo-mutiple-checkbox_' + i}
+                            multiple={elem.type === 'multipleselect'}
+                            value={elem.selected}
+                            renderValue={
+                              elem.type === 'multipleselect'
+                                ? (v) => renderValues(v, 'labels:')
+                                : (v) => t('labels:' + (v as String).toLowerCase())
+                            }
+                            onChange={(event) => {
+                              event.stopPropagation()
+                              const newCategoryFilter = categoryFilters
+                              const checkedOptions = event.target.value
+                              newCategoryFilter.content[i].selected = checkedOptions
+                              setCategoryFilters({ ...newCategoryFilter })
+                            }}
+                            input={<Input />}
+                          >
+                            {elem.options.map((value, key) => (
+                              <MenuItem key={'category-select-' + key} value={value}>
+                                {elem.type === 'multipleselect' ? (
+                                  <>
+                                    <Checkbox checked={elem.selected.indexOf(value) > -1} />
+                                    <ListItemText primary={t('labels:' + value.toLowerCase())} />
+                                  </>
+                                ) : (
+                                  t('labels:' + value.toLowerCase())
+                                )}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </MenuItem>
+                    )
+                  }
+                })}
+                <MenuItem>
+                  <Button
+                    className={classes.applyButton}
+                    style={{ textTransform: 'capitalize' }}
+                    onClick={applyCategoryFilters}
+                    size="small"
+                    color="primary"
+                    variant="contained"
+                  >
+                    {t('social:filter_apply')}
+                  </Button>
+                  <Button
+                    className={classes.resetButton}
+                    style={{ textTransform: 'capitalize' }}
+                    onClick={resetCategoryFilters}
+                    size="small"
+                    variant="contained"
+                  >
+                    {t('social:filter_reset')}
+                  </Button>
+                </MenuItem>
+              </MenuList>
+            </Paper>
+          </Popover>
         </div>
       ) : undefined}
     </>

@@ -16,7 +16,7 @@ export function Dashboard(props: DashboardProps) {
       className="dashboard-container"
       style={{
         width: '100%',
-        height: '100%',
+        height: 'calc(100% - 50px)',
         overflow: 'auto'
       }}
       initialHeight={window.innerHeight - 112}

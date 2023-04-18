@@ -450,7 +450,7 @@ export function Map() {
       dataTypeId: NO_LAYER_SELECTED,
       multipleLayersAllowed: false,
       layerClicked: null
-    })
+    })    
     //when filters are applied use the ids[] of the selected teams in the fetchGeoJson call
     let f: any = filtersObj?.filters?.persons
     var arrayOfTeams: number[] | undefined = undefined
@@ -485,6 +485,12 @@ export function Map() {
         }
       )
     })
+    const newFilterList = getFilterList(filtersObj)
+    setFilterList(newFilterList)
+    if (!toggleSideDrawer) {
+      setToggleActiveFilterTab(false)
+    }
+    forceUpdate()
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
