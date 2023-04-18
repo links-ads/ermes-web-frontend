@@ -123,7 +123,7 @@
   "riskmap": "Mappa di rischio",
   "map_request": "Richieste mappatura",
   "map_request_status": "Stato",
-  "map_request_layer": "Livello",
+  "map_request_layer": "Tipo",
   "map_request_hazards": "Evento",
   "MapRequest": "Richieste mappatura",
   "scope": "Visibilità",

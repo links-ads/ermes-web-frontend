@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Feature - Filters in app bar (#111)
 - Feature - Map review part 1 (#110)
 - Feature - Time window filter (#108)
 - Feature - Footer removed (#114)

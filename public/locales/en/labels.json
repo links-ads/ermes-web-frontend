@@ -122,7 +122,7 @@
   "riskmap": "Risk map",
   "map_request": "Map request",
   "map_request_status": "State",
-  "map_request_layer": "Layer",
+  "map_request_layer": "Type",
   "map_request_hazards": "Event",
   "MapRequest": "Map request",
   "scope": "Scope",

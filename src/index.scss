@@ -170,3 +170,8 @@ html *::-webkit-scrollbar-thumb {
     height: 100%;
   }
 }
+
+.main-with-top-filters{
+  position: sticky;
+  top: 112px
+}
