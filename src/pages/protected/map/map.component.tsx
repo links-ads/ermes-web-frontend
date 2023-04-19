@@ -956,7 +956,7 @@ export function Map() {
 
         {isGeoDataloading ? loader : undefined}
       </MapContainer>
-      <MapSearchHere />
+      {/* <MapSearchHere /> */}
     </>
   )
 }
