@@ -2,6 +2,7 @@ Ver.
 -----------------------
 - Feature - Filters in app bar (#111)
 - Feature - Time window filter (#108)
+- Feature - Footer removed (#114)
 
 Ver. 2.6.0 - 2023-03-31
 -----------------------
