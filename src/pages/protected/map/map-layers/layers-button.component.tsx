@@ -10,7 +10,7 @@ const LayersButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 146px;
+  top: 112px;
   left: 0px;
   margin: 10px;
 `

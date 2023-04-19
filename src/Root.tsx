@@ -76,11 +76,11 @@ export default function Root({
   return (
     <>
       <FiltersContextProvider>
-        <AppBar />      
+        <AppBar />
         <NavDrawer />
         <MainContent isAuthenticated={isAuthenticated} />
       </FiltersContextProvider>
-      {/* <GlobalFooter /> */}
+      {/* <GlobalFooter /> */} {/*commented before Shelter Venice Demo, April 2023*/}
     </>
   )
 }
