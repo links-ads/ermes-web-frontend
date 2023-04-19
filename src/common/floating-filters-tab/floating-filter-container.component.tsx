@@ -113,6 +113,7 @@ export default function FloatingFilterContainer(props) {
   }, [props.teamList])
 
   const resetFilters = () => {
+    props.resetFilters()
     setFilters(props.initObj ? JSON.parse(JSON.stringify(props.initObj.filters)) : null)
   }
 

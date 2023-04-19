@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
+import { useLocation } from 'react-router'
 const SidebarContent = styled(getSidebarContent(styled))`
 background-color:  ${(props) => props.theme.palette.secondary.contrastText};
 `
@@ -24,9 +25,13 @@ const CollapseBtn = styled(getCollapseBtn(styled))`
 
 export function NavDrawer() {
   const { isAuthenticated } = useUser()
+  const location = useLocation()
+  const path = location.pathname.split('/')
+  path.shift()
+  const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
-      <SidebarContent style={{overflowX:'hidden'}}>
+      <SidebarContent style={{overflowX:'hidden', position: filterActive ? 'sticky' : 'static', top: filterActive ? '112px' : '64px'}}>
         <NavHeader />
         <NavContent />
       </SidebarContent>

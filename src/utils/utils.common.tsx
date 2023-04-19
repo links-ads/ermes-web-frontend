@@ -110,11 +110,13 @@ export const getFiltersStyle = (theme) => {
     applyButton: {
       color: theme['palette']['text']['primary'],
       backgroundColor: theme['palette']['secondary']['main'],
+      fontSize: '15px',
       margin: '8px'
     },
     resetButton: {
       color: theme['palette']['text']['primary'],
-      backgroundColor: theme['palette']['grey']['600'],
+      backgroundColor: 'inherit', 
+      fontSize: '15px',
       margin: '8px'
     },
     selectOption: {

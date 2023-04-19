@@ -1,9 +1,9 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { IconButton } from '@material-ui/core'
+import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
@@ -22,6 +22,7 @@ import { useAPIConfiguration } from '../../../../hooks/api-hooks';
 import useAPIHandler from '../../../../hooks/use-api-handler';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
 import LayerDefinition from '../../../../models/layers/LayerDefinition';
+import { FiltersContext } from '../../../../state/filters.context';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,7 +35,11 @@ const useStyles = makeStyles((theme) => ({
   },
   indicator: {
     backgroundColor: '#FFF'
-  }
+  },
+  hiddenTab: {
+    display: 'none', 
+    visibility: 'hidden'
+  }  
 }))
 
 interface TabPanelProps {
@@ -81,9 +86,49 @@ export default function MapDrawer(props) {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
+  const filtersCtx = useContext(FiltersContext)
+  const { mapDrawerTabVisibility } = filtersCtx
+  const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
+  // Value to track which tab is selected + functions to handle changes
+  const [tabValue, setTabValue] = React.useState(0)
+
   useEffect(() => {
-    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())    
   }, [])  
+
+  useEffect(() => {    
+    let tabValueAssigned = false;
+    if (Person) {
+      if(!tabValueAssigned){
+        setTabValue(0)
+        tabValueAssigned = true
+      }
+    }
+    if (Report) {
+      if(!tabValueAssigned){
+        setTabValue(1)
+        tabValueAssigned = true
+      }
+    }
+    if (Mission) {
+      if(!tabValueAssigned){
+        setTabValue(2)
+        tabValueAssigned = true
+      }
+    }
+    if (Communication) {
+      if(!tabValueAssigned){
+        setTabValue(3)
+        tabValueAssigned = true
+      }
+    }
+    if (MapRequest) {
+      if(!tabValueAssigned){
+        setTabValue(4)
+        tabValueAssigned = true
+      }
+    }
+  }, [Person, Report, Mission, Communication, MapRequest, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
@@ -101,9 +146,7 @@ export default function MapDrawer(props) {
       return entries
     }
   }, [apiHandlerState])
-
-  // Value to track which tab is selected + functions to handle changes
-  const [tabValue, setTabValue] = React.useState(0)
+  
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabValue(newValue)
   }
@@ -116,6 +159,7 @@ export default function MapDrawer(props) {
     props.setToggleDrawerTab(false)
   }
 
+  const noData = <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}><Grid container justifyContent="center"><Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid></CardContent>
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
@@ -145,41 +189,44 @@ export default function MapDrawer(props) {
             variant="scrollable"
             aria-label="full width tabs example"
           >
-            <Tab label={t('maps:Report')} {...a11yProps(0)} />
-            <Tab label={t('maps:Communication')} {...a11yProps(1)} />
-            <Tab label={t('maps:Mission')} {...a11yProps(2)} />
-            <Tab label={t('maps:Person')} {...a11yProps(3)} />
-            <Tab label={t('maps:MapRequest')} {...a11yProps(4)} />
+            <Tab value={0} label={t('maps:Person')} {...a11yProps(0)} className={!Person ? classes.hiddenTab : undefined}/>
+            <Tab value={1} label={t('maps:Report')} {...a11yProps(1)} className={!Report ? classes.hiddenTab : undefined}/>
+            <Tab value={2} label={t('maps:Mission')} {...a11yProps(2)} className={!Mission ? classes.hiddenTab : undefined}/>
+            <Tab value={3} label={t('maps:Communication')} {...a11yProps(3)} className={!Communication ? classes.hiddenTab : undefined}/>
+            <Tab value={4} label={t('maps:MapRequest')} {...a11yProps(4)} className={!MapRequest ? classes.hiddenTab : undefined}/>
           </Tabs>
         </AppBar>
 
+        { (!Person && !Report && 
+          !Mission && !Communication && !MapRequest) ? 
+          noData :        
         <SwipeableViews
           axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
           index={tabValue}
           onChangeIndex={handleChangeIndex}
           component={'span'}
         >
+          {/* PEOPLE */}         
+          <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
+            <PeoplePanel
+              setGoToCoord={props.setGoToCoord}
+              map={props.map}
+              setMapHoverState={props.setMapHoverState}
+              spiderLayerIds={props.spiderLayerIds}
+              spiderifierRef={props.spiderifierRef}
+              filters={props.filtersObj.filters.persons}
+              teamList={props.teamList}
+            />
+          </TabPanel>
+
           {/* REPORTS */}
-          <TabPanel value={tabValue} index={0} key={'report-' + props.rerenderKey}>
+          <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
             <ReportPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
-            />
-          </TabPanel>
-
-          {/* COMMUNICATION */}
-          <TabPanel value={tabValue} index={1} key={'comm-' + props.rerenderKey}>
-            <CommunicationPanel
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              communicationCounter={props.communicationCounter}
-              resetListCounter={props.resetListCounter}
             />
           </TabPanel>
 
@@ -196,16 +243,16 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
 
-          {/* PEOPLE */}
-          <TabPanel value={tabValue} index={3} key={'people-' + props.rerenderKey}>
-            <PeoplePanel
+          {/* COMMUNICATION */}
+          <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
+            <CommunicationPanel
               setGoToCoord={props.setGoToCoord}
               map={props.map}
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
-              filters={props.filtersObj.filters.persons}
-              teamList={props.teamList}
+              communicationCounter={props.communicationCounter}
+              resetListCounter={props.resetListCounter}
             />
           </TabPanel>
 
@@ -231,6 +278,7 @@ export default function MapDrawer(props) {
             />
           </TabPanel>
         </SwipeableViews>
+        }
         <AppBar
           position="static"
           color="default"

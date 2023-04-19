@@ -11,6 +11,8 @@ import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
 import Backdrop from '@material-ui/core/Backdrop'
 import CircularProgress from '@material-ui/core/CircularProgress'
 import styled from 'styled-components'
+import FiltersContextProvider from './state/filters.context'
+import { useLocation } from 'react-router'
 
 const RoutesWrapper = styled.div<{ leftSidebarCollapsed: boolean }>`
   margin-left: ${(props) => (props.leftSidebarCollapsed ? '64px' : '0px')};
@@ -23,9 +25,13 @@ const MainContent = memo(
     const profileLoading = useUserDataLoading()
     const { state } = useSidebarCollapse('left_sidebar')
     const { collapsed, open } = state
+    const location = useLocation()
+    const path = location.pathname.split('/')
+    path.shift()
+    const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
     console.debug('LS', collapsed, open)
     return (
-      <Main className={`main content ${isAuthenticated ? 'logged-in' : 'not-logged-in'}`}>
+      <Main className={`main content ${isAuthenticated ? 'logged-in' : 'not-logged-in'} ${filterActive ? 'main-with-top-filters' : ''}`}>
         <RoutesWrapper
           className="routes-wrapper"
           leftSidebarCollapsed={collapsed === true && open === true}
@@ -69,10 +75,12 @@ export default function Root({
 
   return (
     <>
-      <AppBar />
-      <NavDrawer />
-      <MainContent isAuthenticated={isAuthenticated} />
-      <GlobalFooter />
+      <FiltersContextProvider>
+        <AppBar />
+        <NavDrawer />
+        <MainContent isAuthenticated={isAuthenticated} />
+      </FiltersContextProvider>
+      {/* <GlobalFooter /> */} {/*commented before Shelter Venice Demo, April 2023*/}
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { Grid, useTheme } from '@material-ui/core'
+import { CircularProgress, useTheme } from '@material-ui/core'
 import React, { useCallback, useState, useEffect, useContext, useMemo } from 'react'
 import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
 import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'
@@ -16,16 +16,11 @@ import {
 import { Widget } from './widget.component'
 import hash from 'object-hash'
 import { DashboardProps } from './dashboard.component'
-import {
-  ContainerSizeContext,
-  ContainerSize
-} from '../../../common/size-aware-container.component'
+import { ContainerSizeContext, ContainerSize } from '../../../common/size-aware-container.component'
 
 import useDashboardStats from '../../../hooks/use-dashboard-statistics.hook'
-import { FiltersType } from '../../../common/filters/reducer'
 import { _MS_PER_DAY } from '../../../utils/utils.common'
-import { DashboardFilters } from './filters'
-
+import { FiltersContext } from '../../../state/filters.context'
 
 export function DashboardLayout({
   className = 'dashboard',
@@ -41,20 +36,20 @@ export function DashboardLayout({
   // const [dashboardWidgetsConfig, setDashboardWidgetsConfig] = useState<
   //   IDashboardWidgetLayoutConfig[]
   // >(initialConfig)
-  const [dashboardWidgetsConfig, ] = useState<
-    IDashboardWidgetLayoutConfig[]
-  >(initialConfig)
+  const [dashboardWidgetsConfig] = useState<IDashboardWidgetLayoutConfig[]>(initialConfig)
   const [breakpoint, setBreakpoint] = useState<string>(
     getBreakpointFromWidth(theme.breakpoints.values, width)
   )
   const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>(EmptyLayouts) // TODO load from context/redux/storage
   const [elements, setElements] = useState<JSX.Element[]>([])
-  const dashboardWidgetsConfigHash = useMemo(()=> hash(dashboardWidgetsConfig, { algorithm: 'md5' }),[dashboardWidgetsConfig])
-  const [filterArgs, setFilterArgs] = useState<FiltersType>(
-    {
-      datestart: new Date(new Date().valueOf() - _MS_PER_DAY * 30 ),
-      dateend: new Date()
-    })
+  const dashboardWidgetsConfigHash = useMemo(
+    () => hash(dashboardWidgetsConfig, { algorithm: 'md5' }),
+    [dashboardWidgetsConfig]
+  )
+
+  const filtersCtx = useContext(FiltersContext)
+
+  const { filters: filters } = filtersCtx
 
   // const addWidget = useCallback(
   //   (type: WidgetType) => {
@@ -65,8 +60,11 @@ export function DashboardLayout({
   // )
 
   useEffect(() => {
-    fetchStatistics(filterArgs)
-  }, [filterArgs,fetchStatistics])
+    fetchStatistics({
+      startDate: filters.datestart,
+      endDate: filters.dateend
+    })
+  }, [filters, fetchStatistics])
 
   // const removeWidget = useCallback(
   //   (wid: string) => {
@@ -115,7 +113,7 @@ export function DashboardLayout({
                 <Widget
                   wid={dwc.wid}
                   // removeWidget={removeWidget}
-                  removeWidget={(wid)=>{}}
+                  removeWidget={(wid) => {}}
                   type={dwc.type}
                   title={dwc.title}
                   description={dwc.description}
@@ -132,33 +130,38 @@ export function DashboardLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [dashboardWidgetsConfigHash, statsState.data]
   )
+
+  const loader = (
+    <div className="full-screen centered">
+      <CircularProgress color="secondary" size={120} />
+    </div>
+  )
+
   return (
     <>
-    <Grid style={{margin:8}}>
-      <DashboardFilters
-        filters={filterArgs}
-        onFilterApply={(args) => setFilterArgs(args)}
-      />
-      </Grid>
-      <ResponsiveReactGridLayout
-        width={width}
-        containerPadding={[16, 16]}
-        className={className + ' layout'}
-        layouts={layouts}
-        rowHeight={rowHeight}
-        cols={LayoutCols}
-        compactType={'vertical'}
-        onBreakpointChange={onBreakpointChange}
-        // onLayoutChange={onLayoutChange}
-        onDragStop={onDragWidgetStop}
-        breakpoints={theme.breakpoints.values}
-        useCSSTransforms={true}
-        preventCollision={false}
-        resizeHandles={['se','sw','ne','nw']}
-        // onWidthChange={(args) => console.debug('Grid layout width change', args)}
-      >
-        {elements}
-      </ResponsiveReactGridLayout>
+      {statsState.isLoading ? (
+        loader
+      ) : (
+        <ResponsiveReactGridLayout
+          width={width}
+          containerPadding={[16, 16]}
+          className={className + ' layout'}
+          layouts={layouts}
+          rowHeight={rowHeight}
+          cols={LayoutCols}
+          compactType={'vertical'}
+          onBreakpointChange={onBreakpointChange}
+          // onLayoutChange={onLayoutChange}
+          onDragStop={onDragWidgetStop}
+          breakpoints={theme.breakpoints.values}
+          useCSSTransforms={true}
+          preventCollision={false}
+          resizeHandles={['se', 'sw', 'ne', 'nw']}
+          // onWidthChange={(args) => console.debug('Grid layout width change', args)}
+        >
+          {elements}
+        </ResponsiveReactGridLayout>
+      )}
       {/* <AddWidgetComponent addWidget={addWidget} /> */}
     </>
   )

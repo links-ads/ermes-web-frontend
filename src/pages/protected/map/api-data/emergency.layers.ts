@@ -2,9 +2,6 @@ import { LayerProps } from 'react-map-gl'
 import { EmergencyColorMap, EmergencyType } from './emergency.component'
 import { donutChartHTML } from '../../../../utils/mapbox-marker.utils'
 import { Marker } from 'mapbox-gl'
-// import yellow from '@material-ui/core/colors/yellow'
-
-const HOVERED_PIN = 'hovered-pin'
 
 const colors = Object.entries(EmergencyColorMap).flat()
 
@@ -75,7 +72,7 @@ export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' |
   source: 'emergency-source',
   filter: ['all', ['!has', 'point_count'], ['==', 'id', 'null']],
   layout: {
-    'icon-image': HOVERED_PIN,
+    'icon-image': ['get', 'type'],
     'icon-allow-overlap': true,
     'icon-size': 1.5,
     'icon-anchor': 'bottom-right' // use bottom with regular pins

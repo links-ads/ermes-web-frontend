@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   makeStyles,
   AppBar,
@@ -6,7 +6,8 @@ import {
   Typography,
   IconButton,
   CardContent,
-  Slider
+  Slider,
+  CircularProgress
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
@@ -17,6 +18,11 @@ import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
 import { useTranslation } from 'react-i18next'
+import { useAPIConfiguration } from '../../../../hooks/api-hooks'
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import { AppConfig, AppConfigContext } from '../../../../config'
+import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
+import GetAppIcon from '@material-ui/icons/GetApp'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -110,9 +116,15 @@ export function LayersPlayer(props) {
   const {layerSelection,layerId2Tiles,setDateIndex,dateIndex,visibility,setVisibility, updateCurrentLayer} = props
 
   const [playing, setPlaying] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [opacity, setOpacity] = useState<number>(100);
-  const { t } = useTranslation(['maps'])
+  const { t } = useTranslation(['maps', 'labels'])
   const [ layerName, setLayerName ] = useState('')
+  const { displayErrorSnackbar } = useSnackbars()
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const importerBaseUrl = appConfig.importerBaseUrl
 
   const layerProps = useMemo(()=>{
     switch(layerSelection.isMapRequest){
@@ -169,6 +181,22 @@ export function LayersPlayer(props) {
       'raster-opacity',
       opacity / 100
     )
+  }
+
+  const onDownloadHandler = async (event) => {
+    event.stopPropagation()
+    if (layerName && layerName.length > 0) {
+      setIsLoading(true)
+      const splittedlayerName = layerName.split(':')[1]
+      const response = await layersApiFactory.layersGetFilename(splittedlayerName)
+      if (response.status === 200) {
+        const { filename } = response.data
+        if (filename && filename.length > 0)
+          window.location.href = importerBaseUrl + '/download?filename=' + filename
+      }
+    } else displayErrorSnackbar(t('contentnotavailable'))
+
+    setIsLoading(false)
   }
 
 
@@ -253,12 +281,14 @@ export function LayersPlayer(props) {
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
             onClick={() => {
-              if(typeof(insideData.metadatas) == 'object')
+              if (typeof insideData.metadatas == 'object')
                 props.getMeta(insideData.metadatas[dateIndex])
-              else if (typeof(insideData.metadatas) == 'string')
-                props.getMeta(insideData.metadatas)
-              else 
-                console.log('no metadata procedure implemented for type', typeof(insideData.metadatas))
+              else if (typeof insideData.metadatas == 'string') props.getMeta(insideData.metadatas)
+              else
+                console.log(
+                  'no metadata procedure implemented for type',
+                  typeof insideData.metadatas
+                )
             }}
           >
             <MetaIcon />
@@ -277,7 +307,11 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps ? (!!formatDate(layerProps['timestamps'][dateIndex]) ? formatDate(layerProps['timestamps'][dateIndex]) : formatDate(layerProps['timestamps'][0])) : null}
+          {layerProps
+            ? !!formatDate(layerProps['timestamps'][dateIndex])
+              ? formatDate(layerProps['timestamps'][dateIndex])
+              : formatDate(layerProps['timestamps'][0])
+            : null}
         </Typography>
         <div className={classes.playerContainer}>
           {insideData.timestamps.length > 1 ? (
@@ -292,11 +326,11 @@ export function LayersPlayer(props) {
                   value={dateIndex}
                   // marks
                   min={0}
-                  max={insideData.timestamps.length-1}
+                  max={insideData.timestamps.length - 1}
                   color="secondary"
                   onChange={(event, value) => {
                     setDateIndex(value)
-                    setOpacity(100)     
+                    setOpacity(100)
                   }}
                 />
               </div>
@@ -314,30 +348,37 @@ export function LayersPlayer(props) {
                 >
                   <SkipNextIcon />
                 </IconButton>
+                {!isLoading ? (
+                  <IconButton
+                    aria-label="download"
+                    onClick={onDownloadHandler}
+                    style={{ marginLeft: 10 }}
+                  >
+                    <GetAppIcon />
+                  </IconButton>) :
+                  <CircularProgress color="secondary" size={20} />
+                 }
               </div>
             </span>
           ) : (
-            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')} 
-            
-            </div>
-            
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
           )}
         </div>
         <div className={classes.sliderContainer}>
           <label htmlFor="opacity-slider">
             {t('maps:opacity')} {opacity}%
           </label>
-            <Slider
-              id="layer-slider"
-              defaultValue={100}
-              valueLabelDisplay="off"
-              step={1}
-              value={opacity}
-              min={0}
-              max={100}
-              color="secondary"
-              onChange={handleOpacityChange}
-            />
+          <Slider
+            id="layer-slider"
+            defaultValue={100}
+            valueLabelDisplay="off"
+            step={1}
+            value={opacity}
+            min={0}
+            max={100}
+            color="secondary"
+            onChange={handleOpacityChange}
+          />
         </div>
       </CardContent>
     </FloatingCardContainer>

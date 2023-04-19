@@ -126,20 +126,20 @@ const MapRequestCard: React.FC<{
           {['layer', 'status'].map((type, index) => {
             if (mapRequestInfo[type]) {
               return (
-                  <div key={'label_status_' + index}>
-                    <Typography
-                      component={'span'}
-                      variant="caption"
-                      color="textSecondary"
-                      style={{ textTransform: 'uppercase' }}
-                    >
-                      {t('maps:' + type)}:&nbsp;
-                    </Typography>
-                    <Typography component={'span'} variant="body1">
-                      {t('labels:' + mapRequestInfo[type].toLowerCase())}
-                    </Typography>
-                    <br />
-                  </div>
+                <div key={'label_status_' + index}>
+                  <Typography
+                    component={'span'}
+                    variant="caption"
+                    color="textSecondary"
+                    style={{ textTransform: 'uppercase' }}
+                  >
+                    {t('maps:' + type)}:&nbsp;
+                  </Typography>
+                  <Typography component={'span'} variant="body1">
+                    {t('labels:' + mapRequestInfo[type].toLowerCase())}
+                  </Typography>
+                  <br />
+                </div>
               )
             }
             return null

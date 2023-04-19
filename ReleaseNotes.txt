@@ -1,6 +1,14 @@
 Ver.
 -----------------------
 - Feature - Map review part 1 (#110)
+- Feature - Filters in app bar (#111)
+- Feature - Time window filter (#108)
+- Feature - Footer removed (#114)
+
+Ver. 2.6.0 - 2023-03-31
+-----------------------
+- Feature - Map marker (#107)
+- Feature - Download file from Importer added (#112)
 
 Ver. 2.5.1 - 2023-03-14
 -----------------------
