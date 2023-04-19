@@ -843,7 +843,7 @@ export function Map() {
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {/* Hidden filter tab */}
         {/* {toggleActiveFilterTab ? ( */}
-        <FloatingFilterContainer
+        {/* <FloatingFilterContainer
           setToggleActiveFilterTab={setToggleActiveFilterTab}
           toggleActiveFilterTab={toggleActiveFilterTab}
           filtersObj={filtersObj}
@@ -855,7 +855,7 @@ export function Map() {
           initObj={filtersObj}
           resetFilters={resetFilters}
           teamList={teamList}
-        ></FloatingFilterContainer>
+        ></FloatingFilterContainer> */}
         {/* ) : null} */}
 
         <LayersPlayer

@@ -825,10 +825,10 @@ export function MapLayout(props) {
             toggleDrawerTab={props.toggleDrawerTab}
             setToggleDrawerTab={props.setToggleDrawerTab}
           ></DrawerToggle>
-          <FilterButton
+          {/* <FilterButton
             setToggleActiveFilterTab={props.setToggleActiveFilterTab}
             toggleActiveFilterTab={props.toggleActiveFilterTab}
-          ></FilterButton>
+          ></FilterButton> */}
           <LayersButton
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
