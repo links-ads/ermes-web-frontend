@@ -42,6 +42,7 @@ const HAZARD_VISIBILITY_DEFAULT = 'Private'
 export const DashboardFilters = (props) => {
   const { t, i18n } = useTranslation(['social'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
+  const { datestart, dateend } = filters
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
@@ -55,6 +56,9 @@ export const DashboardFilters = (props) => {
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [filtersState, setFiltersState] = useState(allFilters)
+  const [ dateErrorStatus, setDateErrorStatus ] = useState(false)
+  const [ dateErrorMessage, setDateErrorMessage ] = useState('')
+  const [ applyBtnActive, setApplyBtnActive ] = useState(true)
 
   const classes = useStyles()
 
@@ -128,17 +132,45 @@ export const DashboardFilters = (props) => {
   const resetFilters = () => {
     dispatch({ type: 'RESET' })
     setHasReset(true)
+    setDateErrorStatus(false)
+    setDateErrorMessage('')
   }
+  
+  const checkDateValidity = useCallback((startDate, endDate) => {
+    const momentStartDate = moment(startDate)
+    const momentEndDate = moment(endDate)
+
+    if(momentStartDate.isAfter(momentEndDate)){
+      setDateErrorStatus(true)
+      setDateErrorMessage('Start date is after end date')
+    }
+    else if(momentStartDate.isSame(momentEndDate)){
+      setDateErrorStatus(true)
+      setDateErrorMessage('Start date and end date are the same')
+    }
+    else{
+      setDateErrorStatus(false)
+      setDateErrorMessage('')
+    }
+  }, [])
 
   const updateStartDate = (date) => {
+    checkDateValidity(date, filters.dateend)
     dispatch({ type: 'START_DATE', value: date?.toDate() })
     setHasReset(false)
   }
 
   const updateEndDate = (date) => {
+    checkDateValidity(filters.datestart, date)
     dispatch({ type: 'END_DATE', value: date?.toDate() })
     setHasReset(false)
   }
+
+  useEffect(() => {
+    if(dateErrorStatus){
+      setApplyBtnActive(false)
+    }
+  }, [datestart, dateend])
 
   useEffect(() => {
     if (hasReset) {
@@ -183,6 +215,7 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{dateErrorMessage}</span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
@@ -201,6 +234,7 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{dateErrorMessage}</span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
@@ -211,6 +245,7 @@ export const DashboardFilters = (props) => {
               size="small"
               color="primary"
               variant="contained"
+              disabled={!applyBtnActive}
             >
               {t('social:filter_apply')}
             </Button>

@@ -417,8 +417,8 @@ export function Map() {
       )
       setTeamList(i)
       //update starting filter object with actual team names from http
-      const teamNamesList = Object.values(i)
-      updateTeamList(teamNamesList)
+      // const teamNamesList = Object.values(i)
+      // updateTeamList(teamNamesList)
     }
   }, [teamsApiHandlerState])
 
