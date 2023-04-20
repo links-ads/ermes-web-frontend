@@ -84,11 +84,11 @@ const DEBOUNCE_TIME = 200 // ms
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    fab: { position: 'absolute', bottom: '100px', right: '10px', zIndex: 99, backgroundColor: theme.palette.secondary.main },
+    fab: { position: 'absolute', bottom: '130px', right: '10px', zIndex: 99, backgroundColor: theme.palette.secondary.main },
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 55,
+      bottom: 150,
       right: 10
     },
     legend_row: {
