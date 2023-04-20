@@ -69,7 +69,7 @@ export function MapStyleToggle({
   }
 
   return (
-    <MapStyleToggleContainer style={{ bottom: "0px"}}>
+    <MapStyleToggleContainer style={{ bottom: "110px"}}>
       <Tooltip title={title} placement="top">
         <div className="speed-dial-parent">
           <SpeedDial

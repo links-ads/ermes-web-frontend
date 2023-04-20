@@ -3,7 +3,7 @@ Ver.
 - Feature - Map review part 1 (#110)
 - Feature - Filters in app bar (#111)
 - Feature - Time window filter (#108)
-- Feature - Footer removed (#114)
+- Feature - Footer removed, legend and map style buttons restored (#114)
 
 Ver. 2.6.0 - 2023-03-31
 -----------------------
