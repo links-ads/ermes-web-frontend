@@ -1,5 +1,8 @@
 Ver.
 -----------------------
+
+Ver. 2.7.0 - 2023-04-20
+-----------------------
 - Feature - Map review part 1 (#110)
 - Feature - Filters in app bar (#111)
 - Feature - Time window filter (#108)
