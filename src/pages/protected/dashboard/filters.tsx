@@ -40,7 +40,7 @@ const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'Con
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
 export const DashboardFilters = (props) => {
-  const { t, i18n } = useTranslation(['social'])
+  const { t, i18n } = useTranslation(['social', 'filters'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const { datestart, dateend } = filters
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
@@ -56,9 +56,8 @@ export const DashboardFilters = (props) => {
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [filtersState, setFiltersState] = useState(allFilters)
-  const [ dateErrorStatus, setDateErrorStatus ] = useState(false)
-  const [ dateErrorMessage, setDateErrorMessage ] = useState('')
-  const [ applyBtnActive, setApplyBtnActive ] = useState(true)
+  const [ dateErrorStatus, setDateErrorStatus ] = useState<boolean>(false)
+  const [ dateErrorMessage, setDateErrorMessage ] = useState<string>('')
 
   const classes = useStyles()
 
@@ -140,13 +139,13 @@ export const DashboardFilters = (props) => {
     const momentStartDate = moment(startDate)
     const momentEndDate = moment(endDate)
 
-    if(momentStartDate.isAfter(momentEndDate)){
+    if(momentStartDate.isAfter(momentEndDate, 'minute')){
       setDateErrorStatus(true)
-      setDateErrorMessage('Start date is after end date')
+      setDateErrorMessage('date_filters_same_error')
     }
-    else if(momentStartDate.isSame(momentEndDate)){
+    else if(momentStartDate.isSame(momentEndDate, 'minute')){
       setDateErrorStatus(true)
-      setDateErrorMessage('Start date and end date are the same')
+      setDateErrorMessage('date_filters_after_error')
     }
     else{
       setDateErrorStatus(false)
@@ -155,21 +154,17 @@ export const DashboardFilters = (props) => {
   }, [])
 
   const updateStartDate = (date) => {
-    checkDateValidity(date, filters.dateend)
     dispatch({ type: 'START_DATE', value: date?.toDate() })
     setHasReset(false)
   }
 
   const updateEndDate = (date) => {
-    checkDateValidity(filters.datestart, date)
     dispatch({ type: 'END_DATE', value: date?.toDate() })
     setHasReset(false)
   }
 
   useEffect(() => {
-    if(dateErrorStatus){
-      setApplyBtnActive(false)
-    }
+    checkDateValidity(datestart, dateend)
   }, [datestart, dateend])
 
   useEffect(() => {
@@ -215,7 +210,7 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
-              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{dateErrorMessage}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{t(`filters:${dateErrorMessage}`)}</span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
@@ -234,7 +229,7 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
-              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{dateErrorMessage}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{t(`filters:${dateErrorMessage}`)}</span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
@@ -245,7 +240,7 @@ export const DashboardFilters = (props) => {
               size="small"
               color="primary"
               variant="contained"
-              disabled={!applyBtnActive}
+              disabled={dateErrorStatus}
             >
               {t('social:filter_apply')}
             </Button>
@@ -265,11 +260,12 @@ export const DashboardFilters = (props) => {
         <Grid
           container
           direction={'row'}
-          justifyContent="center"
-          alignItems="center"
+          justifyContent="space-evenly"
+          alignItems="baseline"
+          spacing={1}
           style={{ flex: 2 }}
         >
-          <Grid item sm={2} direction="row" container>
+          <Grid item xs={12} sm={6} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
             <CategoryFilter
               t={t}
               classes={classes}
@@ -281,7 +277,7 @@ export const DashboardFilters = (props) => {
               isChecked={personChecked}
             />
           </Grid>
-          <Grid item sm={3} direction="row" container>
+          <Grid item xs={12} sm={6} md={6} lg={3} container direction="row" justifyContent="center" alignItems="center">
             <CategoryFilter
               t={t}
               classes={classes}
@@ -293,7 +289,7 @@ export const DashboardFilters = (props) => {
               isChecked={reportChecked}
             />
           </Grid>
-          <Grid item sm={2} direction="row" container>
+          <Grid item xs={12} sm={6} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
             <CategoryFilter
               t={t}
               classes={classes}
@@ -305,7 +301,7 @@ export const DashboardFilters = (props) => {
               isChecked={missionChecked}
             />
           </Grid>
-          <Grid item sm={2} direction="row" container>
+          <Grid item xs={12} sm={6} md={6} lg={3} container direction="row" justifyContent="center" alignItems="center">
             <CategoryFilter
               t={t}
               classes={classes}
@@ -315,7 +311,7 @@ export const DashboardFilters = (props) => {
               isChecked={communicationChecked}
             />
           </Grid>
-          <Grid item sm={3} direction="row" container>
+          <Grid item xs={12} sm={12} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
             <CategoryFilter
               t={t}
               classes={classes}
@@ -431,7 +427,7 @@ const CategoryFilter = (props) => {
         label={<Typography variant="body2">{t('labels:' + label)}</Typography>}
       />
       {category && category.content && category.content.length > 0 ? (
-        <div>
+        <>
           <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
             <ArrowDropDown fontSize="small" />
           </IconButton>
@@ -522,7 +518,7 @@ const CategoryFilter = (props) => {
               </MenuList>
             </Paper>
           </Popover>
-        </div>
+        </>
       ) : undefined}
     </>
   )

@@ -7,5 +7,7 @@
     "set_filters": "Selected filters",
     "any": "any",
     "from_date": "From",
-    "to_date": " to"
+    "to_date": " to",
+    "date_filters_same_error": "Start date is after end date",
+    "date_filters_after_error": "Start date and end date are the same"
 }
