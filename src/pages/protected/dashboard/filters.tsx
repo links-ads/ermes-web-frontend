@@ -56,8 +56,8 @@ export const DashboardFilters = (props) => {
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [filtersState, setFiltersState] = useState(allFilters)
-  const [ dateErrorStatus, setDateErrorStatus ] = useState<boolean>(false)
-  const [ dateErrorMessage, setDateErrorMessage ] = useState<string>('')
+  const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
+  const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
 
   const classes = useStyles()
 
@@ -134,20 +134,54 @@ export const DashboardFilters = (props) => {
     setDateErrorStatus(false)
     setDateErrorMessage('')
   }
-  
+
+  function range(start, end) {
+    const result: any[] = []
+    for (let i = start; i < end; i++) {
+      result.push(i)
+    }
+    return result
+  }
+
+  function disabledStartDate(current) {
+    // Can not select days after end date
+    return current && current > moment(filters.dateend).endOf('minute')
+  }
+
+  function disabledEndDate(current) {
+    // Can not select days before start date
+    return current && current < moment(filters.datestart).startOf('minute')
+  }
+
+  function disableStartDateTime() {
+    const maxHour = moment(filters.dateend).hour()
+    const maxMinute = moment(filters.dateend).minute()
+    return {
+      disabledHours: () => range(maxHour, 24),
+      disabledMinutes: () => range(maxMinute, 60)
+    }
+  }
+
+  function disableEndDateTime() {
+    const minHour = moment(filters.datestart).hour()
+    const minMinute = moment(filters.datestart).minute()
+    return {
+      disabledHours: () => range(0, minHour),
+      disabledMinutes: () => range(0, minMinute + 1)
+    }
+  }
+
   const checkDateValidity = useCallback((startDate, endDate) => {
     const momentStartDate = moment(startDate)
     const momentEndDate = moment(endDate)
 
-    if(momentStartDate.isAfter(momentEndDate, 'minute')){
+    if (momentStartDate.isAfter(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
       setDateErrorMessage('date_filters_same_error')
-    }
-    else if(momentStartDate.isSame(momentEndDate, 'minute')){
+    } else if (momentStartDate.isSame(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
       setDateErrorMessage('date_filters_after_error')
-    }
-    else{
+    } else {
       setDateErrorStatus(false)
       setDateErrorMessage('')
     }
@@ -201,8 +235,13 @@ export const DashboardFilters = (props) => {
             <LocaleProvider locale={locale}>
               <DatePicker
                 id="starting-date"
+                disabledDate={disabledStartDate}
+                disabledTime={disableStartDateTime}
                 onChange={updateStartDate}
-                showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
+                showTime={{
+                  defaultValue: moment(moment(filters.datestart), 'HH:mm'),
+                  format: 'HH:mm'
+                }}
                 defaultValue={moment(filters.datestart)}
                 value={moment(filters.datestart)}
                 allowClear
@@ -210,7 +249,9 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
-              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{t(`filters:${dateErrorMessage}`)}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
+                {t(`filters:${dateErrorMessage}`)}
+              </span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
@@ -220,8 +261,13 @@ export const DashboardFilters = (props) => {
             <LocaleProvider locale={locale}>
               <DatePicker
                 id="end-date"
+                disabledDate={disabledEndDate}
+                disabledTime={disableEndDateTime}
                 onChange={updateEndDate}
-                showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
+                showTime={{
+                  defaultValue: moment(moment(filters.dateend), 'HH:mm'),
+                  format: 'HH:mm'
+                }}
                 defaultValue={moment(filters.dateend)}
                 value={moment(filters.dateend)}
                 allowClear
@@ -229,7 +275,9 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
-              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>{t(`filters:${dateErrorMessage}`)}</span>
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
+                {t(`filters:${dateErrorMessage}`)}
+              </span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
@@ -260,12 +308,12 @@ export const DashboardFilters = (props) => {
         <Grid
           container
           direction={'row'}
-          justifyContent="space-evenly"
-          alignItems="baseline"
+          justifyContent="center"
+          alignItems="center"
           spacing={1}
-          style={{ flex: 2 }}
+          style={{ flexGrow: 1, marginTop: 3 }}
         >
-          <Grid item xs={12} sm={6} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -277,7 +325,7 @@ export const DashboardFilters = (props) => {
               isChecked={personChecked}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={3} container direction="row" justifyContent="center" alignItems="center">
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -289,7 +337,7 @@ export const DashboardFilters = (props) => {
               isChecked={reportChecked}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -301,7 +349,7 @@ export const DashboardFilters = (props) => {
               isChecked={missionChecked}
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={6} lg={3} container direction="row" justifyContent="center" alignItems="center">
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -311,7 +359,7 @@ export const DashboardFilters = (props) => {
               isChecked={communicationChecked}
             />
           </Grid>
-          <Grid item xs={12} sm={12} md={6} lg={2} container direction="row" justifyContent="center" alignItems="center">
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -411,8 +459,9 @@ const CategoryFilter = (props) => {
   }, [])
 
   return (
-    <>
+    <Paper elevation={3}>
       <FormControlLabel
+        className={classes.filterCheckbox}
         control={
           <Checkbox
             icon={<CategoryPinBorderIcon colorlabel={props.emergencyLabel} />}
@@ -520,6 +569,6 @@ const CategoryFilter = (props) => {
           </Popover>
         </>
       ) : undefined}
-    </>
+    </Paper>
   )
 }
