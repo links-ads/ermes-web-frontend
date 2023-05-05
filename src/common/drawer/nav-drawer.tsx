@@ -6,9 +6,24 @@ import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
 import { useLocation } from 'react-router'
+import { Theme, createStyles, makeStyles } from '@material-ui/core'
 const SidebarContent = styled(getSidebarContent(styled))`
 background-color:  ${(props) => props.theme.palette.secondary.contrastText};
 `
+const useStyles = makeStyles((theme: Theme) => createStyles({
+  drawerSidebarContainer: {
+    top: 56,
+    [theme.breakpoints.up('sm')]: {
+      top: 260,
+    },
+    [theme.breakpoints.up('md')]: {
+      top: 210,
+    },
+    [theme.breakpoints.up('lg')]: {
+      top: 56,
+    },
+  }
+}))
 
 const DrawerSidebar = getDrawerSidebar(styled)
 const CollapseBtn = styled(getCollapseBtn(styled))`
@@ -29,9 +44,16 @@ export function NavDrawer() {
   const path = location.pathname.split('/')
   path.shift()
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
+  const classes = useStyles()
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
-      <SidebarContent style={{overflowX:'hidden', position: filterActive ? 'sticky' : 'static', top: filterActive ? '112px' : '64px'}}>
+      <SidebarContent
+      style={{
+        position: filterActive ? 'relative' : 'static',
+        overflow: 'hidden'
+      }}
+      className={classes.drawerSidebarContainer}
+     >
         <NavHeader />
         <NavContent />
       </SidebarContent>

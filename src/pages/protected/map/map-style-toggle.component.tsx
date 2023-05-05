@@ -31,6 +31,16 @@ const MapStyleToggleContainer = styled.div.attrs({
       box-sizing: border-box;
     }
   }
+
+  @media screen and (min-width: 600px){
+    bottom: 380px;
+  }
+  @media screen and (min-width: 960px){
+    bottom: 270px;
+  }
+  @media screen and (min-width: 1280px){
+    bottom: 130px;
+  }
 `
 
 interface RefProps {
@@ -69,7 +79,7 @@ export function MapStyleToggle({
   }
 
   return (
-    <MapStyleToggleContainer style={{ bottom: "110px"}}>
+    <MapStyleToggleContainer>
       <Tooltip title={title} placement="top">
         <div className="speed-dial-parent">
           <SpeedDial
