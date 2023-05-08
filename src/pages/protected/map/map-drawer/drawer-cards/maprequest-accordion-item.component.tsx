@@ -285,7 +285,7 @@ const MapRequestAccordionItem: React.FC<{
                         aria-label="download"
                         onClick={onDownloadHandler}
                         disabled={!isChecked}
-                        style={{ marginLeft: 10}}
+                        style={{ marginLeft: 10 }}
                       >
                         <GetAppIcon />
                       </IconButton>
@@ -293,9 +293,19 @@ const MapRequestAccordionItem: React.FC<{
                   </span>
                 </div>
               ) : (
-                <Typography>
-                  {'Timestamp: ' + FormatDate(currentLayer.availableTimestamps[0])}
-                </Typography>
+                <div style={{display: 'flex', alignItems: 'center'}}>
+                  <Typography>
+                    {'Timestamp: ' + FormatDate(currentLayer.availableTimestamps[0])}
+                  </Typography>
+                  <IconButton
+                    aria-label="download"
+                    onClick={onDownloadHandler}
+                    disabled={!isChecked}
+                    style={{ marginLeft: 10 }}
+                  >
+                    <GetAppIcon />
+                  </IconButton>
+                </div>
               )}
               <div
                 className={classes.sliderContainer}
