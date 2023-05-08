@@ -153,21 +153,37 @@ export const DashboardFilters = (props) => {
     return current && current < moment(filters.datestart).startOf('minute')
   }
 
-  function disableStartDateTime() {
-    const maxHour = moment(filters.dateend).hour()
-    const maxMinute = moment(filters.dateend).minute()
+  function disableStartDateTime(current) {
+    let notAvailableHours: any[] = []
+    let notAvailableMinutes: any[] = []
+    if (current.isSame(filters.dateend, 'day')) {
+      const maxHour = moment(filters.dateend).hour()
+      notAvailableHours = range(maxHour + 1, 24)
+      if (current.isSame(filters.dateend, 'hour')) {
+        const maxMinute = moment(filters.dateend).minute()
+        notAvailableMinutes = range(maxMinute, 60)
+      }
+    }
     return {
-      disabledHours: () => range(maxHour, 24),
-      disabledMinutes: () => range(maxMinute, 60)
+      disabledHours: () => notAvailableHours,
+      disabledMinutes: () => notAvailableMinutes
     }
   }
 
-  function disableEndDateTime() {
-    const minHour = moment(filters.datestart).hour()
-    const minMinute = moment(filters.datestart).minute()
+  function disableEndDateTime(current) {
+    let notAvailableHours: any[] = []
+    let notAvailableMinutes: any[] = []
+    if (current.isSame(filters.datestart, 'day')) {
+      const minHour = moment(filters.datestart).hour()
+      notAvailableHours = range(0, minHour)
+      if (current.isSame(filters.datestart, 'hour')) {
+        const minMinute = moment(filters.datestart).minute()
+        notAvailableMinutes = range(0, minMinute + 1)
+      }
+    }
     return {
-      disabledHours: () => range(0, minHour),
-      disabledMinutes: () => range(0, minMinute + 1)
+      disabledHours: () => notAvailableHours,
+      disabledMinutes: () => notAvailableMinutes
     }
   }
 
