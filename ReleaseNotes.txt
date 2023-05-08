@@ -1,9 +1,14 @@
 Ver.
 -----------------------
+- Bugfix - Fix general bugs (#113)
+
+Ver. 2.7.0 - 2023-04-20
+-----------------------
 - Feature - Filters in app bar (#111)
 - Feature - Map review part 1 (#110)
 - Feature - Time window filter (#108)
 - Feature - Footer removed, legend and map style buttons restored (#114)
+- Bugfix - Fix map request card popup
 
 Ver. 2.6.0 - 2023-03-31
 -----------------------

@@ -124,8 +124,10 @@ export const getFiltersStyle = (theme) => {
       minWidth: 180,
       // maxWidth:180
 
+    },
+    filterCheckbox: {
+      marginLeft: '0px'
     }
-
   }
 }
 

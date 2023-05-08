@@ -124,6 +124,16 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
   .mapboxgl-ctrl-popupfilter {
     background: ${(props) => props.theme.palette.background.paper} !important;
   }
+
+  @media screen and (min-width: 600px){
+    top: 260px;
+  }
+  @media screen and (min-width: 960px){
+    top: 210px;
+  }
+  @media screen and (min-width: 1280px){
+    top: 56px;
+  }
 `
 
 interface ImgContainerProps {

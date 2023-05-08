@@ -40,8 +40,9 @@ const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'Con
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
 export const DashboardFilters = (props) => {
-  const { t, i18n } = useTranslation(['social'])
+  const { t, i18n } = useTranslation(['social', 'filters'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
+  const { datestart, dateend } = filters
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
@@ -55,6 +56,8 @@ export const DashboardFilters = (props) => {
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [filtersState, setFiltersState] = useState(allFilters)
+  const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
+  const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
 
   const classes = useStyles()
 
@@ -128,7 +131,77 @@ export const DashboardFilters = (props) => {
   const resetFilters = () => {
     dispatch({ type: 'RESET' })
     setHasReset(true)
+    setDateErrorStatus(false)
+    setDateErrorMessage('')
   }
+
+  function range(start, end) {
+    const result: any[] = []
+    for (let i = start; i < end; i++) {
+      result.push(i)
+    }
+    return result
+  }
+
+  function disabledStartDate(current) {
+    // Can not select days after end date
+    return current && current > moment(filters.dateend).endOf('minute')
+  }
+
+  function disabledEndDate(current) {
+    // Can not select days before start date
+    return current && current < moment(filters.datestart).startOf('minute')
+  }
+
+  function disableStartDateTime(current) {
+    let notAvailableHours: any[] = []
+    let notAvailableMinutes: any[] = []
+    if (current.isSame(filters.dateend, 'day')) {
+      const maxHour = moment(filters.dateend).hour()
+      notAvailableHours = range(maxHour + 1, 24)
+      if (current.isSame(filters.dateend, 'hour')) {
+        const maxMinute = moment(filters.dateend).minute()
+        notAvailableMinutes = range(maxMinute, 60)
+      }
+    }
+    return {
+      disabledHours: () => notAvailableHours,
+      disabledMinutes: () => notAvailableMinutes
+    }
+  }
+
+  function disableEndDateTime(current) {
+    let notAvailableHours: any[] = []
+    let notAvailableMinutes: any[] = []
+    if (current.isSame(filters.datestart, 'day')) {
+      const minHour = moment(filters.datestart).hour()
+      notAvailableHours = range(0, minHour)
+      if (current.isSame(filters.datestart, 'hour')) {
+        const minMinute = moment(filters.datestart).minute()
+        notAvailableMinutes = range(0, minMinute + 1)
+      }
+    }
+    return {
+      disabledHours: () => notAvailableHours,
+      disabledMinutes: () => notAvailableMinutes
+    }
+  }
+
+  const checkDateValidity = useCallback((startDate, endDate) => {
+    const momentStartDate = moment(startDate)
+    const momentEndDate = moment(endDate)
+
+    if (momentStartDate.isAfter(momentEndDate, 'minute')) {
+      setDateErrorStatus(true)
+      setDateErrorMessage('date_filters_same_error')
+    } else if (momentStartDate.isSame(momentEndDate, 'minute')) {
+      setDateErrorStatus(true)
+      setDateErrorMessage('date_filters_after_error')
+    } else {
+      setDateErrorStatus(false)
+      setDateErrorMessage('')
+    }
+  }, [])
 
   const updateStartDate = (date) => {
     dispatch({ type: 'START_DATE', value: date?.toDate() })
@@ -139,6 +212,10 @@ export const DashboardFilters = (props) => {
     dispatch({ type: 'END_DATE', value: date?.toDate() })
     setHasReset(false)
   }
+
+  useEffect(() => {
+    checkDateValidity(datestart, dateend)
+  }, [datestart, dateend])
 
   useEffect(() => {
     if (hasReset) {
@@ -174,8 +251,13 @@ export const DashboardFilters = (props) => {
             <LocaleProvider locale={locale}>
               <DatePicker
                 id="starting-date"
+                disabledDate={disabledStartDate}
+                disabledTime={disableStartDateTime}
                 onChange={updateStartDate}
-                showTime={{ defaultValue: moment(moment(filters.datestart), 'HH:mm') }}
+                showTime={{
+                  defaultValue: moment(moment(filters.datestart), 'HH:mm'),
+                  format: 'HH:mm'
+                }}
                 defaultValue={moment(filters.datestart)}
                 value={moment(filters.datestart)}
                 allowClear
@@ -183,6 +265,9 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
+                {t(`filters:${dateErrorMessage}`)}
+              </span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
@@ -192,8 +277,13 @@ export const DashboardFilters = (props) => {
             <LocaleProvider locale={locale}>
               <DatePicker
                 id="end-date"
+                disabledDate={disabledEndDate}
+                disabledTime={disableEndDateTime}
                 onChange={updateEndDate}
-                showTime={{ defaultValue: moment(moment(filters.dateend), 'HH:mm') }}
+                showTime={{
+                  defaultValue: moment(moment(filters.dateend), 'HH:mm'),
+                  format: 'HH:mm'
+                }}
                 defaultValue={moment(filters.dateend)}
                 value={moment(filters.dateend)}
                 allowClear
@@ -201,6 +291,9 @@ export const DashboardFilters = (props) => {
                 style={{ width: '280px' }}
                 locale={locale}
               />
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
+                {t(`filters:${dateErrorMessage}`)}
+              </span>
             </LocaleProvider>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
@@ -211,6 +304,7 @@ export const DashboardFilters = (props) => {
               size="small"
               color="primary"
               variant="contained"
+              disabled={dateErrorStatus}
             >
               {t('social:filter_apply')}
             </Button>
@@ -232,9 +326,10 @@ export const DashboardFilters = (props) => {
           direction={'row'}
           justifyContent="center"
           alignItems="center"
-          style={{ flex: 2 }}
+          spacing={1}
+          style={{ flexGrow: 1, marginTop: 3 }}
         >
-          <Grid item sm={2} direction="row" container>
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -246,7 +341,7 @@ export const DashboardFilters = (props) => {
               isChecked={personChecked}
             />
           </Grid>
-          <Grid item sm={3} direction="row" container>
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -258,7 +353,7 @@ export const DashboardFilters = (props) => {
               isChecked={reportChecked}
             />
           </Grid>
-          <Grid item sm={2} direction="row" container>
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -270,7 +365,7 @@ export const DashboardFilters = (props) => {
               isChecked={missionChecked}
             />
           </Grid>
-          <Grid item sm={2} direction="row" container>
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -280,7 +375,7 @@ export const DashboardFilters = (props) => {
               isChecked={communicationChecked}
             />
           </Grid>
-          <Grid item sm={3} direction="row" container>
+          <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -380,8 +475,9 @@ const CategoryFilter = (props) => {
   }, [])
 
   return (
-    <>
+    <Paper elevation={3}>
       <FormControlLabel
+        className={classes.filterCheckbox}
         control={
           <Checkbox
             icon={<CategoryPinBorderIcon colorlabel={props.emergencyLabel} />}
@@ -396,7 +492,7 @@ const CategoryFilter = (props) => {
         label={<Typography variant="body2">{t('labels:' + label)}</Typography>}
       />
       {category && category.content && category.content.length > 0 ? (
-        <div>
+        <>
           <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
             <ArrowDropDown fontSize="small" />
           </IconButton>
@@ -487,8 +583,8 @@ const CategoryFilter = (props) => {
               </MenuList>
             </Paper>
           </Popover>
-        </div>
+        </>
       ) : undefined}
-    </>
+    </Paper>
   )
 }

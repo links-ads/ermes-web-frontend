@@ -112,15 +112,12 @@ const mapRequestCard = (
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
             <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
-              {HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
-                ? HAZARD_SOCIAL_ICONS[details['mapRequestHazardFilter'].toLowerCase()]
-                : null}
-              {details['mapRequestHazardFilter']}
+              {details['details']}
             </Typography>
           </Box>
         </div>
         <br />
-        {['details', 'status', 'mapRequestLayerFilter', 'organizationName'].map((type) => {
+        {['status', 'organizationName'].map((type) => {
           if (details[type]) {
             return (
               <>

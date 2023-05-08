@@ -110,7 +110,6 @@ const EventMap = (props) => {
         position: 'relative'
       }}
     >
-
       <MapHeadDrawer
         mapRef={props.mapRef}
         filterApplyHandler={() => props.filterObjApplyHandler(filtersObj)}
@@ -127,9 +126,7 @@ const EventMap = (props) => {
         position={floatingFilterContainerPosition}
       ></FloatingFilterContainer>
       <MapContainer>
-        <MapLoadingDiv
-          isLoading={props.isLoading}
-        />
+        <MapLoadingDiv isLoading={props.isLoading} />
         <InteractiveMap
           {...mapViewport}
           width="100%"
@@ -142,13 +139,7 @@ const EventMap = (props) => {
           ref={props.mapRef}
           interactiveLayerIds={[EVENTS_LAYER_ID, CLUSTER_LAYER_ID, ...props.spiderLayerIds]}
           onClick={(evt) =>
-            mapClickHandler(
-              evt,
-              mapRef,
-              leftClickState,
-              setLeftClickState,
-              props.spiderifierRef
-            )
+            mapClickHandler(evt, mapRef, leftClickState, setLeftClickState, props.spiderifierRef)
           }
           onLoad={() => {
             if (props.mapRef.current) {
@@ -172,7 +163,14 @@ const EventMap = (props) => {
                     updateMarkers(map)
                   }
                 })
-                map.fitBounds(new mapboxgl.LngLatBounds(props.eventFilters['southWest'], props.eventFilters['northEast']), {}, { how: 'fly' })
+                map.fitBounds(
+                  new mapboxgl.LngLatBounds(
+                    props.eventFilters['southWest'],
+                    props.eventFilters['northEast']
+                  ),
+                  {},
+                  { how: 'fly' }
+                )
               } catch (err) {
                 console.error('Map Load Error', err)
               }
@@ -194,7 +192,7 @@ const EventMap = (props) => {
             timeout={800}
           >
             <MapSlide>
-              <Card raised={false} style={{width:'30%',float:'right',minWidth:300}}>
+              <Card raised={false} style={{ width: '30%', float: 'right', minWidth: 300 }}>
                 <EventContent
                   mapIdsToHazards={props.filtersState.mapIdsToHazards}
                   item={leftClickState.pointFeatures}

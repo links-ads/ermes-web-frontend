@@ -28,6 +28,7 @@ import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
   LayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
+import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
 
@@ -418,8 +419,8 @@ export function Map() {
       )
       setTeamList(i)
       //update starting filter object with actual team names from http
-      const teamNamesList = Object.values(i)
-      updateTeamList(teamNamesList)
+      // const teamNamesList = Object.values(i)
+      // updateTeamList(teamNamesList)
     }
   }, [teamsApiHandlerState])
 
@@ -957,6 +958,7 @@ export function Map() {
 
         {isGeoDataloading ? loader : undefined}
       </MapContainer>
+      {/* <MapSearchHere /> */}
     </>
   )
 }
