@@ -98,6 +98,8 @@ export interface AppConfig {
   mapboxgl?: MapboxGlConfig
   // Coordinate Reference System
   crs: string
+  // Map Polling Interval in seconds
+  mapPollingInterval: number
   // GeoServer configuration to retrieve layers
   geoServer?: GeoServerConfig
   // FusionAuth connection paramters

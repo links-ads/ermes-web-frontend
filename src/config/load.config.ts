@@ -118,6 +118,7 @@ export async function loadConfig(): Promise<AppConfig> {
         ...configOverride.mapboxgl
       },
       crs: configOverride.crs!,
+      mapPollingInterval: configOverride.mapPollingInterval!,
       envTag: process.env.NODE_ENV === 'production' ? configOverride.envTag : HOT_LOADER_ENVTAG
     }
     console.debug('Config loaded', config)

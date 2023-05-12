@@ -29,6 +29,7 @@ import MapRequestState, {
 import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
+import useInterval from '../../../hooks/use-interval.hook'
 
 type MapFeature = CulturalProps
 
@@ -802,6 +803,13 @@ export function Map() {
     }    
     downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
   }
+
+  // Polling
+  useInterval(()=> {
+    console.log('Polling map elements')
+    fetchGeoJson()
+    forceUpdate()
+  }, appConfig.mapPollingInterval)
 
   const { isLoading: isGeoDataloading} = prepGeoData
   const loader = <div className="full-screen centered"><CircularProgress size={120}/></div>
