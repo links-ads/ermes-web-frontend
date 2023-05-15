@@ -445,7 +445,7 @@ export function Map() {
   /**
    * when filters are updated then update the map features to show
    */
-  useEffect(() => {
+  const updateMapFeatures = useCallback(() => {
     setLayerSelection({
       isMapRequest: NO_LAYER_SELECTED,
       mapRequestCode: NO_LAYER_SELECTED,
@@ -493,6 +493,10 @@ export function Map() {
       setToggleActiveFilterTab(false)
     }
     forceUpdate()
+  }, [fetchGeoJson, handleGetLayersCall, layersApiFactory])
+
+  useEffect(() => {
+    updateMapFeatures()
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
@@ -806,9 +810,7 @@ export function Map() {
 
   // Polling
   useInterval(()=> {
-    console.log('Polling map elements')
-    fetchGeoJson()
-    forceUpdate()
+    updateMapFeatures()
   }, appConfig.mapPollingInterval)
 
   const { isLoading: isGeoDataloading} = prepGeoData
