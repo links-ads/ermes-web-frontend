@@ -11,20 +11,22 @@ export const FiltersContext = createContext({
   filters: {} as FiltersType,
   localStorageFilters: {} as FiltersDescriptorType | undefined,
   mapDrawerTabVisibility: {} as MapDrawerTabVisibility,
+  lastUpdate: {} as string,
   applyDate: (filters) => {},
   updateActivities: (activities) => {},
   updateMapBounds: (mapBounds) => {},
   applyFilters: (filtersObj) => {},
   updateTeamList: (teamList) => {},
   resetFilters: (appConfigMapBounds, isCitizen) => {},
-  updateMapDrawerTabs: (tabName, tabVisibility) => {}
+  updateMapDrawerTabs: (tabName, tabVisibility) => {}, 
+  setLastUpdate: (lastUpdate) => {}
 })
 
 const FiltersContextProvider = (props) => {
   const { profile } = useUser()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const [filtersObj, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
-  const { filtersLocalStorageObject, filters, mapDrawerTabVisibility } = filtersObj
+  const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersObj
 
   const applyDateFilters = useCallback((filters) => {
     dispatch({
@@ -81,19 +83,28 @@ const FiltersContextProvider = (props) => {
     })
   },[])
 
+  const setLastUpdate = useCallback((lastUpdate) =>{
+    dispatch({
+      type: 'SET_LAST_UPDATE', 
+      lastUpdate: lastUpdate
+    })
+  }, [])
+
   return (
     <FiltersContext.Provider
       value={{
         filters: filters,
         localStorageFilters: filtersLocalStorageObject,
         mapDrawerTabVisibility: mapDrawerTabVisibility, 
+        lastUpdate: lastUpdate,
         applyDate: applyDateFilters,
         updateActivities: updateActivities,
         updateMapBounds: updateMapBounds,
         applyFilters: applyFilters,
         updateTeamList: updateTeamList,
         resetFilters: resetFilters,
-        updateMapDrawerTabs: updateMapDrawerTabs
+        updateMapDrawerTabs: updateMapDrawerTabs, 
+        setLastUpdate: setLastUpdate
       }}
     >
       {props.children}

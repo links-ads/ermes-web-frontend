@@ -33,7 +33,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
-  const { localStorageFilters, filters, mapDrawerTabVisibility, applyDate, applyFilters, updateTeamList, updateMapDrawerTabs } = filtersCtx
+  const { localStorageFilters, filters, mapDrawerTabVisibility, lastUpdate, applyDate, applyFilters, updateTeamList, updateMapDrawerTabs } = filtersCtx
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -78,7 +78,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         <BrandLogo />
         <Spacer />
         {filterActive ? (
-          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} mapDrawerTabVisibility={mapDrawerTabVisibility} onDateFilterApply={applyDate} onFilterApply={applyFilters} onFilterChecked={updateMapDrawerTabs} />
+          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} mapDrawerTabVisibility={mapDrawerTabVisibility} lastUpdate={lastUpdate} onDateFilterApply={applyDate} onFilterApply={applyFilters} onFilterChecked={updateMapDrawerTabs} />
         ) : (
           <TitleWidget />
         )}
