@@ -21,7 +21,8 @@ const filtersInitialState = {
     Mission: true,
     Communication: true,
     MapRequest: true
-  }
+  },
+  lastUpdate: new Date().toISOString()
 }
 
 const localStorageKey = 'memstate-map'
@@ -61,7 +62,7 @@ export const initializer = (userProfile, appConfig) => {
   let filtersArgs = {}
   let filtersObj = {} as any
   let storedFilters = localStorage.getItem(localStorageKey)
-  if (storedFilters === null) {
+  if (storedFilters === null || storedFilters === "null") {
     filtersObj = initObjectState
     filtersObj.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
     filtersObj.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
@@ -97,7 +98,8 @@ export const initializer = (userProfile, appConfig) => {
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
     filters: filtersArgs as FiltersType,
-    mapDrawerTabVisibility: filtersInitialState.mapDrawerTabVisibility as MapDrawerTabVisibility
+    mapDrawerTabVisibility: filtersInitialState.mapDrawerTabVisibility as MapDrawerTabVisibility,
+    lastUpdate: filtersInitialState.lastUpdate as string
   }
 }
 
@@ -105,7 +107,8 @@ export const filtersReducer = (currentState, action) => {
   const {
     filtersLocalStorageObject: currentFiltersObject,
     filters: currentFilters,
-    mapDrawerTabVisibility: currentMapDrawerTabVisibility
+    mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+    lastUpdate: currentLastUpdate
   } = currentState
   let newFiltersObject = currentFiltersObject
   let newMapDrawerTabVisibility = currentMapDrawerTabVisibility
@@ -130,7 +133,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: action.filters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility, 
+        lastUpdate: currentLastUpdate
       }
     case 'APPLY_FILTERS':
       newFiltersObject = action.filtersObject
@@ -144,7 +148,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: updatedFilters,
-        mapDrawerTabVisibility: newMapDrawerTabVisibility
+        mapDrawerTabVisibility: newMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
       }
     case 'UPDATE_ACTIVITIES':
       const newActivities = action.activities
@@ -158,7 +163,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
       }
     case 'UPDATE_TEAM_LIST':
       const teamList = action.teamList
@@ -166,7 +172,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
       }
     case 'UPDATE_MAP_BOUNDS':
       const newMapBounds = action.mapBounds
@@ -175,7 +182,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
       }
     case 'RESET':
       const appConfigMapBounds = action.appConfigMapBounds
@@ -196,7 +204,8 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: resetFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
       }
     case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
       newMapDrawerTabVisibility[action.name] = action.visibility
@@ -217,7 +226,15 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: currentFilters,
-        mapDrawerTabVisibility: newMapDrawerTabVisibility
+        mapDrawerTabVisibility: newMapDrawerTabVisibility,
+        lastUpdate: currentLastUpdate
+      }
+    case 'SET_LAST_UPDATE':
+      return {
+        filtersLocalStorageObject: currentFiltersObject,
+        filters: currentFilters,
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
+        lastUpdate: action.lastUpdate
       }
     default:
       return currentState

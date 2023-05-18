@@ -28,6 +28,7 @@
     }
   },
   "crs": "EPSG:4326",
+  "mapPollingInterval": 60,
   "geoServer": {
     "baseUrl": "https://geoserver-dev.shelter-project.cloud/geoserver/shelter",
     "suffix": "wms",

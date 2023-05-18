@@ -40,14 +40,14 @@ const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'Con
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
 export const DashboardFilters = (props) => {
-  const { t, i18n } = useTranslation(['social', 'filters'])
+  const { t, i18n } = useTranslation(['social', 'filters', 'labels'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const { datestart, dateend } = filters
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
-  const { localStorageFilters, mapDrawerTabVisibility, onFilterChecked } = props
+  const { localStorageFilters, mapDrawerTabVisibility, lastUpdate, onFilterChecked } = props
   const { filters: allFilters } = localStorageFilters
   const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
   const [personChecked, setPersonChecked] = useState<boolean>(Person)
@@ -58,6 +58,7 @@ export const DashboardFilters = (props) => {
   const [filtersState, setFiltersState] = useState(allFilters)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
+  const [lastUpdateState, setLastUpdateState] = useState<string>(lastUpdate)
 
   const classes = useStyles()
 
@@ -66,8 +67,12 @@ export const DashboardFilters = (props) => {
     setReportChecked(Report)
     setMissionChecked(Mission)
     setCommunicationChecked(Communication)
-    setMapRequestChecked(MapRequest)
+    setMapRequestChecked(MapRequest)    
   }, [Person, Report, Mission, Communication, MapRequest])
+
+  useEffect(() => {
+    setLastUpdateState(lastUpdate)
+  }, [lastUpdate])
 
   const applyPersonFilters = (personFilters) => {
     const newFilters = filtersState
@@ -242,6 +247,7 @@ export const DashboardFilters = (props) => {
           direction={'row'}
           justifyContent="center"
           alignItems="center"
+          spacing={1}
           style={{ flex: 2 }}
         >
           <Grid item>
@@ -319,6 +325,9 @@ export const DashboardFilters = (props) => {
             >
               {t('social:filter_reset')}
             </Button>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2">{t('labels:timestamp')}: {moment(lastUpdateState).format("HH:mm")}</Typography>
           </Grid>
         </Grid>
         <Grid

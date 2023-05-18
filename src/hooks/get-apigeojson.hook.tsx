@@ -1,10 +1,11 @@
-import { useCallback, useReducer, useMemo } from 'react'
+import { useCallback, useReducer, useMemo, useContext } from 'react'
 import { GeoJsonApiFactory } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { useTranslation } from 'react-i18next'
+import { FiltersContext } from '../state/filters.context'
 
 
 const initialState = {
@@ -72,7 +73,9 @@ export default function GetApiGeoJson() {
         false
     )
     const { t, i18n } = useTranslation();    
-    
+    const filtersCtx = useContext(FiltersContext)
+    const { setLastUpdate } = filtersCtx
+
     const fetchGeoJson = useCallback(
       (teamIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
         dispatch({ type: 'FETCH' })
@@ -116,6 +119,7 @@ export default function GetApiGeoJson() {
                 downloadUrl: ''
               }
             })
+            setLastUpdate(new Date().toISOString())
           })
           .catch((err) => {
             displayErrorSnackbar(err)
