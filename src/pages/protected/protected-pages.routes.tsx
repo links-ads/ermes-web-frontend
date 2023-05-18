@@ -1,11 +1,11 @@
 import React, { Suspense } from 'react'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import CircularProgress from '@mui/material/CircularProgress'
 import qs from 'querystring'
 import { Switch, Route, Redirect, RouteChildrenProps } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NotFoundPage } from '../open/not-found.page'
 import { UnAuthorizedPage } from '../open/unauthorized.page'
-import { Container } from '@material-ui/core'
+import { Container } from '@mui/material'
 
 import { controlAccess } from './control-access';
 

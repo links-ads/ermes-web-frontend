@@ -1,15 +1,15 @@
 import React from 'react'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardActions from '@mui/material/CardActions'
+import CardContent from '@mui/material/CardContent'
 
-import Typography from '@material-ui/core/Typography'
-import Button from '@material-ui/core/Button'
+import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
 import { useTranslation } from 'react-i18next'
 import { useLogin } from '../../../state/auth/auth.hooks'
-import Link from '@material-ui/core/Link'
-import Grid from '@material-ui/core/Grid'
+import Link from '@mui/material/Link'
+import Grid from '@mui/material/Grid'
 
 export function AuthenticationCard() {
   const { t } = useTranslation(['privacy', 'termsofuse'])

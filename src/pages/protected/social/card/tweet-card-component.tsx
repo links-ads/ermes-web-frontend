@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import Card from '@material-ui/core/Card';
-import Collapse from '@material-ui/core/Collapse';
+import Card from '@mui/material/Card';
+import Collapse from '@mui/material/Collapse';
 import clsx from 'clsx';
 
-import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@mui/material/IconButton';
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import Carousel from 'react-material-ui-carousel'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
 
 
 import { getTweetLocation, queryHoveredFeature } from '../../../../common/map/map-common';
@@ -17,10 +17,11 @@ import { TweetContent } from './tweet-card-content';
 import { TWEETS_LAYER_ID, CLUSTER_LAYER_ID, HOVER_TWEETS_LAYER_ID, SOURCE_ID } from '../map/map-init';
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 import { getSocialCardStyle } from '../../../../utils/utils.common';
+import { makeStyles } from 'tss-react/mui';
 
 export const TweetCard = (props) => {
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) =>
+        {return {
             ...getSocialCardStyle(theme),
             grid_root: {
                 display: 'flex',
@@ -32,9 +33,9 @@ export const TweetCard = (props) => {
                 flexWrap: 'nowrap',
                 transform: 'translateZ(0)',
             },
-        }));
+        }});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [expanded, setExpanded] = useState(false);
     const [featureToHover, setFeatureHover] = useState<{ type: "leaf" | "point" | "cluster" | null, id: string | number | null, source?: string }>({ type: null, id: null })
 

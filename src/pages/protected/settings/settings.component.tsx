@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComingSoon } from '../../../common/coming-soon'
-import Save from '@material-ui/icons/Save'
-import { Button } from '@material-ui/core'
+import Save from '@mui/icons-material/Save'
+import { Button } from '@mui/material
 import { useTranslation } from 'react-i18next'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { useModal } from 'react-modal-hook'

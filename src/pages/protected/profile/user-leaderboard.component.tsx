@@ -1,9 +1,9 @@
 import React, { memo, useContext, useEffect, useMemo } from 'react'
-import Card from '@material-ui/core/Card'
-import CardActions from '@material-ui/core/CardActions'
-import CardContent from '@material-ui/core/CardContent'
+import Card from '@mui/material/Card'
+import CardActions from '@mui/material/CardActions'
+import CardContent from '@mui/material/CardContent'
 
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 
 import { useTranslation } from 'react-i18next'
 import { /* useAuth */ useLogout, useUser } from '../../../state/auth/auth.hooks'

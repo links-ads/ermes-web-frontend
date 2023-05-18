@@ -4,7 +4,7 @@ import { useMapPreferences } from '../../../../state/preferences/preferences.hoo
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import MapSlide from '../../../../common/map/map-popup-card';
 
-import { Card, Slide } from '@material-ui/core';
+import { Card, Slide } from '@mui/material';
 import { MapContainer } from '../../map/common.components';
 
 

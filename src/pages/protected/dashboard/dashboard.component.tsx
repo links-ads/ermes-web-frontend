@@ -3,7 +3,8 @@ import React from 'react'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
 import { DashboardLayout } from './dashboard-layout.component'
 import { IDashboardWidgetLayoutConfig } from './dashboard.config'
-import { Theme, createStyles, makeStyles } from '@material-ui/core'
+import { Theme } from '@mui/material'
+import { makeStyles } from 'tss-react/mui'
 
 export interface DashboardProps {
   className?: string
@@ -11,7 +12,7 @@ export interface DashboardProps {
   initialConfig?: IDashboardWidgetLayoutConfig[]
 }
 
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => { return {
   dashboardContainer: {
     position: 'relative', 
     top: 56,
@@ -25,10 +26,10 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
       top: 56,
     },
   }
-}))
+}})
 
 export function Dashboard(props: DashboardProps) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   return (
     <SizeAwareContainer
       className={classes.dashboardContainer + " dashboard-container"}

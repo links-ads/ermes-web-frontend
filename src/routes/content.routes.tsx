@@ -7,7 +7,7 @@ import { NotFoundPage } from '../pages/open/not-found.page'
 import { AboutPage } from '../pages/open/about/about.page'
 import { PrivacyPage } from '../pages/open/privacy/privacy.page'
 import { WaitOrRedirect } from './wait-or-redirect.component'
-import { Container } from '@material-ui/core'
+import { Container } from '@mui/material'
 import { TermsOfUsePage} from '../pages/open/termsofuse/termsofuse.page'
 
 // http://localhost:3000/device-verification?user_code=JTXHXS

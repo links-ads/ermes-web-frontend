@@ -1,7 +1,7 @@
 import React from 'react'
 import { AdministrationContainer } from '../../../common/common.components'
 import { LinkCard } from './link-card.component'
-import { Container } from '@material-ui/core'
+import { Container } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 
 export function Administration() {

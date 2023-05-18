@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
 
 
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useTranslation } from 'react-i18next'
 
 import { VolumeCard, InformativeCard, PieChartStats, parseStats } from '../../../common/stats-cards.components'
-import { Typography } from '@material-ui/core';
-import Paper from '@material-ui/core/Paper';
+import { Typography } from '@mui/material';
+import Paper from '@mui/material/Paper';
 
 import SocialMap from './map/map-layout.component';
 import { filterObjApplyHandler,  getDefaultFilterSocialArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
@@ -26,19 +26,20 @@ import { TweetCard } from './card/tweet-card-component';
 import { AppConfig, AppConfigContext } from '../../../config';
 import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import AppBar from '@mui/material/AppBar';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import { TabPanel, a11yProps, handleTabChange } from '../../../common/common.components';
 import { useMemoryState } from '../../../hooks/use-memory-state.hook';
+import { makeStyles } from 'tss-react/mui';
 
 const PAGE_SIZE = 30000
 const MINI_PAGE_SIZE = 20
 
 const SocialComponent = (props) => {
-    const useStyles = makeStyles((theme: Theme) => createStyles(getSocialDashboardStyle(theme)));
+    const useStyles = makeStyles()((theme: Theme) => { return getSocialDashboardStyle(theme)});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const { t } = useTranslation(['social','labels'])
     const mapRef = useRef<InteractiveMap>(null)

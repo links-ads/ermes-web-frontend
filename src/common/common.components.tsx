@@ -1,16 +1,13 @@
 import React from 'react'
-import Tooltip from '@material-ui/core/Tooltip'
-import IconButton from '@material-ui/core/IconButton'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
 import styled from 'styled-components'
-import ReplayIcon from '@material-ui/icons/Replay'
+import ReplayIcon from '@mui/icons-material/Replay'
 import { useTranslation } from 'react-i18next'
-import Typography from '@material-ui/core/Typography'
-import { getFooter, getContent } from '@mui-treasury/layout'
+import Typography from '@mui/material/Typography'
+import { Footer, Content } from '@mui-treasury/layout'
 import { rgba } from 'polished'
-import { Box } from '@material-ui/core'
-
-const Content = getContent(styled)
-const Footer = getFooter(styled)
+import { Box } from '@mui/material'
 
 // const { theme} = useUITheme()
 

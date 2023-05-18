@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import Card from '@material-ui/core/Card'
+import Card from '@mui/material/Card'
 import { queryHoveredFeature } from '../../../../../common/map/map-common'
 import { updatePointFeatureLayerIdFilter } from '../../../../../utils/map.utils'
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@mui/material/styles'
 
 const CLUSTER_LAYER_ID = 'clusters'
 const SOURCE_ID = 'emergency-source'

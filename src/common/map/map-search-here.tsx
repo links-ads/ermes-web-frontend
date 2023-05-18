@@ -1,21 +1,22 @@
 import React from "react";
-import SearchIcon from '@material-ui/icons/Search'
-import { Button, createStyles, IconButton, makeStyles, Theme } from "@material-ui/core";
+import SearchIcon from '@mui/icons-material/Search'
+import { Button, IconButton, Theme } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { makeStyles } from "tss-react/mui";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+    {return {
         button: {
             borderColor: 'white',
             color: 'white',
             borderWidth: 1
         }
-    })
+    }}
 )
 
 const MapSearchHere: React.FC<{}> = () => {
   const { t } = useTranslation(['social'])
-  const classes = useStyles()
+  const {classes} = useStyles()
   return (
     <div
       style={{

@@ -3,23 +3,23 @@ user can decide to select or deselect by clicking the third button on the top le
 in the map page */
 
 import React, { useState, useEffect, useMemo } from 'react'
-import CardContent from '@material-ui/core/CardContent'
+import CardContent from '@mui/material/CardContent'
 import {
   Button,
   CardActions,
   CircularProgress,
   IconButton,
-  makeStyles,
   useTheme
-} from '@material-ui/core'
-import Typography from '@material-ui/core/Typography'
+} from '@mui/material'
+import { makeStyles } from 'tss-react/mui'
+import Typography from '@mui/material/Typography'
 import SwipeableViews from 'react-swipeable-views'
-import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
+import AppBar from '@mui/material/AppBar'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 import { useTranslation } from 'react-i18next'
 import { Tab1, Tab2 } from './floating-filter-content.component'
-import CloseIcon from '@material-ui/icons/Close'
+import CloseIcon from '@mui/icons-material/Close'
 import FloatingCardContainer from './floating-card-container.component'
 
 function a11yProps(index: any) {
@@ -29,7 +29,7 @@ function a11yProps(index: any) {
   }
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   cardAction: {
     justifyContent: 'flex-end',
     paddingLeft: 16,
@@ -67,13 +67,13 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center'
   }
-}))
+}})
 
 export default function FloatingFilterContainer(props) {
   // Translation and theming
   const { t } = useTranslation(['filters', 'labels'])
   const theme = useTheme()
-  const classes = useStyles()
+  const {classes} = useStyles()
 
   // Tab selector
   const [tab, setTab] = React.useState(0)

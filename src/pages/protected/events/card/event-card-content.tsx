@@ -1,16 +1,17 @@
-import { Avatar, CardContent, CardHeader, Chip, Grid, Typography } from '@material-ui/core';
+import { Avatar, CardContent, CardHeader, Chip, Grid, Typography } from '@mui/material';
 import React, { useMemo } from 'react';
 
 import { useTranslation } from 'react-i18next'
 import { HAZARD_SOCIAL_ICONS } from '../../../../utils/utils.common';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
 import useLanguage from '../../../../hooks/use-language.hook';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { clearEventMap } from '../../../../common/map/map-common';
-import { IconButton } from '@material-ui/core';
+import { IconButton } from '@mui/material';
 // import MaterialTable from 'material-table'
 import MaterialTable from '@material-table/core'
 import { localizeMaterialTable } from '../../../../common/localize-material-table'
+import { makeStyles } from 'tss-react/mui';
 
 
 
@@ -22,8 +23,8 @@ const EventContent = (props) => {
     let hazardName = props.mapIdsToHazards[props.item.hazard_id]
     const { t } = useTranslation(['social', 'labels','tables'])
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) =>
+        {return {
             header: {
                 margin: '5px',
                 padding: 5
@@ -35,7 +36,7 @@ const EventContent = (props) => {
                     paddingBottom: 0
                 }
             }
-        }));
+        }});
 
     const impactEstimation = useMemo(() => {
         if (!props.item.impact_estimation) return null
@@ -56,7 +57,7 @@ const EventContent = (props) => {
         ]
     }, [t])
 
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const textSizes = props.textSizes
 

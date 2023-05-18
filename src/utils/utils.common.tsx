@@ -1,4 +1,4 @@
-import { Typography } from '@material-ui/core';
+import { Typography } from '@mui/material';
 import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import React from 'react';
 import { FiltersSocialType, FiltersType } from '../common/filters/reducer';

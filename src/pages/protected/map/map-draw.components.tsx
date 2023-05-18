@@ -9,13 +9,13 @@ import {
 } from 'react-map-gl-draw'
 import { Feature } from '@nebula.gl/edit-modes'
 import { useMapStateContext, ProvisionalFeatureType } from './map.contest'
-import yellow from '@material-ui/core/colors/yellow'
-import { alpha } from '@material-ui/core/styles'
-import blueGrey from '@material-ui/core/colors/blueGrey'
+import yellow from '@mui/material/colors/yellow'
+import { alpha } from '@mui/material/styles'
+import blueGrey from '@mui/material/colors/blueGrey'
 // provisional colors
-import purple from '@material-ui/core/colors/purple'
-import blue from '@material-ui/core/colors/blue'
-import pink from '@material-ui/core/colors/pink'
+import purple from '@mui/material/colors/purple'
+import blue from '@mui/material/colors/blue'
+import pink from '@mui/material/colors/pink'
 
 type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | null
 type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | null

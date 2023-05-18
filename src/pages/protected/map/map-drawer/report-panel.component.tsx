@@ -1,7 +1,7 @@
 // Panel displaying the list of reports (segnalazioni) on the left side Drawer.
 import React, { useEffect, useState } from 'react'
 import useReportList from '../../../../hooks/use-report-list.hook'
-import List from '@material-ui/core/List'
+import List from '@mui/material/List'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import ItemCounter from './item-counter'

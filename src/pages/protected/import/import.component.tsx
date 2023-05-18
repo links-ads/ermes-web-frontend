@@ -1,20 +1,21 @@
 import React, { useMemo, useState } from 'react';
 
-import Input from '@material-ui/core/Input';
-import { Button, CircularProgress, Grid, InputLabel, ListItemText, List, ListItem, MenuItem, Select, Typography } from '@material-ui/core';
+import Input from '@mui/material/Input';
+import { Button, CircularProgress, Grid, InputLabel, ListItemText, List, ListItem, MenuItem, Select, Typography } from '@mui/material';
 
-import FormControl from '@material-ui/core/FormControl';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import FormControl from '@mui/material/FormControl';
+import { Theme } from '@mui/material/styles';
 import { useTranslation } from 'react-i18next'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook';
-import PublishIcon from '@material-ui/icons/Publish';
-import DeleteIcon from '@material-ui/icons/Delete';
+import PublishIcon from '@mui/icons-material/Publish';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 import useImports, { ImportEnum } from '../../../hooks/use-imports.hook';
 
 import { useDropzone } from 'react-dropzone'
 
 import excelIcon from '../../../assets/excelIcon/excel_128.png'
+import { makeStyles } from 'tss-react/mui';
 
 const getAcceptedFilename = (select) => {
     return 'Import' + select[0].toUpperCase() + select.slice(1)
@@ -42,14 +43,14 @@ const ImportComponent = (props) => {
         getInputProps,
         isDragActive
     } = useDropzone({
-        accept: ".xlsx",
+        accept: { 'application/vnd.ms-excel': [".xlsx"]},
         maxFiles: 1,
         multiple: false,
         onDropAccepted: (files, event) => dropHandler(files, event)
     });
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) =>
+        { return {
             section: {
                 padding: '8px',
                 margin: '8px'
@@ -77,9 +78,9 @@ const ImportComponent = (props) => {
                 transition: 'border .24s ease-in-out',
                 outline: 'none',
             }
-        }));
+        }});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const checkFileName = (name: string) => {
         if (name === undefined)

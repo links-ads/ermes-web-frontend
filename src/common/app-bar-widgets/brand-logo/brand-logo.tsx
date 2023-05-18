@@ -1,7 +1,7 @@
 import React, { memo, useContext, useCallback } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { Route } from 'react-router'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { staticAssetsUrl } from '../../../config/base-path'

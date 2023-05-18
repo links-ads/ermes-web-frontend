@@ -4,7 +4,7 @@ import { ConfirmDialog } from '../../../common/dialogs/confirm-dialog.component'
 import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
 
-import { CircularProgress, Grid } from '@material-ui/core'
+import { CircularProgress, Grid } from '@mui/material'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'

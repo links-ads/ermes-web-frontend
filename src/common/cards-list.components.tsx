@@ -1,16 +1,17 @@
 import React from 'react'
-import { Card, CardContent, CircularProgress, Grid, Typography } from '@material-ui/core';
+import { Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import InfiniteScroll from "react-infinite-scroll-component";
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui'
 
 
 export const CardsList = (props) => {
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) =>{
+        return {
             root: {
                 width: '100%',
                 // height:'100%',
@@ -23,11 +24,11 @@ export const CardsList = (props) => {
                 margin: '5px',
                 padding: 5
             }
-        }));
+        }});
 
     const { t } = useTranslation(['social'])
 
-    const classes = useStyles();
+    const { classes } = useStyles();
 
  
     const itemList = props.data.map((item)=>props.renderItem(item))

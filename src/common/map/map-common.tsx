@@ -1,5 +1,5 @@
 import React from 'react';
-import { CircularProgress, Grid } from '@material-ui/core';
+import { CircularProgress, Grid } from '@mui/material';
 import mapboxgl from 'mapbox-gl'
 
 export const POLYGON_SOURCE_ID = 'polygon-source'

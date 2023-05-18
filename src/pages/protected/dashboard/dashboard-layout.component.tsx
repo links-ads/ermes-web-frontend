@@ -1,4 +1,4 @@
-import { CircularProgress, useTheme } from '@material-ui/core'
+import { CircularProgress, useTheme } from '@mui/material'
 import React, { useCallback, useState, useEffect, useContext, useMemo } from 'react'
 import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
 import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'

@@ -1,6 +1,6 @@
 import React, { memo } from 'react'
 import { Marker } from 'react-map-gl'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 import { OLD_FASHIONED_PIN_SHAPE } from './pin-svg-factories'
 interface PinsProps {
   data: any[]

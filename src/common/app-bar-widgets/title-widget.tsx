@@ -3,9 +3,9 @@ import React from 'react'
 import { useUser } from '../../state/auth/auth.hooks'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
-import Breadcrumbs from '@material-ui/core/Breadcrumbs'
-import Link from '@material-ui/core/Link'
-import Typography from '@material-ui/core/Typography'
+import Breadcrumbs from '@mui/material/Breadcrumbs'
+import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
 
 export function TitleWidget() {
   const { profile } = useUser()

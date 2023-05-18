@@ -5,15 +5,15 @@ import {
   makeStyles,
   Slider,
   Typography
-} from '@material-ui/core'
+} from '@mui/material'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import LegendIcon from '@material-ui/icons/FilterNone'
-import MetaIcon from '@material-ui/icons/InfoOutlined'
-import PlayArrowIcon from '@material-ui/icons/PlayArrow'
-import GetAppIcon from '@material-ui/icons/GetApp'
-import PauseIcon from '@material-ui/icons/Pause'
-import SkipNextIcon from '@material-ui/icons/SkipNext'
+import LegendIcon from '@mui/icons-material/FilterNone'
+import MetaIcon from '@mui/icons-material/InfoOutlined'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import GetAppIcon from '@mui/icons-material/GetApp'
+import PauseIcon from '@mui/icons-material/Pause'
+import SkipNextIcon from '@mui/icons-material/SkipNext'
 import { useTranslation } from 'react-i18next'
 import classes from './maprequest-card.module.scss'
 import { FormatDate } from '../../../../../utils/date.utils'

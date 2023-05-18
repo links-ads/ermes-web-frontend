@@ -1,6 +1,6 @@
 import React from 'react'
-import { IconButton, Tooltip } from '@material-ui/core'
-import HelpIcon from '@material-ui/icons/Help'
+import { IconButton, Tooltip } from '@mui/material'
+import HelpIcon from '@mui/icons-material/Help'
 import { MapRequestLayerErrorDto } from 'ermes-ts-sdk'
 
 const ErrorMessagesTooltip: React.FC<{

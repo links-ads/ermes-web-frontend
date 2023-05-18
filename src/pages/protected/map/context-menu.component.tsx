@@ -1,19 +1,19 @@
 import React, { memo } from 'react'
 import { Popup } from 'react-map-gl'
-import Paper from '@material-ui/core/Paper'
+import Paper from '@mui/material/Paper'
 
-import List from '@material-ui/core/List'
-import ListItemText from '@material-ui/core/ListItemText'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItem from '@material-ui/core/ListItem'
-import Divider from '@material-ui/core/Divider'
-import Add from '@material-ui/icons/Add' // provisional: add item-type specific icons
-import Edit from '@material-ui/icons/Edit'
-import Delete from '@material-ui/icons/Delete'
-import CloseOutlined from '@material-ui/icons/CloseOutlined'
+import List from '@mui/material/List'
+import ListItemText from '@mui/material/ListItemText'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItem from '@mui/material/ListItem'
+import Divider from '@mui/material/Divider'
+import Add from '@mui/icons-material/Add' // provisional: add item-type specific icons
+import Edit from '@mui/icons-material/Edit'
+import Delete from '@mui/icons-material/Delete'
+import CloseOutlined from '@mui/icons-material/CloseOutlined'
 import { ProvisionalFeatureType, ProvisionalOperationType } from './map.contest'
 import { useTranslation } from 'react-i18next'
-import { Info } from '@material-ui/icons'
+import { Info } from '@mui/icons-material'
 
 export type ItemWithType<T = any> = T & { type: string }
 

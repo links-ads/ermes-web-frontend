@@ -1,10 +1,10 @@
 import React from 'react'
-import IconButton from '@material-ui/core/IconButton'
-import Tooltip from '@material-ui/core/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 import styled from 'styled-components'
-// import LayersIcon from '@material-ui/icons/LayersIcon'
-// import {Layers} from '@material-ui/icons'
-import { PlayArrow } from '@material-ui/icons';
+// import LayersIcon from '@mui/icons-material/LayersIcon'
+// import {Layers} from '@mui/icons-material'
+import { PlayArrow } from '@mui/icons-material';
 
 const LayersButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'

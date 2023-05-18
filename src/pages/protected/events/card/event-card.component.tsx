@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
-import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
-import { Card, Collapse, Grid, IconButton } from '@material-ui/core';
+import { Theme, useTheme } from '@mui/material/styles';
+import { Card, Collapse, Grid, IconButton } from '@mui/material';
 
 
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 import clsx from 'clsx';
@@ -13,16 +13,16 @@ import { queryHoveredFeature } from '../../../../common/map/map-common';
 import { getSocialCardStyle, ParsedTweet } from '../../../../utils/utils.common';
 import EventContent from './event-card-content';
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, SOURCE_ID } from '../map/map-init';
+import { makeStyles } from 'tss-react/mui';
 
 export const EventCard = (props) => {
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles(
-            getSocialCardStyle(theme)
-        ));
+    const useStyles = makeStyles()((theme: Theme) =>
+        { return getSocialCardStyle(theme)
+        });
 
 
-    const classes = useStyles();
+    const {classes} = useStyles();
     const [expanded, setExpanded] = useState(false);
     const [featureToHover, setFeatureHover] = useState<{ type: "leaf" | "point" | "cluster" | null, id: string | number | null, source?: string }>({ type: null, id: null })
     const theme = useTheme()

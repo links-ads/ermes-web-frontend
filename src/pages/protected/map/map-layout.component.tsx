@@ -48,16 +48,17 @@ import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.componen
 import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
-import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
-import InfoIcon from '@material-ui/icons/Info'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import { Theme } from '@mui/material/styles'
+import { Button, Collapse, Fab } from '@mui/material'
+import InfoIcon from '@mui/icons-material/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import { PlayerButton } from './map-player/player-button.component'
 import { EntityType } from 'ermes-ts-sdk'
+import { makeStyles } from 'tss-react/mui'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -82,8 +83,8 @@ const GEOJSON_LAYER_IDS = ['clusters', 'unclustered-point']
 // TODO check if memoization is more efficient
 const DEBOUNCE_TIME = 200 // ms
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
+const useStyles = makeStyles()((theme: Theme) =>
+  { return {
     fab: {
       position: 'absolute',
       bottom: '150px',
@@ -120,11 +121,11 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_text: {
       display: 'inline-block'
     }
-  })
+  }}
 )
 
 export function MapLayout(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const [jsonData, setJsonData] = useState<GeoJSON.FeatureCollection>({
     type: 'FeatureCollection',
     features: []

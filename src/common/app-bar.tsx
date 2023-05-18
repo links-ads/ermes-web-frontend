@@ -3,15 +3,15 @@ import React, { memo, useContext, useEffect, useMemo } from 'react'
 import { BrandLogo } from './app-bar-widgets/brand-logo/brand-logo'
 import LanguageSelect from './app-bar-widgets/language-select'
 import ThemeSelect from './app-bar-widgets/theme-select'
-import { getHeader, getSidebarTrigger } from '@mui-treasury/layout'
+import { Header, EdgeTrigger  } from '@mui-treasury/layout'
 import styled from 'styled-components'
 
-import Toolbar from '@material-ui/core/Toolbar'
+import Toolbar from '@mui/material/Toolbar'
 import { AccountWidget } from './app-bar-widgets/account-widget'
 import { TitleWidget } from './app-bar-widgets/title-widget'
 import { Spacer } from './common.components'
-import Close from '@material-ui/icons/Close'
-import Menu from '@material-ui/icons/Menu'
+import Close from '@mui/icons-material/Close'
+import Menu from '@mui/icons-material/Menu'
 import { useUser } from '../state/auth/auth.hooks'
 import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
@@ -20,8 +20,7 @@ import { TeamsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from '../hooks/api-hooks'
 import useAPIHandler from '../hooks/use-api-handler'
 
-const Header = getHeader(styled)
-const SidebarTrigger = getSidebarTrigger(styled)
+// const SidebarTrigger = getSidebarTrigger(styled)
 
 export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: AppBarProps */) {
   const { isAuthenticated } = useUser()
@@ -69,9 +68,9 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
     >
       <Toolbar style={{ paddingLeft: '15px' }}>
         {isAuthenticated ? (
-          <SidebarTrigger sidebarId="left_sidebar">
+          <EdgeTrigger  target={{ anchor: "left", field: "open" }}>
             {({ open }) => (open ? <Close /> : <Menu />)}
-          </SidebarTrigger>
+          </EdgeTrigger>
         ) : (
           <div />
         )}

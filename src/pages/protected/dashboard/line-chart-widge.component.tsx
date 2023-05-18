@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ResponsiveLine } from '@nivo/line'
-import { useTheme } from '@material-ui/core';
+import { useTheme } from '@mui/material';
 import { ChartTooltip } from '../../../common/stats-cards.components';
 import LineChartProps from '../../../models/chart/LineChartProps';
 

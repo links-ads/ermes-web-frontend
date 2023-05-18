@@ -1,11 +1,11 @@
-import { CardActions, CardContent, CardMedia, Chip, IconButton, Typography, useTheme } from "@material-ui/core";
+import { CardActions, CardContent, CardMedia, Chip, IconButton, Typography, useTheme } from "@mui/material";
 import { EntityType } from "ermes-ts-sdk";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { HAZARD_SOCIAL_ICONS } from "../../../../../utils/utils.common";
 import CardWithPopup from "./card-with-popup.component";
 import classes from './report-card.module.scss'
-import LocationOnIcon from '@material-ui/icons/LocationOn'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
 

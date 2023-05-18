@@ -1,15 +1,16 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid';
+import Grid from '@mui/material/Grid';
 
-import Typography from '@material-ui/core/Typography';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Typography from '@mui/material/Typography';
+import LinearProgress from '@mui/material/LinearProgress';
 
-import Paper from '@material-ui/core/Paper';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import Paper from '@mui/material/Paper';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { ResponsivePie } from '@nivo/pie'
 
-import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
+import { Theme, useTheme } from '@mui/material/styles';
+import { makeStyles } from 'tss-react/mui'
 
 import { useTranslation } from 'react-i18next';
 
@@ -20,8 +21,8 @@ const formatNumber = (value) => {
 }
 
 export const VolumeCard = (props) => {
-    const useStyles = makeStyles(() =>
-        createStyles({
+    const useStyles = makeStyles()(() => {
+        return {
             card_root: {
                 marginBottom: '8px',
                 padding: '2px',
@@ -30,9 +31,9 @@ export const VolumeCard = (props) => {
             {
                 fontWeight: 700
             },
-        }));
+        }});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
     const { t } = useTranslation(['social'])
     let textToShow = props.isError ? (<Typography style={{ margin: 4 }} align="left" variant="caption">{t("social:fetch_error")}</Typography>)
         : (<Typography style={{ margin: 4 }} align="right" className={classes.volume_count} variant="h5">{formatNumber(props.value)}</Typography>)
@@ -46,8 +47,8 @@ export const VolumeCard = (props) => {
 }
 
 export const InformativeCard = (props) => {
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) => {
+        return {
             card_root: {
                 marginBottom: '8px',
                 padding: '2px',
@@ -61,9 +62,9 @@ export const InformativeCard = (props) => {
                 height: 10,
                 background: 'black'
             }
-        }));
+        }});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
     const { t } = useTranslation(['social'])
     let cardToShow = props.isLoading ? (<Grid container justifyContent='center'><CircularProgress /> </Grid>) : (props.isError) ?
         (<Typography style={{ margin: 4 }} align="right" variant="caption">{t("social:fetch_error")}</Typography>) :
@@ -94,8 +95,8 @@ export const InformativeCard = (props) => {
 
 
 export const LanguageCard = (props) => {
-    const useStyles = makeStyles(() =>
-        createStyles({
+    const useStyles = makeStyles()(() => {
+        return {
             card_root: {
                 margin: '0px 8px 8px 0px',
                 padding: 1,
@@ -105,9 +106,9 @@ export const LanguageCard = (props) => {
             {
                 fontWeight: 700
             },
-        }));
+        }});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
     return (
         <Paper elevation={6} className={classes.card_root}>
             <Grid container direction='row' justifyContent='space-between' >

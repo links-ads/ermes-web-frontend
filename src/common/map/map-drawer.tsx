@@ -1,12 +1,13 @@
-import { Button, Typography } from '@material-ui/core'
-import Grid from '@material-ui/core/Grid'
+import { Button, Typography } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import React from 'react'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
+import { makeStyles } from 'tss-react/mui'
 
 export const MapHeadDrawer = (props) => {
-  const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+  const useStyles = makeStyles()((theme: Theme) =>
+    { return {
       headerBoldText: {
         fontWeight: 600,
         color: 'white'
@@ -26,9 +27,9 @@ export const MapHeadDrawer = (props) => {
           backgroundColor: 'rgba(255, 255, 255, 0.4)'
         }
       }
-    })
+    }}
   )
-  const classes = useStyles()
+  const {classes} = useStyles()
   const { t } = useTranslation(['social'])
 
   const { coordinates } = props

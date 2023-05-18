@@ -4,16 +4,15 @@ in src\pages\protected\map\map-filters-init.state.ts
  */
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { makeStyles } from '@material-ui/core/styles'
-import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
+import { MuiPickersUtilsProvider, DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 
 import useLanguage from '../../hooks/use-language.hook'
 import DateFnsUtils from '@date-io/date-fns'
-import Accordion from '@material-ui/core/Accordion'
-import AccordionSummary from '@material-ui/core/AccordionSummary'
-import AccordionDetails from '@material-ui/core/AccordionDetails'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import Typography from '@material-ui/core/Typography'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import Typography from '@mui/material/Typography'
 import {
   Checkbox,
   Divider,
@@ -24,17 +23,18 @@ import {
   ListItemSecondaryAction,
   ListItemText,
   useTheme
-} from '@material-ui/core'
+} from '@mui/material'
 
-import InputLabel from '@material-ui/core/InputLabel'
-import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
+import InputLabel from '@mui/material/InputLabel'
+import MenuItem from '@mui/material/MenuItem'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
 import { _MS_PER_DAY, forceFiltersDateRange } from '../../utils/utils.common'
-import ClearIcon from '@material-ui/icons/Clear'
-import TodayIcon from '@material-ui/icons/Today'
+import ClearIcon from '@mui/icons-material/Clear'
+import TodayIcon from '@mui/icons-material/Today'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   tab: {
     margin: '15px',
     marginRight: '0px'
@@ -68,12 +68,12 @@ const useStyles = makeStyles((theme) => ({
     padding: 0,
     paddingRight: 5
   }
-}))
+}})
 
 // Content part for the first tab in the floating filter
 export function Tab1(props) {
   // Import temi and i18n
-  const classes = useStyles()
+  const {classes} = useStyles()
   const theme = useTheme()
   const { dateFormat } = useLanguage()
   const { t } = useTranslation(['labels'])

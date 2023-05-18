@@ -1,12 +1,12 @@
 import React, { MouseEventHandler } from 'react'
-import Button from '@material-ui/core/Button'
-import Dialog, { DialogProps } from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-// import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import { ModalProps } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core'
+import Button from '@mui/material/Button'
+import Dialog, { DialogProps } from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+// import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import { ModalProps } from '@mui/material'
+import { makeStyles } from 'tss-react/mui'
 
 export interface ConfirmDialogProps extends DialogProps {
   title: string
@@ -15,11 +15,11 @@ export interface ConfirmDialogProps extends DialogProps {
   onConfirm: ModalProps['onClose'] & MouseEventHandler<any>
   onCancel: MouseEventHandler<any>
 }
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   confirmButtonStyle: {
     backgroundColor: theme.palette.secondary.main,
   }
-}))
+}})
 export function ConfirmDialog({
   title,
   confirmLabel,
@@ -29,7 +29,7 @@ export function ConfirmDialog({
   onCancel,
   ...dialogProps
 }: React.PropsWithChildren<ConfirmDialogProps>) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   return (
     <Dialog
       {...dialogProps}

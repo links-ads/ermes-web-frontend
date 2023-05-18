@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback, useContext, useMemo } 
 
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks'
 
-import { Card, Slide } from '@material-ui/core'
+import { Card, Slide } from '@mui/material'
 import InteractiveMap, { Layer, Source, NavigationControl } from 'react-map-gl'
 import { MapStyleToggle } from '../../map/map-style-toggle.component'
 import {

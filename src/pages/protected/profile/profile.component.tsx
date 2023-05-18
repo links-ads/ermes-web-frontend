@@ -1,7 +1,7 @@
 import React from 'react'
 import { UserCard } from './user-card.component'
 import { UserBadges } from './user-badges.component';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@mui/material';
 import { UserMedals } from './user-medals.component';
 import { UserLeaderboard } from './user-leaderboard.component';
 import { useUser } from '../../../state/auth/auth.hooks'

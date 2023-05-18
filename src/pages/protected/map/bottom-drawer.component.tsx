@@ -1,8 +1,8 @@
 import React from 'react'
-// import { makeStyles } from '@material-ui/core/styles'
-import Drawer from '@material-ui/core/Drawer'
+// import { makeStyles } from '@mui/material/styles'
+import Drawer from '@mui/material/Drawer'
 
-import { useSidebarCollapse } from '@mui-treasury/layout'
+import { useSidebarAutoCollapse } from '@mui-treasury/layout/hooks/useSidebarAutoCollapse'
 
 // const BottomDrawerHeader = styled.div`
 //   display: flex;
@@ -54,7 +54,7 @@ export function BottomDrawerComponent({
   onCloseButtonClick,
   children
 }: React.PropsWithChildren<BottomDrawerProps>) {
-  const { state } = useSidebarCollapse('left_sidebar')
+  const { state } = useSidebarAutoCollapse('left_sidebar')
   // Compensate left offset
   const { collapsed, open: leftSidebarOpen } = state
   const leftSidebarCollapsedOpen = collapsed && leftSidebarOpen

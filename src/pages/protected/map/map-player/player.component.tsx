@@ -8,21 +8,21 @@ import {
   CardContent,
   Slider,
   CircularProgress
-} from '@material-ui/core'
+} from '@mui/material'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
-import CloseIcon from '@material-ui/icons/Close'
-import LegendIcon from '@material-ui/icons/FilterNone'
-import MetaIcon from '@material-ui/icons/InfoOutlined'
-import PlayArrowIcon from '@material-ui/icons/PlayArrow'
-import PauseIcon from '@material-ui/icons/Pause'
-import SkipNextIcon from '@material-ui/icons/SkipNext'
+import CloseIcon from '@mui/icons-material/Close'
+import LegendIcon from '@mui/icons-material/FilterNone'
+import MetaIcon from '@mui/icons-material/InfoOutlined'
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import SkipNextIcon from '@mui/icons-material/SkipNext'
 import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { AppConfig, AppConfigContext } from '../../../../config'
 import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
-import GetAppIcon from '@material-ui/icons/GetApp'
+import GetAppIcon from '@mui/icons-material/GetApp'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {

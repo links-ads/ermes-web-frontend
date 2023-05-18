@@ -1,8 +1,8 @@
 import { useSnackbar, OptionsObject } from 'notistack'
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import Close from '@material-ui/icons/Close'
-import IconButton from '@material-ui/core/IconButton'
+import Close from '@mui/icons-material/Close'
+import IconButton from '@mui/material/IconButton'
 
 type ErrorType = string | Error | object
 

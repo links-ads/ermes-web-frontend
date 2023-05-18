@@ -1,24 +1,25 @@
 import React from 'react';
 
-import CardHeader from '@material-ui/core/CardHeader';
-import CardContent from '@material-ui/core/CardContent';
-import Avatar from '@material-ui/core/Avatar';
-import Chip from '@material-ui/core/Chip';
-import IconButton from '@material-ui/core/IconButton';
-import TwitterIcon from '@material-ui/icons/Twitter';
-import InfoIcon from '@material-ui/icons/Info';
+import CardHeader from '@mui/material/CardHeader';
+import CardContent from '@mui/material/CardContent';
+import Avatar from '@mui/material/Avatar';
+import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import TwitterIcon from '@mui/icons-material/Twitter';
+import InfoIcon from '@mui/icons-material/Info';
 import { HAZARD_SOCIAL_ICONS, INFORMATIVE_ICONS, ParsedTweet } from '../../../../utils/utils.common'
-import Typography from '@material-ui/core/Typography';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import LocationOnIcon from '@material-ui/icons/LocationOn';
+import Typography from '@mui/material/Typography';
+import { Theme } from '@mui/material/styles';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useTranslation } from 'react-i18next'
 import useLanguage from '../../../../hooks/use-language.hook';
-import { Grid } from '@material-ui/core';
+import { Grid } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
 
 export const TweetContent = (props) => {
 
-    const useStyles = makeStyles((theme: Theme) =>
-        createStyles({
+    const useStyles = makeStyles()((theme: Theme) =>
+        {return {
             content: {
                 margin: '5px',
                 padding: 5,
@@ -26,11 +27,11 @@ export const TweetContent = (props) => {
                     paddingBottom: 0
                 }
             }
-        }));
+        }});
 
     const { t } = useTranslation(['labels'])
 
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const { dateLocale } = useLanguage()
 

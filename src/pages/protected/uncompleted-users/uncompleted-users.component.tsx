@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
-import CheckIcon from '@material-ui/icons/Check'
-import ClearIcon from '@material-ui/icons/Clear'
+import CheckIcon from '@mui/icons-material/Check'
+import ClearIcon from '@mui/icons-material/Clear'
 import { ProfileApiFactory } from 'ermes-ts-sdk'
-import { Chip, makeStyles, Typography } from '@material-ui/core'
+import { Chip, makeStyles, Typography } from '@mui/material'
 import { AdministrationContainer } from '../../../common/common.components'
 
 const options: Options<any> = {

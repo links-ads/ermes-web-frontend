@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 
 /*
 Replaced material-table with material-table/core for teams, organization and users pages because of this bug:
@@ -12,8 +12,8 @@ import MaterialTable, { Column } from '@material-table/core'
 import { forwardRef } from 'react';
 import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { Paper, TextField, Checkbox, FormControlLabel } from '@material-ui/core'
-import { CheckBoxOutlineBlank, CheckBox, Edit } from '@material-ui/icons'
+import { Paper, TextField, Checkbox, FormControlLabel } from '@mui/material'
+import { CheckBoxOutlineBlank, CheckBox, Edit } from '@mui/icons-material'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import {
   TeamsApiAxiosParamCreator,

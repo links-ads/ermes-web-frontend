@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
-import List from '@material-ui/core/List'
+import List from '@mui/material/List'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
 import ItemCounter from './item-counter'
 import SearchBar from '../../../../common/search-bar.component'

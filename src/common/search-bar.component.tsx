@@ -1,5 +1,5 @@
-import { CircularProgress, IconButton, TextField } from "@material-ui/core";
-import SearchIcon from '@material-ui/icons/Search'
+import { CircularProgress, IconButton, TextField } from "@mui/material";
+import SearchIcon from '@mui/icons-material/Search'
 import React from "react";
 import { useTranslation } from "react-i18next";
 import SearchBarProps from "../models/SearchBarProps";

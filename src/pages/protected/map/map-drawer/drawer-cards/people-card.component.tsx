@@ -1,9 +1,9 @@
-import { Box, CardActions, CardContent, IconButton, Typography } from "@material-ui/core";
+import { Box, CardActions, CardContent, IconButton, Typography } from "@mui/material";
 import { EntityType } from "ermes-ts-sdk";
 import React from "react";
 import { FormatDate } from "../../../../../utils/date.utils";
 import CardWithPopup from "./card-with-popup.component";
-import LocationOnIcon from '@material-ui/icons/LocationOn'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
 import classes from './people-card.module.scss'
 import { useTranslation } from "react-i18next";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";

@@ -28,7 +28,7 @@ import MapRequestState, {
 } from '../../../models/mapRequest/MapRequestState'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
-import { CircularProgress } from '@material-ui/core'
+import { CircularProgress } from '@mui/material'
 import useInterval from '../../../hooks/use-interval.hook'
 
 type MapFeature = CulturalProps

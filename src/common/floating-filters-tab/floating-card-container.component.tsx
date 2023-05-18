@@ -3,11 +3,12 @@
 
 import React from 'react'
 import Draggable from 'react-draggable'
-import { Card, makeStyles } from '@material-ui/core'
+import { Card } from '@mui/material'
 import { ResizableBox } from 'react-resizable'
 import { position } from 'polished'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   floatingFilter: {
     position: 'absolute',
     zIndex: 9
@@ -25,10 +26,10 @@ const useStyles = makeStyles((theme) => ({
       cursor: 'se-resize'
     }
   }
-}))
+}})
 
 export default function FloatingCardContainer(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
 
   return (
     <Draggable

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useMapRequestList from '../../../../hooks/use-map-requests-list.hook'
-import List from '@material-ui/core/List'
+import List from '@mui/material/List'
 import ItemCounter from './item-counter'
 import {
   CommunicationRestrictionType,

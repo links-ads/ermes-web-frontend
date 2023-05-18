@@ -1,8 +1,8 @@
 import React, { useMemo, useEffect } from 'react';
 
-import { FormControl, FormHelperText, Grid, IconButton, InputLabel, MenuItem, Select, TextField } from '@material-ui/core'
-import TodayIcon from '@material-ui/icons/Today'
-import ClearIcon from '@material-ui/icons/Clear'
+import { FormControl, FormHelperText, Grid, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import TodayIcon from '@mui/icons-material/Today'
+import ClearIcon from '@mui/icons-material/Clear'
 
 
 import { CoordinatorType } from '../map-dialog.hooks';

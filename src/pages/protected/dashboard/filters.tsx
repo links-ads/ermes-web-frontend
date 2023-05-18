@@ -16,8 +16,8 @@ import {
   Select,
   SvgIcon,
   Typography
-} from '@material-ui/core'
-import { DatePicker, LocaleProvider } from 'antd'
+} from '@mui/material'
+import { DatePicker } from 'antd'
 import { Locale } from 'antd/es/locale-provider'
 import it_IT from 'antd/es/locale/it_IT'
 import en_GB from 'antd/es/locale/en_GB'
@@ -28,13 +28,14 @@ import filterReducer from '../../../common/filters/reducer'
 
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Theme } from '@mui/material/styles'
 import moment from 'moment'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import './filters.css'
-import { ArrowDropDown } from '@material-ui/icons'
+import { ArrowDropDown } from '@mui/icons-material'
 import { EmergencyColorMap } from '../map/api-data/emergency.component'
+import { makeStyles } from 'tss-react/mui'
 
 const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
@@ -43,7 +44,7 @@ export const DashboardFilters = (props) => {
   const { t, i18n } = useTranslation(['social', 'filters', 'labels'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const { datestart, dateend } = filters
-  const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
+  const useStyles = makeStyles()((theme: Theme) => { return getFiltersStyle(theme)})
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
@@ -60,7 +61,7 @@ export const DashboardFilters = (props) => {
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
   const [lastUpdateState, setLastUpdateState] = useState<string>(lastUpdate)
 
-  const classes = useStyles()
+  const {classes} = useStyles()
 
   useEffect(() => {
     setPersonChecked(Person)
@@ -254,7 +255,7 @@ export const DashboardFilters = (props) => {
             <label style={{ display: 'flex', flexDirection: 'column' }}>
               {t('social:starting_date')}
             </label>
-            <LocaleProvider locale={locale}>
+            {/* <LocaleProvider locale={locale}> */}
               <DatePicker
                 id="starting-date"
                 disabledDate={disabledStartDate}
@@ -274,7 +275,7 @@ export const DashboardFilters = (props) => {
               <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
                 {t(`filters:${dateErrorMessage}`)}
               </span>
-            </LocaleProvider>
+            {/* </LocaleProvider> */}
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
             <label style={{ display: 'flex', flexDirection: 'column' }}>

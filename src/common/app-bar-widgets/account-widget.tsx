@@ -1,12 +1,12 @@
 import React from 'react'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
-import Tooltip from '@material-ui/core/Tooltip'
-import IconButton from '@material-ui/core/IconButton'
-import AccountCircle from '@material-ui/icons/AccountCircle'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import AccountCircle from '@mui/icons-material/AccountCircle'
 import { useLogout, useUser } from '../../state/auth/auth.hooks'
 import { useTranslation } from 'react-i18next'
-import { Avatar } from '@material-ui/core'
+import { Avatar } from '@mui/material'
 
 export function AccountWidget() {
   const logout = useLogout()

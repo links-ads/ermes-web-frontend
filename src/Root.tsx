@@ -7,9 +7,9 @@ import { NavDrawer } from './common/drawer/nav-drawer'
 import { ContentRoutes } from './routes/content.routes'
 import { useUser, useUserDataLoading } from './state/auth/auth.hooks'
 import { useSnackbars } from './hooks/use-snackbars.hook'
-import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
-import Backdrop from '@material-ui/core/Backdrop'
-import CircularProgress from '@material-ui/core/CircularProgress'
+import { useSidebarAutoCollapse } from '@mui-treasury/layout/hooks/useSidebarAutoCollapse'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
 import styled from 'styled-components'
 import FiltersContextProvider from './state/filters.context'
 
@@ -22,7 +22,7 @@ const RoutesWrapper = styled.div<{ leftSidebarCollapsed: boolean }>`
 const MainContent = memo(
   function MainContent({ isAuthenticated }: { isAuthenticated: boolean }) {
     const profileLoading = useUserDataLoading()
-    const { state } = useSidebarCollapse('left_sidebar')
+    const { state } = useSidebarAutoCollapse()
     const { collapsed, open } = state
     console.debug('LS', collapsed, open)
     return (

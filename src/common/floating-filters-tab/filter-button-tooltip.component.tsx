@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useTheme } from '@material-ui/core'
+import { useTheme } from '@mui/material'
 import { useMemoryState } from '../../hooks/use-memory-state.hook'
 import { FiltersDescriptorType } from './floating-filter.interface'
 import { useTranslation } from 'react-i18next'

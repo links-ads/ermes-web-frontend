@@ -1,10 +1,10 @@
-import { CircularProgress, Grid, Paper, Typography } from '@material-ui/core';
+import { CircularProgress, Grid, Paper, Typography } from '@mui/material';
 import { useState, useEffect, useRef, useMemo, useContext } from 'react';
 
 import useFilters from '../../../hooks/use-filters.hook'
 import useSocialStat from '../../../hooks/use-social-stats.hook'
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { Theme } from '@mui/material/styles';
 import { PieChartStats, VolumeCard, parseStats } from '../../../common/stats-cards.components';
 
 import { useTranslation } from 'react-i18next'
@@ -18,11 +18,12 @@ import { AppConfig, AppConfigContext } from '../../../config';
 import { filterObjApplyHandler, getDefaultFilterArgs, getSocialDashboardStyle, showMoreSocialData } from '../../../utils/utils.common';
 import { Spiderifier } from '../../../utils/map-spiderifier.utils';
 
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import AppBar from '@mui/material/AppBar';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
 import { TabPanel, a11yProps, handleTabChange } from '../../../common/common.components';
 import { useMemoryState } from '../../../hooks/use-memory-state.hook';
+import { makeStyles } from 'tss-react/mui';
 
 const PAGE_SIZE = 1000
 const MINI_PAGE_SIZE = 20
@@ -30,9 +31,9 @@ const MINI_PAGE_SIZE = 20
 
 const EventsComponent = (props) => {
 
-    const useStyles = makeStyles((theme: Theme) => createStyles(getSocialDashboardStyle(theme)));
+    const useStyles = makeStyles()((theme: Theme) => {return getSocialDashboardStyle(theme)});
 
-    const classes = useStyles();
+    const {classes} = useStyles();
 
     const [eventAnnotations, fetchEvents] = useEventsAnnotations()
     const [filtersState, fetchFilters] = useFilters()

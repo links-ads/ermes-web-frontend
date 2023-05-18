@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import Fab from '@material-ui/core/Fab'
-import AddIcon from '@material-ui/icons/Add'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
+import Fab from '@mui/material/Fab'
+import AddIcon from '@mui/icons-material/Add'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import styled from 'styled-components'
-import Tooltip from '@material-ui/core/Tooltip'
+import Tooltip from '@mui/material/Tooltip'
 import { WidgetType } from './dashboard.config'
 
 const HiddenControls = styled.div`

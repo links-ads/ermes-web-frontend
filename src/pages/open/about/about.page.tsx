@@ -1,10 +1,10 @@
 import React from 'react'
 import packageJson from '../../../../package.json'
 import { useTranslation, Trans } from 'react-i18next'
-import Card from '@material-ui/core/Card'
-import CardHeader from '@material-ui/core/CardHeader'
-import CardContent from '@material-ui/core/CardContent'
-import Typography from '@material-ui/core/Typography'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
+import Typography from '@mui/material/Typography'
 const { version, description } = packageJson
 
 const buildGitSha: string = process.env.REACT_APP_GIT_SHA || ''

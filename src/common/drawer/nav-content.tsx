@@ -1,23 +1,23 @@
-import Divider from '@material-ui/core/Divider'
-import Icon from '@material-ui/core/Icon'
-import List from '@material-ui/core/List'
-import ListItem from '@material-ui/core/ListItem'
-import ListItemIcon from '@material-ui/core/ListItemIcon'
-import ListItemText from '@material-ui/core/ListItemText'
-import Tooltip from '@material-ui/core/Tooltip'
-import AccountCircle from '@material-ui/icons/AccountCircle'
-import Dashboard from '@material-ui/icons/Dashboard'
-import Map from '@material-ui/icons/Map'
-import People from '@material-ui/icons/People'
-import TwitterIcon from '@material-ui/icons/Twitter';
-import CalendarTodayIcon from '@material-ui/icons/CalendarToday';
-import Info from '@material-ui/icons/Info'
-import Settings from '@material-ui/icons/Settings'
-import SupervisedUserCircle from '@material-ui/icons/SupervisedUserCircle'
-import Watch from '@material-ui/icons/Watch'
-import GroupWorkIcon from '@material-ui/icons/GroupWork';
-import PublishIcon from '@material-ui/icons/Publish';
-import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled';
+import Divider from '@mui/material/Divider'
+import Icon from '@mui/material/Icon'
+import List from '@mui/material/List'
+import ListItem from '@mui/material/ListItem'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import Tooltip from '@mui/material/Tooltip'
+import AccountCircle from '@mui/icons-material/AccountCircle'
+import Dashboard from '@mui/icons-material/Dashboard'
+import Map from '@mui/icons-material/Map'
+import People from '@mui/icons-material/People'
+import TwitterIcon from '@mui/icons-material/Twitter';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import Info from '@mui/icons-material/Info'
+import Settings from '@mui/icons-material/Settings'
+import SupervisedUserCircle from '@mui/icons-material/SupervisedUserCircle'
+import Watch from '@mui/icons-material/Watch'
+import GroupWorkIcon from '@mui/icons-material/GroupWork';
+import PublishIcon from '@mui/icons-material/Publish';
+import PersonAddDisabledIcon from '@mui/icons-material/PersonAddDisabled';
 import React, {useMemo} from 'react'
 import { useTranslation } from 'react-i18next'
 import { NavLink } from 'react-router-dom'
@@ -25,7 +25,7 @@ import { useUser } from '../../state/auth/auth.hooks'
 import { UserRole } from 'ermes-ts-sdk'
 import { useSidebarCollapse } from '@mui-treasury/layout/hooks';
 import { controlAccess} from '../../pages/protected/control-access'; 
-import { makeStyles } from '@material-ui/core'
+import { makeStyles } from 'tss-react/mui'
 
 interface INavContentLinkConfig {
   primaryText: string
@@ -55,7 +55,7 @@ const personal: NavContentLinkConfig[] = [
 
 
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   listItemStyle: {
     '&:hover': {
       backgroundColor: theme.palette.background.default,
@@ -199,7 +199,7 @@ export function NavContent() {
   const { t } = useTranslation()
   const { profile } = useUser()
   const { state, /* setCollapsed, */ setOpen } = useSidebarCollapse('left_sidebar')
-  const classes = useStyles()
+  const {classes} = useStyles()
   function onClickItem() {
     if (!state.collapsed) {
       if (state.open) {

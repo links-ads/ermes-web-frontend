@@ -1,10 +1,10 @@
-import { CardActions, CardContent, Chip, IconButton, makeStyles, Typography } from "@material-ui/core";
+import { CardActions, CardContent, Chip, IconButton, makeStyles, Typography } from "@mui/material";
 import { CommunicationScopeType, EntityType } from "ermes-ts-sdk";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import CardWithPopup from "./card-with-popup.component";
 import classes from './communication-card.module.scss'
-import LocationOnIcon from '@material-ui/icons/LocationOn'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
 

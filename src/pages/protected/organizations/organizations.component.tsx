@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import Typography from '@material-ui/core/Typography'
+import Typography from '@mui/material/Typography'
 import MaterialTable, { Column, Options } from 'material-table'
 import { AdministrationContainer } from '../../../common/common.components'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
@@ -17,7 +17,7 @@ import { ROLE_ADMIN } from '../../../App.const'
 import {
   Select,
   MenuItem,
-} from '@material-ui/core'
+} from '@mui/material'
 import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'

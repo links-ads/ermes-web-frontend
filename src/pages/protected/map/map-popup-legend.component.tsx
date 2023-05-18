@@ -9,9 +9,9 @@ import {
   useTheme,
   Box,
   Toolbar
-} from '@material-ui/core'
+} from '@mui/material'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
-import CloseIcon from '@material-ui/icons/Close'
+import CloseIcon from '@mui/icons-material/Close'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {

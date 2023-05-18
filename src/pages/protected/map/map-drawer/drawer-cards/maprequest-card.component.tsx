@@ -1,11 +1,11 @@
-import { Box, CardActions, CardContent, IconButton, Typography } from "@material-ui/core";
+import { Box, CardActions, CardContent, IconButton, Typography } from "@mui/material";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FormatDate } from "../../../../../utils/date.utils";
 import CardWithPopup from "./card-with-popup.component";
-import LocationOnIcon from '@material-ui/icons/LocationOn'
-import DeleteIcon from '@material-ui/icons/Delete'
-import FileCopyIcon from '@material-ui/icons/FileCopy'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
+import DeleteIcon from '@mui/icons-material/Delete'
+import FileCopyIcon from '@mui/icons-material/FileCopy'
 import classes from './maprequest-card.module.scss'
 import { MapRequestDto, MapRequestStatusType } from "ermes-ts-sdk";
 import MapRequestAccordion from "./maprequest-accordion.component";

@@ -1,16 +1,18 @@
 import React from 'react'
-import { getDrawerSidebar, getCollapseBtn, getSidebarContent } from '@mui-treasury/layout'
+import { getDrawerSidebar, getCollapseBtn, SidebarContent as MuiSidebarContent } from '@mui-treasury/layout'
 import styled from 'styled-components'
 
 import { useUser } from '../../state/auth/auth.hooks'
 import { NavContent } from './nav-content'
 import { NavHeader } from './nav-header'
 import { useLocation } from 'react-router'
-import { Theme, createStyles, makeStyles } from '@material-ui/core'
-const SidebarContent = styled(getSidebarContent(styled))`
+import { Theme } from '@mui/material'
+import { makeStyles } from 'tss-react/mui'
+const SidebarContent = styled(MuiSidebarContent)`
 background-color:  ${(props) => props.theme.palette.secondary.contrastText};
 `
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = makeStyles()((theme: Theme) => { 
+  return {
   drawerSidebarContainer: {
     top: 56,
     [theme.breakpoints.up('sm')]: {
@@ -23,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
       top: 56,
     },
   }
-}))
+}})
 
 const DrawerSidebar = getDrawerSidebar(styled)
 const CollapseBtn = styled(getCollapseBtn(styled))`
@@ -44,7 +46,7 @@ export function NavDrawer() {
   const path = location.pathname.split('/')
   path.shift()
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
-  const classes = useStyles()
+  const {classes} = useStyles()
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
       <SidebarContent

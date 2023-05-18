@@ -15,10 +15,10 @@ import {
   RadioGroup,
   Typography,
   useTheme
-} from '@material-ui/core'
-import CloseIcon from '@material-ui/icons/Close'
-import CardContent from '@material-ui/core/CardContent'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+} from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import CardContent from '@mui/material/CardContent'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useTranslation } from 'react-i18next'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 

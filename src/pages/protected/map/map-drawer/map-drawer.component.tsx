@@ -3,15 +3,15 @@
 import React, { useEffect, useMemo, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { makeStyles, useTheme } from '@material-ui/core/styles'
-import Slide from '@material-ui/core/Slide'
+import { CardContent, Grid, IconButton, Typography } from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { makeStyles, useTheme } from '@mui/material/styles'
+import Slide from '@mui/material/Slide'
 import SwipeableViews from 'react-swipeable-views'
-import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import Box from '@material-ui/core/Box'
+import AppBar from '@mui/material/AppBar'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import Box from '@mui/material/Box'
 
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
