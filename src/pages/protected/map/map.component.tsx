@@ -31,6 +31,7 @@ import MapRequestState, {
 import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
+import useInterval from '../../../hooks/use-interval.hook'
 
 type MapFeature = CulturalProps
 
@@ -446,14 +447,7 @@ export function Map() {
   /**
    * when filters are updated then update the map features to show
    */
-  useEffect(() => {
-    setLayerSelection({
-      isMapRequest: NO_LAYER_SELECTED,
-      mapRequestCode: NO_LAYER_SELECTED,
-      dataTypeId: NO_LAYER_SELECTED,
-      multipleLayersAllowed: false,
-      layerClicked: null
-    })    
+  const updateMapFeatures = useCallback(() => {      
     //when filters are applied use the ids[] of the selected teams in the fetchGeoJson call
     let f: any = filtersObj?.filters?.persons
     var arrayOfTeams: number[] | undefined = undefined
@@ -472,7 +466,23 @@ export function Map() {
       //if teams selections is empty reset arrayofteams to the default state (undefined)
       if (arrayOfTeams.length === 0) arrayOfTeams = undefined
     }
-    fetchGeoJson(arrayOfTeams)
+    fetchGeoJson(arrayOfTeams)    
+    const newFilterList = getFilterList(filtersObj)
+    setFilterList(newFilterList)
+    if (!toggleSideDrawer) {
+      setToggleActiveFilterTab(false)
+    }
+    forceUpdate()
+  }, [fetchGeoJson, handleGetLayersCall, layersApiFactory])
+
+  useEffect(() => {
+    setLayerSelection({
+      isMapRequest: NO_LAYER_SELECTED,
+      mapRequestCode: NO_LAYER_SELECTED,
+      dataTypeId: NO_LAYER_SELECTED,
+      multipleLayersAllowed: false,
+      layerClicked: null
+    })  
     handleGetLayersCall(() => {
       return layersApiFactory.layersGetLayers(
         undefined,
@@ -488,12 +498,7 @@ export function Map() {
         }
       )
     })
-    const newFilterList = getFilterList(filtersObj)
-    setFilterList(newFilterList)
-    if (!toggleSideDrawer) {
-      setToggleActiveFilterTab(false)
-    }
-    forceUpdate()
+    updateMapFeatures()    
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
@@ -804,6 +809,11 @@ export function Map() {
     }    
     downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
   }
+
+  // Polling
+  useInterval(()=> {
+    updateMapFeatures()
+  }, appConfig.mapPollingInterval)
 
   const { isLoading: isGeoDataloading} = prepGeoData
   const loader = <div className="full-screen centered"><CircularProgress size={120}/></div>

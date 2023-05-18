@@ -28,10 +28,11 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: 850,
     maxWidth: 450,
-    height: '110%',
+    height: '100%',
     backgroundColor: theme.palette.primary.dark,
     position: 'absolute',
-    zIndex: 99
+    zIndex: 99,
+    top: 56
   },
   indicator: {
     backgroundColor: '#FFF'
