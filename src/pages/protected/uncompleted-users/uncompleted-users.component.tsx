@@ -8,8 +8,9 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import CheckIcon from '@mui/icons-material/Check'
 import ClearIcon from '@mui/icons-material/Clear'
 import { ProfileApiFactory } from 'ermes-ts-sdk'
-import { Chip, makeStyles, Typography } from '@mui/material'
+import { Chip, Typography } from '@mui/material'
 import { AdministrationContainer } from '../../../common/common.components'
+import { makeStyles } from 'tss-react/mui'
 
 const options: Options<any> = {
   sorting: false,
@@ -24,7 +25,7 @@ const options: Options<any> = {
   actionsColumnIndex: -1 // In which position is the actions column, -1 is the last, default is 0
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   chipContainer: {
     width: '100%',
     zIndex: 1
@@ -36,10 +37,10 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     float: 'left'
   }
-}))
+}})
 
 const UncompletedUsersComponent = (props) => {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { language } = i18n
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')

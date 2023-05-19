@@ -13,6 +13,7 @@
     "@fusionauth/typescript-client": "^1.45.0",
     "@mui-treasury/layout": "^5.0.0",
     "@mui/icons-material": "^5.11.16",
+    "@mui/lab": "^5.0.0-alpha.130",
     "@mui/material": "^5.13.0",
     "@mui/x-date-pickers": "^6.4.0",
     "@nivo/line": "^0.83.0",

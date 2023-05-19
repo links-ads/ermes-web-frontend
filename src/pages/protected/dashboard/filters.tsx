@@ -18,7 +18,7 @@ import {
   Typography
 } from '@mui/material'
 import { DatePicker } from 'antd'
-import { Locale } from 'antd/es/locale-provider'
+// import { Locale } from 'antd/es/locale-provider'
 import it_IT from 'antd/es/locale/it_IT'
 import en_GB from 'antd/es/locale/en_GB'
 
@@ -29,6 +29,7 @@ import filterReducer from '../../../common/filters/reducer'
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
 import { Theme } from '@mui/material/styles'
+import dayjs from 'dayjs';
 import moment from 'moment'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
@@ -262,11 +263,11 @@ export const DashboardFilters = (props) => {
                 disabledTime={disableStartDateTime}
                 onChange={updateStartDate}
                 showTime={{
-                  defaultValue: moment(moment(filters.datestart), 'HH:mm'),
+                  defaultValue: dayjs(dayjs(filters.datestart), 'HH:mm'),
                   format: 'HH:mm'
                 }}
-                defaultValue={moment(filters.datestart)}
-                value={moment(filters.datestart)}
+                defaultValue={dayjs(filters.datestart)}
+                value={dayjs(filters.datestart)}
                 allowClear
                 format="ddd DD MMMM YYYY - HH:mm"
                 style={{ width: '280px' }}
@@ -281,18 +282,18 @@ export const DashboardFilters = (props) => {
             <label style={{ display: 'flex', flexDirection: 'column' }}>
               {t('social:end_date')}
             </label>
-            <LocaleProvider locale={locale}>
+            {/* <LocaleProvider locale={locale}> */}
               <DatePicker
                 id="end-date"
                 disabledDate={disabledEndDate}
                 disabledTime={disableEndDateTime}
                 onChange={updateEndDate}
                 showTime={{
-                  defaultValue: moment(moment(filters.dateend), 'HH:mm'),
+                  defaultValue: dayjs(dayjs(filters.dateend), 'HH:mm'),
                   format: 'HH:mm'
                 }}
-                defaultValue={moment(filters.dateend)}
-                value={moment(filters.dateend)}
+                defaultValue={dayjs(filters.dateend)}
+                value={dayjs(filters.dateend)}
                 allowClear
                 format="ddd DD MMMM YYYY - HH:mm"
                 style={{ width: '280px' }}
@@ -301,7 +302,7 @@ export const DashboardFilters = (props) => {
               <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
                 {t(`filters:${dateErrorMessage}`)}
               </span>
-            </LocaleProvider>
+            {/* </LocaleProvider> */}
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
             <Button

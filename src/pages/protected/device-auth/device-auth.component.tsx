@@ -15,7 +15,7 @@ import Avatar from '@mui/material/Avatar'
 import { useTheme } from '@mui/material'
 import Watch from '@mui/icons-material/Watch'
 import Clear from '@mui/icons-material/Clear'
-import { Link, useHistory, useLocation } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useStorage } from 'react-storage-hook'
 import { cryptoRandomString, oauthStateName } from '../../../oauth/react-oauth2-hook-mod'
 
@@ -164,7 +164,7 @@ export function DeviceAuth({ searchString }: DeviceAuthProps) {
 
   const initialUserCode = deviceVerified ? '' : (initialParams.user_code as string) || ''
   const [userCode, setUserCode] = useState<string>(initialUserCode)
-  const history = useHistory()
+  const history = useNavigate()
   const location = useLocation()
   const [error, setError] = useState<Error | null>(null)
 

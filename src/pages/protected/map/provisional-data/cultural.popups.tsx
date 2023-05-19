@@ -23,7 +23,7 @@ export const CulturalHoverPopup = memo(
   function CulturalHoverPopup({ point }: { point: CulturalCardProps | null }) {
     return point ? (
       <Popup
-        tipSize={5}
+        // tipSize={5} TODO remove
         anchor="top"
         longitude={point.longitude}
         latitude={point.latitude}

@@ -1,4 +1,4 @@
-import { CardActions, CardContent, Chip, IconButton, makeStyles, Typography } from "@mui/material";
+import { CardActions, CardContent, Chip, IconButton, Typography } from "@mui/material";
 import { CommunicationScopeType, EntityType } from "ermes-ts-sdk";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -7,8 +7,9 @@ import classes from './communication-card.module.scss'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
+import { makeStyles } from "tss-react/mui";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   chipStyle: {
     marginBottom: 10,
     marginRight: '10px',
@@ -16,12 +17,12 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.primary.dark,
     color: theme.palette.primary.contrastText
   }
-}))
+}})
 
 const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
-  const style = useStyles()
+  const { classes: styleClasses } = useStyles()
 
   const lowerBoundDate = FormatDate(elem.duration?.lowerBound)
   const upperBoundDate = FormatDate(elem.duration?.upperBound)
@@ -68,7 +69,7 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
             }
             color="primary"
             size="small"
-            className={style.chipStyle}
+            className={styleClasses.chipStyle}
           />
 
           <>
@@ -78,7 +79,7 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
                 label={t('labels:' + elem.restriction.toLowerCase())}
                 color="primary"
                 size="small"
-                className={style.chipStyle}
+                className={styleClasses.chipStyle}
               />
             ) : null}
           </>

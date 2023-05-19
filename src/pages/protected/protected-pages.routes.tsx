@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import qs from 'querystring'
-import { Switch, Route, Redirect, RouteChildrenProps } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NotFoundPage } from '../open/not-found.page'
 import { UnAuthorizedPage } from '../open/unauthorized.page'
@@ -96,8 +96,8 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
   )
 
   return profile ? (
-    <Switch location={location}>
-      <Redirect from="/" exact={true} to={profile.defaultLandingPage} />
+    <Routes location={location}>
+      <Navigate from="/" exact={true} to={profile.defaultLandingPage} />
       <Route
         path={'/profile'}
         render={({ location }) => {
@@ -343,12 +343,12 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         render={(props) => (
           <Container className="full flex container" maxWidth="sm">
-            <NotFoundPage {...props} />
+            <NotFoundPage />
           </Container>
         )}
       />
-    </Switch>
+    </Routes>
   ) : (
-    <Redirect to={originalURL ? '/login?' + originalURL : '/login'} from={originalURL} />
+    <Navigate to={originalURL ? '/login?' + originalURL : '/login'} from={originalURL} />
   )
 }

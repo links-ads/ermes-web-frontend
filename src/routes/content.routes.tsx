@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, useLocation } from 'react-router-dom'
 import { OAuthCallback } from '../oauth/react-oauth2-hook-mod'
 import { AuthenticationPages } from '../pages/open/authentication/authentication-pages.component'
 import { ProtectedPages } from '../pages/protected/protected-pages.routes'
@@ -12,6 +12,7 @@ import { TermsOfUsePage} from '../pages/open/termsofuse/termsofuse.page'
 
 // http://localhost:3000/device-verification?user_code=JTXHXS
 export function ContentRoutes() {
+  let location = useLocation()
   return (
     <Switch>
       <Route path="/device-auth" exact={false} render={(props) => <ProtectedPages {...props} />} />
@@ -43,24 +44,24 @@ export function ContentRoutes() {
         </Container>
       </Route>
       <Route path="/privacy" exact={true}>
-        <Container className="full flex container" >
+        <Container className="full flex container">
           <PrivacyPage />
         </Container>
       </Route>
       <Route path="/termsofuse" exact={true}>
-        <Container className="full flex container" >
+        <Container className="full flex container">
           <TermsOfUsePage />
         </Container>
       </Route>
       {/* By default will try go to /dashboard */}
-      <Route path="/" exact={false} render={(props) => <ProtectedPages {...props} />} />
+      <Route path="/" element={(props) => <ProtectedPages {...props} />} />
       <Route
         path="*"
-        render={(props) => (
+        element={
           <Container className="full flex container" maxWidth="sm">
-            <NotFoundPage {...props} />
+            <NotFoundPage />
           </Container>
-        )}
+        }
       />
     </Switch>
   )

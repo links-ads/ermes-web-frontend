@@ -8,10 +8,10 @@ import ClearIcon from '@mui/icons-material/Clear'
 import { CoordinatorType } from '../map-dialog.hooks';
 
 import {
-    MuiPickersUtilsProvider,
+    // MuiPickersUtilsProvider,
     DateTimePicker
-} from '@material-ui/pickers'
-import DateFnsUtils from '@date-io/date-fns'
+} from '@mui/x-date-pickers/DateTimePicker'
+// import DateFnsUtils from '@date-io/date-fns'
 
 import useLanguage from '../../../../hooks/use-language.hook';
 import { useTranslation } from 'react-i18next';
@@ -91,44 +91,44 @@ export function MissionDialog(
                 />
             </Grid>
             <Grid container direction='row'>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                {/* <MuiPickersUtilsProvider utils={DateFnsUtils}> */}
                     <DateTimePicker
-                        style={{ paddingTop: 0, marginTop: 0 }}
-                        variant="inline"
+                        // style={{ paddingTop: 0, marginTop: 0 }} // TODO remove 
+                        // variant="inline" // TODO remove 
                         format={dateFormat}
-                        margin="normal"
-                        id="start-date-picker-inline"
+                        // margin="normal" // TODO remove
+                        // id="start-date-picker-inline" // TODO remove
                         label={t('common:date_picker_test_start')}
                         value={editState.startDate}
                         onChange={d => dispatchEditAction({ type: 'START_DATE', value: d as Date })}
                         disableFuture={false}
-                        autoOk={true}
+                        // autoOk={true} // TODO remove 
                         ampm={false}
-                        clearable={true}
-                        InputProps={{
-                            endAdornment: endAdornment
-                        }}
+                        // clearable={true} // TODO remove
+                        // InputProps={{ // TODO fix
+                        //     endAdornment: endAdornment
+                        // }}
                     />
                     <DateTimePicker
-                        style={{ paddingTop: 0, marginTop: 0 }}
-                        variant="inline"
+                        // style={{ paddingTop: 0, marginTop: 0 }} // TODO remove
+                        // variant="inline" // TODO remove 
                         format={dateFormat}
-                        margin="normal"
-                        id="end-date-picker-inline"
+                        // margin="normal" // TODO remove 
+                        // id="end-date-picker-inline" // TODO remove 
                         label={t('common:date_picker_test_end')}
                         value={editState.endDate}
                         onChange={d => dispatchEditAction({ type: 'END_DATE', value: d as Date })}
                         disableFuture={false}
-                        autoOk={true}
+                        // autoOk={true} // TODO remove 
                         ampm={false}
-                        error={editError && !editState.endDate}
-                        helperText={editError && !editState.endDate && t("maps:mandatory_field")}
-                        minDate={editState.startDate}
-                        InputProps={{
-                            endAdornment: endAdornment
-                        }}
+                    //     error={editError && !editState.endDate}
+                    //     helperText={editError && !editState.endDate && t("maps:mandatory_field")} // TODO fix
+                    //     minDate={editState.startDate} // TODO fix
+                    //     InputProps={{ // TODO fix
+                    //         endAdornment: endAdornment
+                    //     }}
                     />
-                </MuiPickersUtilsProvider>
+                {/* </MuiPickersUtilsProvider> */}
                 <Grid item style={{ marginLeft: 16, flex: 1 }} >
                     <FormControl margin='normal' style={{ minWidth: '50%' }} disabled={operationType === 'create'}>
                         <InputLabel id='select-mission-status-label'>{t("labels:status")}</InputLabel>

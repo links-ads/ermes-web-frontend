@@ -4,10 +4,10 @@ in src\pages\protected\map\map-filters-init.state.ts
  */
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { MuiPickersUtilsProvider, DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 
 import useLanguage from '../../hooks/use-language.hook'
-import DateFnsUtils from '@date-io/date-fns'
+// import DateFnsUtils from '@date-io/date-fns' // TODO remove
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -154,57 +154,57 @@ export function Tab1(props) {
   return (
     <div className={classes.tab}>
       <div>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        {/* <MuiPickersUtilsProvider utils={DateFnsUtils}> */}
           <span>
             {/* Date pickers */}
             {filters.datestart ? (
               <DateTimePicker
-                style={{ paddingTop: 0, marginTop: 0 }}
+                // style={{ paddingTop: 0, marginTop: 0 }} TODO remove
                 // disableToolbar
-                variant="inline"
+                // variant="inline" TODO remove
                 format={dateFormat}
-                margin="normal"
-                id="start-date-picker-inline"
+                // margin="normal" TODO remove
+                // id="start-date-picker-inline" // TODO remove
                 label={t('common:date_picker_test_start')}
                 value={selectedStartDate}
-                onChange={handleStartDateChange}
+                onChange={(date, e) => handleStartDateChange}
                 // maxDate={selectedEndDate}
                 disableFuture={false}
-                autoOk={true}
+                // autoOk={true} // TODO remove
                 ampm={false}
                 className={classes.datePicker}
-                clearable={true}
-                InputProps={{
-                  endAdornment:
-                    filters.datestart.clear && selectedStartDate != null ? (
-                      <IconButton
-                        onClick={(e) => handleStartDateChange(null, e)}
-                        className={classes.clearButton}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    ) : (
-                      <IconButton className={classes.clearButton}>
-                        <TodayIcon />
-                      </IconButton>
-                    )
-                }}
+                // clearable={true} // TODO remove 
+                // InputProps={{ // TODO fix
+                //   endAdornment:
+                //     filters.datestart.clear && selectedStartDate != null ? (
+                //       <IconButton
+                //         onClick={(e) => handleStartDateChange(null, e)}
+                //         className={classes.clearButton}
+                //       >
+                //         <ClearIcon />
+                //       </IconButton>
+                //     ) : (
+                //       <IconButton className={classes.clearButton}>
+                //         <TodayIcon />
+                //       </IconButton>
+                //     )
+                // }}
               />
             ) : null}
             {filters.dateend ? (
               <DateTimePicker
-                style={{ paddingTop: 0, marginTop: 0 }}
+                // style={{ paddingTop: 0, marginTop: 0 }} // TODO remove
                 // disableToolbar
-                variant="inline"
+                // variant="inline" // TODO remove
                 format={dateFormat}
-                margin="normal"
-                id="end-date-picker-inline"
+                // margin="normal" // TODO remove
+                // id="end-date-picker-inline" // TODO remove
                 label={t('common:date_picker_test_end')}
                 value={selectedEndDate}
                 onChange={(d)=>handleEndDateChange(d,null,props.filters,
                   props.setFilters,setEndDate)}
                 disableFuture={false}
-                autoOk={true}
+                // autoOk={true} // TODO remove
                 ampm={false}
                 minDate={selectedStartDate}
                 maxDate={
@@ -215,27 +215,27 @@ export function Tab1(props) {
                       )
                     : undefined
                 }
-                InputProps={{
-                  endAdornment:
-                    filters.dateend.clear && selectedEndDate != null ? (
-                      <IconButton
-                        onClick={(e) => handleEndDateChange(null, e,props.filters,
-                          props.setFilters,setEndDate)}
-                        className={classes.clearButton}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    ) : (
-                      <IconButton className={classes.clearButton}>
-                        <TodayIcon />
-                      </IconButton>
-                    )
-                }}
+                // InputProps={{ // TODO fix
+                //   endAdornment:
+                //     filters.dateend.clear && selectedEndDate != null ? (
+                //       <IconButton
+                //         onClick={(e) => handleEndDateChange(null, e,props.filters,
+                //           props.setFilters,setEndDate)}
+                //         className={classes.clearButton}
+                //       >
+                //         <ClearIcon />
+                //       </IconButton>
+                //     ) : (
+                //       <IconButton className={classes.clearButton}>
+                //         <TodayIcon />
+                //       </IconButton>
+                //     )
+                // }}
                 className={classes.datePicker}
               />
             ) : null}
           </span>
-        </MuiPickersUtilsProvider>
+        {/* </MuiPickersUtilsProvider> */}
       </div>
       <br />
       {Object.keys(filters).map((widget, i) => {

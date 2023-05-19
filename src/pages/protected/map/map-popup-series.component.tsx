@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { Card, makeStyles, AppBar, Typography, IconButton, CardContent, useTheme, Box, Toolbar, CircularProgress, Grid } from '@mui/material'
+import { Card, AppBar, Typography, IconButton, CardContent, useTheme, Box, Toolbar, CircularProgress, Grid } from '@mui/material'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@mui/icons-material/Close'
 import { LineChartWidget } from '../dashboard/line-chart-widge.component'
@@ -9,8 +9,9 @@ import LineChartProps, { LineChartData, PointChartData } from '../../../models/c
 import { geojsonToWKT } from "@terraformer/wkt"
 import { AppConfig, AppConfigContext } from '../../../config'
 import { useTranslation } from 'react-i18next'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
     titleContainer: {
         width: '90%',
         paddingTop: 11,
@@ -22,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
         paddingBottom: 11,
 
     }
-}))
+}})
 
 export default function MapTimeSeries(props) {
     const theme = useTheme()

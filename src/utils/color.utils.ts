@@ -10,9 +10,9 @@ import {
   teal,
   lime,
   pink
-} from '@material-ui/core/colors'
+} from '@mui/material/colors'
 import { intInRange } from './number.utils'
-import createPalette from '@material-ui/core/styles/createPalette'
+import createPalette from '@mui/material/styles/createPalette'
 
 const colors = [blue, green, red, deepOrange, deepPurple, cyan, amber, indigo, teal, lime, pink]
 

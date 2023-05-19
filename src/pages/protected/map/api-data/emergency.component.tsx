@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography'
-import { Chip, IconButton, useTheme } from '@mui/material'
+import { Chip, IconButton, Theme, useTheme } from '@mui/material'
 // import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
 import green from '@mui/material/colors/green'
@@ -11,8 +11,7 @@ import blueGrey from '@mui/material/colors/blueGrey'
 // import pink from '@mui/material/colors/pink'
 // import purple from '@mui/material/colors/purple'
 import orange from '@mui/material/colors/orange'
-import { makeStyles } from '@mui/material/styles'
-import CardContent from '@mui/materialdContent'
+import CardContent from '@mui/material/CardContent'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -39,8 +38,9 @@ import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 import { CommunicationScopeType } from 'ermes-ts-sdk'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { yellow } from '@mui/material/colors'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme: Theme) => { return {
   root: {
     minWidth: 275
   },
@@ -95,7 +95,7 @@ const useStyles = makeStyles((theme) => ({
     float: 'left',
     marginRight: '5px'
   }
-}))
+}})
 const mapRequestCard = (
   details,
   classes,
@@ -808,7 +808,7 @@ export function EmergencyHoverCardContent({
   type,
   organizationName
 }: EmergencyProps) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const { t } = useTranslation(['maps'])
   return (
     // <Card className={classes.root} variant="outlined">
@@ -892,7 +892,7 @@ export function EmergencyContent({
   creator,
   ...rest
 }: EmergencyPropsWithLocation) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const theme = useTheme()
   const { t } = useTranslation(['common', 'maps', 'labels'])
   const [repDetails, fetchRepDetails] = useReportById()

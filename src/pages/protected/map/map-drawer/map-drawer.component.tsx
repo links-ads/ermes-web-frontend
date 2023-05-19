@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { makeStyles, useTheme } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 import Slide from '@mui/material/Slide'
 import SwipeableViews from 'react-swipeable-views'
 import AppBar from '@mui/material/AppBar'
@@ -23,8 +23,9 @@ import useAPIHandler from '../../../../hooks/use-api-handler';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
 import LayerDefinition from '../../../../models/layers/LayerDefinition';
 import { FiltersContext } from '../../../../state/filters.context';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   root: {
     width: 850,
     maxWidth: 450,
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     display: 'none', 
     visibility: 'hidden'
   }  
-}))
+}})
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -74,7 +75,7 @@ function a11yProps(index: any) {
 }
 
 export default function MapDrawer(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const theme = useTheme()
   const { t } = useTranslation('maps')
   const {

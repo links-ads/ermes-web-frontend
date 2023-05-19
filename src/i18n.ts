@@ -24,7 +24,7 @@ export function init18N(isProduction: boolean, config?: i18NextConfig): Promise<
           loadPath: `${staticAssetsUrl}locales/{{lng}}/{{ns}}.json`
         },
         react: {
-          wait: true,
+          // wait: true, // TODO fix?
           useSuspense: true
         }
       },

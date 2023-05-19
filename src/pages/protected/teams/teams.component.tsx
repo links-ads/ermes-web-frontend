@@ -14,7 +14,7 @@ import { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { Paper, TextField, Checkbox, FormControlLabel } from '@mui/material'
 import { CheckBoxOutlineBlank, CheckBox, Edit } from '@mui/icons-material'
-import Autocomplete from '@material-ui/lab/Autocomplete';
+import Autocomplete from '@mui/lab/Autocomplete';
 import {
   TeamsApiAxiosParamCreator,
   TeamsApiFactory,

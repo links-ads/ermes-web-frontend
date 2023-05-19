@@ -1,7 +1,7 @@
 import { Action } from 'redux'
 import { PREFERENCES_ACTIONS } from './preferences.actions'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { Theme } from '@material-ui/core'
+import { Theme } from '@mui/material'
 
 export interface PreferencesState {
   uiTheme: Theme | null

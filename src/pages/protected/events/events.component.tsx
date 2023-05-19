@@ -31,7 +31,7 @@ const MINI_PAGE_SIZE = 20
 
 const EventsComponent = (props) => {
 
-    const useStyles = makeStyles()((theme: Theme) => {return getSocialDashboardStyle(theme)});
+    const useStyles = makeStyles()((theme: Theme) => { return getSocialDashboardStyle(theme) });
 
     const {classes} = useStyles();
 

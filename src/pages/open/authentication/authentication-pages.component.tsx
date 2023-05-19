@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Redirect, RouteChildrenProps } from 'react-router-dom'
+import { Route, Navigate, RouteChildrenProps } from 'react-router-dom'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { AuthenticationCard } from './authentication-card.component'
 import qs from 'qs'
@@ -27,7 +27,7 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
     localStorage.removeItem('memstate-event')
   }
   return isAuthenticated ? (
-    <Redirect to={destination} from={match ? match.url : undefined} />
+    <Navigate to={destination} from={match ? match.url : undefined} />
   ) : (
     <Route path="/login">
       <AuthenticationCard />

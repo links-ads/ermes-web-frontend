@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  makeStyles,
   AppBar,
   Typography,
   IconButton,
@@ -15,8 +14,9 @@ import {
 } from '@mui/material'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@mui/icons-material/Close'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   titleContainer: {
     width: '90%',
     paddingTop: 11,
@@ -27,10 +27,10 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 11,
     paddingBottom: 11
   }
-}))
+}})
 
 export function PlayerMetadata(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const theme = useTheme()
 
   const [dim, setDim] = useState({

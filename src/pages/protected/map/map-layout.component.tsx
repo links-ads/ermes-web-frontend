@@ -1,11 +1,10 @@
 import React, { useState, useRef, useContext, useEffect, useCallback, useMemo } from 'react'
-import {
+import InteractiveMap, {
   GeolocateControl,
   NavigationControl,
   ScaleControl,
   Source,
   Layer,
-  InteractiveMap,
   PointerEvent,
   ExtraState
 } from 'react-map-gl'
@@ -824,7 +823,7 @@ export function MapLayout(props) {
         {/* Map controls */}
         <GeolocateControl
           // ref={geolocationControlsRef}
-          label={t('maps:show_my_location')}
+          // label={t('maps:show_my_location')} TODO remove
           style={geolocateStyle}
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}

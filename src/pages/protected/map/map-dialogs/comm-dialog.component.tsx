@@ -3,11 +3,11 @@ import React, { useEffect, useMemo } from 'react';
 import { Grid, IconButton,TextField,FormControl,InputLabel, MenuItem, Select, FormHelperText } from '@mui/material'
 import TodayIcon from '@mui/icons-material/Today'
 
-import DateFnsUtils from '@date-io/date-fns'
+// import DateFnsUtils from '@date-io/date-fns'
 import {
-    MuiPickersUtilsProvider,
+    // MuiPickersUtilsProvider,
     DateTimePicker
-} from '@material-ui/pickers'
+} from '@mui/x-date-pickers/DateTimePicker'
 
 
 import useLanguage from '../../../../hooks/use-language.hook';
@@ -60,44 +60,44 @@ export function CommunicationDialog(
     return (
       <Grid container direction="column">
         <Grid container direction="row">
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+          {/* <MuiPickersUtilsProvider utils={DateFnsUtils}> */}
             <DateTimePicker
-              style={{ paddingTop: 0, marginTop: 0 }}
-              variant="inline"
+              // style={{ paddingTop: 0, marginTop: 0 }}  // TODO remove
+              // variant="inline" // TODO remove
               format={dateFormat}
-              margin="normal"
-              id="start-date-picker-inline"
+              // margin="normal" // TODO remove
+              // id="start-date-picker-inline" // TODO remove
               label={t('common:date_picker_test_start')}
               value={editState.startDate}
               onChange={(d) => dispatchEditAction({ type: 'START_DATE', value: d as Date })}
               disableFuture={false}
-              autoOk={true}
+              // autoOk={true} // TODO remove
               ampm={false}
-              clearable={true}
-              InputProps={{
-                endAdornment: endAdornment
-              }}
+              // clearable={true} // TODO remove
+              // InputProps={{ // // TODO fix
+              //   endAdornment: endAdornment
+              // }}
             />
             <DateTimePicker
-              style={{ paddingTop: 0, marginTop: 0 }}
-              variant="inline"
+              // style={{ paddingTop: 0, marginTop: 0 }} // TODO remove
+              // variant="inline" // TODO remove
               format={dateFormat}
-              margin="normal"
-              id="end-date-picker-inline"
+              // margin="normal" // TODO remove 
+              // id="end-date-picker-inline" // TODO remove 
               label={t('common:date_picker_test_end')}
               value={editState.endDate}
               onChange={(d) => dispatchEditAction({ type: 'END_DATE', value: d as Date })}
               disableFuture={false}
-              autoOk={true}
+              // autoOk={true} // TODO remove 
               ampm={false}
-              error={editError}
-              helperText={editError && !editState.endDate && t('maps:mandatory_field')}
+              // error={editError} // TODO fix
+              // helperText={editError && !editState.endDate && t('maps:mandatory_field')} // TODO fix
               minDate={editState.startDate}
-              InputProps={{
-                endAdornment: endAdornment
-              }}
+              // InputProps={{ // TODO fix
+              //   endAdornment: endAdornment
+              // }}
             />
-          </MuiPickersUtilsProvider>
+          {/* </MuiPickersUtilsProvider> */}
         </Grid>
         <Grid container style={{ marginBottom: 16, width: '100%' }}>
           <FormControl margin="normal" style={{ minWidth: '30%', marginRight: '10px' }}>

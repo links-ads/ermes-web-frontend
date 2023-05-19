@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { InteractiveMap, Source, Layer, NavigationControl } from 'react-map-gl';
+import InteractiveMap, { Source, Layer, NavigationControl } from 'react-map-gl';
 import { useMapPreferences } from '../../../../state/preferences/preferences.hooks';
 import { MapStyleToggle } from '../../map/map-style-toggle.component';
 import MapSlide from '../../../../common/map/map-popup-card';

@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Theme, Typography } from '@mui/material';
 import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
 import React from 'react';
 import { FiltersSocialType, FiltersType } from '../common/filters/reducer';
@@ -66,7 +66,7 @@ export const getSocialCardStyle = (theme) => {
   }
 }
 
-export const getSocialDashboardStyle = (theme) => {
+export const getSocialDashboardStyle = (theme: Theme) => {
   return {
     tweetsStatContainer: {
       padding: '8px',
@@ -80,7 +80,7 @@ export const getSocialDashboardStyle = (theme) => {
       minHeight: 200,
       width: '100%',
       position: 'relative'
-    } as import('@material-ui/styles').CSSProperties,
+    } as import('@mui/material/styles').CSSObject,
     tweetsListContainer: {
       margin: '16px 8px 8px 0px',
       maxWidth: '30vw'

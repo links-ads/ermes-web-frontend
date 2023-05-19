@@ -32,7 +32,7 @@ export const EmergencyHoverPopup = memo(
     console.log('Point info look at me', point)
     return point ? (
       <Popup
-        tipSize={5}
+        // tipSize={5} TODO remove
         anchor="top"
         longitude={point.longitude}
         latitude={point.latitude}

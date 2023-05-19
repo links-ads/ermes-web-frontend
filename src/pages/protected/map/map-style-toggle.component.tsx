@@ -3,11 +3,11 @@ import Avatar from '@mui/material/Avatar'
 import styled from 'styled-components'
 import Tooltip from '@mui/material/Tooltip'
 import { useMapPreferences } from '../../../state/preferences/preferences.hooks'
-import SpeedDial, { SpeedDialProps } from '@material-ui/lab/SpeedDial'
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
-import SpeedDialAction from '@material-ui/lab/SpeedDialAction'
+import SpeedDial, { SpeedDialProps } from '@mui/lab/SpeedDial'
+import SpeedDialIcon from '@mui/lab/SpeedDialIcon'
+import SpeedDialAction from '@mui/lab/SpeedDialAction'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
-import { InteractiveMap } from 'react-map-gl'
+import InteractiveMap from 'react-map-gl'
 
 const MapStyleToggleContainer = styled.div.attrs({
   className: 'map-style-toggle-container'
@@ -44,7 +44,7 @@ const MapStyleToggleContainer = styled.div.attrs({
 `
 
 interface RefProps {
-  mapViewRef: React.RefObject<InteractiveMap>
+  mapViewRef: React.RefObject<mapboxgl.Map>
   spiderifierRef: React.MutableRefObject<Spiderifier | null>
   onMapStyleChange
   mapChangeSource: number

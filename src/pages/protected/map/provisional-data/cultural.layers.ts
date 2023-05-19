@@ -2,7 +2,7 @@ import { LayerProps } from 'react-map-gl'
 import { CulturalColorMap, BeniType } from './cultural.component'
 import { donutChartHTML } from '../../../../utils/mapbox-marker.utils'
 import { Marker } from 'mapbox-gl'
-// import yellow from '@material-ui/core/colors/yellow'
+// import yellow from '@mui/material/colors/yellow'
 
 const HOVERED_PIN = 'hovered-pin'
 

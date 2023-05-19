@@ -1,5 +1,5 @@
 import { contrastColor } from '../../../utils/color.utils'
-import yellow from '@material-ui/core/colors/yellow'
+import yellow from '@mui/material/colors/yellow'
 
 export type SVGPinPointStyle = 'standard' | 'old-fashioned'
 // ADD any strange pin shape here

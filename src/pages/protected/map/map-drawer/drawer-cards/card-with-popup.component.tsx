@@ -2,20 +2,20 @@ import React, { useState } from 'react'
 import Card from '@mui/material/Card'
 import { queryHoveredFeature } from '../../../../../common/map/map-common'
 import { updatePointFeatureLayerIdFilter } from '../../../../../utils/map.utils'
-import { makeStyles } from '@mui/material/styles'
+import { makeStyles } from 'tss-react/mui'
 
 const CLUSTER_LAYER_ID = 'clusters'
 const SOURCE_ID = 'emergency-source'
 const GEOJSON_LAYER_IDS = 'unclustered-point'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   root: {
     '&:hover > *': {
         boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.08)',
         cursor: 'pointer'
     },
   }
-}))
+} })
 
 export default function CardWithPopup(props) {
   const map = props.map
@@ -24,7 +24,7 @@ export default function CardWithPopup(props) {
     id: string | number | null
     source?: string
   }>({ type: null, id: null })
-  const classes = useStyles()
+  const {classes} = useStyles()
 
   return (
     <Card

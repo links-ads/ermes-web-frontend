@@ -13,10 +13,10 @@ import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { Chip, ListItemText, MenuItem, OutlinedInput, Select } from '@mui/material'
 import useRolesList from '../../../hooks/use-roles.hook'
 import { RoleDto } from 'ermes-backoffice-ts-sdk'
-import { makeStyles } from '@mui/material/styles'
 import { ClassNameMap } from '@mui/material/styles/withStyles'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
+import { makeStyles } from 'tss-react/mui'
 
 const options: Options<any> = {
   sorting: true,
@@ -27,7 +27,7 @@ const options: Options<any> = {
   maxBodyHeight: '63vh',
   minBodyHeight: '63vh'
 }
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   chipContainer: {
     width: '100%',
     zIndex: 1
@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
     position: 'relative',
     float: 'left'
   }
-}))
+}})
 
 function localizeColumns(
   t: TFunction,
@@ -151,7 +151,7 @@ function localizeColumns(
 }
 
 export function Users() {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const { isOrgLoading, orgLookup } = useOrgList()
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')

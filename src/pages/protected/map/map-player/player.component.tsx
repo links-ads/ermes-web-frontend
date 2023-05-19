@@ -1,6 +1,5 @@
 import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
-  makeStyles,
   AppBar,
   useTheme,
   Typography,
@@ -23,8 +22,9 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { AppConfig, AppConfigContext } from '../../../../config'
 import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
 import GetAppIcon from '@mui/icons-material/GetApp'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   titleContainer: {
     width: '75%',
     display: 'inline-block',
@@ -100,11 +100,11 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'center',
     color: theme.palette.text.disabled
   }
-}))
+}})
 
 
 export function LayersPlayer(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const theme = useTheme()
   const dateOptions = {
     dateStyle: 'short',

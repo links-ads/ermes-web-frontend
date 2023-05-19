@@ -10,7 +10,6 @@ import {
   FormControlLabel,
   Grid,
   IconButton,
-  makeStyles,
   Radio,
   RadioGroup,
   Typography,
@@ -21,10 +20,11 @@ import CardContent from '@mui/material/CardContent'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useTranslation } from 'react-i18next'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
+import { makeStyles } from 'tss-react/mui'
 
 export const NO_LAYER_SELECTED = '-1'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   titleContainer: {
     width: '100px',
     display: 'inline-block',
@@ -40,10 +40,10 @@ const useStyles = makeStyles((theme) => ({
   accordionDetails: {
     display: 'block'
   }
-}))
+}})
 
 export function LayersSelectContainer(props) {
-  const classes = useStyles()
+  const {classes} = useStyles()
   const { t } = useTranslation(['maps'])
   const theme = useTheme()
   const [dim, setDim] = useState({

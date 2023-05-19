@@ -2,7 +2,6 @@ import {
   Checkbox,
   FormControlLabel,
   IconButton,
-  makeStyles,
   Slider,
   Typography
 } from '@mui/material'
@@ -23,8 +22,9 @@ import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
+import { makeStyles } from 'tss-react/mui'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => { return {
   buttonsContainer: {
     width: '25%',
 
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.contrastText,
     height: '1px'
   }
-}))
+}})
 
 const MapRequestAccordionItem: React.FC<{
   getMeta: any
@@ -76,7 +76,7 @@ const MapRequestAccordionItem: React.FC<{
 }> = (props) => {
   const { getMeta, getLegend, currentLayer, map, updateMapRequestsSettings } = props
   const { t } = useTranslation(['common', 'maps', 'labels'])
-  const style = useStyles()
+  const { classes: styleClasses} = useStyles()
   const [playing, setPlaying] = useState(false)
   const { displayErrorSnackbar } = useSnackbars()
   const { opacity, dateIndex, isChecked, mapRequestCode, dataTypeId, status } = currentLayer
@@ -262,7 +262,7 @@ const MapRequestAccordionItem: React.FC<{
                         }}
                       />
                     </div>
-                    <div className={style.buttonsContainer} style={{ paddingTop: '10px' }}>
+                    <div className={styleClasses.buttonsContainer} style={{ paddingTop: '10px' }}>
                       <IconButton
                         aria-label="play/pause"
                         onClick={onButtonPlayerHandler}
@@ -333,7 +333,7 @@ const MapRequestAccordionItem: React.FC<{
             </div>
           ) : null}
         </div>
-        <div className={style.separator} />
+        <div className={styleClasses.separator} />
       </div>
     </div>
   )

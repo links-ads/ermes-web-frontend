@@ -1,7 +1,8 @@
 import React from 'react'
-import { RouteChildrenProps } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-export function NotFoundPage({ location }: RouteChildrenProps) {
+export function NotFoundPage(){
+  let location = useLocation();
   const { t } = useTranslation()
   return (
     <div className="full column centered">

@@ -1,6 +1,6 @@
 import React, { memo, useContext, useCallback } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { Route } from 'react-router'
+import { Route, useLocation } from 'react-router'
 import Tooltip from '@mui/material/Tooltip'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +78,9 @@ export const BrandLogo = memo(function BrandLogo() {
   /* add color and background color picked randomly on the envTag letter */
   const getColors = useCallback(() => getRandomBackgroundAndTextColors(envTag), [envTag])
   const { textColor, backgroundColor } = getColors()
+  const location = useLocation()
+  const isAboutPage = location.pathname === '/about'
+  const title = isAboutPage ? t('common:homepage') : t('common:about')
 
   const { theme, themeName } = useUITheme()
 var logoSrc =  new URL('icons/brand_light.png', staticAssetsUrl).href
@@ -87,29 +90,25 @@ else
   logoSrc = new URL('icons/brand_dark.png', staticAssetsUrl).href
   return (
     <Route
-      render={({ location }) => {
-        const isAboutPage = location.pathname === '/about'
-        const title = isAboutPage ? t('common:homepage') : t('common:about')
-        return (
-          <Tooltip title={title}>
-            <Link
-              to={(location) =>
-                ['/about', '/device-auth'].includes(location.pathname)
-                  ? { ...location, pathname: '/' }
-                  : { ...location, pathname: '/about' }
-              }
-            >
-              <BrandLogoD
-                className="brand-logo"
-                logoSrc={logoSrc}
-                // envTag={envTag}
-                // envTagBackgroundColor={backgroundColor}
-                // envTagColor={textColor}
-              />
-            </Link>
-          </Tooltip>
-        )
-      }}
+      element={
+        <Tooltip title={title}>
+          <Link
+            to={
+              ['/about', '/device-auth'].includes(location.pathname)
+                ? { ...location, pathname: '/' }
+                : { ...location, pathname: '/about' }
+            }
+          >
+            <BrandLogoD
+              className="brand-logo"
+              logoSrc={logoSrc}
+              // envTag={envTag}
+              // envTagBackgroundColor={backgroundColor}
+              // envTagColor={textColor}
+            />
+          </Link>
+        </Tooltip>
+      }
     ></Route>
   )
 })
