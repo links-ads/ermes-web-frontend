@@ -1,12 +1,11 @@
 import React from 'react'
-import { RouteChildrenProps } from 'react-router-dom'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
 
 import { useUser } from '../../../state/auth/auth.hooks'
 
 import UncompletedUsersComponent from './uncompleted-users.component'
 
-export function UncompletedUsersRoute({ location }: RouteChildrenProps) {
+export function UncompletedUsersRoute() {
   const { profile } = useUser()
   return (
     <SizeAwareContainer

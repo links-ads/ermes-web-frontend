@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material'
 import Watch from '@mui/icons-material/Watch'
 import Clear from '@mui/icons-material/Clear'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { useStorage } from 'react-storage-hook'
+// import { useStorage } from 'react-storage-hook'
 import { cryptoRandomString, oauthStateName } from '../../../oauth/react-oauth2-hook-mod'
 
 import { useTranslation } from 'react-i18next'
@@ -25,6 +25,7 @@ import { getFusionAuthURLs } from '../../../state/auth/auth.utils'
 import { TFunction } from 'i18next'
 
 import useAxios from 'axios-hooks'
+import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 
 interface DeviceAuthProps {
   searchString: string
@@ -158,13 +159,13 @@ export function DeviceAuth({ searchString }: DeviceAuthProps) {
   const initialParams: any = qs.parse(searchString, {
     ignoreQueryPrefix: true
   })
-  const oauthStateStorage = useStorage<string>(oauthStateName)
-  const setOauthState = oauthStateStorage[1]
+  const [ oauthStateStorage, setOauthState ] = useMemoryState(oauthStateName, null, false)
+  //const setOauthState = oauthStateStorage[1] // TODO check if this works ^
   const [deviceVerified, setDeviceVerified] = useState<boolean>(!!initialParams.device_verified)
 
   const initialUserCode = deviceVerified ? '' : (initialParams.user_code as string) || ''
   const [userCode, setUserCode] = useState<string>(initialUserCode)
-  const history = useNavigate()
+  const navigate = useNavigate()
   const location = useLocation()
   const [error, setError] = useState<Error | null>(null)
 
@@ -193,9 +194,9 @@ export function DeviceAuth({ searchString }: DeviceAuthProps) {
   useEffect(() => {
     const code = userCode.trimLeft().trimRight()
     if (code.length > 0) {
-      history.replace(`${location.pathname}?user_code=${code}`)
+      navigate(`${location.pathname}?user_code=${code}`)
     } else {
-      history.replace(location.pathname)
+      navigate(location.pathname)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userCode])
@@ -219,7 +220,7 @@ export function DeviceAuth({ searchString }: DeviceAuthProps) {
    */
   function hideStateFromQs(device_verified: boolean) {
     // hide state
-    history.replace(`${location.pathname}?${qs.stringify({ device_verified })}`)
+    navigate(`${location.pathname}?${qs.stringify({ device_verified })}`)
   }
 
   /**

@@ -1,12 +1,11 @@
 import React from 'react'
-import { RouteChildrenProps } from 'react-router-dom'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
 
 import { useUser } from '../../../state/auth/auth.hooks'
 
 import ImportComponent from './import.component'
 
-export function ImportRoute({ location }: RouteChildrenProps) {
+export function ImportRoute() {
   const { profile } = useUser()
   return (
     <SizeAwareContainer

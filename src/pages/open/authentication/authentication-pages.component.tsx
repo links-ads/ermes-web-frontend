@@ -1,10 +1,12 @@
 import React from 'react'
-import { Route, Navigate, RouteChildrenProps } from 'react-router-dom'
+import { Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { AuthenticationCard } from './authentication-card.component'
 import qs from 'qs'
-export function AuthenticationPages({ match, location }: RouteChildrenProps) {
+export function AuthenticationPages() {
   const { profile, isAuthenticated } = useUser()
+  let location = useLocation()
+  let { url } = useParams()
   const dest = qs.parse(location.search, {
     ignoreQueryPrefix: true
   })
@@ -18,7 +20,7 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
     'OpenPages LOC',
     location.pathname,
     isAuthenticated,
-    match ? match.url : '',
+    url ? url : '',
     destination
   )
   if(!isAuthenticated){
@@ -27,7 +29,7 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
     localStorage.removeItem('memstate-event')
   }
   return isAuthenticated ? (
-    <Navigate to={destination} from={match ? match.url : undefined} />
+    <Navigate to={destination} /> // TODO fix from={match ? match.url : undefined} 
   ) : (
     <Route path="/login">
       <AuthenticationCard />

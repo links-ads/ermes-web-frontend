@@ -1,13 +1,13 @@
 import React, { Suspense } from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import qs from 'querystring'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useUser } from '../../state/auth/auth.hooks'
 import { NotFoundPage } from '../open/not-found.page'
 import { UnAuthorizedPage } from '../open/unauthorized.page'
 import { Container } from '@mui/material'
 
-import { controlAccess } from './control-access';
+import { controlAccess } from './control-access'
 
 // LAZY LOADING
 const Dashboard = React.lazy(async () => {
@@ -45,46 +45,52 @@ const UncompletedUsersComponent = React.lazy(async () => {
   return { default: module.UncompletedUsersRoute }
 })
 
-const Administration = React.lazy(
-  () => import('./administration/administration.component').then(module => ({ default: module.Administration }))
-);
+const Administration = React.lazy(() =>
+  import('./administration/administration.component').then((module) => ({
+    default: module.Administration
+  }))
+)
 
-const Organizations = React.lazy(
-  () => import('./organizations/organizations.component').then(module => ({ default: module.Organizations }))
-);
+const Organizations = React.lazy(() =>
+  import('./organizations/organizations.component').then((module) => ({
+    default: module.Organizations
+  }))
+)
 
-const Users = React.lazy(
-  () => import('./users/users.component').then(module => ({ default: module.Users }))
-);
+const Users = React.lazy(() =>
+  import('./users/users.component').then((module) => ({ default: module.Users }))
+)
 
-const Teams = React.lazy(
-  () => import('./teams/teams.component').then(module => ({ default: module.Teams }))
-);
+const Teams = React.lazy(() =>
+  import('./teams/teams.component').then((module) => ({ default: module.Teams }))
+)
 
-const Profile = React.lazy(
-  () => import('./profile/profile.component').then(module => ({ default: module.Profile }))
-);
+const Profile = React.lazy(() =>
+  import('./profile/profile.component').then((module) => ({ default: module.Profile }))
+)
 
-const Settings = React.lazy(
-  () => import('./settings/settings.component').then(module => ({ default: module.Settings }))
-);
+const Settings = React.lazy(() =>
+  import('./settings/settings.component').then((module) => ({ default: module.Settings }))
+)
 
-const DeviceAuth = React.lazy(
-  () => import('./device-auth/device-auth.component').then(module => ({ default: module.DeviceAuth }))
-);
+const DeviceAuth = React.lazy(() =>
+  import('./device-auth/device-auth.component').then((module) => ({ default: module.DeviceAuth }))
+)
 
-export function ProtectedPages({ match, location, history }: RouteChildrenProps) {
+export function ProtectedPages() {
   const { profile } = useUser()
+  let location = useLocation()
+  let url = location.pathname // TODO check if this works, previously match.url
   const originalURL =
-    match && match.url && match.url !== '/'
-      ? qs.stringify({ redirect_to: match.url + location.search })
+    url && url !== '/'
+      ? qs.stringify({ redirect_to: url + location.search })
       : undefined
 
   console.debug(
     'ProtectedPages: LOC',
     location.pathname,
     profile,
-    match ? match.url : '',
+    url ? url : '',
     originalURL,
     profile?.defaultLandingPage
   )
@@ -97,11 +103,12 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
 
   return profile ? (
     <Routes location={location}>
-      <Navigate from="/" exact={true} to={profile.defaultLandingPage} />
+      {/*  // TODO fix from="/"  exact={true} */}
+      <Navigate to={profile.defaultLandingPage} />
       <Route
         path={'/profile'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -111,13 +118,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Profile />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/device-auth'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -127,13 +136,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <DeviceAuth searchString={location.search} />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/settings'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -143,13 +154,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Settings />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/organizations/users'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -159,13 +172,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Users />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/organizations/teams'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -175,13 +190,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Teams />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/administration'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -191,13 +208,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Administration />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/organizations'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -207,13 +226,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Organizations />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/users'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -223,13 +244,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Users />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/import'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -237,15 +260,17 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <ImportComponent location={location} match={match} history={history}/>
+              <ImportComponent />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/uncompleted-users'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -253,15 +278,17 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <UncompletedUsersComponent location={location} match={match} history={history}/>
+              <UncompletedUsersComponent />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/dashboard'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -271,13 +298,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Dashboard />
             </Suspense>
-          ) : (unAuthorizedContent(location))
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/map'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -287,13 +316,15 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Map />
             </Suspense>
-          ) : unAuthorizedContent(location)
-        }}
-      ></Route>)
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/details'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -303,15 +334,16 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
             >
               <Details />
             </Suspense>
+          ) : (
+            unAuthorizedContent(location)
           )
-            : unAuthorizedContent(location)
-        }}
-      ></Route>
+        }
+      />
 
       <Route
         path={'/social'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -319,15 +351,17 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <Social location={location} match={match} history={history} />
+              <Social />
             </Suspense>
-          ) : unAuthorizedContent(location)
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
         path={'/events'}
-        render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+        element={
+          controlAccess(location.pathname, profile.role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -335,20 +369,22 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
                 </div>
               }
             >
-              <Events location={location} match={match} history={history} />
+              <Events />
             </Suspense>
-          ) : unAuthorizedContent(location)
-        }}
-      ></Route>
+          ) : (
+            unAuthorizedContent(location)
+          )
+        }
+      />
       <Route
-        render={(props) => (
+        element={
           <Container className="full flex container" maxWidth="sm">
             <NotFoundPage />
           </Container>
-        )}
+        }
       />
     </Routes>
   ) : (
-    <Navigate to={originalURL ? '/login?' + originalURL : '/login'} from={originalURL} />
+    <Navigate to={originalURL ? '/login?' + originalURL : '/login'} /> // TODO fix from={originalURL} />
   )
 }
