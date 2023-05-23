@@ -1,5 +1,5 @@
 import React from 'react';
-import MaterialTable from 'material-table'
+import MaterialTable from '@material-table/core'
 import { useTranslation } from 'react-i18next'
 import {localizeMaterialTable} from '../../../common/localize-material-table'
 
