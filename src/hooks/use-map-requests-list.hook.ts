@@ -183,8 +183,8 @@ export default function useMapRequestList() {
             sideEffect(newData)
             dispatch({ type: 'FETCHBYID', value: newData })
           })
-          .catch(() => {
-            dispatch({ type: 'ERROR', value: errorData })
+          .catch((error) => {
+            dispatch({ type: 'ERROR', value: error.response.data.error.message })
           })
       },
       [maprequestApiFactory]

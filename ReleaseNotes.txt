@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Map polling (#99)
+- Feature - Fix getMapRequestById in case of error ref (#119)
 
 Ver. 2.7.1 - 2023-05-08
 -----------------------

@@ -163,7 +163,9 @@ const MapRequestsPanel: React.FC<{
       (data) => {
         return data
       },
-      {},
+      (error) => {
+        console.log(error)
+      },
       (data) => {
         return data
       }
@@ -230,6 +232,9 @@ const MapRequestsPanel: React.FC<{
       props.resetListCounter(EntityType.MAP_REQUEST)
     }
   }, [props.mapRequestCounter])
+
+  if(mapRequestsData.error)
+    return <div></div>
 
   return (
     <div className="containerWithSearch">
