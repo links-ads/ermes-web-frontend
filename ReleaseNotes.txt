@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Fix layer opacity when timestamp changes (#120)
 
 Ver. 2.8.0 - 2023-05-23
 -----------------------
