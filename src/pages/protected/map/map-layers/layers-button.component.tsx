@@ -23,7 +23,7 @@ export function LayersButton(props) {
 //   const color = 'inherit'
 
 
-  function onClick(e: React.MouseEvent) {
+  function onClickHandler(e: React.MouseEvent) {
     props.setVisibility(!props.visibility)
   }
 
@@ -32,7 +32,7 @@ export function LayersButton(props) {
       <Tooltip title={'UPDATE TITLE HERE'}>
         <span>
           <IconButton
-            onClick={onClick}
+            onClick={onClickHandler}
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
           // disabled={disabled}

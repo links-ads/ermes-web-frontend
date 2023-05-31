@@ -17,7 +17,7 @@ import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { useTranslation } from 'react-i18next'
 import classes from './maprequest-card.module.scss'
 import { FormatDate } from '../../../../../utils/date.utils'
-import { LayerSettingsState } from '../../../../../models/mapRequest/MapRequestState'
+import { MapRequestLayerSettingsState } from '../../../../../models/mapRequest/MapRequestState'
 import { tileJSONIfy } from '../../../../../utils/map.utils'
 import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
@@ -71,7 +71,7 @@ const MapRequestAccordionItem: React.FC<{
   getMeta: any
   getLegend: any
   map: any
-  currentLayer: LayerSettingsState
+  currentLayer: MapRequestLayerSettingsState
   updateMapRequestsSettings: any
 }> = (props) => {
   const { getMeta, getLegend, currentLayer, map, updateMapRequestsSettings } = props

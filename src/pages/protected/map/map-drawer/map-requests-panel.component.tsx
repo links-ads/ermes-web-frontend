@@ -16,7 +16,7 @@ import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import MapRequestCard from './drawer-cards/maprequest-card.component'
 import MapRequestState, {
-  LayerSettingsState,
+  MapRequestLayerSettingsState,
   MapRequestLayerState
 } from '../../../../models/mapRequest/MapRequestState'
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
@@ -84,7 +84,7 @@ const MapRequestsPanel: React.FC<{
           let newMrLayerState = new MapRequestLayerState()
           if (!currentMr) {
             mr.mapRequestLayers!.map((layer) => {
-              newMrLayerState[layer.layerDataTypeId!] = new LayerSettingsState(
+              newMrLayerState[layer.layerDataTypeId!] = new MapRequestLayerSettingsState(
                 layer.status!,
                 layer.errorMessages!
               )
@@ -110,7 +110,7 @@ const MapRequestsPanel: React.FC<{
                       if (currentLayer) {
                         let settings = currentLayer[layer.dataTypeId!]
                         if (!settings)
-                          settings = new LayerSettingsState(LayerImportStatusType.CREATED, [])
+                          settings = new MapRequestLayerSettingsState(LayerImportStatusType.CREATED, [])
                         settings.name = layer.name!
                         settings.metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode

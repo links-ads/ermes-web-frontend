@@ -3,8 +3,6 @@ import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
 import { MapStateContextProvider } from './map.contest'
-
-import FloatingFilterContainer from '../../../common/floating-filters-tab/floating-filter-container.component'
 import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
@@ -24,13 +22,15 @@ import { getLegendURL } from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
 import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
-  LayerSettingsState
+  MapRequestLayerSettingsState
 } from '../../../models/mapRequest/MapRequestState'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
 import useInterval from '../../../hooks/use-interval.hook'
-
+import { GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
+import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
+import { PixelPostion } from '../../../models/common/PixelPosition'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -42,6 +42,10 @@ export function Map() {
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
+  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
+  const [ isLayersPlayerVisible, setIsLayerPlayerVisible ] = useState<boolean>(false)
+  
+
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
   const [dateIndex, setDateIndex] = useState<number>(0)
@@ -49,7 +53,7 @@ export function Map() {
   const [layerName, setLayerName] = useState<string>('')
 
   const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>({})
-
+  
   const updateMapRequestsSettings = (
     mrCode: string,
     dataTypeId: number,
@@ -61,7 +65,7 @@ export function Map() {
     let updatedSettings: MapRequestState
     if (currentMr) {
       const currentLayer = currentMr[dataTypeId]
-      let newSettings: LayerSettingsState = { ...currentLayer }
+      let newSettings: MapRequestLayerSettingsState = { ...currentLayer }
       if (currentLayer) {
         switch (actionType) {
           case 'OPACITY':
@@ -164,6 +168,9 @@ export function Map() {
     multipleLayersAllowed: false,
     layerClicked: null
   })
+
+  const [ selectedLayer, setSelectedLayer ] = useState<LayerSettingsState>()
+
   const [getLayersState, handleGetLayersCall] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
@@ -289,8 +296,9 @@ export function Map() {
     let groupData = [] as any[]
     if (Object.keys(getLayersState.result).length === 0) return groupData
     if (!getLayersState.result.data['layerGroups']) return groupData
+
+    let subGroupData = [] as any[]
     getLayersState.result.data['layerGroups'].forEach((group) => {
-      let subGroupData = [] as any[]
       group['subGroups'].forEach((subGroup) => {
         let layerData = [] as any[]
         subGroup['layers'].forEach((layer) => {
@@ -301,12 +309,62 @@ export function Map() {
             })
           }
         })
-        if (layerData.length > 0)
+        if (layerData.length > 0){
           subGroupData.push({ name: subGroup['subGroup'], layers: layerData })
+        }
       })
-      if (subGroupData.length > 0) groupData.push({ name: group['group'], subGroups: subGroupData })
+      if (subGroupData.length > 0) {
+        groupData.push({ name: group['group'], subGroups: subGroupData })
+      }
     })
     return groupData
+  }, [getLayersState])
+
+  const layerGroups = useMemo(() => {
+    let groupLayersState = new GroupLayerState()
+    if (Object.keys(getLayersState.result).length === 0) return groupLayersState
+    if (!getLayersState.result.data['layerGroups']) return groupLayersState
+
+    getLayersState.result.data['layerGroups'].forEach((group) => {
+      let subGroupLayerState = new SubGroupLayerState()  
+      group['subGroups'].forEach((subGroup) => {
+        let layerState = new LayerState()
+        subGroup['layers'].forEach((layer) => {
+            let layerSettingState = new LayerSettingsState(
+              layer['dataTypeId'],
+              layer['name'],
+              layer['format'],
+              layer['frequency'],
+              layer['type'],
+              layer['unitOfMeasure']
+            )   
+            layer.details!.forEach((detail) => {  
+              layerSettingState.metadataId = detail.metadata_Id
+              let timestamps: string[] = [...layerSettingState.availableTimestamps]
+              detail.timestamps!.forEach((timestamp) => {
+                layerSettingState.timestampsToFiles[timestamp] = detail.name!
+                timestamps.push(timestamp)
+              })
+              //keep availableTimestamp sorted
+              //use Set to ensure timestamps are unique inside the final array
+              layerSettingState.availableTimestamps = Array.from(
+                new Set(
+                  timestamps
+                    .map((item) => {
+                      return { dateString: item, dateValue: new Date(item) }
+                    })
+                    .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                    .map((item) => item.dateString)
+                )
+              )  
+            })
+            layerState[layer['dataTypeId']] = layerSettingState     
+        })
+        subGroupLayerState[subGroup['subGroup']] = layerState
+      })
+      groupLayersState[group['group']] = subGroupLayerState
+    })
+    return groupLayersState
   }, [getLayersState])
 
   const allLayers = useMemo(() => {
@@ -364,6 +422,8 @@ export function Map() {
       groupedLayers: groupedAssociatedLayers
     }
   }, [getLayersState])
+ 
+  const [ layersPanelPosition, setLayersPanelPosition] = useState<PixelPostion>({ x:0, y:0})
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -531,6 +591,7 @@ export function Map() {
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
     return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) }
   }, [])
+
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
     return { x: Math.max(400, window.innerWidth - 600), y: 60 }
   }, [])
@@ -905,7 +966,7 @@ export function Map() {
           layerData={layerMeta}
         />
 
-        {(dblClickFeatures && dblClickFeatures.showCard) && (
+        {dblClickFeatures && dblClickFeatures.showCard && (
           <MapTimeSeries
             dblClickFeatures={dblClickFeatures}
             setDblClickFeatures={setDblClickFeatures}
@@ -918,7 +979,7 @@ export function Map() {
             layerSelection={layerSelection}
           />
         )}
-        <LayersSelectContainer
+        {/* <LayersSelectContainer
           layerSelection={layerSelection}
           setLayerSelection={setLayerSelection}
           visibility={layersSelectVisibility}
@@ -929,13 +990,24 @@ export function Map() {
           defaultPosition={layersSelectContainerDefaultCoord}
           position={layersSelectContainerPosition}
           onPositionChange={setLayersSelectContainerPosition}
+        /> */}
+
+        <LayersFloatingPanel
+          layerGroups={layerGroups}
+          isVisible={isLayersPanelVisible}
+          setIsVisible={setIsLayersPanelVisible}
+          isLoading={getLayersState.loading}
+          selectedLayer={selectedLayer}
+          setSelectedLayer={setSelectedLayer}
+          setLayerSelection={setLayerSelection}
         />
+
         <MapStateContextProvider<MapFeature>>
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
             layersSelectVisibility={layersSelectVisibility}
-            setLayersSelectVisibility={setLayersSelectVisibility}
+            setLayersSelectVisibility={setIsLayersPanelVisible}
             togglePlayer={togglePlayer}
             setTogglePlayer={setTogglePlayer}
             toggleDrawerTab={toggleSideDrawer}
@@ -958,8 +1030,8 @@ export function Map() {
             dateIndex={dateIndex}
             currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
-            singleLayerOpacityStatus={singleLayerOpacityStatus}            
-            refreshList={refreshList}            
+            singleLayerOpacityStatus={singleLayerOpacityStatus}
+            refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
           />
         </MapStateContextProvider>
