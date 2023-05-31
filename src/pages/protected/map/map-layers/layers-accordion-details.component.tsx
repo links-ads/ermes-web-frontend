@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useContext, useEffect } from "react"
 import { LayerSettingsState } from "../../../../models/layers/LayerState"
 import {
   Radio,
@@ -6,6 +6,8 @@ import {
   FormControlLabel,
   makeStyles,
 } from '@material-ui/core'
+import { tileJSONIfy } from "../../../../utils/map.utils"
+import { AppConfig, AppConfigContext } from "../../../../config"
 
 const useStyles = makeStyles((theme) => ({
   accordionDetails: {
@@ -15,17 +17,20 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const LayersAccordionDetails: React.FC<{
-  dataTypeId: string
-  layer: LayerSettingsState
+  layerSettings: LayerSettingsState
   selectedLayer: LayerSettingsState | undefined
-  setSelectedLayer: any
   setLayerSelection: any
+  updateLayersSetting: any
+  map: any
 }> = (props) => {
   const classes = useStyles()
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const geoServerConfig = appConfig.geoServer
+  const { updateLayersSetting, layerSettings, map, selectedLayer } = props
+  
   const radioClickHandler = (event: any) => {
-    if (props.selectedLayer && props.layer.dataTypeId === props.selectedLayer.dataTypeId) {
-      props.setSelectedLayer(undefined)
-      //TODO: to be removed after optimization
+    //TODO: to be removed after optimization
+    if (layerSettings && layerSettings.isChecked) {
       props.setLayerSelection({
         isMapRequest: '-1',
         mapRequestCode: '-1',
@@ -33,27 +38,65 @@ const LayersAccordionDetails: React.FC<{
         multipleLayersAllowed: false
       })
     } else {
-      props.setSelectedLayer(props.layer)
       props.setLayerSelection({
         isMapRequest: 0,
         mapRequestCode: -1,
-        dataTypeId: props.layer.dataTypeId + '',
+        dataTypeId: layerSettings.dataTypeId + '',
         multipleLayersAllowed: false
       })
     }
+    //////////////////////////////////////////
+    updateLayersSetting(
+      layerSettings.group,
+      layerSettings.subGroup,
+      layerSettings.dataTypeId,
+      !layerSettings.isChecked,
+      'ISCHECKED'
+    )
   }
-  const { selectedLayer, dataTypeId, layer } = props
-  const isChecked = selectedLayer && selectedLayer.dataTypeId.toString() === dataTypeId
+
+  useEffect(() => {
+    if (!selectedLayer) return
+    if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
+      map.removeLayer(selectedLayer?.toBeRemovedLayer)
+      map.removeSource(selectedLayer?.toBeRemovedLayer)
+    }
+    const layerName = selectedLayer.activeLayer
+    if (layerName != '' && !map.getLayer(layerName)) {
+      const source = tileJSONIfy(
+        map,
+        layerName,
+        selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+        geoServerConfig,
+        map.getBounds()
+      )
+      source['properties'] = {
+        format: undefined,
+        fromTime: undefined,
+        toTime: undefined
+      }
+      map.addSource(layerName, source as mapboxgl.RasterSource)
+      map.addLayer(
+        {
+          id: layerName,
+          type: 'raster',
+          source: layerName
+        },
+        'clusters'
+      )
+      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+    }
+  }, [selectedLayer?.activeLayer])
 
   const layerComponent = (
     <FormControlLabel
-      control={<Radio onClick={radioClickHandler} checked={isChecked} />}
-      label={layer.name}
+      control={<Radio onClick={radioClickHandler} checked={layerSettings.isChecked} />}
+      label={layerSettings.name}
     />
   )
   return (
     <AccordionDetails
-      key={dataTypeId + layer.name}
+      key={layerSettings.dataTypeId + layerSettings.name}
       className={classes.accordionDetails}
     >
       {layerComponent}

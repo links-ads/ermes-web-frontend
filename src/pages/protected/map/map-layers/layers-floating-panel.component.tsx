@@ -34,9 +34,10 @@ const LayersFloatingPanel: React.FC<{
   isVisible: boolean
   isLoading: boolean
   setIsVisible: any
-  selectedLayer: LayerSettingsState | undefined
-  setSelectedLayer: any
   setLayerSelection: any
+  updateLayersSetting: any
+  map: any
+  selectedLayer: LayerSettingsState | undefined
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
@@ -106,7 +107,10 @@ const LayersFloatingPanel: React.FC<{
             <Grid container justifyContent="center">
               <CircularProgress />{' '}
             </Grid>
-          ) : props.layerGroups === undefined || !props.layerGroups || props.layerGroups == null ? (
+          ) : props.layerGroups === undefined ||
+            !props.layerGroups ||
+            props.layerGroups == null ||
+            Object.keys(props.layerGroups).length === 0 ? (
             <Grid container justifyContent="center">
               <Typography align="center" variant="h6">
                 {t('maps:no_layers')}
@@ -116,12 +120,13 @@ const LayersFloatingPanel: React.FC<{
             <FormControl component="fieldset" fullWidth={true}>
               {Object.keys(props.layerGroups).map((key) => (
                 <LayersAccordion
-                  selectedLayer={props.selectedLayer}
-                  setSelectedLayer={props.setSelectedLayer}
                   key={key}
                   groupName={key}
                   layerSubGroups={props.layerGroups[key]}
                   setLayerSelection={props.setLayerSelection}
+                  updateLayersSetting={props.updateLayersSetting}
+                  map={props.map}
+                  selectedLayer={props.selectedLayer}
                 />
               ))}
             </FormControl>

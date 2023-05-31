@@ -170,6 +170,63 @@ export function Map() {
   })
 
   const [ selectedLayer, setSelectedLayer ] = useState<LayerSettingsState>()
+  const [ layersSettings, setLayersSettings] = useState<GroupLayerState>({})
+  const updateLayersSetting = (
+      group: string,
+      subGroup: string,
+      dataTypeId: number,
+      newValue: number,
+      actionType: string
+    ) => {
+    if (!layersSettings) return
+    const currentLayer = layersSettings[group][subGroup][dataTypeId]
+    let updatedSettings: GroupLayerState
+    if (currentLayer) {
+      let newSettings: LayerSettingsState = { ...currentLayer }
+      if (currentLayer) {
+        switch (actionType) {
+          case 'OPACITY':
+            newSettings.opacity = newValue
+            break
+          case 'TIMESTAMP':
+            newSettings.dateIndex = newValue
+            if (currentLayer.activeLayer !== '')
+              newSettings.toBeRemovedLayer = currentLayer.activeLayer
+            newSettings.activeLayer =
+              currentLayer.timestampsToFiles[
+                currentLayer.availableTimestamps[newSettings.dateIndex]
+              ]
+            break
+          case 'ISCHECKED':
+            Object.keys(layersSettings).forEach((group) => {
+              Object.keys(layersSettings[group]).forEach((subGroup) => {
+                Object.keys(layersSettings[group][subGroup]).forEach((dataTypeId) => {
+                  layersSettings[group][subGroup][dataTypeId].isChecked = false
+                })
+              })
+            })
+            newSettings.isChecked = !!newValue
+            newSettings.toBeRemovedLayer = selectedLayer ? selectedLayer.activeLayer : ''
+            newSettings.activeLayer = newSettings.isChecked
+              ? currentLayer.timestampsToFiles[
+                  currentLayer.availableTimestamps[currentLayer.dateIndex]
+                ]
+              : ''
+            
+            break
+          default:
+            break
+          
+          
+        }
+
+        setSelectedLayer(newSettings)
+        updatedSettings = { ...layersSettings }
+        updatedSettings[group][subGroup][dataTypeId] = newSettings
+        setLayersSettings(updatedSettings)
+      }
+    }
+  }
 
   const [getLayersState, handleGetLayersCall] = useAPIHandler(false)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
@@ -317,6 +374,7 @@ export function Map() {
         groupData.push({ name: group['group'], subGroups: subGroupData })
       }
     })
+    
     return groupData
   }, [getLayersState])
 
@@ -331,6 +389,8 @@ export function Map() {
         let layerState = new LayerState()
         subGroup['layers'].forEach((layer) => {
             let layerSettingState = new LayerSettingsState(
+              group.group,
+              subGroup.subGroup,
               layer['dataTypeId'],
               layer['name'],
               layer['format'],
@@ -364,6 +424,7 @@ export function Map() {
       })
       groupLayersState[group['group']] = subGroupLayerState
     })
+    setLayersSettings(groupLayersState)
     return groupLayersState
   }, [getLayersState])
 
@@ -876,7 +937,6 @@ export function Map() {
 
   const { isLoading: isGeoDataloading} = prepGeoData
   const loader = <div className="full-screen centered"><CircularProgress size={120}/></div>
-
   ///////
   return (
     <>
@@ -946,6 +1006,8 @@ export function Map() {
           onPlayerChange={changePlayer}
           geoServerConfig={appConfig.geoServer}
           map={map}
+          selectedLayer={selectedLayer}
+          updateLayersSetting={updateLayersSetting}
         />
 
         <PlayerLegend
@@ -993,13 +1055,14 @@ export function Map() {
         /> */}
 
         <LayersFloatingPanel
-          layerGroups={layerGroups}
+          layerGroups={layersSettings}
           isVisible={isLayersPanelVisible}
           setIsVisible={setIsLayersPanelVisible}
           isLoading={getLayersState.loading}
-          selectedLayer={selectedLayer}
-          setSelectedLayer={setSelectedLayer}
           setLayerSelection={setLayerSelection}
+          updateLayersSetting={updateLayersSetting}
+          map={map}
+          selectedLayer={selectedLayer}
         />
 
         <MapStateContextProvider<MapFeature>>
@@ -1033,6 +1096,7 @@ export function Map() {
             singleLayerOpacityStatus={singleLayerOpacityStatus}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
+            selectedLayer={selectedLayer}
           />
         </MapStateContextProvider>
 

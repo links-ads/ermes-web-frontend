@@ -14,30 +14,34 @@ const useStyles = makeStyles((theme) => ({
 const LayersAccordion: React.FC<{
   groupName: string
   layerSubGroups: SubGroupLayerState
-  selectedLayer: LayerSettingsState | undefined
-  setSelectedLayer: any
   setLayerSelection: any
+  updateLayersSetting: any
+  map: any
+  selectedLayer: LayerSettingsState | undefined
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
+  const { groupName, updateLayersSetting, setLayerSelection, layerSubGroups, map, selectedLayer } =
+    props
   return (
     <Accordion
       key={props.groupName}
       color="primary"
       style={{ backgroundColor: theme.palette.primary.dark, width: '100%' }}
     >
-      <AccordionSummary expandIcon={<ExpandMoreIcon />} id={props.groupName}>
-        <Typography className={classes.heading}>{props.groupName}</Typography>
+      <AccordionSummary expandIcon={<ExpandMoreIcon />} id={groupName}>
+        <Typography className={classes.heading}>{groupName}</Typography>
       </AccordionSummary>
 
       {Object.keys(props.layerSubGroups).map((key, index) => (
         <LayersSubgroupAccordion
           key={props.groupName + key + index}
           subGroupName={key}
-          layers={props.layerSubGroups[key]}
-          setSelectedLayer={props.setSelectedLayer}
-          selectedLayer={props.selectedLayer}
-          setLayerSelection={props.setLayerSelection}
+          layers={layerSubGroups[key]}
+          setLayerSelection={setLayerSelection}
+          updateLayersSetting={updateLayersSetting}
+          map={map}
+          selectedLayer={selectedLayer}
         />
       ))}
     </Accordion>

@@ -1,6 +1,8 @@
 import { TimestampToFile } from "../common/TimestampToFile"
 
 export class LayerSettingsState {
+  group: string
+  subGroup: string
   dataTypeId: number
   format: string
   frequency: number
@@ -19,6 +21,8 @@ export class LayerSettingsState {
 
   assiociatedLayers: number[]
   constructor(
+    group: string,
+    subGroup: string,
     dataTypeId: number,
     name: string,
     format: string,
@@ -26,6 +30,8 @@ export class LayerSettingsState {
     type: string,
     unitOfMeasure: string
   ) {
+    this.group = group
+    this.subGroup = subGroup
     this.dataTypeId = dataTypeId
     this.format = format
     this.frequency = frequency

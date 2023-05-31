@@ -17,14 +17,18 @@ const useStyles = makeStyles((theme) => ({
 const LayersSubgroupAccordion: React.FC<{
   subGroupName: string
   layers: LayerState
-  selectedLayer: LayerSettingsState | undefined
-  setSelectedLayer: any
   setLayerSelection: any
+  updateLayersSetting: any
+  map: any
+  selectedLayer: LayerSettingsState | undefined
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { selectedLayer, subGroupName, setLayerSelection } = props
-  const value = selectedLayer ? selectedLayer.dataTypeId : 0
+  const { subGroupName, setLayerSelection, updateLayersSetting, layers, map, selectedLayer } = props
+  const value = Object.keys(layers).forEach((layer) => {
+    if (layers[layer].isChecked) return layers[layer].dataTypeId
+    else return 0
+  })
   return (
     <Accordion
       key={props.subGroupName}
@@ -43,11 +47,11 @@ const LayersSubgroupAccordion: React.FC<{
           {Object.keys(props.layers).map((key, index) => (
             <LayersAccordionDetails
               key={props.subGroupName + key + index}
-              dataTypeId={key}
-              layer={props.layers[key]}
-              setSelectedLayer={props.setSelectedLayer}
-              selectedLayer={props.selectedLayer}
+              layerSettings={props.layers[key]}
               setLayerSelection={setLayerSelection}
+              updateLayersSetting={updateLayersSetting}
+              map={map}
+              selectedLayer={selectedLayer}
             />
           ))}
         </RadioGroup>

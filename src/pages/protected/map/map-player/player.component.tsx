@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react'
 import {
   makeStyles,
   AppBar,
@@ -23,6 +23,7 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { AppConfig, AppConfigContext } from '../../../../config'
 import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
 import GetAppIcon from '@material-ui/icons/GetApp'
+import { tileJSONIfy } from '../../../../utils/map.utils'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -113,18 +114,28 @@ export function LayersPlayer(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const {layerSelection,layerId2Tiles,setDateIndex,dateIndex,visibility,setVisibility, updateCurrentLayer} = props
+  const {
+    layerSelection,
+    layerId2Tiles,
+    visibility,
+    setVisibility,
+    updateCurrentLayer,
+    selectedLayer,
+    updateLayersSetting,
+    map
+  } = props
 
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [opacity, setOpacity] = useState<number>(100);
   const { t } = useTranslation(['maps', 'labels'])
   const [ layerName, setLayerName ] = useState('')
   const { displayErrorSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
+  const geoServerConfig = appConfig.geoServer
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
+
 
   const layerProps = useMemo(()=>{
     switch(layerSelection.isMapRequest){
@@ -175,11 +186,15 @@ export function LayersPlayer(props) {
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
     event.stopPropagation();
     const opacity: number = newValue as number
-    setOpacity(opacity)
-    props.map.setPaintProperty(
-      layerName,
-      'raster-opacity',
-      opacity / 100
+    const updatedLayer = { ...selectedLayer}
+    updatedLayer.opacity = opacity
+    props.map.setPaintProperty(updatedLayer.activeLayer, 'raster-opacity', opacity / 100)
+    updateLayersSetting(
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId,
+      opacity,
+      'OPACITY'
     )
   }
 
@@ -199,15 +214,73 @@ export function LayersPlayer(props) {
     setIsLoading(false)
   }
 
+    useEffect(() => {
+      if (!selectedLayer) return
+      if (selectedLayer.toBeRemovedLayer !== '' && map.getLayer(selectedLayer.toBeRemovedLayer)) {
+        map.removeLayer(selectedLayer.toBeRemovedLayer)
+        map.removeSource(selectedLayer.toBeRemovedLayer)
+      }
 
-  const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
-    if (dateIndex < timestampsLength - 1) {
-      setDateIndex(dateIndex + 1)
-    } else {
-      setDateIndex(0)
-    }
+      const layerName = selectedLayer.activeLayer
+      if (layerName != '' && !map.getLayer(layerName)) {
+        const source = tileJSONIfy(
+          map,
+          layerName,
+          selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+          geoServerConfig,
+          map.getBounds()
+        )
+        source['properties'] = {
+          format: undefined,
+          fromTime: undefined,
+          toTime: undefined
+        }
+        map.addSource(layerName, source as mapboxgl.RasterSource)
+        map.addLayer(
+          {
+            id: layerName,
+            type: 'raster',
+            source: layerName
+          },
+          'clusters'
+        )
+        map.setPaintProperty(
+          selectedLayer.activeLayer,
+          'raster-opacity',
+          selectedLayer.opacity / 100
+        )
+      }
+    }, [selectedLayer?.dateIndex])
 
-  },[])
+    useEffect(() => {
+      if (!selectedLayer) return
+        map.setPaintProperty(
+          selectedLayer.activeLayer,
+          'raster-opacity',
+          selectedLayer.opacity / 100
+        )
+    }, [selectedLayer?.opacity])
+
+
+  // const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
+  //   if (dateIndex < timestampsLength - 1) {
+  //     setDateIndex(dateIndex + 1)
+  //   } else {
+  //     setDateIndex(0)
+  //   }
+
+  // },[])
+
+  const skipNext = (newValue) => {
+    const timestampsLength = selectedLayer.availableTimestamps.length
+    updateLayersSetting(
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId,
+      newValue <= timestampsLength - 1 ? newValue : 0,
+      'TIMESTAMP'
+    )
+  }
 
   async function playPause() {
     setPlaying(!playing)
@@ -219,17 +292,32 @@ export function LayersPlayer(props) {
     else return undefined
   }
 
-  useEffect(() => {
-    setDateIndex(0)
-  }, [layerSelection])
+  // useEffect(() => {
+  //   setDateIndex(0)
+  // }, [layerSelection, selectedLayer])
 
+  // useEffect(() => {
+  //   if (playing) {
+  //     let timer = setTimeout(() => skipNext(dateIndex,insideData.timestamps.length,setDateIndex), 5000)
+  //     return () => clearTimeout(timer)
+  //   }
+  // }, [playing, dateIndex,setDateIndex,insideData.timestamps,skipNext])
+  const onClickDateHandler = (event) => {
+    event.stopPropagation()
+    skipNext(selectedLayer.dateIndex + 1)
+  }
+  const changeDateHandler = (event, value) => {
+    event.stopPropagation()
+    skipNext(value)
+  }
   useEffect(() => {
     if (playing) {
-      let timer = setTimeout(() => skipNext(dateIndex,insideData.timestamps.length,setDateIndex), 5000)
+      const timer = setTimeout(() => skipNext(selectedLayer.dateIndex + 1), 3000)
       return () => clearTimeout(timer)
     }
-  }, [playing, dateIndex,setDateIndex,insideData.timestamps,skipNext])
+  }, [playing, changeDateHandler])
 
+  if (!selectedLayer) return <div></div>
   //console.log("DATE",dateIndex,layerProps,layerProps && layerProps['timestamps'][dateIndex],layerProps && typeof layerProps['timestamps'][dateIndex])
 
   return (
@@ -282,7 +370,7 @@ export function LayersPlayer(props) {
             style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
             onClick={() => {
               if (typeof insideData.metadatas == 'object')
-                props.getMeta(insideData.metadatas[dateIndex])
+                props.getMeta(insideData.metadatas[selectedLayer.dateIndex])
               else if (typeof insideData.metadatas == 'string') props.getMeta(insideData.metadatas)
               else
                 console.log(
@@ -308,8 +396,8 @@ export function LayersPlayer(props) {
       >
         <Typography align="left" variant="h5">
           {layerProps
-            ? !!formatDate(layerProps['timestamps'][dateIndex])
-              ? formatDate(layerProps['timestamps'][dateIndex])
+            ? !!formatDate(layerProps['timestamps'][selectedLayer.dateIndex])
+              ? formatDate(layerProps['timestamps'][selectedLayer.dateIndex])
               : formatDate(layerProps['timestamps'][0])
             : null}
         </Typography>
@@ -323,14 +411,13 @@ export function LayersPlayer(props) {
                   getAriaValueText={valuetext}
                   valueLabelDisplay="on"
                   step={1}
-                  value={dateIndex}
+                  value={selectedLayer.dateIndex}
                   // marks
                   min={0}
                   max={insideData.timestamps.length - 1}
                   color="secondary"
                   onChange={(event, value) => {
-                    setDateIndex(value)
-                    setOpacity(100)
+                    changeDateHandler(event, value)
                   }}
                 />
               </div>
@@ -342,10 +429,7 @@ export function LayersPlayer(props) {
                     <PlayArrowIcon style={{ height: 45, width: 45 }} />
                   )}
                 </IconButton>
-                <IconButton
-                  aria-label="next"
-                  onClick={() => skipNext(dateIndex, insideData.timestamps.length, setDateIndex)}
-                >
+                <IconButton aria-label="next" onClick={onClickDateHandler}>
                   <SkipNextIcon />
                 </IconButton>
                 {!isLoading ? (
@@ -355,9 +439,10 @@ export function LayersPlayer(props) {
                     style={{ marginLeft: 10 }}
                   >
                     <GetAppIcon />
-                  </IconButton>) :
+                  </IconButton>
+                ) : (
                   <CircularProgress color="secondary" size={20} />
-                 }
+                )}
               </div>
             </span>
           ) : (
@@ -366,14 +451,14 @@ export function LayersPlayer(props) {
         </div>
         <div className={classes.sliderContainer}>
           <label htmlFor="opacity-slider">
-            {t('maps:opacity')} {opacity}%
+            {t('maps:opacity')} {selectedLayer.opacity}%
           </label>
           <Slider
             id="layer-slider"
             defaultValue={100}
             valueLabelDisplay="off"
             step={1}
-            value={opacity}
+            value={selectedLayer.opacity}
             min={0}
             max={100}
             color="secondary"
