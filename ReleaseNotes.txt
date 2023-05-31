@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - Fix layer opacity when timestamp changes (#120)
+
+Ver. 2.8.0 - 2023-05-23
+-----------------------
 - Feature - Map polling (#99)
 - Feature - Fix getMapRequestById in case of error ref (#119)
 

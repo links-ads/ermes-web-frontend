@@ -1,10 +1,6 @@
 import { LayerImportStatusType, MapRequestLayerErrorDto } from 'ermes-ts-sdk'
-
-export class TimestampToFile {
-  [timestamp: string]: string
-}
-
-export class LayerSettingsState {
+import { TimestampToFile } from '../common/TimestampToFile'
+export class MapRequestLayerSettingsState {
   dateIndex: number
   opacity: number
   isChecked: boolean
@@ -36,7 +32,7 @@ export class LayerSettingsState {
 }
 
 export class MapRequestLayerState {
-  [dataTypeId: number]: LayerSettingsState
+  [dataTypeId: number]: MapRequestLayerSettingsState
 }
 
 class MapRequestState {

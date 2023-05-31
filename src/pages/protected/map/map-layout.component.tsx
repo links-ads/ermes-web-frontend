@@ -244,8 +244,8 @@ export function MapLayout(props) {
       if (!props.layerSelection.multipleLayersAllowed) {
         try {
           if (mapTileId !== null) {
-            map.removeLayer(mapTileId)
-            map.removeSource(mapTileId)
+            //map.removeLayer(mapTileId)
+            //map.removeSource(mapTileId)
           }
         } catch (err) {
           console.error('An error occurred', err)
@@ -264,8 +264,8 @@ export function MapLayout(props) {
             for(let key in activeSources){
               let titletoremove = activeSources[key]
               if (map.getLayer(titletoremove)) {
-              map.removeLayer(titletoremove)
-              map.removeSource(titletoremove)
+              //map.removeLayer(titletoremove)
+              //map.removeSource(titletoremove)
               }
             }
             tmp = {}
@@ -279,8 +279,8 @@ export function MapLayout(props) {
             let tryTitletoremove = activeSources[props.layerSelection.layerClicked]
             if(!!tryTitletoremove){
               if (map.getLayer(tryTitletoremove)) {
-                map.removeLayer(tryTitletoremove)
-                map.removeSource(tryTitletoremove)
+                //map.removeLayer(tryTitletoremove)
+                //map.removeSource(tryTitletoremove)
                 //removing only the tryTitletoremove element form the activesources array
                 let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
                 tmp = removedSource
@@ -297,23 +297,23 @@ export function MapLayout(props) {
         setActiveSources(tmp)
       }
 
-      map.addSource(geoLayerName, source as mapboxgl.RasterSource)
-      map.addLayer(
-        {
-          id: geoLayerName,
-          type: 'raster',
-          source: geoLayerName,
-        },
-        'clusters'
-      )
+      // map.addSource(geoLayerName, source as mapboxgl.RasterSource)
+      // map.addLayer(
+      //   {
+      //     id: geoLayerName,
+      //     type: 'raster',
+      //     source: geoLayerName,
+      //   },
+      //   'clusters'
+      // )
       setGeoLayerState({ tileId: geoLayerName, tileSource: source })
     } else {
 
       if (!props.layerSelection.multipleLayersAllowed) {
         if (mapTileId !== null) {
           try {
-            map.removeLayer(mapTileId)
-            map.removeSource(mapTileId)
+            //map.removeLayer(mapTileId)
+            //map.removeSource(mapTileId)
             setGeoLayerState({ tileId: null, tileSource: {} })
           } catch (err) {
             console.error('An error occurred', err)
@@ -327,8 +327,8 @@ export function MapLayout(props) {
             let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
             setActiveSources(removedSource)
             if (map.getLayer(titletoremove)) {
-              map.removeLayer(titletoremove)
-              map.removeSource(titletoremove)
+              //map.removeLayer(titletoremove)
+              //map.removeSource(titletoremove)
             }
             if(Object.keys(removedSource).length == 0)
             setGeoLayerState({ tileId: null, tileSource: {} })
