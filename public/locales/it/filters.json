@@ -8,6 +8,6 @@
     "any": "qualsiasi",
     "from_date": "Da",
     "to_date": " a",
-    "date_filters_same_error": "Data di inizio successiva a data di fine",
-    "date_filters_after_error": "Data di inizio e data di fine sono uguali"
+    "date_filters_same_error": "Data di inizio e data di fine sono uguali",
+    "date_filters_after_error": "Data di inizio successiva a data di fine"
 }

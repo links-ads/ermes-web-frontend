@@ -36,6 +36,12 @@ const filterReducer = (currentFilters: FiltersType, action: any): FiltersType =>
                 ...currentFilters,
                 dateend: action.value
             }
+        case 'DATES':
+            return {
+                ...currentFilters, 
+                datestart: action.start,
+                dateend: action.end
+            }
         case 'LANGUAGES':
             return {
                 ...currentFilters,
