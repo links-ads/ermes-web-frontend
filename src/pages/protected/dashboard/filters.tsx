@@ -174,10 +174,10 @@ export const DashboardFilters = (props) => {
 
     if (momentStartDate.isAfter(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
-      setDateErrorMessage('date_filters_same_error')
+      setDateErrorMessage('date_filters_after_error')
     } else if (momentStartDate.isSame(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
-      setDateErrorMessage('date_filters_after_error')
+      setDateErrorMessage('date_filters_same_error')
     } else {
       setDateErrorStatus(false)
       setDateErrorMessage('')
@@ -214,7 +214,7 @@ export const DashboardFilters = (props) => {
       justifyContent="space-around"
       className={classes.filterContainer}
     >
-      <Grid direction={'column'} item xs={9}>
+      <Grid container direction={'column'} item xs={9}>
         <Grid
           container
           direction={'row'}
@@ -225,10 +225,10 @@ export const DashboardFilters = (props) => {
         >
           <Grid item>
             <Grid container direction="row">
-              <Grid item direction="column" xs={6}>
+              <Grid item xs={6}>
                 <label>{t('social:starting_date')}</label>
               </Grid>
-              <Grid item direction="column" xs={6}>
+              <Grid item xs={6}>
                 <label>{t('social:end_date')}</label>
               </Grid>
             </Grid>
@@ -251,10 +251,12 @@ export const DashboardFilters = (props) => {
                   style={{ width: '560px' }}
                   locale={locale}
                 />
-                <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
-                  {t(`filters:${dateErrorMessage}`)}
-                </span>
               </LocaleProvider>
+            </Grid>
+            <Grid container direction="row">
+              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
+                {t(`filters:${dateErrorMessage}`)}
+              </span>
             </Grid>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
@@ -350,7 +352,7 @@ export const DashboardFilters = (props) => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid direction={'column'} item style={{ position: 'absolute', right: 24, bottom: 8 }}>
+      <Grid item style={{ position: 'absolute', right: 24, bottom: 8 }}>
         <Grid container direction={'row'}>
           <Grid item>
             <Typography variant="body2" align="right">
