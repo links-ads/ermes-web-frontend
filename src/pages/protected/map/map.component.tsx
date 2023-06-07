@@ -8,12 +8,11 @@ import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { AppConfig, AppConfigContext } from '../../../config'
-import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
-import { LayersPlayer } from './map-player/player.component'
+import LayersPlayer from './map-player/player.component'
 import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
@@ -28,10 +27,12 @@ import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
 import useInterval from '../../../hooks/use-interval.hook'
-import { GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
+import { AssociatedLayer, GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 type MapFeature = CulturalProps
+
+const NO_LAYER_SELECTED = '-1'
 
 export function Map() {
   // translate library
@@ -42,9 +43,7 @@ export function Map() {
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
-  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
-  const [ isLayersPlayerVisible, setIsLayerPlayerVisible ] = useState<boolean>(false)
-  
+  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false) 
 
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
@@ -134,20 +133,6 @@ export function Map() {
 
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
-
-  const applyFiltersObj = useCallback((newFiltersObj) => {
-    const newFilterList = getFilterList(newFiltersObj)
-
-    setFilterList(newFilterList)
-    applyFilters(newFiltersObj)
-    if (!toggleSideDrawer) {
-      setToggleActiveFilterTab(false)
-    }
-
-    // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
-    // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
-    forceUpdate()
-  }, [toggleSideDrawer, getFilterList, setFilterList, applyFilters, setToggleActiveFilterTab, forceUpdate])
 
   const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
     undefined
@@ -387,18 +372,19 @@ export function Map() {
       let subGroupLayerState = new SubGroupLayerState()  
       group['subGroups'].forEach((subGroup) => {
         let layerState = new LayerState()
-        subGroup['layers'].forEach((layer) => {
+        subGroup['layers'].filter(a => a['frequency'] !== 'OnDemand').forEach((layer) => {
+
             let layerSettingState = new LayerSettingsState(
               group.group,
               subGroup.subGroup,
-              layer['dataTypeId'],
-              layer['name'],
-              layer['format'],
-              layer['frequency'],
-              layer['type'],
-              layer['unitOfMeasure']
-            )   
-            layer.details!.forEach((detail) => {  
+              layer.dataTypeId,
+              layer.name,
+              layer.format,
+              layer.frequency,
+              layer.type,
+              layer.unitOfMeasure
+            )
+            layer.details!.forEach((detail) => {
               layerSettingState.metadataId = detail.metadata_Id
               let timestamps: string[] = [...layerSettingState.availableTimestamps]
               detail.timestamps!.forEach((timestamp) => {
@@ -416,14 +402,26 @@ export function Map() {
                     .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
                     .map((item) => item.dateString)
                 )
-              )  
+              )
             })
-            layerState[layer['dataTypeId']] = layerSettingState     
+            layerState[layer.dataTypeId] = layerSettingState
         })
-        subGroupLayerState[subGroup['subGroup']] = layerState
+        if (Object.keys(layerState).length > 0) 
+          subGroupLayerState[subGroup['subGroup']] = layerState
       })
-      groupLayersState[group['group']] = subGroupLayerState
+      if (Object.keys(subGroupLayerState).length > 0)
+        groupLayersState[group['group']] = subGroupLayerState
     })
+
+    if(getLayersState.result.data['associatedLayers']){
+      getLayersState.result.data['associatedLayers'].forEach(assLayer => {
+        let parent = groupLayersState[assLayer.group][assLayer.subGroup][assLayer.parentDataTypeId]
+        parent.associatedLayers.push(
+          new AssociatedLayer(assLayer.dataTypeId, assLayer.name, parent.dataTypeId, parent.name)
+        )
+      })
+    }
+
     setLayersSettings(groupLayersState)
     return groupLayersState
   }, [getLayersState])
@@ -973,38 +971,14 @@ export function Map() {
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {/* Hidden filter tab */}
-        {/* {toggleActiveFilterTab ? ( */}
-        {/* <FloatingFilterContainer
-          setToggleActiveFilterTab={setToggleActiveFilterTab}
-          toggleActiveFilterTab={toggleActiveFilterTab}
-          filtersObj={filtersObj}
-          defaultPosition={floatingFilterContainerDefaultCoord}
-          position={floatingFilterContainerPosition}
-          onPositionChange={setFloatingFilterContainerPosition}
-          applyFiltersObj={applyFiltersObj}
-          // resetFiltersObj={resetFiltersObj}
-          initObj={filtersObj}
-          resetFilters={resetFilters}
-          teamList={teamList}
-        ></FloatingFilterContainer> */}
-        {/* ) : null} */}
 
         <LayersPlayer
           visibility={togglePlayer}
           setVisibility={setTogglePlayer}
-          layerId2Tiles={layerId2Tiles}
-          layerSelection={layerSelection}
-          setDateIndex={setDateIndex}
-          dateIndex={dateIndex}
-          defaultPosition={layersPlayerDefaultCoord}
           position={layersPlayerPosition}
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           getMeta={getMeta}
-          updateCurrentLayer={updateCurrentLayer}
-          onPlayerChange={changePlayer}
-          geoServerConfig={appConfig.geoServer}
           map={map}
           selectedLayer={selectedLayer}
           updateLayersSetting={updateLayersSetting}
@@ -1035,24 +1009,10 @@ export function Map() {
             defaultPosition={mapTimeSeriesContainerDefaultCoord}
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
-            layerName={layerName}
-            allLayers={allLayers}
             selectedFilters={filtersObj?.filters}
-            layerSelection={layerSelection}
+            selectedLayer={selectedLayer}
           />
         )}
-        {/* <LayersSelectContainer
-          layerSelection={layerSelection}
-          setLayerSelection={setLayerSelection}
-          visibility={layersSelectVisibility}
-          setVisibility={setLayersSelectVisibility}
-          loading={getLayersState.loading}
-          error={getLayersState.error}
-          data={layersData}
-          defaultPosition={layersSelectContainerDefaultCoord}
-          position={layersSelectContainerPosition}
-          onPositionChange={setLayersSelectContainerPosition}
-        /> */}
 
         <LayersFloatingPanel
           layerGroups={layersSettings}

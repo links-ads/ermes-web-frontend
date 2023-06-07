@@ -55,7 +55,7 @@ import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
-import { NO_LAYER_SELECTED } from './map-layers/layers-select.component'
+import { NO_LAYER_SELECTED } from './map-layers/layers-select.component_old'
 import { PlayerButton } from './map-player/player-button.component'
 import { EntityType } from 'ermes-ts-sdk'
 
@@ -223,122 +223,122 @@ export function MapLayout(props) {
   /**
    * method that adds and removes different layers on map
    */
-  useEffect(() => {
-    const map = mapViewRef.current?.getMap()!
-    const mapTileId = geoLayerState.tileId
-    if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {    
-      const layerProps = props.layerSelection.isMapRequest === 0 ?
-        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
-        props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
-      const geoLayerName = layerProps['names'][props.dateIndex]
-      const source = tileJSONIfy(
-        map,
-        geoLayerName,
-        (!!layerProps['timestamps'][props.dateIndex] ? (new Date(layerProps['timestamps'][props.dateIndex]).toISOString()) :  new Date(layerProps['timestamps'][0]).toISOString()),
-        geoServerConfig,
-        map.getBounds()
-      )
-      source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }       
+  // useEffect(() => {
+  //   const map = mapViewRef.current?.getMap()!
+  //   const mapTileId = geoLayerState.tileId
+  //   if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {    
+  //     const layerProps = props.layerSelection.isMapRequest === 0 ?
+  //       props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
+  //       props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
+  //     const geoLayerName = layerProps['names'][props.dateIndex]
+  //     const source = tileJSONIfy(
+  //       map,
+  //       geoLayerName,
+  //       (!!layerProps['timestamps'][props.dateIndex] ? (new Date(layerProps['timestamps'][props.dateIndex]).toISOString()) :  new Date(layerProps['timestamps'][0]).toISOString()),
+  //       geoServerConfig,
+  //       map.getBounds()
+  //     )
+  //     source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }       
 
-      //if the layer is not a maprequest only one layer can be on the map, just remove the source
-      if (!props.layerSelection.multipleLayersAllowed) {
-        try {
-          if (mapTileId !== null) {
-            //map.removeLayer(mapTileId)
-            //map.removeSource(mapTileId)
-          }
-        } catch (err) {
-          console.error('An error occurred', err)
-        }
-      }
-      //it is a maprequest, multiple layers can be active
-      else {
-        //the first element of the active sources (the active layers)
-        let firstkey = (Object.keys(activeSources)[0] != null ? Object.keys(activeSources)[0].split("_")[0]  : '')
-        //selected is the name of the maprequest
-        let selected = props.layerSelection.layerClicked.split("_")[0]
-        var tmp=activeSources
-        //if firstkey and selected are different, we are swapping maprequest so we must clear the map
-        if(firstkey !== selected){
-          try {
-            for(let key in activeSources){
-              let titletoremove = activeSources[key]
-              if (map.getLayer(titletoremove)) {
-              //map.removeLayer(titletoremove)
-              //map.removeSource(titletoremove)
-              }
-            }
-            tmp = {}
-          } catch (err) {
-            console.error('An error occurred', err)
-          }
-        }
-        //if the maprequest is the same, we still must check if we are only changing timestamps cause if so we need to remove the previous
-        try {
+  //     //if the layer is not a maprequest only one layer can be on the map, just remove the source
+  //     if (!props.layerSelection.multipleLayersAllowed) {
+  //       try {
+  //         if (mapTileId !== null) {
+  //           //map.removeLayer(mapTileId)
+  //           //map.removeSource(mapTileId)
+  //         }
+  //       } catch (err) {
+  //         console.error('An error occurred', err)
+  //       }
+  //     }
+  //     //it is a maprequest, multiple layers can be active
+  //     else {
+  //       //the first element of the active sources (the active layers)
+  //       let firstkey = (Object.keys(activeSources)[0] != null ? Object.keys(activeSources)[0].split("_")[0]  : '')
+  //       //selected is the name of the maprequest
+  //       let selected = props.layerSelection.layerClicked.split("_")[0]
+  //       var tmp=activeSources
+  //       //if firstkey and selected are different, we are swapping maprequest so we must clear the map
+  //       if(firstkey !== selected){
+  //         try {
+  //           for(let key in activeSources){
+  //             let titletoremove = activeSources[key]
+  //             if (map.getLayer(titletoremove)) {
+  //             //map.removeLayer(titletoremove)
+  //             //map.removeSource(titletoremove)
+  //             }
+  //           }
+  //           tmp = {}
+  //         } catch (err) {
+  //           console.error('An error occurred', err)
+  //         }
+  //       }
+  //       //if the maprequest is the same, we still must check if we are only changing timestamps cause if so we need to remove the previous
+  //       try {
 
-            let tryTitletoremove = activeSources[props.layerSelection.layerClicked]
-            if(!!tryTitletoremove){
-              if (map.getLayer(tryTitletoremove)) {
-                //map.removeLayer(tryTitletoremove)
-                //map.removeSource(tryTitletoremove)
-                //removing only the tryTitletoremove element form the activesources array
-                let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
-                tmp = removedSource
-              }
-            }
+  //           let tryTitletoremove = activeSources[props.layerSelection.layerClicked]
+  //           if(!!tryTitletoremove){
+  //             if (map.getLayer(tryTitletoremove)) {
+  //               //map.removeLayer(tryTitletoremove)
+  //               //map.removeSource(tryTitletoremove)
+  //               //removing only the tryTitletoremove element form the activesources array
+  //               let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
+  //               tmp = removedSource
+  //             }
+  //           }
 
           
-        } catch (err) {
-          console.error('An error occurred', err)
-        }
+  //       } catch (err) {
+  //         console.error('An error occurred', err)
+  //       }
   
         
-        tmp[props.layerSelection.layerClicked]= geoLayerName
-        setActiveSources(tmp)
-      }
+  //       tmp[props.layerSelection.layerClicked]= geoLayerName
+  //       setActiveSources(tmp)
+  //     }
 
-      // map.addSource(geoLayerName, source as mapboxgl.RasterSource)
-      // map.addLayer(
-      //   {
-      //     id: geoLayerName,
-      //     type: 'raster',
-      //     source: geoLayerName,
-      //   },
-      //   'clusters'
-      // )
-      setGeoLayerState({ tileId: geoLayerName, tileSource: source })
-    } else {
+  //     // map.addSource(geoLayerName, source as mapboxgl.RasterSource)
+  //     // map.addLayer(
+  //     //   {
+  //     //     id: geoLayerName,
+  //     //     type: 'raster',
+  //     //     source: geoLayerName,
+  //     //   },
+  //     //   'clusters'
+  //     // )
+  //     setGeoLayerState({ tileId: geoLayerName, tileSource: source })
+  //   } else {
 
-      if (!props.layerSelection.multipleLayersAllowed) {
-        if (mapTileId !== null) {
-          try {
-            //map.removeLayer(mapTileId)
-            //map.removeSource(mapTileId)
-            setGeoLayerState({ tileId: null, tileSource: {} })
-          } catch (err) {
-            console.error('An error occurred', err)
-          }
-        }
-      } else {
-        if (mapTileId !== null) {
-          try {
+  //     if (!props.layerSelection.multipleLayersAllowed) {
+  //       if (mapTileId !== null) {
+  //         try {
+  //           //map.removeLayer(mapTileId)
+  //           //map.removeSource(mapTileId)
+  //           setGeoLayerState({ tileId: null, tileSource: {} })
+  //         } catch (err) {
+  //           console.error('An error occurred', err)
+  //         }
+  //       }
+  //     } else {
+  //       if (mapTileId !== null) {
+  //         try {
 
-            let titletoremove = activeSources[props.layerSelection.layerClicked]
-            let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
-            setActiveSources(removedSource)
-            if (map.getLayer(titletoremove)) {
-              //map.removeLayer(titletoremove)
-              //map.removeSource(titletoremove)
-            }
-            if(Object.keys(removedSource).length == 0)
-            setGeoLayerState({ tileId: null, tileSource: {} })
-          } catch (err) {
-            console.error('An error occurred', err)
-          }
-        }
-      }
-    }
-  }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
+  //           let titletoremove = activeSources[props.layerSelection.layerClicked]
+  //           let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
+  //           setActiveSources(removedSource)
+  //           if (map.getLayer(titletoremove)) {
+  //             //map.removeLayer(titletoremove)
+  //             //map.removeSource(titletoremove)
+  //           }
+  //           if(Object.keys(removedSource).length == 0)
+  //           setGeoLayerState({ tileId: null, tileSource: {} })
+  //         } catch (err) {
+  //           console.error('An error occurred', err)
+  //         }
+  //       }
+  //     }
+  //   }
+  // }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
   
   const handleOpacityChangeLocal =  useMemo(() =>  {
     const map = mapViewRef.current?.getMap()!
@@ -576,14 +576,14 @@ export function MapLayout(props) {
       onMapDoubleClickHandler(
         mapViewRef,
         mapMode,
-        geoLayerState,
+        props.selectedLayer,
         setDblClickFeatures,
         setMapHeadDrawerCoordinates,
         evt
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapMode, geoLayerState] // TODO check if needed
+    [mapMode, props.selectedLayer] // TODO check if needed
   )
 
   // Called on right click
@@ -738,6 +738,7 @@ export function MapLayout(props) {
       </MapHeadDrawer>
       <InteractiveMap
         {...viewport}
+        doubleClickZoom={false}        
         mapStyle={mapTheme?.style}
         onViewportChange={(nextViewport) => setViewport(nextViewport)}
         transformRequest={transformRequest}

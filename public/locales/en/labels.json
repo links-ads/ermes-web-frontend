@@ -132,5 +132,6 @@
   "organization": "Organization",
   "professional": "Professional",
   "citizen": "Citizen",
-  "receivers": "Receivers"
+  "receivers": "Receivers",
+  "legend": "Legend"
 }

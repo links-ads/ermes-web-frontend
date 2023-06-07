@@ -3,6 +3,7 @@ import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.con
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
 import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID } from '../../../../common/map/map-common';
+import { LayerSettingsState } from '../../../../models/layers/LayerState';
 
 // add position pin at click or db click of the user 
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
@@ -120,7 +121,7 @@ export function onMapLeftClickHandler<T extends object>(
 export async function onMapDoubleClickHandler<T extends object>(
   mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
-  geoLayerState,
+  selectedLayer: LayerSettingsState,
   setDblClickFeatures,
   setMapHeadDrawerCoordinates: React.Dispatch<React.SetStateAction<any[]>>,
   evt: PointerEvent
@@ -133,12 +134,15 @@ export async function onMapDoubleClickHandler<T extends object>(
   // manage user clicked point
   manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates)
 
-  // If a layer id displayed on the map
-  if (geoLayerState.tileId && geoLayerState.tileSource['properties']['format'] === 'NetCDF') {
+  if (
+    selectedLayer &&
+    selectedLayer.activeLayer &&
+    selectedLayer.format === 'NetCDF'
+  ) {
     evt.preventDefault()
     evt.stopImmediatePropagation()
     setDblClickFeatures({
-      showCard: true, 
+      showCard: true,
       coord: evt.lngLat
     })
   }

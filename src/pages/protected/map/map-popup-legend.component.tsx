@@ -6,12 +6,11 @@ import {
   Typography,
   IconButton,
   CardContent,
-  useTheme,
-  Box,
-  Toolbar
+  useTheme
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -29,6 +28,7 @@ const useStyles = makeStyles((theme) => ({
 export function PlayerLegend(props) {
   const classes = useStyles()
   const theme = useTheme()
+  const { t } = useTranslation(['labels'])
   if (props.imgSrc) {
     const imageEl = document.createElement('img')
     imageEl.src = props.imgSrc
@@ -70,7 +70,7 @@ export function PlayerLegend(props) {
             variant="h4"
             style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px' }}
           >
-            Legend
+            {t('legend')}
           </Typography>
         </span>
         <span style={{ width: '20%' }}>
