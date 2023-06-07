@@ -5,6 +5,7 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  Icon,
   IconButton,
   Input,
   InputLabel,
@@ -28,13 +29,14 @@ import filterReducer from '../../../common/filters/reducer'
 
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { makeStyles, Theme, createStyles, withStyles } from '@material-ui/core/styles'
 import moment from 'moment'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import './filters.css'
 import { ArrowDropDown } from '@material-ui/icons'
 import { EmergencyColorMap } from '../map/api-data/emergency.component'
+import { ToggleButton } from '@material-ui/lab'
 
 const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
@@ -400,8 +402,23 @@ const CategoryFilter = (props) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
+  const getApplyButtonClass = (label) => {
+    if (label === 'Person')
+      return classes.personApplyButton
+    if (label === 'Report')
+      return classes.reportApplyButton
+    if (label === 'Communication')
+      return classes.communicationApplyButton
+    if (label === 'MapRequest')
+      return classes.mapRequestApplyButton
+    if (label === 'Mission')
+      return classes.missionApplyButton
+    return classes.applyButton
+  }
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
+    // handleCheckBoxChange(event, value)
   }
 
   const handleClose = () => {
@@ -421,8 +438,8 @@ const CategoryFilter = (props) => {
       )
   }
 
-  const handleCheckBoxChange = (event, value) => {
-    filterCheckedHandler(event.target.value, value)
+  const handleCheckBoxChange = (event) => {
+    filterCheckedHandler(event.target.value, !isChecked)
   }
 
   const applyCategoryFilters = useCallback(() => {
@@ -447,8 +464,25 @@ const CategoryFilter = (props) => {
   }, [])
 
   return (
+    <>
     <Paper elevation={3}>
-      <FormControlLabel
+      <ToggleButton
+        // color="primary"
+        //onClick={handleButtonClick}
+        className={classes.filterButton}
+        onChange={handleCheckBoxChange}
+        value={props.emergencyLabel}
+        selected={isChecked}
+        style={{ textTransform: 'capitalize' }}
+      >
+        <Typography variant="body2">{t('labels:' + label)}</Typography>
+        {category && category.content && category.content.length > 0 ? 
+          <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked} size='small'>
+            <ArrowDropDown htmlColor={EmergencyColorMap[props.emergencyLabel]} /> 
+          </IconButton>
+        : <></>}
+      </ToggleButton>
+      {/* <FormControlLabel
         className={classes.filterCheckbox}
         control={
           <Checkbox
@@ -462,12 +496,12 @@ const CategoryFilter = (props) => {
           />
         }
         label={<Typography variant="body2">{t('labels:' + label)}</Typography>}
-      />
+      /> */}
       {category && category.content && category.content.length > 0 ? (
         <>
-          <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
-            <ArrowDropDown fontSize="small" />
-          </IconButton>
+          {/* <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
+            <ArrowDropDown fontSize="small" htmlColor={EmergencyColorMap[props.emergencyLabel]} />
+          </IconButton> */}
           <Popover
             id={id}
             open={open}
@@ -533,7 +567,7 @@ const CategoryFilter = (props) => {
                 })}
                 <MenuItem>
                   <Button
-                    className={classes.applyButton}
+                    className={getApplyButtonClass(props.emergencyLabel)}
                     style={{ textTransform: 'capitalize' }}
                     onClick={applyCategoryFilters}
                     size="small"
@@ -558,5 +592,6 @@ const CategoryFilter = (props) => {
         </>
       ) : undefined}
     </Paper>
+    </>
   )
 }
