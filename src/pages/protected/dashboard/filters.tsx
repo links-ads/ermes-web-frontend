@@ -59,6 +59,7 @@ export const DashboardFilters = (props) => {
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
   const [lastUpdateState, setLastUpdateState] = useState<string>(lastUpdate)
+  const { RangePicker } = DatePicker
 
   const classes = useStyles()
 
@@ -67,7 +68,7 @@ export const DashboardFilters = (props) => {
     setReportChecked(Report)
     setMissionChecked(Mission)
     setCommunicationChecked(Communication)
-    setMapRequestChecked(MapRequest)    
+    setMapRequestChecked(MapRequest)
   }, [Person, Report, Mission, Communication, MapRequest])
 
   useEffect(() => {
@@ -148,46 +149,21 @@ export const DashboardFilters = (props) => {
     return result
   }
 
-  function disabledStartDate(current) {
-    // Can not select days after end date
-    return current && current > moment(filters.dateend).endOf('minute')
-  }
-
-  function disabledEndDate(current) {
-    // Can not select days before start date
-    return current && current < moment(filters.datestart).startOf('minute')
-  }
-
-  function disableStartDateTime(current) {
-    let notAvailableHours: any[] = []
-    let notAvailableMinutes: any[] = []
-    if (current.isSame(filters.dateend, 'day')) {
-      const maxHour = moment(filters.dateend).hour()
-      notAvailableHours = range(maxHour + 1, 24)
-      if (current.isSame(filters.dateend, 'hour')) {
-        const maxMinute = moment(filters.dateend).minute()
-        notAvailableMinutes = range(maxMinute, 60)
-      }
-    }
-    return {
-      disabledHours: () => notAvailableHours,
-      disabledMinutes: () => notAvailableMinutes
-    }
-  }
-
-  function disableEndDateTime(current) {
-    let notAvailableHours: any[] = []
-    let notAvailableMinutes: any[] = []
-    if (current.isSame(filters.datestart, 'day')) {
-      const minHour = moment(filters.datestart).hour()
-      notAvailableHours = range(0, minHour)
-      if (current.isSame(filters.datestart, 'hour')) {
-        const minMinute = moment(filters.datestart).minute()
+  function disabledRangeTime(current, type) {
+    let notAvailableMinutes: number[] = []
+    const start = current[0]
+    const end = current[1]
+    if (start && start != null && end && end != null) {
+      if (start.isSame(end, 'hour')) {
+        const minMinute = start.minute()
         notAvailableMinutes = range(0, minMinute + 1)
       }
     }
+
+    if (type === 'start') {
+      return {}
+    }
     return {
-      disabledHours: () => notAvailableHours,
       disabledMinutes: () => notAvailableMinutes
     }
   }
@@ -198,23 +174,20 @@ export const DashboardFilters = (props) => {
 
     if (momentStartDate.isAfter(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
-      setDateErrorMessage('date_filters_same_error')
+      setDateErrorMessage('date_filters_after_error')
     } else if (momentStartDate.isSame(momentEndDate, 'minute')) {
       setDateErrorStatus(true)
-      setDateErrorMessage('date_filters_after_error')
+      setDateErrorMessage('date_filters_same_error')
     } else {
       setDateErrorStatus(false)
       setDateErrorMessage('')
     }
   }, [])
 
-  const updateStartDate = (date) => {
-    dispatch({ type: 'START_DATE', value: date?.toDate() })
-    setHasReset(false)
-  }
-
-  const updateEndDate = (date) => {
-    dispatch({ type: 'END_DATE', value: date?.toDate() })
+  const updateRangeDate = (dates) => {
+    const startDate = dates[0]
+    const endDate = dates[1]
+    dispatch({ type: 'DATES', start: startDate?.toDate(), end: endDate?.toDate() })
     setHasReset(false)
   }
 
@@ -241,66 +214,50 @@ export const DashboardFilters = (props) => {
       justifyContent="space-around"
       className={classes.filterContainer}
     >
-      <Grid direction={'column'} container>
+      <Grid container direction={'column'} item xs={9}>
         <Grid
           container
           direction={'row'}
-          justifyContent="center"
+          justifyContent="flex-start"
           alignItems="center"
           spacing={1}
           style={{ flex: 2 }}
         >
           <Grid item>
-            <label style={{ display: 'flex', flexDirection: 'column' }}>
-              {t('social:starting_date')}
-            </label>
-            <LocaleProvider locale={locale}>
-              <DatePicker
-                id="starting-date"
-                disabledDate={disabledStartDate}
-                disabledTime={disableStartDateTime}
-                onChange={updateStartDate}
-                showTime={{
-                  defaultValue: moment(moment(filters.datestart), 'HH:mm'),
-                  format: 'HH:mm'
-                }}
-                defaultValue={moment(filters.datestart)}
-                value={moment(filters.datestart)}
-                allowClear
-                format="ddd DD MMMM YYYY - HH:mm"
-                style={{ width: '280px' }}
-                locale={locale}
-              />
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <label>{t('social:starting_date')}</label>
+              </Grid>
+              <Grid item xs={6}>
+                <label>{t('social:end_date')}</label>
+              </Grid>
+            </Grid>
+            <Grid container direction="row">
+              <LocaleProvider locale={locale}>
+                <RangePicker
+                  disabledTime={disabledRangeTime}
+                  onChange={updateRangeDate}
+                  showTime={{
+                    defaultValue: [
+                      moment(moment(filters.datestart), 'HH:mm'),
+                      moment(moment(filters.dateend), 'HH:mm')
+                    ],
+                    format: 'HH:mm'
+                  }}
+                  defaultValue={[moment(filters.datestart), moment(filters.dateend)]}
+                  value={[moment(filters.datestart), moment(filters.dateend)]}
+                  allowClear
+                  format="ddd DD MMMM YYYY - HH:mm"
+                  style={{ width: '560px' }}
+                  locale={locale}
+                />
+              </LocaleProvider>
+            </Grid>
+            <Grid container direction="row">
               <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
                 {t(`filters:${dateErrorMessage}`)}
               </span>
-            </LocaleProvider>
-          </Grid>
-          <Grid item style={{ marginLeft: 8 }}>
-            <label style={{ display: 'flex', flexDirection: 'column' }}>
-              {t('social:end_date')}
-            </label>
-            <LocaleProvider locale={locale}>
-              <DatePicker
-                id="end-date"
-                disabledDate={disabledEndDate}
-                disabledTime={disableEndDateTime}
-                onChange={updateEndDate}
-                showTime={{
-                  defaultValue: moment(moment(filters.dateend), 'HH:mm'),
-                  format: 'HH:mm'
-                }}
-                defaultValue={moment(filters.dateend)}
-                value={moment(filters.dateend)}
-                allowClear
-                format="ddd DD MMMM YYYY - HH:mm"
-                style={{ width: '280px' }}
-                locale={locale}
-              />
-              <span style={{ display: 'flex', flexDirection: 'column', color: 'red' }}>
-                {t(`filters:${dateErrorMessage}`)}
-              </span>
-            </LocaleProvider>
+            </Grid>
           </Grid>
           <Grid item style={{ marginLeft: 40 }}>
             <Button
@@ -326,14 +283,11 @@ export const DashboardFilters = (props) => {
               {t('social:filter_reset')}
             </Button>
           </Grid>
-          <Grid item>
-            <Typography variant="body2">{t('labels:timestamp')}: {moment(lastUpdateState).format("HH:mm")}</Typography>
-          </Grid>
         </Grid>
         <Grid
           container
           direction={'row'}
-          justifyContent="center"
+          justifyContent="flex-start"
           alignItems="center"
           spacing={1}
           style={{ flexGrow: 1, marginTop: 3 }}
@@ -395,6 +349,15 @@ export const DashboardFilters = (props) => {
               isChecked={mapRequestChecked}
               filterCheckedHandler={onFilterChecked}
             />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item style={{ position: 'absolute', right: 24, bottom: 8 }}>
+        <Grid container direction={'row'}>
+          <Grid item>
+            <Typography variant="body2" align="right">
+              {t('labels:timestamp')}: {moment(lastUpdateState).format('HH:mm')}
+            </Typography>
           </Grid>
         </Grid>
       </Grid>
