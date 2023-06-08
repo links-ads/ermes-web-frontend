@@ -16,7 +16,6 @@ import MetaIcon from '@material-ui/icons/InfoOutlined'
 import PlayArrowIcon from '@material-ui/icons/PlayArrow'
 import PauseIcon from '@material-ui/icons/Pause'
 import SkipNextIcon from '@material-ui/icons/SkipNext'
-import { NO_LAYER_SELECTED } from '../map-layers/layers-select.component'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
@@ -24,6 +23,8 @@ import { AppConfig, AppConfigContext } from '../../../../config'
 import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
 import GetAppIcon from '@material-ui/icons/GetApp'
 import { tileJSONIfy } from '../../../../utils/map.utils'
+import { LayerSettingsState } from '../../../../models/layers/LayerState'
+import { PixelPostion } from '../../../../models/common/PixelPosition'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -104,7 +105,17 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 
-export function LayersPlayer(props) {
+const LayersPlayer: React.FC<{
+  map: any
+  selectedLayer: LayerSettingsState | undefined
+  updateLayersSetting: any
+  visibility: boolean
+  setVisibility: any
+  position: any
+  onPositionChange: any
+  getLegend: any
+  getMeta: any
+}> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
   const dateOptions = {
@@ -114,21 +125,12 @@ export function LayersPlayer(props) {
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const {
-    layerSelection,
-    layerId2Tiles,
-    visibility,
-    setVisibility,
-    updateCurrentLayer,
-    selectedLayer,
-    updateLayersSetting,
-    map
-  } = props
+  const { visibility, setVisibility, selectedLayer, updateLayersSetting, map } = props
 
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation(['maps', 'labels'])
-  const [ layerName, setLayerName ] = useState('')
+  const layerName = selectedLayer?.activeLayer
   const { displayErrorSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
@@ -136,63 +138,20 @@ export function LayersPlayer(props) {
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 
-
-  const layerProps = useMemo(()=>{
-    switch(layerSelection.isMapRequest){
-      case NO_LAYER_SELECTED:
-        return null
-      case 0: //it's not a maprequestlayer, picking layerId2Tiles[0][dataypeId of the layer selected]
-        return layerId2Tiles[layerSelection.isMapRequest][layerSelection.dataTypeId]
-      case 1: //it's a maprequestlayer, picking layerId2Tiles[1][id of the maprequest element clicked][dataypeId of the layer selected]
-
-        setLayerName(layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId].names[0])
-        return layerId2Tiles[layerSelection.isMapRequest][layerSelection.mapRequestCode][layerSelection.dataTypeId]
-    }
-  },[layerSelection])
-
-  const insideData = {
-    name: layerProps
-      ? layerProps.name
-      : 'No layer selected',
-    labels: layerProps
-      ? layerProps.names
-      : [],
-    timestamps: layerProps
-      ? layerProps.timestamps
-      : [],
-      metadatas: layerProps
-      ? layerProps.metadataId
-      : []
-  }
-  useMemo(() => updateCurrentLayer(layerName), [layerName]);
-  // console.log('LayersPlayer', props.layerId2Tiles)
-  // console.log('LayerID', props.layerSelection)
-
-  /**
-   * updates the values then the slider is moved
-   * at the moment metadatas and labels are the same for each timestamp
-   * @param value the index of the slider
-   * @returns the timestamp to visualize as title
-   */
-  function valuetext(value) {
-    setLayerName(insideData.labels[value])
-    props.onPlayerChange(insideData.labels[value], insideData.metadatas[value], insideData.name)
-    //setSelectedName(insideData.labels[value])
-    return insideData.timestamps[value]
-  }
-
- 
+  const defaultPosition = useMemo<PixelPostion>(() => {
+    return { x: 60, y: Math.max(90, window.innerHeight - 350) }
+  }, [])
 
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
-    event.stopPropagation();
+    event.stopPropagation()
     const opacity: number = newValue as number
-    const updatedLayer = { ...selectedLayer}
+    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity : 0, activeLayer: ''}
     updatedLayer.opacity = opacity
     props.map.setPaintProperty(updatedLayer.activeLayer, 'raster-opacity', opacity / 100)
     updateLayersSetting(
-      selectedLayer.group,
-      selectedLayer.subGroup,
-      selectedLayer.dataTypeId,
+      selectedLayer?.group,
+      selectedLayer?.subGroup,
+      selectedLayer?.dataTypeId,
       opacity,
       'OPACITY'
     )
@@ -214,69 +173,51 @@ export function LayersPlayer(props) {
     setIsLoading(false)
   }
 
-    useEffect(() => {
-      if (!selectedLayer) return
-      if (selectedLayer.toBeRemovedLayer !== '' && map.getLayer(selectedLayer.toBeRemovedLayer)) {
-        map.removeLayer(selectedLayer.toBeRemovedLayer)
-        map.removeSource(selectedLayer.toBeRemovedLayer)
+  useEffect(() => {
+    if (!selectedLayer) return
+    if (selectedLayer.toBeRemovedLayer !== '' && map.getLayer(selectedLayer.toBeRemovedLayer)) {
+      map.removeLayer(selectedLayer.toBeRemovedLayer)
+      map.removeSource(selectedLayer.toBeRemovedLayer)
+    }
+
+    const layerName = selectedLayer.activeLayer
+    if (layerName != '' && !map.getLayer(layerName)) {
+      const source = tileJSONIfy(
+        map,
+        layerName,
+        selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+        geoServerConfig,
+        map.getBounds()
+      )
+      source['properties'] = {
+        format: undefined,
+        fromTime: undefined,
+        toTime: undefined
       }
+      map.addSource(layerName, source as mapboxgl.RasterSource)
+      map.addLayer(
+        {
+          id: layerName,
+          type: 'raster',
+          source: layerName
+        },
+        'clusters'
+      )
+      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+    }
+  }, [selectedLayer?.dateIndex])
 
-      const layerName = selectedLayer.activeLayer
-      if (layerName != '' && !map.getLayer(layerName)) {
-        const source = tileJSONIfy(
-          map,
-          layerName,
-          selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-          geoServerConfig,
-          map.getBounds()
-        )
-        source['properties'] = {
-          format: undefined,
-          fromTime: undefined,
-          toTime: undefined
-        }
-        map.addSource(layerName, source as mapboxgl.RasterSource)
-        map.addLayer(
-          {
-            id: layerName,
-            type: 'raster',
-            source: layerName
-          },
-          'clusters'
-        )
-        map.setPaintProperty(
-          selectedLayer.activeLayer,
-          'raster-opacity',
-          selectedLayer.opacity / 100
-        )
-      }
-    }, [selectedLayer?.dateIndex])
-
-    useEffect(() => {
-      if (!selectedLayer) return
-        map.setPaintProperty(
-          selectedLayer.activeLayer,
-          'raster-opacity',
-          selectedLayer.opacity / 100
-        )
-    }, [selectedLayer?.opacity])
-
-
-  // const skipNext = useCallback(async (dateIndex:number,timestampsLength:number,setDateIndex) => {
-  //   if (dateIndex < timestampsLength - 1) {
-  //     setDateIndex(dateIndex + 1)
-  //   } else {
-  //     setDateIndex(0)
-  //   }
-
-  // },[])
+  useEffect(() => {
+    if (!selectedLayer) return
+    map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+  }, [selectedLayer?.opacity])
 
   const skipNext = (newValue) => {
-    const timestampsLength = selectedLayer.availableTimestamps.length
+    const timestampsLength = selectedLayer?.availableTimestamps.length
     updateLayersSetting(
-      selectedLayer.group,
-      selectedLayer.subGroup,
-      selectedLayer.dataTypeId,
+      selectedLayer?.group,
+      selectedLayer?.subGroup,
+      selectedLayer?.dataTypeId,
       newValue <= timestampsLength - 1 ? newValue : 0,
       'TIMESTAMP'
     )
@@ -285,26 +226,15 @@ export function LayersPlayer(props) {
   async function playPause() {
     setPlaying(!playing)
   }
-  
-  function formatDate(date: string){
-    if(!!date)
-      return formatter.format(new Date(date as string))//.toLocaleString(dateFormat)
+
+  function formatDate(date: string) {
+    if (!!date) return formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
     else return undefined
   }
 
-  // useEffect(() => {
-  //   setDateIndex(0)
-  // }, [layerSelection, selectedLayer])
-
-  // useEffect(() => {
-  //   if (playing) {
-  //     let timer = setTimeout(() => skipNext(dateIndex,insideData.timestamps.length,setDateIndex), 5000)
-  //     return () => clearTimeout(timer)
-  //   }
-  // }, [playing, dateIndex,setDateIndex,insideData.timestamps,skipNext])
   const onClickDateHandler = (event) => {
     event.stopPropagation()
-    skipNext(selectedLayer.dateIndex + 1)
+    skipNext(selectedLayer? selectedLayer.dateIndex + 1 : 0)
   }
   const changeDateHandler = (event, value) => {
     event.stopPropagation()
@@ -312,18 +242,17 @@ export function LayersPlayer(props) {
   }
   useEffect(() => {
     if (playing) {
-      const timer = setTimeout(() => skipNext(selectedLayer.dateIndex + 1), 3000)
+      const timer = setTimeout(() => skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0), 3000)
       return () => clearTimeout(timer)
     }
   }, [playing, changeDateHandler])
 
   if (!selectedLayer) return <div></div>
-  //console.log("DATE",dateIndex,layerProps,layerProps && layerProps['timestamps'][dateIndex],layerProps && typeof layerProps['timestamps'][dateIndex])
 
   return (
     <FloatingCardContainer
       bounds={'parent'}
-      defaultPosition={props.defaultPosition}
+      defaultPosition={defaultPosition}
       position={props.position}
       onPositionChange={props.onPositionChange}
       toggleActiveFilterTab={visibility}
@@ -346,7 +275,7 @@ export function LayersPlayer(props) {
       >
         <span className={classes.titleContainer}>
           <Typography align="left" variant="h4" style={{ fontSize: '2rem' }}>
-            {insideData.name}
+            {selectedLayer.name}
           </Typography>
         </span>
         <span>
@@ -369,14 +298,8 @@ export function LayersPlayer(props) {
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
             onClick={() => {
-              if (typeof insideData.metadatas == 'object')
-                props.getMeta(insideData.metadatas[selectedLayer.dateIndex])
-              else if (typeof insideData.metadatas == 'string') props.getMeta(insideData.metadatas)
-              else
-                console.log(
-                  'no metadata procedure implemented for type',
-                  typeof insideData.metadatas
-                )
+              if (selectedLayer)
+                props.getMeta(selectedLayer.metadataId)
             }}
           >
             <MetaIcon />
@@ -395,26 +318,22 @@ export function LayersPlayer(props) {
         }}
       >
         <Typography align="left" variant="h5">
-          {layerProps
-            ? !!formatDate(layerProps['timestamps'][selectedLayer.dateIndex])
-              ? formatDate(layerProps['timestamps'][selectedLayer.dateIndex])
-              : formatDate(layerProps['timestamps'][0])
-            : null}
+          {formatDate(selectedLayer.availableTimestamps[selectedLayer.dateIndex])}
         </Typography>
         <div className={classes.playerContainer}>
-          {insideData.timestamps.length > 1 ? (
+          {selectedLayer.availableTimestamps.length > 1 ? (
             <span className={classes.spanContainer}>
               <div className={classes.sliderContainer}>
                 <Slider
                   aria-label="Temperature"
                   defaultValue={0}
-                  getAriaValueText={valuetext}
+                  //getAriaValueText={valuetext}
                   valueLabelDisplay="on"
                   step={1}
                   value={selectedLayer.dateIndex}
                   // marks
                   min={0}
-                  max={insideData.timestamps.length - 1}
+                  max={selectedLayer.availableTimestamps.length - 1}
                   color="secondary"
                   onChange={(event, value) => {
                     changeDateHandler(event, value)
@@ -469,3 +388,5 @@ export function LayersPlayer(props) {
     </FloatingCardContainer>
   )
 }
+
+export default LayersPlayer;

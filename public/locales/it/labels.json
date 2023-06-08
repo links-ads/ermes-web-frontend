@@ -127,11 +127,12 @@
   "map_request_hazards": "Evento",
   "MapRequest": "Richieste mappatura",
   "scope": "Visibilità",
-  "restriction":"Restrizione",
+  "restriction": "Restrizione",
   "restricted": "Ristretto",
-  "public":"Pubblico",
+  "public": "Pubblico",
   "organization": "Organizzazione",
   "professional": "Professionista",
   "citizen": "Cittadino",
-  "receivers": "Riceventi"
+  "receivers": "Riceventi",
+  "legend": "Legenda"
 }

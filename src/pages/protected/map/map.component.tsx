@@ -11,12 +11,11 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import useLanguage from '../../../hooks/use-language.hook'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { AppConfig, AppConfigContext } from '../../../config'
-import { LayersSelectContainer, NO_LAYER_SELECTED } from './map-layers/layers-select.component'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
-import { LayersPlayer } from './map-player/player.component'
+import LayersPlayer from './map-player/player.component'
 import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
@@ -31,10 +30,12 @@ import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
 import useInterval from '../../../hooks/use-interval.hook'
-import { GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
+import { AssociatedLayer, GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 type MapFeature = CulturalProps
+
+const NO_LAYER_SELECTED = '-1'
 
 export function Map() {
   // translate library
@@ -45,9 +46,7 @@ export function Map() {
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
-  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
-  const [ isLayersPlayerVisible, setIsLayerPlayerVisible ] = useState<boolean>(false)
-  
+  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false) 
 
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
@@ -138,20 +137,6 @@ export function Map() {
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
 
-  const applyFiltersObj = useCallback((newFiltersObj) => {
-    const newFilterList = getFilterList(newFiltersObj)
-
-    setFilterList(newFilterList)
-    applyFilters(newFiltersObj)
-    if (!toggleSideDrawer) {
-      setToggleActiveFilterTab(false)
-    }
-
-    // const startDate = (filtersObj?.filters?.datestart as any).selected ? new Date((filtersObj?.filters?.datestart as any).selected) : null
-    // const endDate = (filtersObj?.filters?.dateend as any).selected ? new Date((filtersObj?.filters?.dateend as any).selected) : null
-    forceUpdate()
-  }, [toggleSideDrawer, getFilterList, setFilterList, applyFilters, setToggleActiveFilterTab, forceUpdate])
-
   const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
     undefined
   )
@@ -237,171 +222,30 @@ export function Map() {
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
   const [legendLayer, setLegendLayer] = useState('')
   const [metaLayer, setMetaLayer] = useState('')
-  const [currentLayerName, setCurrentLayerName] = useState('')
 
-  const layerId2Tiles = useMemo(() => {
-    if (Object.keys(getLayersState.result).length === 0) return [{}, {}]
-    if (!getLayersState.result.data['layerGroups']) return [{}, {}]
-
-    // Collect datatype ids associated to at least one map request
-    let mapRequestDataTypes = [] as any[]
-    getLayersState.result.data['layerGroups'].forEach((group) => {
-      group['subGroups'].forEach((subGroup) => {
-        subGroup['layers'].forEach((layer) => {
-          layer['details'].forEach((detail) => {
-            if (detail['mapRequestCode']) mapRequestDataTypes.push(layer['dataTypeId'])
-          })
-        })
-      })
-    })
-
-    mapRequestDataTypes = [...new Set(mapRequestDataTypes)]
-
-    let data2Tiles = {}
-    /**dictionary of key: "name of the maprequest" -  content: another dictionary that has
-     * as key the datatypeid (es. Incendio e mappa area bruciata), as content
-     * {
-     * name: the name associated to the datatypeid
-     * names: string[] the names of the layers containing the maprequests
-     * namesTimes: dictionary key: timestamp content: name of the layer corresponding at the timestamp (they are the same of names)
-     * timestamps: string[] of timestamps
-     * }
-     * */
-    let mapRequestData2Tiles = {}
-
-    getLayersState.result.data['layerGroups'].forEach((group) => {
-      group['subGroups'].forEach((subGroup) => {
-        subGroup['layers'].forEach((layer) => {
-          //if the layer is of a datatype that I know is in a mapRequest
-          if (mapRequestDataTypes.includes(layer['dataTypeId'])) {
-            layer['details'].forEach((detail) => {
-              //check if that layer belongs to the result of a maprequest
-              if (detail['mapRequestCode']) {
-                //add the request name as key to the mapRequestData2Tiles dictionary
-                if (!(detail['mapRequestCode'] in mapRequestData2Tiles)) {
-                  mapRequestData2Tiles[detail['mapRequestCode']] = {}
-                }
-                /**if the datatypeid is not yet into the mapRequestData2Tiles[maprequestname] that has it
-                 * insert into the dataype element the datatypeid name
-                 * and create an empty dictionary nameTimes to be used after this
-                 */
-                if (!(layer['dataTypeId'] in mapRequestData2Tiles[detail['mapRequestCode']])) {
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']] = {
-                    name: layer['name'],
-                    namesTimes: {}
-                  }
-                }
-                /**for each timestaps element in each detail, insert
-                 * in the corresponding maprequest name element,
-                 *    in the corresponding datatypeid,
-                 * the field 'metadataId' (the id needed when you call getmeta())
-                 * in the dictionary 'namesTimes' add the pair
-                 */
-                detail['timestamps'].forEach((timestamp) => {
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']][
-                    'metadataId'
-                  ] = detail['metadata_Id']
-                  mapRequestData2Tiles[detail['mapRequestCode']][layer['dataTypeId']]['namesTimes'][
-                    timestamp
-                  ] = detail['name']
-                })
-              }
-            })
-          } else {
-            //frequency onDemand means it is a maprequest, already handled in the block above
-            if (layer['frequency'] === 'OnDemand') return
-
-            let namestimesDict: { [key: string]: string } = {}
-            let namesmetaDict: { [key: string]: string } = {}
-            layer['details'].forEach((detail) => {
-              detail['timestamps'].forEach((timestamp) => {
-                namestimesDict[timestamp] = detail['name']
-                namesmetaDict[timestamp] = detail['metadata_Id']
-              })
-            })
-
-            data2Tiles[layer['dataTypeId']] = {
-              names: Object.values(namestimesDict),
-              timestamps: Object.keys(namestimesDict),
-              name: layer['name'],
-              format: layer['format'],
-              fromTime: Object.keys(namestimesDict)[0],
-              toTime: Object.keys(namestimesDict).slice(-1)[0],
-              metadataId: Object.values(namesmetaDict)
-            }
-          }
-        })
-      })
-    })
-    /**
-     * add the fields 'timestamps' and 'names' to the mapRequestData2Tiles object
-     */
-    let mrSettings: MapRequestState
-    Object.keys(mapRequestData2Tiles).forEach((mapRequestCode) => {
-      
-      Object.keys(mapRequestData2Tiles[mapRequestCode]).forEach((dataTypeId) => {
-        mapRequestData2Tiles[mapRequestCode][dataTypeId]['timestamps'] = Object.keys(
-          mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes']
-        )
-        mapRequestData2Tiles[mapRequestCode][dataTypeId]['names'] = Object.values(
-          mapRequestData2Tiles[mapRequestCode][dataTypeId]['namesTimes']
-        )
-      })
-    })
-    
-    return [data2Tiles, mapRequestData2Tiles]
-  }, [getLayersState])
-
-  const layersData = useMemo(() => {
-    let groupData = [] as any[]
-    if (Object.keys(getLayersState.result).length === 0) return groupData
-    if (!getLayersState.result.data['layerGroups']) return groupData
-
-    let subGroupData = [] as any[]
-    getLayersState.result.data['layerGroups'].forEach((group) => {
-      group['subGroups'].forEach((subGroup) => {
-        let layerData = [] as any[]
-        subGroup['layers'].forEach((layer) => {
-          if (layer['dataTypeId'] in layerId2Tiles[0]) {
-            layerData.push({
-              name: layer['name'],
-              dataTypeId: layer['dataTypeId']
-            })
-          }
-        })
-        if (layerData.length > 0){
-          subGroupData.push({ name: subGroup['subGroup'], layers: layerData })
-        }
-      })
-      if (subGroupData.length > 0) {
-        groupData.push({ name: group['group'], subGroups: subGroupData })
-      }
-    })
-    
-    return groupData
-  }, [getLayersState])
-
-  const layerGroups = useMemo(() => {
+  useEffect(() => {
     let groupLayersState = new GroupLayerState()
-    if (Object.keys(getLayersState.result).length === 0) return groupLayersState
-    if (!getLayersState.result.data['layerGroups']) return groupLayersState
+    if (Object.keys(getLayersState.result).length === 0) return
+    if (!getLayersState.result.data['layerGroups']) return
 
     getLayersState.result.data['layerGroups'].forEach((group) => {
-      let subGroupLayerState = new SubGroupLayerState()  
+      let subGroupLayerState = new SubGroupLayerState()
       group['subGroups'].forEach((subGroup) => {
         let layerState = new LayerState()
-        subGroup['layers'].forEach((layer) => {
+        subGroup['layers']
+          .filter((a) => a['frequency'] !== 'OnDemand')
+          .forEach((layer) => {
             let layerSettingState = new LayerSettingsState(
               group.group,
               subGroup.subGroup,
-              layer['dataTypeId'],
-              layer['name'],
-              layer['format'],
-              layer['frequency'],
-              layer['type'],
-              layer['unitOfMeasure']
-            )   
-            layer.details!.forEach((detail) => {  
+              layer.dataTypeId,
+              layer.name,
+              layer.format,
+              layer.frequency,
+              layer.type,
+              layer.unitOfMeasure
+            )
+            layer.details!.forEach((detail) => {
               layerSettingState.metadataId = detail.metadata_Id
               let timestamps: string[] = [...layerSettingState.availableTimestamps]
               detail.timestamps!.forEach((timestamp) => {
@@ -419,75 +263,29 @@ export function Map() {
                     .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
                     .map((item) => item.dateString)
                 )
-              )  
+              )
             })
-            layerState[layer['dataTypeId']] = layerSettingState     
-        })
-        subGroupLayerState[subGroup['subGroup']] = layerState
-      })
-      groupLayersState[group['group']] = subGroupLayerState
-    })
-    setLayersSettings(groupLayersState)
-    return groupLayersState
-  }, [getLayersState])
-
-  const allLayers = useMemo(() => {
-    if (Object.keys(getLayersState.result).length === 0) return null
-    if (!getLayersState.result.data.associatedLayers) return null
-    if (!getLayersState.result.data.layerGroups) return null
-
-    // layers
-    let mainLayers: any[] = []
-    getLayersState.result.data.layerGroups.forEach((group) => {
-      group.subGroups.forEach((subGroup) => {
-        mainLayers = mainLayers.concat(
-          subGroup.layers.map((layer) => {
-            return {
-              id: layer.dataTypeId,
-              name: layer.name
-            }
+            layerState[layer.dataTypeId] = layerSettingState
           })
+        if (Object.keys(layerState).length > 0)
+          subGroupLayerState[subGroup['subGroup']] = layerState
+      })
+      if (Object.keys(subGroupLayerState).length > 0)
+        groupLayersState[group['group']] = subGroupLayerState
+    })
+
+    if (getLayersState.result.data['associatedLayers']) {
+      getLayersState.result.data['associatedLayers'].forEach((assLayer) => {
+        let parent = groupLayersState[assLayer.group][assLayer.subGroup][assLayer.parentDataTypeId]
+        parent.associatedLayers.push(
+          new AssociatedLayer(assLayer.dataTypeId, assLayer.name, parent.dataTypeId, parent.name)
         )
       })
-    })
-
-    // associated layers
-    let associatedLayers = getLayersState.result.data.associatedLayers.map((al) => {
-      let parentLayer = mainLayers.find((layer) => layer.id === al.parentDataTypeId)
-      return {
-        id: al.dataTypeId,
-        name: al.name,
-        parentId: al.parentDataTypeId,
-        parentName: parentLayer.name
-      }
-    })
-
-    // layers with associated layers
-    let groupedAssociatedLayers = associatedLayers.reduce((acc, curr) => {
-      let parentLayer = acc.find((p) => p.id === curr.parentId)
-      if (parentLayer) {
-        let childrenLayers = parentLayer.children
-        childrenLayers.push({ id: curr.id, name: curr.name })
-        parentLayer.children = childrenLayers
-      } else {
-        let newParentLayer = {
-          id: curr.parentId,
-          name: curr.parentName,
-          children: [{ id: curr.id, name: curr.name }]
-        }
-        acc.push(newParentLayer)
-      }
-      return acc
-    }, [])
-
-    return {
-      layers: mainLayers,
-      associatedLayers: associatedLayers,
-      groupedLayers: groupedAssociatedLayers
     }
+
+    setLayersSettings(groupLayersState)
   }, [getLayersState])
- 
-  const [ layersPanelPosition, setLayersPanelPosition] = useState<PixelPostion>({ x:0, y:0})
+
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -634,7 +432,7 @@ export function Map() {
   }, [layerSelection])
 
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<
-    { x: number; y: number } | undefined
+    PixelPostion | undefined
   >(undefined)
   const [layersPlayerPosition, setLayersPlayerPosition] = useState<
     { x: number; y: number } | undefined
@@ -672,13 +470,15 @@ export function Map() {
 
   useEffect(() => {
     if (toggleSideDrawer) {
-      if (layersSelectVisibility) {
+      if (isLayersPanelVisible) {
         //layers container is visible, move it
         //opening drawer
-        if (layersSelectContainerPosition == undefined)
-          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
+        if (!layersSelectContainerPosition)
+          setLayersSelectContainerPosition(
+            new PixelPostion(470, layersSelectContainerDefaultCoord.y)
+          )
         else if (layersSelectContainerPosition!.x < 450)
-          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
+          setLayersSelectContainerPosition(new PixelPostion(470, layersSelectContainerPosition!.y))
       }
 
       if (togglePlayer) {
@@ -813,14 +613,6 @@ export function Map() {
   }
 
   /**
-   * called when the user clicks on another layer
-   * @param layerName the name of the new layer to be displayed on map
-   */
-  function updateCurrentLayer(layerName: string) {
-    setCurrentLayerName(layerName)
-  }
-
-  /**
    * called when metadata button is clicked
    * @param metaId the metadataid of the layer to display data of
    */
@@ -950,9 +742,6 @@ export function Map() {
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
         spiderifierRef={spiderifierRef}
-        layerSelection={layerSelection}
-        setLayerSelection={setLayerSelection}
-        layerId2Tiles={layerId2Tiles}
         setToggleDrawerTab={setToggleSideDrawer}
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
@@ -962,7 +751,6 @@ export function Map() {
         getMeta={getMeta}
         forceUpdate={forceUpdate}
         teamList={teamList}
-        updateCurrentLayer={updateCurrentLayer}
         onPlayerChange={changePlayer}
         handleOpacityChange={handleOpacityChange}
         fetchGeoJson={fetchGeoJson}
@@ -976,38 +764,13 @@ export function Map() {
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {/* Hidden filter tab */}
-        {/* {toggleActiveFilterTab ? ( */}
-        {/* <FloatingFilterContainer
-          setToggleActiveFilterTab={setToggleActiveFilterTab}
-          toggleActiveFilterTab={toggleActiveFilterTab}
-          filtersObj={filtersObj}
-          defaultPosition={floatingFilterContainerDefaultCoord}
-          position={floatingFilterContainerPosition}
-          onPositionChange={setFloatingFilterContainerPosition}
-          applyFiltersObj={applyFiltersObj}
-          // resetFiltersObj={resetFiltersObj}
-          initObj={filtersObj}
-          resetFilters={resetFilters}
-          teamList={teamList}
-        ></FloatingFilterContainer> */}
-        {/* ) : null} */}
-
         <LayersPlayer
           visibility={togglePlayer}
           setVisibility={setTogglePlayer}
-          layerId2Tiles={layerId2Tiles}
-          layerSelection={layerSelection}
-          setDateIndex={setDateIndex}
-          dateIndex={dateIndex}
-          defaultPosition={layersPlayerDefaultCoord}
           position={layersPlayerPosition}
           onPositionChange={setLayersPlayerPosition}
           getLegend={getLegend}
           getMeta={getMeta}
-          updateCurrentLayer={updateCurrentLayer}
-          onPlayerChange={changePlayer}
-          geoServerConfig={appConfig.geoServer}
           map={map}
           selectedLayer={selectedLayer}
           updateLayersSetting={updateLayersSetting}
@@ -1038,24 +801,10 @@ export function Map() {
             defaultPosition={mapTimeSeriesContainerDefaultCoord}
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
-            layerName={layerName}
-            allLayers={allLayers}
             selectedFilters={filtersObj?.filters}
-            layerSelection={layerSelection}
+            selectedLayer={selectedLayer}
           />
         )}
-        {/* <LayersSelectContainer
-          layerSelection={layerSelection}
-          setLayerSelection={setLayerSelection}
-          visibility={layersSelectVisibility}
-          setVisibility={setLayersSelectVisibility}
-          loading={getLayersState.loading}
-          error={getLayersState.error}
-          data={layersData}
-          defaultPosition={layersSelectContainerDefaultCoord}
-          position={layersSelectContainerPosition}
-          onPositionChange={setLayersSelectContainerPosition}
-        /> */}
 
         <LayersFloatingPanel
           layerGroups={layersSettings}
@@ -1066,6 +815,8 @@ export function Map() {
           updateLayersSetting={updateLayersSetting}
           map={map}
           selectedLayer={selectedLayer}
+          position={layersSelectContainerPosition}
+          setPosition={setLayersSelectContainerPosition}
         />
 
         <MapStateContextProvider<MapFeature>>
@@ -1091,15 +842,11 @@ export function Map() {
             updateMapBounds={updateMapBounds}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
-            layerSelection={layerSelection}
-            layerId2Tiles={layerId2Tiles}
-            dateIndex={dateIndex}
-            currentLayerName={currentLayerName}
             setDblClickFeatures={setDblClickFeatures}
-            singleLayerOpacityStatus={singleLayerOpacityStatus}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
             selectedLayer={selectedLayer}
+            mapRequestsSettings={mapRequestsSettings}
           />
         </MapStateContextProvider>
 

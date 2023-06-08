@@ -1,5 +1,19 @@
 import { TimestampToFile } from "../common/TimestampToFile"
 
+
+export class AssociatedLayer {
+  dataTypeId: number
+  name: string
+  parentDataTypeId: number
+  parentName: string
+
+  constructor(id, name, parentId, parentName) {
+      this.dataTypeId = id
+      this.name = name
+      this.parentDataTypeId = parentId
+      this.parentName = parentName
+  }
+}
 export class LayerSettingsState {
   group: string
   subGroup: string
@@ -19,7 +33,8 @@ export class LayerSettingsState {
   activeLayer: string
   toBeRemovedLayer: string
 
-  assiociatedLayers: number[]
+  associatedLayers: AssociatedLayer[]
+
   constructor(
     group: string,
     subGroup: string,
@@ -48,7 +63,7 @@ export class LayerSettingsState {
     this.availableTimestamps = []
     this.activeLayer = ''
     this.toBeRemovedLayer = ''
-    this.assiociatedLayers = []
+    this.associatedLayers = []
   }
 }
 
