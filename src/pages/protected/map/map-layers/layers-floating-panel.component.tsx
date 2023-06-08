@@ -38,6 +38,8 @@ const LayersFloatingPanel: React.FC<{
   updateLayersSetting: any
   map: any
   selectedLayer: LayerSettingsState | undefined
+  position: PixelPostion | undefined
+  setPosition: any
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
@@ -45,7 +47,7 @@ const LayersFloatingPanel: React.FC<{
   const defaultPosition = useMemo<PixelPostion>(() => {
     return { x: 60, y: Math.max(120, window.innerHeight - 250 - 450) }
   }, [])
-  const [position, setPosition] = useState<PixelPostion>(defaultPosition)
+  
   const [dim, setDim] = useState({
     width: 500,
     height: 400
@@ -55,14 +57,14 @@ const LayersFloatingPanel: React.FC<{
   }
 
   const onPositionChangeHandler = (event) => {
-    setPosition(new PixelPostion(event.x, event.y))
+    props.setPosition(new PixelPostion(event.x, event.y))
   }
 
   return (
     <FloatingCardContainer
       bounds={'parent'}
       defaultPosition={defaultPosition}
-      position={position}
+      position={props.position}
       toggleActiveFilterTab={props.isVisible}
       dim={dim}
       onResize={onResize}

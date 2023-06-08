@@ -55,8 +55,6 @@ import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
-import { NO_LAYER_SELECTED } from './map-layers/layers-select.component_old'
-import { PlayerButton } from './map-player/player-button.component'
 import { EntityType } from 'ermes-ts-sdk'
 
 // Style for the geolocation controls
@@ -164,7 +162,15 @@ export function MapLayout(props) {
   const [legendToggle, setLegendToggle] = useState(false)
 
   // Parse props
-  const { goToCoord, setGoToCoord, setMap, setSpiderifierRef, setDblClickFeatures } = props
+  const {
+    goToCoord,
+    setGoToCoord,
+    setMap,
+    setSpiderifierRef,
+    setDblClickFeatures,
+    selectedLayer,
+    mapRequestsSettings
+  } = props
 
   // Map state
   const [
@@ -216,143 +222,7 @@ export function MapLayout(props) {
   const [teamName, setPersonTeam] = useState<undefined | { feature }>(undefined)
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
-
-  const [activeSources, setActiveSources] = useState<any>({})
-  const removeSourceFromArray = (arr, element) => { let tmp = arr; delete tmp[element]; return tmp }
-
-  /**
-   * method that adds and removes different layers on map
-   */
-  // useEffect(() => {
-  //   const map = mapViewRef.current?.getMap()!
-  //   const mapTileId = geoLayerState.tileId
-  //   if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {    
-  //     const layerProps = props.layerSelection.isMapRequest === 0 ?
-  //       props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
-  //       props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
-  //     const geoLayerName = layerProps['names'][props.dateIndex]
-  //     const source = tileJSONIfy(
-  //       map,
-  //       geoLayerName,
-  //       (!!layerProps['timestamps'][props.dateIndex] ? (new Date(layerProps['timestamps'][props.dateIndex]).toISOString()) :  new Date(layerProps['timestamps'][0]).toISOString()),
-  //       geoServerConfig,
-  //       map.getBounds()
-  //     )
-  //     source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }       
-
-  //     //if the layer is not a maprequest only one layer can be on the map, just remove the source
-  //     if (!props.layerSelection.multipleLayersAllowed) {
-  //       try {
-  //         if (mapTileId !== null) {
-  //           //map.removeLayer(mapTileId)
-  //           //map.removeSource(mapTileId)
-  //         }
-  //       } catch (err) {
-  //         console.error('An error occurred', err)
-  //       }
-  //     }
-  //     //it is a maprequest, multiple layers can be active
-  //     else {
-  //       //the first element of the active sources (the active layers)
-  //       let firstkey = (Object.keys(activeSources)[0] != null ? Object.keys(activeSources)[0].split("_")[0]  : '')
-  //       //selected is the name of the maprequest
-  //       let selected = props.layerSelection.layerClicked.split("_")[0]
-  //       var tmp=activeSources
-  //       //if firstkey and selected are different, we are swapping maprequest so we must clear the map
-  //       if(firstkey !== selected){
-  //         try {
-  //           for(let key in activeSources){
-  //             let titletoremove = activeSources[key]
-  //             if (map.getLayer(titletoremove)) {
-  //             //map.removeLayer(titletoremove)
-  //             //map.removeSource(titletoremove)
-  //             }
-  //           }
-  //           tmp = {}
-  //         } catch (err) {
-  //           console.error('An error occurred', err)
-  //         }
-  //       }
-  //       //if the maprequest is the same, we still must check if we are only changing timestamps cause if so we need to remove the previous
-  //       try {
-
-  //           let tryTitletoremove = activeSources[props.layerSelection.layerClicked]
-  //           if(!!tryTitletoremove){
-  //             if (map.getLayer(tryTitletoremove)) {
-  //               //map.removeLayer(tryTitletoremove)
-  //               //map.removeSource(tryTitletoremove)
-  //               //removing only the tryTitletoremove element form the activesources array
-  //               let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
-  //               tmp = removedSource
-  //             }
-  //           }
-
-          
-  //       } catch (err) {
-  //         console.error('An error occurred', err)
-  //       }
   
-        
-  //       tmp[props.layerSelection.layerClicked]= geoLayerName
-  //       setActiveSources(tmp)
-  //     }
-
-  //     // map.addSource(geoLayerName, source as mapboxgl.RasterSource)
-  //     // map.addLayer(
-  //     //   {
-  //     //     id: geoLayerName,
-  //     //     type: 'raster',
-  //     //     source: geoLayerName,
-  //     //   },
-  //     //   'clusters'
-  //     // )
-  //     setGeoLayerState({ tileId: geoLayerName, tileSource: source })
-  //   } else {
-
-  //     if (!props.layerSelection.multipleLayersAllowed) {
-  //       if (mapTileId !== null) {
-  //         try {
-  //           //map.removeLayer(mapTileId)
-  //           //map.removeSource(mapTileId)
-  //           setGeoLayerState({ tileId: null, tileSource: {} })
-  //         } catch (err) {
-  //           console.error('An error occurred', err)
-  //         }
-  //       }
-  //     } else {
-  //       if (mapTileId !== null) {
-  //         try {
-
-  //           let titletoremove = activeSources[props.layerSelection.layerClicked]
-  //           let removedSource = removeSourceFromArray(activeSources, props.layerSelection.layerClicked)
-  //           setActiveSources(removedSource)
-  //           if (map.getLayer(titletoremove)) {
-  //             //map.removeLayer(titletoremove)
-  //             //map.removeSource(titletoremove)
-  //           }
-  //           if(Object.keys(removedSource).length == 0)
-  //           setGeoLayerState({ tileId: null, tileSource: {} })
-  //         } catch (err) {
-  //           console.error('An error occurred', err)
-  //         }
-  //       }
-  //     }
-  //   }
-  // }, [props.layerSelection, props.dateIndex, geoServerConfig, props.layerId2Tiles])
-  
-  const handleOpacityChangeLocal =  useMemo(() =>  {
-    const map = mapViewRef.current?.getMap()!
-    const opacity: number = props.singleLayerOpacityStatus[0] as number
-
-    if(!!map && !!props.singleLayerOpacityStatus){
-    map.setPaintProperty(
-      //layerName,
-      props.singleLayerOpacityStatus[1],
-      'raster-opacity',
-      props.singleLayerOpacityStatus[0] / 100
-    )}
-   },[props.singleLayerOpacityStatus]
-  )
   useEffect(
     () => {
       if (editingFeatureType !== null) {
@@ -416,42 +286,88 @@ export function MapLayout(props) {
    */
   const onMapStyleChange = () => {
     const map = mapViewRef.current?.getMap()!
-    const mapTileId = geoLayerState.tileId
-    if (mapTileId !== null) {
 
-      map.removeLayer(mapTileId)
-      map.removeSource(mapTileId)
-      setGeoLayerState({ tileId: null, tileSource: {} })
+    //Management of layer not related to a Map Request
+    if(selectedLayer)
+    {
+      if (selectedLayer.activeLayer !== null) {
+        map.removeLayer(selectedLayer.activeLayer)
+        map.removeSource(selectedLayer.activeLayer)
+        setGeoLayerState({ tileId: null, tileSource: {} })
+      }
+
+      setTimeout(() => {
+        const layerName = selectedLayer.activeLayer
+        if (layerName != '' && !map.getLayer(layerName)) {
+          const source = tileJSONIfy(
+            map,
+            layerName,
+            selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+            geoServerConfig,
+            map.getBounds()
+          )
+          source['properties'] = {
+            format: undefined,
+            fromTime: undefined,
+            toTime: undefined
+          }
+          map.addSource(layerName, source as mapboxgl.RasterSource)
+          map.addLayer(
+            {
+              id: layerName,
+              type: 'raster',
+              source: layerName
+            },
+            'clusters'
+          )
+          map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+        }
+      }, 1000) //after 1 sec
     }
 
-    setTimeout(() => {
-      if (props.layerSelection.dataTypeId !== NO_LAYER_SELECTED) {
-        const layerProps = props.layerSelection.isMapRequest === 0 ?
-          props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.dataTypeId] :
-          props.layerId2Tiles[props.layerSelection.isMapRequest][props.layerSelection.mapRequestCode][props.layerSelection.dataTypeId]
-        const geoLayerName = layerProps['names'][props.dateIndex]
-        const source = tileJSONIfy(
-          map,
-          geoLayerName,
-          new Date(layerProps['timestamps'][props.dateIndex]).toISOString(),
-          geoServerConfig,
-          map.getBounds()
-        )
-        source['properties'] = { 'format': layerProps['format'], 'fromTime': layerProps['fromTime'], 'toTime': layerProps['toTime'] }
-
-
-        map.addSource(geoLayerName, source as mapboxgl.RasterSource)
-        map.addLayer(
-          {
-            id: geoLayerName,
-            type: 'raster',
-            source: geoLayerName,
-          },
-          'clusters'
-        )
-        setGeoLayerState({ tileId: geoLayerName, tileSource: source })
-      }
-    }, 1000) //after 1 sec
+    //Map request layers management
+    if(mapRequestsSettings)
+    {
+      Object.keys(mapRequestsSettings).forEach( mrCode => {
+          Object.keys(mapRequestsSettings[mrCode]).forEach( dataTypeId => {
+            const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
+            if(activeLayer && activeLayer !== ''){
+                map.removeLayer(activeLayer)
+                map.removeSource(activeLayer)
+                setTimeout(() => {
+                  const source = tileJSONIfy(
+                    map,
+                    activeLayer,
+                    mapRequestsSettings[mrCode][dataTypeId].availableTimestamps[
+                      mapRequestsSettings[mrCode][dataTypeId].dateIndex
+                    ],
+                    geoServerConfig,
+                    map.getBounds()
+                  )
+                  source['properties'] = {
+                    format: undefined,
+                    fromTime: undefined,
+                    toTime: undefined
+                  }
+                  map.addSource(activeLayer, source as mapboxgl.RasterSource)
+                  map.addLayer(
+                    {
+                      id: activeLayer,
+                      type: 'raster',
+                      source: activeLayer
+                    },
+                    'clusters'
+                  )
+                  map.setPaintProperty(
+                    activeLayer,
+                    'raster-opacity',
+                    mapRequestsSettings[mrCode][dataTypeId].opacity / 100
+                  )
+                }, 1000)
+            }
+          })
+      })
+    }
   }
   
 
@@ -864,9 +780,6 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          {props.layerSelection.dataTypeId !== NO_LAYER_SELECTED ? (
-            <PlayerButton visibility={props.togglePlayer} setVisibility={props.setTogglePlayer} />
-          ) : null}
         </>
       )}
       <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef} onMapStyleChange={onMapStyleChange} mapChangeSource={0}></MapStyleToggle>
