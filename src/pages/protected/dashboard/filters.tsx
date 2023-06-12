@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useState } from 'react'
 import {
   Button,
+  ButtonGroup,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -396,8 +397,9 @@ const CategoryPinIcon = (props) => {
 }
 
 const CategoryFilter = (props) => {
-  const { t, classes, label, category, applyFilters, isChecked, filterCheckedHandler } = props
+  const { t, classes, label, emergencyLabel, category, applyFilters, isChecked, filterCheckedHandler } = props
   const [categoryFilters, setCategoryFilters] = useState(category)
+  const [ clickCounter, setClickCounter ] = useState<number>(0)
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -439,7 +441,13 @@ const CategoryFilter = (props) => {
   }
 
   const handleCheckBoxChange = (event) => {
-    filterCheckedHandler(event.target.value, !isChecked)
+    if (clickCounter > 0){
+      filterCheckedHandler(emergencyLabel, !isChecked)
+    }      
+    else{
+      filterCheckedHandler(emergencyLabel, true)
+      setClickCounter(i => i + 1)
+    }      
   }
 
   const applyCategoryFilters = useCallback(() => {
@@ -466,7 +474,31 @@ const CategoryFilter = (props) => {
   return (
     <>
     <Paper elevation={3}>
-      <ToggleButton
+      <ButtonGroup variant="contained" color="primary" aria-label="split button" >
+        <Button 
+          onClick={handleCheckBoxChange}
+          //className={classes.filterButton}
+          style={{ textTransform: 'capitalize' }}          
+        >
+          <Typography variant="body2" style={{ color: (clickCounter && isChecked ? EmergencyColorMap[emergencyLabel] : 'inherit')}}>{t('labels:' + label)}</Typography>
+        </Button>
+        {category && category.content && category.content.length > 0 ?
+        <Button
+          aria-describedby={id}
+          // color="primary"
+          size="small"
+          // aria-controls={open ? 'split-button-menu' : undefined}
+          // aria-expanded={open ? 'true' : undefined}
+          // aria-label="select merge strategy"
+          // aria-haspopup="menu"
+          disabled={!isChecked}
+          onClick={handleClick}
+        >
+          <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
+        </Button>
+        : null}
+      </ButtonGroup>
+      {/* <ToggleButton
         // color="primary"
         //onClick={handleButtonClick}
         className={classes.filterButton}
@@ -481,7 +513,7 @@ const CategoryFilter = (props) => {
             <ArrowDropDown htmlColor={EmergencyColorMap[props.emergencyLabel]} /> 
           </IconButton>
         : <></>}
-      </ToggleButton>
+      </ToggleButton> */}
       {/* <FormControlLabel
         className={classes.filterCheckbox}
         control={

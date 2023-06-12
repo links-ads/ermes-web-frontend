@@ -221,6 +221,25 @@ export const filtersReducer = (currentState, action) => {
       else {
         newFiltersObject.filters.multicheckCategories.options[action.name] = action.visibility
       }
+
+      // deactivate the others if one feature is selected
+      if (action.visibility){
+        if (action.name !== 'Communication'){
+          newMapDrawerTabVisibility.Communication = !action.visibility
+        }
+        if (action.name !== 'MapRequest'){
+          newMapDrawerTabVisibility.MapRequest = !action.visibility
+        }
+        if (action.name !== 'Mission'){
+          newMapDrawerTabVisibility.Mission = !action.visibility
+        }
+        if (action.name !== 'Report'){
+          newMapDrawerTabVisibility.Report = !action.visibility
+        }
+        if (action.name !== 'Person'){
+          newMapDrawerTabVisibility.Person = !action.visibility
+        }
+      }
       
       updateFiltersLocalStorage(newFiltersObject) 
       return {
