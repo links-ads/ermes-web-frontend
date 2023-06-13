@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - filter bar fine tuning (#123)
+- Feature - new feature colors in legend, map pins, filter bar and map drawer cards (#124)
 
 Ver. 2.8.0 - 2023-05-23
 -----------------------

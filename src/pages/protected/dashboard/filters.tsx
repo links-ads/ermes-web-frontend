@@ -4,10 +4,7 @@ import {
   ButtonGroup,
   Checkbox,
   FormControl,
-  FormControlLabel,
   Grid,
-  Icon,
-  IconButton,
   Input,
   InputLabel,
   ListItemText,
@@ -16,7 +13,6 @@ import {
   Paper,
   Popover,
   Select,
-  SvgIcon,
   Typography
 } from '@material-ui/core'
 import { DatePicker, LocaleProvider } from 'antd'
@@ -30,14 +26,14 @@ import filterReducer from '../../../common/filters/reducer'
 
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
-import { makeStyles, Theme, createStyles, withStyles } from '@material-ui/core/styles'
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
 import moment from 'moment'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import './filters.css'
 import { ArrowDropDown } from '@material-ui/icons'
 import { EmergencyColorMap } from '../map/api-data/emergency.component'
-import { ToggleButton } from '@material-ui/lab'
+import { EntityType } from 'ermes-ts-sdk'
 
 const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
@@ -62,6 +58,7 @@ export const DashboardFilters = (props) => {
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
   const [lastUpdateState, setLastUpdateState] = useState<string>(lastUpdate)
+  const [btnClickCounter, setBtnClickCounter] = useState<number>(0)
   const { RangePicker } = DatePicker
 
   const classes = useStyles()
@@ -300,11 +297,13 @@ export const DashboardFilters = (props) => {
               t={t}
               classes={classes}
               label="persons"
-              emergencyLabel="Person"
+              emergencyLabel={EntityType.PERSON}
               category={filtersState.persons}
               applyFilters={applyPersonFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={personChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
             />
           </Grid>
           <Grid item>
@@ -312,11 +311,13 @@ export const DashboardFilters = (props) => {
               t={t}
               classes={classes}
               label="report"
-              emergencyLabel="Report"
+              emergencyLabel={EntityType.REPORT}
               category={filtersState.report}
               applyFilters={applyReportFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={reportChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
             />
           </Grid>
           <Grid item>
@@ -324,33 +325,39 @@ export const DashboardFilters = (props) => {
               t={t}
               classes={classes}
               label="mission"
-              emergencyLabel="Mission"
+              emergencyLabel={EntityType.MISSION}
               category={filtersState.mission}
               applyFilters={applyMissionFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={missionChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
             />
           </Grid>
           <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
-              label="Communication"
-              emergencyLabel="Communication"
+              label={EntityType.COMMUNICATION}
+              emergencyLabel={EntityType.COMMUNICATION}
               filterCheckedHandler={onFilterChecked}
               isChecked={communicationChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
             />
           </Grid>
           <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
-              label="MapRequest"
-              emergencyLabel="MapRequest"
+              label={EntityType.MAP_REQUEST}
+              emergencyLabel={EntityType.MAP_REQUEST}
               category={filtersState.mapRequests}
               applyFilters={applyMapRequestFilters}
               isChecked={mapRequestChecked}
               filterCheckedHandler={onFilterChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
             />
           </Grid>
         </Grid>
@@ -368,59 +375,36 @@ export const DashboardFilters = (props) => {
   )
 }
 
-const CategoryPinBorderIcon = (props) => {
-  return (
-    <SvgIcon
-      {...props}
-      viewBox="-1.5 -1.5 18.00 18.00"
-      htmlColor={EmergencyColorMap[props.colorlabel]}
-    >
-      <path
-        d="M7.5,14.941l-.4-.495c-.973-1.189-4.9-6.556-4.9-9.16A5.066,5.066,0,0,1,7.036,0q.222-.01.445,0a5.066,5.066,0,0,1,5.286,4.836q.01.225,0,.45c0,2.213-2.669,6.111-4.678,8.851ZM7.481.986a4.077,4.077,0,0,0-4.3,4.3c0,1.832,2.759,6.038,4.286,8.034,1.25-1.71,4.315-5.989,4.315-8.034a4.077,4.077,0,0,0-4.3-4.3Z"
-        stroke={EmergencyColorMap[props.colorlabel]}
-        strokeWidth={1.5}
-      ></path>
-    </SvgIcon>
-  )
-}
-
-const CategoryPinIcon = (props) => {
-  return (
-    <SvgIcon
-      {...props}
-      viewBox="-1.5 -1.5 18.00 18.00"
-      htmlColor={EmergencyColorMap[props.colorlabel]}
-    >
-      <path d="M7.5,0C5.0676,0,2.2297,1.4865,2.2297,5.2703 C2.2297,7.8378,6.2838,13.5135,7.5,15c1.0811-1.4865,5.2703-7.027,5.2703-9.7297C12.7703,1.4865,9.9324,0,7.5,0z"></path>
-    </SvgIcon>
-  )
-}
-
 const CategoryFilter = (props) => {
-  const { t, classes, label, emergencyLabel, category, applyFilters, isChecked, filterCheckedHandler } = props
+  const {
+    t,
+    classes,
+    label,
+    emergencyLabel,
+    category,
+    applyFilters,
+    isChecked,
+    filterCheckedHandler,
+    clickCounter,
+    setClickCounter
+  } = props
   const [categoryFilters, setCategoryFilters] = useState(category)
-  const [ clickCounter, setClickCounter ] = useState<number>(0)
+
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
-  const getApplyButtonClass = (label) => {
-    if (label === 'Person')
-      return classes.personApplyButton
-    if (label === 'Report')
-      return classes.reportApplyButton
-    if (label === 'Communication')
-      return classes.communicationApplyButton
-    if (label === 'MapRequest')
-      return classes.mapRequestApplyButton
-    if (label === 'Mission')
-      return classes.missionApplyButton
+  const getApplyButtonClass = (label) => {    
+    if (label === EntityType.COMMUNICATION) return classes.communicationApplyButton
+    if (label === EntityType.MAP_REQUEST) return classes.mapRequestApplyButton
+    if (label === EntityType.MISSION) return classes.missionApplyButton
+    if (label === EntityType.PERSON) return classes.personApplyButton
+    if (label === EntityType.REPORT) return classes.reportApplyButton
     return classes.applyButton
   }
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
-    // handleCheckBoxChange(event, value)
   }
 
   const handleClose = () => {
@@ -440,14 +424,15 @@ const CategoryFilter = (props) => {
       )
   }
 
-  const handleCheckBoxChange = (event) => {
-    if (clickCounter > 0){
-      filterCheckedHandler(emergencyLabel, !isChecked)
-    }      
-    else{
-      filterCheckedHandler(emergencyLabel, true)
-      setClickCounter(i => i + 1)
-    }      
+  const handleCheckBoxChange = () => {
+    // by default, the first click on the feature button will filter by the clicked feature and will deactivate the other buttons,
+    // after the first click, it will behave as a toggle button
+    if (clickCounter > 0) {
+      filterCheckedHandler(emergencyLabel, !isChecked, clickCounter + 1)
+    } else {
+      filterCheckedHandler(emergencyLabel, true, clickCounter + 1)
+      setClickCounter((i) => i + 1)
+    }
   }
 
   const applyCategoryFilters = useCallback(() => {
@@ -473,157 +458,120 @@ const CategoryFilter = (props) => {
 
   return (
     <>
-    <Paper elevation={3}>
-      <ButtonGroup variant="contained" color="primary" aria-label="split button" >
-        <Button 
-          onClick={handleCheckBoxChange}
-          //className={classes.filterButton}
-          style={{ textTransform: 'capitalize' }}          
-        >
-          <Typography variant="body2" style={{ color: (clickCounter && isChecked ? EmergencyColorMap[emergencyLabel] : 'inherit')}}>{t('labels:' + label)}</Typography>
-        </Button>
-        {category && category.content && category.content.length > 0 ?
-        <Button
-          aria-describedby={id}
-          // color="primary"
-          size="small"
-          // aria-controls={open ? 'split-button-menu' : undefined}
-          // aria-expanded={open ? 'true' : undefined}
-          // aria-label="select merge strategy"
-          // aria-haspopup="menu"
-          disabled={!isChecked}
-          onClick={handleClick}
-        >
-          <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
-        </Button>
-        : null}
-      </ButtonGroup>
-      {/* <ToggleButton
-        // color="primary"
-        //onClick={handleButtonClick}
-        className={classes.filterButton}
-        onChange={handleCheckBoxChange}
-        value={props.emergencyLabel}
-        selected={isChecked}
-        style={{ textTransform: 'capitalize' }}
-      >
-        <Typography variant="body2">{t('labels:' + label)}</Typography>
-        {category && category.content && category.content.length > 0 ? 
-          <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked} size='small'>
-            <ArrowDropDown htmlColor={EmergencyColorMap[props.emergencyLabel]} /> 
-          </IconButton>
-        : <></>}
-      </ToggleButton> */}
-      {/* <FormControlLabel
-        className={classes.filterCheckbox}
-        control={
-          <Checkbox
-            icon={<CategoryPinBorderIcon colorlabel={props.emergencyLabel} />}
-            checkedIcon={<CategoryPinIcon colorlabel={props.emergencyLabel} />}
-            name={'checked-' + props.emergencyLabel}
-            size="small"
-            onChange={handleCheckBoxChange}
-            value={props.emergencyLabel}
-            checked={isChecked}
-          />
-        }
-        label={<Typography variant="body2">{t('labels:' + label)}</Typography>}
-      /> */}
-      {category && category.content && category.content.length > 0 ? (
-        <>
-          {/* <IconButton aria-describedby={id} onClick={handleClick} disabled={!isChecked}>
-            <ArrowDropDown fontSize="small" htmlColor={EmergencyColorMap[props.emergencyLabel]} />
-          </IconButton> */}
-          <Popover
-            id={id}
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
+      <Paper elevation={3}>
+        <ButtonGroup variant="contained" color="primary" aria-label="split button">
+          <Button
+            onClick={handleCheckBoxChange}
+            className={!isChecked ? 'Mui-disabled' : ''}
+            style={{ textTransform: 'capitalize', pointerEvents: 'all', cursor: 'pointer' }}
           >
-            <Paper key={'category-paper-' + label} elevation={3}>
-              <MenuList autoFocusItem={open} id="menu-list-grow">
-                {category.content.map((elem, i) => {
-                  if (elem.name === 'hazard_status' || elem.name === 'hazard_content') {
-                    return null
-                  } else {
-                    return (
-                      <MenuItem key={label + '-' + (i + 6) * 10}>
-                        <FormControl fullWidth>
-                          <InputLabel id="demo-mutiple-checkbox-label">
-                            {t('labels:' + elem.name.toLowerCase())}
-                          </InputLabel>
-                          <Select
-                            labelId={'demo-mutiple-checkbox-label_' + i}
-                            id={'demo-mutiple-checkbox_' + i}
-                            multiple={elem.type === 'multipleselect'}
-                            value={elem.selected}
-                            renderValue={
-                              elem.type === 'multipleselect'
-                                ? (v) => renderValues(v, 'labels:')
-                                : (v) => t('labels:' + (v as String).toLowerCase())
-                            }
-                            onChange={(event) => {
-                              event.stopPropagation()
-                              const newCategoryFilter = categoryFilters
-                              const checkedOptions = event.target.value
-                              newCategoryFilter.content[i].selected = checkedOptions
-                              setCategoryFilters({ ...newCategoryFilter })
-                            }}
-                            input={<Input />}
-                          >
-                            {elem.options.map((value, key) => (
-                              <MenuItem key={'category-select-' + key} value={value}>
-                                {elem.type === 'multipleselect' ? (
-                                  <>
-                                    <Checkbox checked={elem.selected.indexOf(value) > -1} />
-                                    <ListItemText primary={t('labels:' + value.toLowerCase())} />
-                                  </>
-                                ) : (
-                                  t('labels:' + value.toLowerCase())
-                                )}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </MenuItem>
-                    )
-                  }
-                })}
-                <MenuItem>
-                  <Button
-                    className={getApplyButtonClass(props.emergencyLabel)}
-                    style={{ textTransform: 'capitalize' }}
-                    onClick={applyCategoryFilters}
-                    size="small"
-                    color="primary"
-                    variant="contained"
-                  >
-                    {t('social:filter_apply')}
-                  </Button>
-                  <Button
-                    className={classes.resetButton}
-                    style={{ textTransform: 'capitalize' }}
-                    onClick={resetCategoryFilters}
-                    size="small"
-                    variant="contained"
-                  >
-                    {t('social:filter_reset')}
-                  </Button>
-                </MenuItem>
-              </MenuList>
-            </Paper>
-          </Popover>
-        </>
-      ) : undefined}
-    </Paper>
+            <Typography
+              variant="body2"
+              style={{
+                color: clickCounter && isChecked ? EmergencyColorMap[emergencyLabel] : 'inherit'
+              }}
+            >
+              {t('labels:' + label)}
+            </Typography>
+          </Button>
+          {category && category.content && category.content.length > 0 ? (
+            <Button aria-describedby={id} size="small" disabled={!isChecked} onClick={handleClick}>
+              <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
+            </Button>
+          ) : null}
+        </ButtonGroup>
+        {category && category.content && category.content.length > 0 ? (
+          <>
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right'
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right'
+              }}
+            >
+              <Paper key={'category-paper-' + label} elevation={3}>
+                <MenuList autoFocusItem={open} id="menu-list-grow">
+                  {category.content.map((elem, i) => {
+                    if (elem.name === 'hazard_status' || elem.name === 'hazard_content') {
+                      return null
+                    } else {
+                      return (
+                        <MenuItem key={label + '-' + (i + 6) * 10}>
+                          <FormControl fullWidth>
+                            <InputLabel id="demo-mutiple-checkbox-label">
+                              {t('labels:' + elem.name.toLowerCase())}
+                            </InputLabel>
+                            <Select
+                              labelId={'demo-mutiple-checkbox-label_' + i}
+                              id={'demo-mutiple-checkbox_' + i}
+                              multiple={elem.type === 'multipleselect'}
+                              value={elem.selected}
+                              renderValue={
+                                elem.type === 'multipleselect'
+                                  ? (v) => renderValues(v, 'labels:')
+                                  : (v) => t('labels:' + (v as String).toLowerCase())
+                              }
+                              onChange={(event) => {
+                                event.stopPropagation()
+                                const newCategoryFilter = categoryFilters
+                                const checkedOptions = event.target.value
+                                newCategoryFilter.content[i].selected = checkedOptions
+                                setCategoryFilters({ ...newCategoryFilter })
+                              }}
+                              input={<Input />}
+                            >
+                              {elem.options.map((value, key) => (
+                                <MenuItem key={'category-select-' + key} value={value}>
+                                  {elem.type === 'multipleselect' ? (
+                                    <>
+                                      <Checkbox checked={elem.selected.indexOf(value) > -1} />
+                                      <ListItemText primary={t('labels:' + value.toLowerCase())} />
+                                    </>
+                                  ) : (
+                                    t('labels:' + value.toLowerCase())
+                                  )}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </MenuItem>
+                      )
+                    }
+                  })}
+                  <MenuItem>
+                    <Button
+                      className={getApplyButtonClass(emergencyLabel)}
+                      style={{ textTransform: 'capitalize' }}
+                      onClick={applyCategoryFilters}
+                      size="small"
+                      color="primary"
+                      variant="contained"
+                    >
+                      {t('social:filter_apply')}
+                    </Button>
+                    <Button
+                      className={classes.resetButton}
+                      style={{ textTransform: 'capitalize' }}
+                      onClick={resetCategoryFilters}
+                      size="small"
+                      variant="contained"
+                    >
+                      {t('social:filter_reset')}
+                    </Button>
+                  </MenuItem>
+                </MenuList>
+              </Paper>
+            </Popover>
+          </>
+        ) : undefined}
+      </Paper>
     </>
   )
 }

@@ -7,6 +7,7 @@ import classes from './communication-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
+import { EmergencyColorMap } from "../../api-data/emergency.component";
 
 const useStyles = makeStyles((theme) => ({
   chipStyle: {
@@ -38,6 +39,8 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
       id={elem.id}
       spiderifierRef={spiderifierRef}
       type={EntityType.COMMUNICATION}
+      selectedCard={props.selectedCard}
+      setSelectedCard={props.setSelectedCard}
     >
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
@@ -107,7 +110,7 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
           }
           className={classes.viewInMap}
         >
-          <LocationOnIcon />
+          <LocationOnIcon htmlColor={EmergencyColorMap.Communication} />
         </IconButton>
       </CardActions>
     </CardWithPopup>

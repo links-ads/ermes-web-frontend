@@ -1,6 +1,6 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo, useContext } from 'react'
+import React, { useEffect, useMemo, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
@@ -92,6 +92,7 @@ export default function MapDrawer(props) {
   const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
+  const [selectedCard, setSelectedCard] = useState<string>('')
 
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())    
@@ -217,6 +218,8 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
               filters={props.filtersObj.filters.persons}
               teamList={props.teamList}
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
             />
           </TabPanel>
 
@@ -228,6 +231,8 @@ export default function MapDrawer(props) {
               setMapHoverState={props.setMapHoverState}
               spiderLayerIds={props.spiderLayerIds}
               spiderifierRef={props.spiderifierRef}
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
             />
           </TabPanel>
 
@@ -241,6 +246,8 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
               missionCounter={props.missionCounter}
               resetListCounter={props.resetListCounter}
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
             />
           </TabPanel>
 
@@ -254,6 +261,8 @@ export default function MapDrawer(props) {
               spiderifierRef={props.spiderifierRef}
               communicationCounter={props.communicationCounter}
               resetListCounter={props.resetListCounter}
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
             />
           </TabPanel>
 
@@ -276,6 +285,8 @@ export default function MapDrawer(props) {
               layersDefinition={layersDefinition}
               mapRequestCounter={props.mapRequestCounter}
               resetListCounter={props.resetListCounter}
+              selectedCard={selectedCard}
+              setSelectedCard={setSelectedCard}
             />
           </TabPanel>
         </SwipeableViews>

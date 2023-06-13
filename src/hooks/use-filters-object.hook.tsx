@@ -3,6 +3,7 @@ import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-f
 import { initObjectState } from '../pages/protected/map/map-filters-init.state'
 import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
+import { EntityType } from 'ermes-ts-sdk'
 
 export interface MapDrawerTabVisibility {
   Person: boolean
@@ -56,6 +57,21 @@ const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
       : new Date(new Date().valueOf() + _MS_PER_DAY * 7)
   }
   return filtersArgs
+}
+
+const changeFeatureStatus = (filtersObj, mapDrawerTabVisibility, featureName, newStatus) => {
+  mapDrawerTabVisibility[featureName] = newStatus
+  if (featureName === EntityType.PERSON) {
+    for (let key in filtersObj.filters.multicheckPersons.options) {
+      filtersObj.filters.multicheckPersons.options[key] = newStatus
+    }
+
+    for (let key in filtersObj.filters.multicheckActivities.options) {
+      filtersObj.filters.multicheckActivities.options[key] = newStatus
+    }
+  } else {
+    filtersObj.filters.multicheckCategories.options[featureName] = newStatus
+  }
 }
 
 export const initializer = (userProfile, appConfig) => {
@@ -209,7 +225,7 @@ export const filtersReducer = (currentState, action) => {
       }
     case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
       newMapDrawerTabVisibility[action.name] = action.visibility
-      if (action.name === 'Person'){
+      if (action.name === EntityType.PERSON){
         for (let key in newFiltersObject.filters.multicheckPersons.options){
           newFiltersObject.filters.multicheckPersons.options[key] = action.visibility
         }
@@ -222,22 +238,47 @@ export const filtersReducer = (currentState, action) => {
         newFiltersObject.filters.multicheckCategories.options[action.name] = action.visibility
       }
 
-      // deactivate the others if one feature is selected
-      if (action.visibility){
-        if (action.name !== 'Communication'){
-          newMapDrawerTabVisibility.Communication = !action.visibility
+      // deactivate the others if one feature is selected and if it is the first click
+      if (action.clickCnt === 1 && action.visibility) {
+        if (action.name !== EntityType.COMMUNICATION) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.COMMUNICATION,
+            !action.visibility
+          )
         }
-        if (action.name !== 'MapRequest'){
-          newMapDrawerTabVisibility.MapRequest = !action.visibility
+        if (action.name !== EntityType.MAP_REQUEST) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.MAP_REQUEST,
+            !action.visibility
+          )
         }
-        if (action.name !== 'Mission'){
-          newMapDrawerTabVisibility.Mission = !action.visibility
+        if (action.name !== EntityType.MISSION) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.MISSION,
+            !action.visibility
+          )
         }
-        if (action.name !== 'Report'){
-          newMapDrawerTabVisibility.Report = !action.visibility
+        if (action.name !== EntityType.REPORT) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.REPORT,
+            !action.visibility
+          )
         }
-        if (action.name !== 'Person'){
-          newMapDrawerTabVisibility.Person = !action.visibility
+        if (action.name !== EntityType.PERSON) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.PERSON,
+            !action.visibility
+          )
         }
       }
       

@@ -39,6 +39,8 @@ const MapRequestsPanel: React.FC<{
   layersDefinition: LayerDefinition
   mapRequestCounter: number
   resetListCounter
+  selectedCard
+  setSelectedCard
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
@@ -278,6 +280,8 @@ const MapRequestsPanel: React.FC<{
                   fetchRequestById={fetchRequest}
                   mapRequestSettings={mapRequestsSettings[elem.code]}
                   updateMapRequestsSettings={updateMapRequestsSettings}
+                  selectedCard={props.selectedCard}
+                  setSelectedCard={props.setSelectedCard}
                 />
               ))}
             </InfiniteScroll>
