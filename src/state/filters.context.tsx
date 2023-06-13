@@ -18,7 +18,7 @@ export const FiltersContext = createContext({
   applyFilters: (filtersObj) => {},
   updateTeamList: (teamList) => {},
   resetFilters: (appConfigMapBounds, isCitizen) => {},
-  updateMapDrawerTabs: (tabName, tabVisibility) => {}, 
+  updateMapDrawerTabs: (tabName, tabVisibility, clickCounter) => {}, 
   setLastUpdate: (lastUpdate) => {}
 })
 
@@ -75,11 +75,12 @@ const FiltersContextProvider = (props) => {
     })
   }, [])
 
-  const updateMapDrawerTabs = useCallback((tabName, tabVisibility) => {
+  const updateMapDrawerTabs = useCallback((tabName, tabVisibility, clickCounter) => {
     dispatch({
       type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY', 
       name: tabName,
-      visibility: tabVisibility
+      visibility: tabVisibility,
+      clickCnt: clickCounter
     })
   },[])
 

@@ -7,6 +7,7 @@ import CardWithPopup from "./card-with-popup.component";
 import classes from './mission-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
+import { EmergencyColorMap } from "../../api-data/emergency.component";
 
 
 const ENTITY_TYPE = EntityType.MISSION
@@ -28,6 +29,8 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
       id={elem.id}
       spiderifierRef={spiderifierRef}
       type={ENTITY_TYPE}
+      selectedCard={props.selectedCard}
+      setSelectedCard={props.setSelectedCard}
     >
       <CardContent>
         <Typography variant="h5" component="h2" gutterBottom>
@@ -77,7 +80,7 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
           }
           className={classes.viewInMap}
         >
-          <LocationOnIcon />
+          <LocationOnIcon htmlColor={EmergencyColorMap.Mission} />
         </IconButton>
       </CardActions>
     </CardWithPopup>

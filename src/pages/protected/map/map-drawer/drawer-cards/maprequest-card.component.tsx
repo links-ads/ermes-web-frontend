@@ -7,9 +7,10 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import DeleteIcon from '@material-ui/icons/Delete'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import classes from './maprequest-card.module.scss'
-import { MapRequestDto, MapRequestStatusType } from "ermes-ts-sdk";
+import { EntityType, MapRequestDto, MapRequestStatusType } from "ermes-ts-sdk";
 import MapRequestAccordion from "./maprequest-accordion.component";
 import { MapRequestLayerState } from "../../../../../models/mapRequest/MapRequestState";
+import { EmergencyColorMap } from "../../api-data/emergency.component";
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -24,6 +25,8 @@ const MapRequestCard: React.FC<{
   fetchRequestById
   mapRequestSettings: MapRequestLayerState
   updateMapRequestsSettings
+  selectedCard
+  setSelectedCard
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
 
@@ -37,7 +40,9 @@ const MapRequestCard: React.FC<{
     getMeta,
     getLegend,
     mapRequestSettings,
-    updateMapRequestsSettings
+    updateMapRequestsSettings,
+    selectedCard, 
+    setSelectedCard
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
   const upperBoundDate = FormatDate(mapRequestInfo.duration?.upperBound!)
@@ -53,6 +58,9 @@ const MapRequestCard: React.FC<{
       spiderLayerIds={spiderLayerIds}
       id={mapRequestInfo.id}
       spiderifierRef={spiderifierRef}
+      type={EntityType.MAP_REQUEST}
+      selectedCard={selectedCard}
+      setSelectedCard={setSelectedCard}
     >
       <CardContent>
         <div className={classes.headerBlock}>
@@ -172,7 +180,7 @@ const MapRequestCard: React.FC<{
           }
           className={classes.viewInMap}
         >
-          <LocationOnIcon />
+          <LocationOnIcon htmlColor={EmergencyColorMap.MapRequest} />
         </IconButton>
       </CardActions>
     </CardWithPopup>

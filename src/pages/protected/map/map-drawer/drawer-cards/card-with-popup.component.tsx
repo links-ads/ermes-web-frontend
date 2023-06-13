@@ -3,6 +3,7 @@ import Card from '@material-ui/core/Card'
 import { queryHoveredFeature } from '../../../../../common/map/map-common'
 import { updatePointFeatureLayerIdFilter } from '../../../../../utils/map.utils'
 import { makeStyles } from '@material-ui/core/styles'
+import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const CLUSTER_LAYER_ID = 'clusters'
 const SOURCE_ID = 'emergency-source'
@@ -29,6 +30,7 @@ export default function CardWithPopup(props) {
   return (
     <Card
       className={`${props.className} ${classes.root}`}
+      style={{borderStyle: (props.selectedCard === props.keyID) ? 'solid' : '', borderColor: (props.selectedCard === props.keyID) ? EmergencyColorMap[props.type] : ''}}
       raised={true}
       onPointerEnter={() => {
         if (!props.latitude || !props.longitude) return
@@ -106,6 +108,7 @@ export default function CardWithPopup(props) {
         }
         setFeatureHover({ type: null, id: null })
       }}
+      onClick={() => props.setSelectedCard(props.keyID)}
     >
       {props.children}
     </Card>

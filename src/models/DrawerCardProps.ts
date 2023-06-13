@@ -6,6 +6,8 @@ class DrawerCardProps {
   spiderLayerIds: any
   spiderifierRef: any
   flyToCoords: any
+  selectedCard: any
+  setSelectedCard: any
 
   constructor(key: number) {
     this.key = key

@@ -4,6 +4,7 @@ import React from 'react';
 import { FiltersSocialType, FiltersType } from '../common/filters/reducer';
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface';
 import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
+import { EmergencyColorMap } from '../pages/protected/map/api-data/emergency.component';
 
 export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -113,6 +114,36 @@ export const getFiltersStyle = (theme) => {
       fontSize: '15px',
       margin: '8px'
     },
+    personApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Person'],
+      fontSize: '15px',
+      margin: '8px'
+    },
+    reportApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Report'],
+      fontSize: '15px',
+      margin: '8px'
+    },
+    missionApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Mission'],
+      fontSize: '15px',
+      margin: '8px'
+    },
+    communicationApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Communication'],
+      fontSize: '15px',
+      margin: '8px'
+    },
+    mapRequestApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['MapRequest'],
+      fontSize: '15px',
+      margin: '8px'
+    },
     resetButton: {
       color: theme['palette']['text']['primary'],
       backgroundColor: 'inherit', 
@@ -127,6 +158,16 @@ export const getFiltersStyle = (theme) => {
     },
     filterCheckbox: {
       marginLeft: '0px'
+    },
+    filterButton: {
+      // color: theme['palette']['text']['primary'],
+      // backgroundColor: theme['palette']['secondary']['main'],
+      paddingBottom: '4px',
+      paddingTop: '4px',
+      paddingLeft: '10px',
+      paddingRight: '10px',
+      margin: '8px',
+      fontSize: '15px',
     }
   }
 }

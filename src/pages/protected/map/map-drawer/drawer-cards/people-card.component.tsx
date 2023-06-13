@@ -7,6 +7,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import classes from './people-card.module.scss'
 import { useTranslation } from "react-i18next";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
+import { EmergencyColorMap } from "../../api-data/emergency.component";
 
 const ENTITY_TYPE = EntityType.PERSON
 
@@ -26,6 +27,8 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
       id={elem.id}
       spiderifierRef={spiderifierRef}
       type={ENTITY_TYPE}
+      selectedCard={props.selectedCard}
+      setSelectedCard={props.setSelectedCard}
     >
       <CardContent className={classes.topCard}>
         <div className={classes.headerBlock}>
@@ -83,7 +86,7 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
           }
           className={classes.viewInMap}
         >
-          <LocationOnIcon />
+          <LocationOnIcon htmlColor={EmergencyColorMap.Person} />
         </IconButton>
       </CardActions>
     </CardWithPopup>
