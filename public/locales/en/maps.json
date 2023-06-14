@@ -78,6 +78,8 @@
   "frequency_label":"Frequency (Days)",
   "resolution_help":"Resolution must be greater than 0",
   "resolution_label":"Resolution (Meters)",
+  "request_title_help": "Insert request title here",
+  "request_title_label": "Request Title",
   "one_datapoint": "Only one data point available for this date range",
   "layer":"Layer",
   "opacity": "Opacity",

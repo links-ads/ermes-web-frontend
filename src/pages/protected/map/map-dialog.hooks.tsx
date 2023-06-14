@@ -40,6 +40,7 @@ export type EditStateType = {
   status: MissionStatusType
   frequency: string
   dataType: string[]
+  requestTitle: string
   resolution: string
   scope: CommunicationScopeType | null
   restrictionType: CommunicationRestrictionType | null
@@ -65,6 +66,7 @@ export type EditActionType = {
     | 'DATATYPE'
     | 'FREQUENCY'
     | 'RESOLUTION'
+    | 'REQUEST_TITLE'
     | 'RESTRICTION'
     | 'SCOPE'
     | 'ORGANIZATIONRECEIVERIDS'
@@ -88,6 +90,7 @@ const defaultEditState = {
   frequency: '0',
   dataType: [],
   resolution: '10',
+  requestTitle: '',
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
@@ -203,6 +206,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
           ...currentState,
           resolution: isNaN(number) || number < 0 ? '0' : number > 60 ? '60' : number.toString()
         }
+      case 'REQUEST_TITLE':
+        return {
+          ...currentState, 
+          requestTitle: action.value
+        }
       case 'RESET':
         return setinitialEditState(customState)
       //return defaultEditState
@@ -224,7 +232,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
       return dialogState && (
         <ConfirmDialog
           open={open}
-          fullWidth={true}
+          fullWidth={false}
           maxWidth={'lg'}
           onExited={onExited}
           title={`${t('maps:operation_' + dialogState.operation)} ${t("maps:" + dialogState.itemType)}`}
@@ -357,7 +365,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         })
         break;
       case 'MapRequest':
-        console.log("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
+        console.debug("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
         hideDialog() //hide dialog immediately since success and errors are shown externally
         handleAPICall(() => {
         return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)

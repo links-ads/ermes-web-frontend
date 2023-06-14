@@ -68,7 +68,7 @@ export function MapRequestDialog(
         }
 
     }, [apiHandlerState])
-console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
+console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
@@ -121,8 +121,8 @@ console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
                     />
                 </MuiPickersUtilsProvider>
             </Grid>
-            <Grid container style={{marginBottom:16, width:'50%'}} >
-                <FormControl margin='normal' style={{ minWidth: '50%' }}>
+            <Grid container style={{marginBottom:16, width:'100%'}} >
+                <FormControl margin='normal' style={{ minWidth: '100%' }}>
                     <InputLabel id='select-datatype-label'>{t('maps:layer')}</InputLabel>
                     <Select
                         labelId='select-datatype-label'
@@ -148,36 +148,53 @@ console.log('datatype', editState.dataType, typeof( editState.dataType[0]))
                     ):null}
                 </FormControl>
             </Grid>
-            <Grid container style={{marginBottom:16, width:'50%'}}>
+            <Grid container style={{marginBottom:16}}>
                 <TextField
-                    id="frequency-title"
-                    label={t("maps:frequency_label")}
-                    error={editError && parseInt(editState.frequency) < 0}
-                    helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
-                    type="number"
-                    value={editState.frequency}
-                    onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+                    id="map-request-title"
+                    label={t("maps:request_title_label")}
+                    error={editError && (!editState.requestTitle || editState.requestTitle === null || editState.requestTitle.length === 0)}
+                    helperText={editError && (!editState.requestTitle || editState.requestTitle === null || editState.requestTitle.length === 0) && t("maps:request_title_help")}
+                    type="text"
+                    value={editState.requestTitle}
+                    onChange={e => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
                     variant='outlined'
                     color='primary'
                     fullWidth={true}
-                    inputProps={{ min: 0, max: 30 }}
+                    // inputProps={{ min: 0, max: 30 }}
                 />
             </Grid>
-            <Grid container style={{marginBottom:16, width:'50%'}}>
-                <TextField
-                    id="resolution-title"
-                    label={t("maps:resolution_label")}
-                    error={editError && parseInt(editState.resolution) < 0}
-                    helperText={editError && parseInt(editState.resolution) < 0 && t("maps:resolution_help")}
-                    type="number"
-                    value={editState.resolution}
-                    onChange={e => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
-                    variant='outlined'
-                    color='primary'
-                    fullWidth={true}
-                    inputProps={{ min: 10, max: 60 }}
-                />
-            </Grid>
+            <Grid container direction='row'>
+                <Grid item style={{marginBottom:16, width:'50%'}}>
+                    <TextField
+                        id="frequency-title"
+                        label={t("maps:frequency_label")}
+                        error={editError && parseInt(editState.frequency) < 0}
+                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
+                        type="number"
+                        value={editState.frequency}
+                        onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+                        variant='outlined'
+                        color='primary'
+                        fullWidth={true}
+                        inputProps={{ min: 0, max: 30 }}
+                    />
+                </Grid>
+                <Grid item style={{marginBottom:16, width:'50%'}}>
+                    <TextField
+                        id="resolution-title"
+                        label={t("maps:resolution_label")}
+                        error={editError && parseInt(editState.resolution) < 0}
+                        helperText={editError && parseInt(editState.resolution) < 0 && t("maps:resolution_help")}
+                        type="number"
+                        value={editState.resolution}
+                        onChange={e => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+                        variant='outlined'
+                        color='primary'
+                        fullWidth={true}
+                        inputProps={{ min: 10, max: 60 }}
+                    />
+                </Grid>
+            </Grid>            
         </Grid>
     )
 }
