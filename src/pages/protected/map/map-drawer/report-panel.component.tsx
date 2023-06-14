@@ -107,6 +107,8 @@ export default function ReportPanel(props) {
                   spiderLayerIds={props.spiderLayerIds}
                   spiderifierRef={props.spiderifierRef}
                   flyToCoords={flyToCoords}
+                  selectedCard={props.selectedCard}
+                  setSelectedCard={props.setSelectedCard}
                 />
               )}
             </InfiniteScroll>

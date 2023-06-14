@@ -8,6 +8,7 @@ import classes from './report-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from "../../../../../utils/date.utils";
 import DrawerCardProps from "../../../../../models/DrawerCardProps";
+import { EmergencyColorMap } from "../../api-data/emergency.component";
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
@@ -26,6 +27,8 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
       id={elem.id}
       spiderifierRef={spiderifierRef}
       type={EntityType.REPORT}
+      selectedCard={props.selectedCard}
+      setSelectedCard={props.setSelectedCard}
     >
       <CardMedia
         className={classes.cover}
@@ -57,7 +60,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
               }
               className={classes.viewInMap}
             >
-              <LocationOnIcon />
+              <LocationOnIcon htmlColor={EmergencyColorMap.Report} />
             </IconButton>
           </div>
           <Typography color="textSecondary">{timestamp}</Typography>
