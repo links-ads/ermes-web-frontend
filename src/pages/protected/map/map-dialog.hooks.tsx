@@ -42,6 +42,14 @@ export type EditStateType = {
   dataType: string[]
   requestTitle: string
   resolution: string
+  probabilityRange: number
+  hoursOfProjection: number
+  simulationFireSpotting: boolean
+  time: number
+  windDirection: number
+  windSpeed: number
+  fuelMoistureContent: number
+  fireBreakType: string // TODO
   scope: CommunicationScopeType | null
   restrictionType: CommunicationRestrictionType | null
   organizationReceiverIds: number[]
@@ -67,6 +75,7 @@ export type EditActionType = {
     | 'FREQUENCY'
     | 'RESOLUTION'
     | 'REQUEST_TITLE'
+    | 'PROBABILITY_RANGE'
     | 'RESTRICTION'
     | 'SCOPE'
     | 'ORGANIZATIONRECEIVERIDS'
@@ -91,6 +100,14 @@ const defaultEditState = {
   dataType: [],
   resolution: '10',
   requestTitle: '',
+  probabilityRange: 0.5,
+  hoursOfProjection: 0,
+  simulationFireSpotting: false,
+  time: 0,
+  windDirection: 0,
+  windSpeed: 0,
+  fuelMoistureContent: 0,
+  fireBreakType: 'string', // TODO
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
@@ -210,6 +227,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         return {
           ...currentState, 
           requestTitle: action.value
+        }
+      case 'PROBABILITY_RANGE':
+        return {
+          ...currentState,
+          probabilityRange: action.value
         }
       case 'RESET':
         return setinitialEditState(customState)

@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 
-import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText, FormLabel, RadioGroup, FormControlLabel, Radio, Divider } from '@material-ui/core'
+import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import {
@@ -9,22 +9,18 @@ import {
     DatePicker
 } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
-
-import useLanguage from '../../../../hooks/use-language.hook';
+import { GenericDialogProps } from '../../map-dialog-edit.component';
 import { useTranslation } from 'react-i18next';
-
-import { GenericDialogProps } from '../map-dialog-edit.component';
-import { _MS_PER_DAY } from '../../../../utils/utils.common';
-import useAPIHandler from '../../../../hooks/use-api-handler';
+import { useAPIConfiguration } from '../../../../../hooks/api-hooks';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
-import { useAPIConfiguration } from '../../../../hooks/api-hooks';
-import { FiredAndBurnedAreasDialog } from './map-request-types/fire-and-burned-areas-dialog.component';
-import { PostEventMonitoringDialog } from './map-request-types/post-event-monitoring-dialog.component';
-import { WildFireSimulationDialog } from './map-request-types/wildfire-simulation-dialog.component';
+import useAPIHandler from '../../../../../hooks/use-api-handler';
+import { _MS_PER_DAY } from '../../../../../utils/utils.common';
+
+// import useLanguage from '../../../../hooks/use-language.hook';
 
 
 
-export function MapRequestDialog(
+export function FiredAndBurnedAreasDialog(
     {
         operationType,
         editState,
@@ -39,13 +35,6 @@ export function MapRequestDialog(
             <TodayIcon />
         </IconButton>)
     }, [])
-
-    const [value, setValue] = React.useState('1');
-
-    const handleChange = (event) => {
-        setValue(event.target.value);
-    };
-
 
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -82,20 +71,6 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Data Type</FormLabel>
-                    <RadioGroup row aria-label="map-request-data-type" name="map-request-data-type" value={value} onChange={handleChange}>
-                        <FormControlLabel value="1" control={<Radio />} label="Fire and Burned Areas" />
-                        <FormControlLabel value="2" control={<Radio />} label="Post Event Monitoring" />
-                        <FormControlLabel value="3" control={<Radio />} label="Wildfire Simulation" />
-                    </RadioGroup>
-                </FormControl>
-            </Grid>
-            <Divider />
-            {(value === "1") ? <FiredAndBurnedAreasDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {(value === "2") ? <PostEventMonitoringDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {(value === "3") ? <WildFireSimulationDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {/* <Grid container direction='row'>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DatePicker
                         style={{ paddingTop: 0, marginTop: 0 }}
@@ -218,7 +193,7 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
                         inputProps={{ min: 10, max: 60 }}
                     />
                 </Grid>
-            </Grid>             */}
+            </Grid>
         </Grid>
     )
 }
