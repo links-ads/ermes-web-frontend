@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 
-import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText, FormLabel, RadioGroup, FormControlLabel, Radio, Divider } from '@material-ui/core'
+import { FormControl, TextField, Grid, IconButton, InputLabel, MenuItem, Select, Checkbox, ListItemText, FormHelperText, FormLabel, RadioGroup, FormControlLabel, Radio, Switch } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
 import {
@@ -9,22 +9,18 @@ import {
     DatePicker
 } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
-
-import useLanguage from '../../../../hooks/use-language.hook';
+import { GenericDialogProps } from '../../map-dialog-edit.component';
 import { useTranslation } from 'react-i18next';
-
-import { GenericDialogProps } from '../map-dialog-edit.component';
-import { _MS_PER_DAY } from '../../../../utils/utils.common';
-import useAPIHandler from '../../../../hooks/use-api-handler';
+import { useAPIConfiguration } from '../../../../../hooks/api-hooks';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
-import { useAPIConfiguration } from '../../../../hooks/api-hooks';
-import { FiredAndBurnedAreasDialog } from './map-request-types/fire-and-burned-areas-dialog.component';
-import { PostEventMonitoringDialog } from './map-request-types/post-event-monitoring-dialog.component';
-import { WildFireSimulationDialog } from './map-request-types/wildfire-simulation-dialog.component';
+import useAPIHandler from '../../../../../hooks/use-api-handler';
+import { _MS_PER_DAY } from '../../../../../utils/utils.common';
+
+// import useLanguage from '../../../../hooks/use-language.hook';
 
 
 
-export function MapRequestDialog(
+export function WildFireSimulationDialog(
     {
         operationType,
         editState,
@@ -39,13 +35,6 @@ export function MapRequestDialog(
             <TodayIcon />
         </IconButton>)
     }, [])
-
-    const [value, setValue] = React.useState('1');
-
-    const handleChange = (event) => {
-        setValue(event.target.value);
-    };
-
 
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -82,20 +71,21 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
     return (
         <Grid container direction='column'>
             <Grid container direction='row'>
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Data Type</FormLabel>
-                    <RadioGroup row aria-label="map-request-data-type" name="map-request-data-type" value={value} onChange={handleChange}>
-                        <FormControlLabel value="1" control={<Radio />} label="Fire and Burned Areas" />
-                        <FormControlLabel value="2" control={<Radio />} label="Post Event Monitoring" />
-                        <FormControlLabel value="3" control={<Radio />} label="Wildfire Simulation" />
-                    </RadioGroup>
-                </FormControl>
-            </Grid>
-            <Divider />
-            {(value === "1") ? <FiredAndBurnedAreasDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {(value === "2") ? <PostEventMonitoringDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {(value === "3") ? <WildFireSimulationDialog operationType={operationType} editError={editError} editState={editState} dispatchEditAction={dispatchEditAction}/> : <></>}
-            {/* <Grid container direction='row'>
+              <Grid item style={{marginBottom:16, width:'20%'}}>
+                    <TextField
+                        id="frequency-title"
+                        label={t("maps:frequency_label")}
+                        error={editError && parseInt(editState.frequency) < 0}
+                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
+                        type="number"
+                        value={editState.frequency}
+                        onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+                        variant='outlined'
+                        color='primary'
+                        fullWidth={true}
+                        inputProps={{ min: 0, max: 30 }}
+                    />
+                </Grid>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                     <DatePicker
                         style={{ paddingTop: 0, marginTop: 0 }}
@@ -146,34 +136,7 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
                 </MuiPickersUtilsProvider>
             </Grid>
             <Grid container style={{marginBottom:16, width:'100%'}} >
-                <FormControl margin='normal' style={{ minWidth: '100%' }}>
-                    <InputLabel id='select-datatype-label'>{t('maps:layer')}</InputLabel>
-                    <Select
-                        labelId='select-datatype-label'
-                        id="select-datatype"
-                        value={editState.dataType}
-                        multiple={true}
-                        error={editError && editState.dataType.length<1}
-                        renderValue={(selected) => (selected as string[]).map(id => dataTypeOptions[id]).join(', ')}
-                        onChange={(event) => {
-                            dispatchEditAction({ type: "DATATYPE", value: event.target.value })
-                        }}
-                    >
-                        {Object.entries(dataTypeOptions).map((e) => (
-                            <MenuItem key={e[0]} value={e[0]}>
-                                <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
-                                <ListItemText primary={e[1]} />
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    {(editError && editState.dataType.length<1)?
-                    (
-                    <FormHelperText style={{color:'#f44336'}}>{t("maps:mandatory_field")}</FormHelperText>
-                    ):null}
-                </FormControl>
-            </Grid>
-            <Grid container style={{marginBottom:16}}>
-                <TextField
+            <TextField
                     id="map-request-title"
                     label={t("maps:request_title_label")}
                     error={editError && (!editState.requestTitle || editState.requestTitle === null || editState.requestTitle.length === 0)}
@@ -186,6 +149,40 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
                     fullWidth={true}
                     // inputProps={{ min: 0, max: 30 }}
                 />
+            </Grid>
+            <Grid container style={{marginBottom:16}}>
+                <TextField
+                    id="map-request-title"
+                    label={t("maps:request_title_label")}
+                    error={editError && (!editState.description || editState.description === null || editState.description.length === 0)}
+                    helperText={editError && (!editState.description || editState.description === null || editState.description.length === 0) && t("maps:request_title_help")}
+                    type="text"
+                    value={editState.description}
+                    onChange={e => dispatchEditAction({ type: 'DESCRIPTION', value: e.target.value })}
+                    variant='outlined'
+                    color='primary'
+                    fullWidth={true}
+                    // inputProps={{ min: 0, max: 30 }}
+                />
+            </Grid>
+            <Grid container direction='row'>
+                <FormControl component="fieldset">
+                    <FormLabel component="legend">Probability</FormLabel>
+                    <RadioGroup row aria-label="probability-range" 
+                    name="probability-range" value={editState.probabilityRange} 
+                    onChange={e => dispatchEditAction({ type: 'PROBABILITY_RANGE', value: e.target.value})} >
+                        <FormControlLabel value={0.5} control={<Radio />} label="50%" />
+                        <FormControlLabel value={0.75} control={<Radio />} label="75%" />
+                        <FormControlLabel value={0.9} control={<Radio />} label="90%" />
+                    </RadioGroup>
+                </FormControl>
+                <FormControlLabel
+                  control={<Switch checked={false}  name="checkedA" />}
+                  label="Simulation Fire Spotting"
+                />
+            </Grid>
+            <Grid container direction='row'>
+              
             </Grid>
             <Grid container direction='row'>
                 <Grid item style={{marginBottom:16, width:'50%'}}>
@@ -218,7 +215,45 @@ console.debug('datatype', editState.dataType, typeof( editState.dataType[0]))
                         inputProps={{ min: 10, max: 60 }}
                     />
                 </Grid>
-            </Grid>             */}
+            </Grid>
         </Grid>
     )
+}
+
+const WildfireSimulationBoundaryCondition = (props) => {
+  const { editError, editState, dispatchEditAction, t } = props
+  return (
+    <Grid container direction='column'>
+      <Grid item style={{marginBottom:16, width:'50%'}}>
+                    <TextField
+                        id="frequency-title"
+                        label={t("maps:frequency_label")}
+                        error={editError && parseInt(editState.frequency) < 0}
+                        helperText={editError && parseInt(editState.frequency) < 0 && t("maps:frequency_help")}
+                        type="number"
+                        value={editState.frequency}
+                        onChange={e => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+                        variant='outlined'
+                        color='primary'
+                        fullWidth={true}
+                        inputProps={{ min: 0, max: 30 }}
+                    />
+                </Grid>
+                <Grid item style={{marginBottom:16, width:'50%'}}>
+                    <TextField
+                        id="resolution-title"
+                        label={t("maps:resolution_label")}
+                        error={editError && parseInt(editState.resolution) < 0}
+                        helperText={editError && parseInt(editState.resolution) < 0 && t("maps:resolution_help")}
+                        type="number"
+                        value={editState.resolution}
+                        onChange={e => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+                        variant='outlined'
+                        color='primary'
+                        fullWidth={true}
+                        inputProps={{ min: 10, max: 60 }}
+                    />
+                </Grid>
+    </Grid>
+  )
 }
