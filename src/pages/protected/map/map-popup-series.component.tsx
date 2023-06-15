@@ -93,26 +93,27 @@ export default function MapTimeSeries(props) {
             )
             layerPromises.push(childLayerPromise)
           }
+        }
 
-          const promisesResult = await Promise.all(layerPromises)
+        const promisesResult = await Promise.all(layerPromises)
 
-          for (let i = 0; i < promisesResult.length; i++) {
-            const result = promisesResult[i]
-            if (result.status === 200) {
-              const layerName = i ===0 ? selectedLayer.name : selectedLayer.associatedLayers[i-1].name
-              const timeseries = result.data.variables
-                ? result.data.variables.length > 0
-                  ? result.data.variables[0].values
-                  : []
+        for (let i = 0; i < promisesResult.length; i++) {
+          const result = promisesResult[i]
+          if (result.status === 200) {
+            const layerName = i ===0 ? selectedLayer.name : selectedLayer.associatedLayers[i-1].name
+            const timeseries = result.data.variables
+              ? result.data.variables.length > 0
+                ? result.data.variables[0].values
                 : []
+              : []
 
-              if (timeseries && timeseries.length > 0) {
-                let layerTimeseries = mapToLineChartData(timeseries, layerName)
-                chartData.push(layerTimeseries)
-              }
+            if (timeseries && timeseries.length > 0) {
+              let layerTimeseries = mapToLineChartData(timeseries, layerName)
+              chartData.push(layerTimeseries)
             }
           }
         }
+        
 
         const lineChart = new LineChartProps(chartData)
         setIsLoading(false)
@@ -127,7 +128,7 @@ export default function MapTimeSeries(props) {
       getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1]).then((lineChart) => {
         setLineChartData(lineChart as LineChartProps)
       })
-    }, [coord])
+    }, [coord, selectedLayer])
 
     const loader = <Grid container justifyContent="center"><CircularProgress color="secondary" disableShrink /></Grid>
     const noData = <Grid container justifyContent="center"><Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid>
