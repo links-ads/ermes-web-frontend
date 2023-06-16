@@ -28,6 +28,14 @@ type DialogStateType = {
   area: any
 }
 
+type FireSimulationBoundaryCondition = {
+  timeOffset: number
+  windDirection: number
+  windSpeed: number
+  fuelMoistureContent: number
+  fireBreakType: any
+}
+
 export type EditStateType = {
   title: string
   coordinatorType: CoordinatorType
@@ -43,13 +51,9 @@ export type EditStateType = {
   requestTitle: string
   resolution: string
   probabilityRange: number
-  hoursOfProjection: number
-  simulationFireSpotting: boolean
-  time: number
-  windDirection: number
-  windSpeed: number
-  fuelMoistureContent: number
-  fireBreakType: string // TODO
+  hoursOfProjection: string
+  boundaryConditions: FireSimulationBoundaryCondition[]
+  simulationFireSpotting: boolean  
   scope: CommunicationScopeType | null
   restrictionType: CommunicationRestrictionType | null
   organizationReceiverIds: number[]
@@ -76,6 +80,7 @@ export type EditActionType = {
     | 'RESOLUTION'
     | 'REQUEST_TITLE'
     | 'PROBABILITY_RANGE'
+    | 'SIMULATION_FIRE_SPOTTING'
     | 'RESTRICTION'
     | 'SCOPE'
     | 'ORGANIZATIONRECEIVERIDS'
@@ -103,11 +108,15 @@ const defaultEditState = {
   probabilityRange: 0.5,
   hoursOfProjection: 0,
   simulationFireSpotting: false,
-  time: 0,
-  windDirection: 0,
-  windSpeed: 0,
-  fuelMoistureContent: 0,
-  fireBreakType: 'string', // TODO
+  boundaryConditions: [
+    {
+      timeOffset: 0,
+      windDirection: 0,
+      windSpeed: 0,
+      fuelMoistureContent: 0,
+      fireBreakType: {}
+    }
+  ],  
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
@@ -232,6 +241,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         return {
           ...currentState,
           probabilityRange: action.value
+        }
+      case 'SIMULATION_FIRE_SPOTTING':
+        return {
+          ...currentState, 
+          simulationFireSpotting: action.value
         }
       case 'RESET':
         return setinitialEditState(customState)
