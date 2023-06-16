@@ -102,9 +102,8 @@ export default function useMapRequestList() {
             maprequestApiFactory.mapRequestsGetMapRequests(
                 (filters?.datestart as any)?.selected,
                 (filters?.dateend as any)?.selected,
-                //TODO: fix
+                (filters?.mapRequests as any).content[3].selected,
                 (filters?.mapRequests as any).content[0].selected,
-                (filters?.mapRequests as any).content[1].selected,
                 (filters?.mapBounds as any).northEast[1],
                 (filters?.mapBounds as any).northEast[0],
                 (filters?.mapBounds as any).southWest[1],
