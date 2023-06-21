@@ -11,6 +11,7 @@ export interface MapDrawerTabVisibility {
   Mission: boolean
   Communication: boolean
   MapRequest: boolean
+  Alert: boolean
 }
 
 const filtersInitialState = {
@@ -21,7 +22,8 @@ const filtersInitialState = {
     Report: true,
     Mission: true,
     Communication: true,
-    MapRequest: true
+    MapRequest: true,
+    Alert: true
   },
   lastUpdate: new Date().toISOString()
 }
@@ -110,6 +112,7 @@ export const initializer = (userProfile, appConfig) => {
   tabVisibility.Mission = filtersObj.filters.multicheckCategories.options.Mission
   tabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
   tabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
+  tabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
 
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
@@ -161,6 +164,7 @@ export const filtersReducer = (currentState, action) => {
       newMapDrawerTabVisibility.Mission = newFiltersObject.filters.multicheckCategories.options.Mission
       newMapDrawerTabVisibility.Report = newFiltersObject.filters.multicheckCategories.options.Report
       newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
+      newMapDrawerTabVisibility.Alert = newFiltersObject.filters.multicheckCategories.options.Alert
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: updatedFilters,
@@ -277,6 +281,14 @@ export const filtersReducer = (currentState, action) => {
             newFiltersObject,
             newMapDrawerTabVisibility,
             EntityType.PERSON,
+            !action.visibility
+          )
+        }
+        if (action.name !== EntityType.ALERT) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.ALERT,
             !action.visibility
           )
         }

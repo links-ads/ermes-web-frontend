@@ -23,6 +23,7 @@ import useAPIHandler from '../../../../hooks/use-api-handler';
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
 import LayerDefinition from '../../../../models/layers/LayerDefinition';
 import { FiltersContext } from '../../../../state/filters.context';
+import AlertPanel from './alerts-panel.component';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,10 +90,14 @@ export default function MapDrawer(props) {
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   const filtersCtx = useContext(FiltersContext)
   const { mapDrawerTabVisibility } = filtersCtx
-  const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
+  const { Person, Report, Mission, Communication, MapRequest, Alert } = mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
   const [selectedCard, setSelectedCard] = useState<string>('')
+
+  const onCardClick = selectedItemId => {
+    setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
+  }
 
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())    
@@ -130,7 +135,13 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
-  }, [Person, Report, Mission, Communication, MapRequest, mapDrawerTabVisibility])
+    if (Alert) {
+      if (!tabValueAssigned) {
+        setTabValue(5)
+        tabValueAssigned = true
+      }
+    }
+  }, [Person, Report, Mission, Communication, MapRequest, Alert, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
@@ -191,106 +202,151 @@ export default function MapDrawer(props) {
             variant="scrollable"
             aria-label="full width tabs example"
           >
-            <Tab value={0} label={t('maps:Person')} {...a11yProps(0)} className={!Person ? classes.hiddenTab : undefined}/>
-            <Tab value={1} label={t('maps:Report')} {...a11yProps(1)} className={!Report ? classes.hiddenTab : undefined}/>
-            <Tab value={2} label={t('maps:Mission')} {...a11yProps(2)} className={!Mission ? classes.hiddenTab : undefined}/>
-            <Tab value={3} label={t('maps:Communication')} {...a11yProps(3)} className={!Communication ? classes.hiddenTab : undefined}/>
-            <Tab value={4} label={t('maps:MapRequest')} {...a11yProps(4)} className={!MapRequest ? classes.hiddenTab : undefined}/>
+            <Tab
+              value={0}
+              label={t('maps:Person')}
+              {...a11yProps(0)}
+              className={!Person ? classes.hiddenTab : undefined}
+            />
+            <Tab
+              value={1}
+              label={t('maps:Report')}
+              {...a11yProps(1)}
+              className={!Report ? classes.hiddenTab : undefined}
+            />
+            <Tab
+              value={2}
+              label={t('maps:Mission')}
+              {...a11yProps(2)}
+              className={!Mission ? classes.hiddenTab : undefined}
+            />
+            <Tab
+              value={3}
+              label={t('maps:Communication')}
+              {...a11yProps(3)}
+              className={!Communication ? classes.hiddenTab : undefined}
+            />
+            <Tab
+              value={4}
+              label={t('maps:MapRequest')}
+              {...a11yProps(4)}
+              className={!MapRequest ? classes.hiddenTab : undefined}
+            />
+            <Tab
+              value={5}
+              label={t('maps:alerts')}
+              {...a11yProps(5)}
+              className={!Alert ? classes.hiddenTab : undefined}
+            />
           </Tabs>
         </AppBar>
 
-        { (!Person && !Report && 
-          !Mission && !Communication && !MapRequest) ? 
-          noData :        
-        <SwipeableViews
-          axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-          index={tabValue}
-          onChangeIndex={handleChangeIndex}
-          component={'span'}
-        >
-          {/* PEOPLE */}         
-          <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
-            <PeoplePanel
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              filters={props.filtersObj.filters.persons}
-              teamList={props.teamList}
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-            />
-          </TabPanel>
+        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert ? (
+          noData
+        ) : (
+          <SwipeableViews
+            axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+            index={tabValue}
+            onChangeIndex={handleChangeIndex}
+            component={'span'}
+          >
+            {/* PEOPLE */}
+            <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
+              <PeoplePanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                filters={props.filtersObj.filters.persons}
+                teamList={props.teamList}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+              />
+            </TabPanel>
 
-          {/* REPORTS */}
-          <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
-            <ReportPanel
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-            />
-          </TabPanel>
+            {/* REPORTS */}
+            <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
+              <ReportPanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+              />
+            </TabPanel>
 
-          {/* MISSIONS */}
-          <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
-            <MissionsPanel
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              missionCounter={props.missionCounter}
-              resetListCounter={props.resetListCounter}
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-            />
-          </TabPanel>
+            {/* MISSIONS */}
+            <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
+              <MissionsPanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                missionCounter={props.missionCounter}
+                resetListCounter={props.resetListCounter}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+              />
+            </TabPanel>
 
-          {/* COMMUNICATION */}
-          <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
-            <CommunicationPanel
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              communicationCounter={props.communicationCounter}
-              resetListCounter={props.resetListCounter}
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-            />
-          </TabPanel>
+            {/* COMMUNICATION */}
+            <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
+              <CommunicationPanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                communicationCounter={props.communicationCounter}
+                resetListCounter={props.resetListCounter}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+              />
+            </TabPanel>
 
-          {/* MAP REQUESTS */}
-          <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
-            <MapRequestsPanel
-              filters={props.filtersObj.filters.mapRequests}
-              setGoToCoord={props.setGoToCoord}
-              map={props.map}
-              setMapHoverState={props.setMapHoverState}
-              spiderLayerIds={props.spiderLayerIds}
-              spiderifierRef={props.spiderifierRef}
-              getLegend={props.getLegend}
-              getMeta={props.getMeta}
-              fetchGeoJson={props.fetchGeoJson}
-              mapRequestsSettings={mapRequestsSettings}
-              updateMapRequestsSettings={updateMapRequestsSettings}
-              setMapRequestsSettings={setMapRequestsSettings}
-              availableLayers={availableLayers}
-              layersDefinition={layersDefinition}
-              mapRequestCounter={props.mapRequestCounter}
-              resetListCounter={props.resetListCounter}
-              selectedCard={selectedCard}
-              setSelectedCard={setSelectedCard}
-            />
-          </TabPanel>
-        </SwipeableViews>
-        }
+            {/* MAP REQUESTS */}
+            <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
+              <MapRequestsPanel
+                filters={props.filtersObj.filters.mapRequests}
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                getLegend={props.getLegend}
+                getMeta={props.getMeta}
+                fetchGeoJson={props.fetchGeoJson}
+                mapRequestsSettings={mapRequestsSettings}
+                updateMapRequestsSettings={updateMapRequestsSettings}
+                setMapRequestsSettings={setMapRequestsSettings}
+                availableLayers={availableLayers}
+                layersDefinition={layersDefinition}
+                mapRequestCounter={props.mapRequestCounter}
+                resetListCounter={props.resetListCounter}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+              />
+            </TabPanel>
+
+            {/* ALERTS */}
+            <TabPanel value={tabValue} index={5} key={'alert-' + props.rerenderKey}>
+              <AlertPanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+              />
+            </TabPanel>
+          </SwipeableViews>
+        )}
         <AppBar
           position="static"
           color="default"

@@ -1,3 +1,4 @@
+import { polygon } from "@turf/helpers"
 import { clearEventMap, drawPolyToMap, parseEvent } from "../../../../common/map/map-common"
 import { CLUSTER_LAYER_ID, EVENTS_LAYER_ID, getColorForHazard, SOURCE_ID } from "./map-init"
 
@@ -20,12 +21,12 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
             const properties = feature.properties
             const centroid = JSON.parse(properties?.center)
             const coordinates = JSON.parse(properties?.polygon)
-            drawPolyToMap(map, { longitude: centroid[0], latitude: centroid[1] }, {
-                "type": "MultiPolygon",
-                "coordinates": coordinates
-            } as GeoJSON.MultiPolygon, {
-                "hazard": properties?.hazard
-            }, getColorForHazard as mapboxgl.Expression)
+            drawPolyToMap(
+              map,
+              { longitude: centroid[0], latitude: centroid[1] },
+              polygon(coordinates, properties),
+              getColorForHazard as mapboxgl.Expression
+            )
             const newLeftClickState = { showPoint: true, clickedPoint: { long: centroid[0], lat: centroid[1] }, pointFeatures: parseEvent(properties) }
             setLeftClickState(newLeftClickState)
         }

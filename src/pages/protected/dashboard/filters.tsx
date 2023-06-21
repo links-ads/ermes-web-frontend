@@ -48,12 +48,13 @@ export const DashboardFilters = (props) => {
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
   const { localStorageFilters, mapDrawerTabVisibility, lastUpdate, onFilterChecked } = props
   const { filters: allFilters } = localStorageFilters
-  const { Person, Report, Mission, Communication, MapRequest } = mapDrawerTabVisibility
+  const { Person, Report, Mission, Communication, MapRequest, Alert } = mapDrawerTabVisibility
   const [personChecked, setPersonChecked] = useState<boolean>(Person)
   const [reportChecked, setReportChecked] = useState<boolean>(Report)
   const [missionChecked, setMissionChecked] = useState<boolean>(Mission)
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
+  const [alertChecked, setAlertChecked] = useState<boolean>(Alert)
   const [filtersState, setFiltersState] = useState(allFilters)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
@@ -69,7 +70,8 @@ export const DashboardFilters = (props) => {
     setMissionChecked(Mission)
     setCommunicationChecked(Communication)
     setMapRequestChecked(MapRequest)
-  }, [Person, Report, Mission, Communication, MapRequest])
+    setAlertChecked(Alert)
+  }, [Person, Report, Mission, Communication, MapRequest, Alert])
 
   useEffect(() => {
     setLastUpdateState(lastUpdate)
@@ -360,6 +362,18 @@ export const DashboardFilters = (props) => {
               setClickCounter={setBtnClickCounter}
             />
           </Grid>
+          <Grid item>
+            <CategoryFilter
+              t={t}
+              classes={classes}
+              label={EntityType.ALERT}
+              emergencyLabel={EntityType.ALERT}
+              filterCheckedHandler={onFilterChecked}
+              isChecked={alertChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
+            />
+          </Grid>
         </Grid>
       </Grid>
       <Grid item style={{ position: 'absolute', right: 24, bottom: 8 }}>
@@ -400,6 +414,7 @@ const CategoryFilter = (props) => {
     if (label === EntityType.MISSION) return classes.missionApplyButton
     if (label === EntityType.PERSON) return classes.personApplyButton
     if (label === EntityType.REPORT) return classes.reportApplyButton
+    if (label === EntityType.ALERT) return classes.alertApplyButton
     return classes.applyButton
   }
 

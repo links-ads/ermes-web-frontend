@@ -70,7 +70,7 @@ interface ICulturalProps {
   thumb: string
   image: string
   type: BeniType
-  descrizione: string
+  description: string
 }
 
 interface SimplePointLocation {
@@ -104,7 +104,7 @@ export function CulturalHoverCardContent({ cat, type }: CulturalProps) {
 }
 
 export function CulturalContent({
-  descrizione,
+  description,
   thumb,
   image,
   type,
@@ -115,7 +115,7 @@ export function CulturalContent({
   return (
     <>
       <Typography gutterBottom variant="h5" component="h2" style={{ wordBreak: 'break-all' }}>
-        Descrizione: {descrizione}&nbsp;
+        Descrizione: {description}&nbsp;
         <Dot type={type} />
       </Typography>
       <Typography
@@ -135,7 +135,7 @@ export function CulturalContent({
 }
 
 export function CulturalInfo(props: CulturalPropsWithLocation) {
-  const { /*  descrizione, */ thumb, latitude, longitude } = props
+  const { thumb, latitude, longitude } = props
 
   return (
     <>

@@ -84,5 +84,7 @@
   "opacity": "Trasparenza",
   "creator": "Creatore",
   "download_successful": "Il file è stato scaricato con successo!",
-  "download_button": "Scarica"  
+  "download_button": "Scarica",
+  "alerts": "Allerte",
+  "location": "Zona"
 }
