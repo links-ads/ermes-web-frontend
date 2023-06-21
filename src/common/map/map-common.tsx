@@ -1,6 +1,7 @@
 import React from 'react';
 import { CircularProgress, Grid } from '@material-ui/core';
 import mapboxgl from 'mapbox-gl'
+import { Feature } from '@turf/helpers';
 
 export const POLYGON_SOURCE_ID = 'polygon-source'
 export const POLYGON_LAYER_ID = 'polygon-layer'
@@ -264,23 +265,15 @@ export const removePolyToMap = (map) => {
 export const drawPolyToMap = (
   map: mapboxgl.Map | undefined,
   centroid: { latitude: number; longitude: number },
-  polygon: GeoJSON.MultiPolygon | null,
-  properties: {},
+  feature: Feature,
   fillColor: mapboxgl.Expression | string
 ) => {
-  if (!polygon || !centroid.latitude || !centroid.longitude) return
+  if (!feature || !centroid.latitude || !centroid.longitude) return
   if (!map) return
   const source_data = {
     type: 'FeatureCollection',
-    features: [
-      {
-        type: 'Feature',
-        geometry: polygon,
-        properties: properties
-      }
-    ]
-  } as unknown as GeoJSON.FeatureCollection
-
+    features: [feature]
+  } as GeoJSON.FeatureCollection
   let s = map.getSource(POLYGON_SOURCE_ID) as mapboxgl.GeoJSONSource
 
   if (s === undefined) {
@@ -317,17 +310,12 @@ export const drawPolyToMap = (
       }
     })
   }
-  let poly = [] as any
-  polygon.coordinates.forEach((elem) => {
-    poly = poly.concat([...elem[0]])
-  })
-
-  let llb = new mapboxgl.LngLatBounds()
-  poly.forEach((element) => {
-    llb.extend(element)
-  })
+  
   map.fitBounds(
-    llb,
+    [
+      [centroid.longitude, centroid.latitude], // southwestern corner of the bounds
+      [centroid.longitude, centroid.latitude] // northeastern corner of the bounds
+    ],
     {
       padding: 150,
       zoom: map.getZoom()

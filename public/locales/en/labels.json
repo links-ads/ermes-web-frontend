@@ -133,5 +133,7 @@
   "professional": "Professional",
   "citizen": "Citizen",
   "receivers": "Receivers",
-  "legend": "Legend"
+  "legend": "Legend",
+  "recommendation" : "Recommendation",
+  "alert": "Alert"
 }

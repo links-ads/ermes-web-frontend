@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 import { Chip, IconButton, useTheme } from '@material-ui/core'
-// import { ImageContainer } from '../common.components'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
-import brown from '@material-ui/core/colors/brown'
-// import grey from '@material-ui/core/colors/grey'
-import lightBlue from '@material-ui/core/colors/lightBlue'
-import blueGrey from '@material-ui/core/colors/blueGrey'
-// import pink from '@material-ui/core/colors/pink'
-// import purple from '@material-ui/core/colors/purple'
-import orange from '@material-ui/core/colors/orange'
 import { makeStyles } from '@material-ui/core/styles'
 import CardContent from '@material-ui/core/CardContent'
 import Table from '@material-ui/core/Table'
@@ -39,6 +31,8 @@ import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
 import { CommunicationScopeType } from 'ermes-ts-sdk'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { yellow } from '@material-ui/core/colors'
+import useAlertList from '../../../../hooks/use-alerts.hook'
+import { FormatDate } from '../../../../utils/date.utils'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -750,13 +744,49 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
     </div>
   )
 }
+
+const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) => {
+  const lowerBoundDate = FormatDate(alertInfo.startDate)
+  const upperBoundDate = FormatDate(alertInfo.endDate)
+  if (!data.isLoading) {
+    return (
+      <>
+        <Card elevation={0}>
+          <CardContent>
+            <Typography variant="body2" component="h2" gutterBottom>
+              {alertInfo.details}
+            </Typography>
+            <div>
+              <Typography color="textSecondary">
+                {' '}
+                {lowerBoundDate} - {upperBoundDate}
+              </Typography>
+            </div>
+          </CardContent>
+          <CardActions className={classes.cardAction}>
+            <Typography color="textSecondary">
+              {(latitude as number).toFixed(4) +
+                ' , ' +
+                (longitude as number).toFixed(4)}
+            </Typography>
+          </CardActions>
+        </Card>
+      </>
+    )
+  }
+  return (
+    <div>
+      <CircularProgress />
+    </div>
+  )
+}
 /**
-Different types of ["ReportRequest", "Communication", "Mission", "Report", "Person"]
+Different types of ["ReportRequest", "Communication", "Mission", "Report", "Person", "Alert"]
  */
 
 export type EmergencyType =
   // | 'ReportRequest'
-  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person' | 'LastPosition'
+  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person' | 'LastPosition' | 'Alert'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -764,11 +794,12 @@ type ColorMapType = {
 
 export const EmergencyColorMap: ColorMapType = {
   // ReportRequest: green[800],
-  Person: '#f9e900', //lightBlue[800],  
+  Person: '#f9e900', //lightBlue[800],
   Report: '#0cefff', //brown[800],
   Mission: '#ff8e1f', //green[400],
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
+  Alert: green[800],
   LastPosition: yellow[800]
 }
 
@@ -777,7 +808,7 @@ interface IEmergencyProps {
   thumb: string
   image: string
   type: EmergencyType
-  descrizione: string
+  description: string
 }
 
 interface SimplePointLocation {
@@ -899,6 +930,7 @@ export function EmergencyContent({
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
+  const [alertDetails,  b, c, fetchAlertDetails ] = useAlertList()
   //OLD: must be sobstituted with useMapRequestList -> fetchMapRequestById
   const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
@@ -984,6 +1016,18 @@ export function EmergencyContent({
           }
         )
         break
+      case 'Alert':
+        fetchAlertDetails(
+          rest.id,
+          (data) => {
+            return data
+          },
+          {},
+          (data) => {
+            return data
+          }
+        )
+        break
       default:
         break
     }
@@ -994,6 +1038,7 @@ export function EmergencyContent({
     fetchCommDetails,
     fetchMissDetails,
     fetchMapReqDetails,
+    fetchAlertDetails,
     type
   ])
 
@@ -1032,9 +1077,16 @@ export function EmergencyContent({
     }
   }, [mapReqDetails])
 
+  useEffect(() => {
+    if (!alertDetails.isLoading) {
+      rest.setPolyToMap({
+        feature: alertDetails.selectedAlert.feature
+      })
+    }
+  }, [alertDetails])
+
   let todisplay = <></>
   switch (type) {
-    // Report request
     case 'Report': {
       todisplay = reportCard(
         repDetails,
@@ -1081,6 +1133,9 @@ export function EmergencyContent({
         longitude
       )
       break
+    case 'Alert':
+      todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
+      break
     default: {
       todisplay = <div>Work in progress...</div>
       break
@@ -1089,25 +1144,6 @@ export function EmergencyContent({
 
   return todisplay
 }
-
-// export function EmergencyInfo(props: EmergencyPropsWithLocation) {
-//   const { /*  descrizione,  thumb,  */ latitude, longitude } = props
-
-//   return (
-//     <>
-//       {/* <ImageContainer imageUrl={thumb} imgWidth={200}  /> */}
-//       <EmergencyContent {...props} />
-//       <Typography
-//         variant="body2"
-//         color="textSecondary"
-//         component="p"
-//         style={{ wordBreak: 'break-all' }}
-//       >
-//         Latitude: {latitude}, Longitude: {longitude}
-//       </Typography>
-//     </>
-//   )
-// }
 
 export function EmergencyDrawerDetails(props) {
   return (
@@ -1124,15 +1160,6 @@ export function EmergencyDrawerDetails(props) {
             teamName={props.teamName}
         />
       )}
-      {/* <Typography
-        variant="body2"
-        color="textSecondary"
-        component="p"
-        style={{ wordBreak: 'break-all', marginTop: 20 }}
-      >
-        Latitude: {latitude}, Longitude: {longitude}
-      </Typography> */}
-      {/* Improve styles and add links and controls */}
     </div>
   )
 }

@@ -95,9 +95,9 @@ export default function GetApiGeoJson() {
             (filters?.report as any).content[0].selected,
             (filters?.report as any).content[1].selected,
             (filters?.mission as any).content[0].selected,
+            //TODO: to fix
             (filters?.mapRequests as any).content[2].selected,
             (filters?.mapRequests as any).content[1].selected,
-            (filters?.mapRequests as any).content[0].selected,
             undefined,
             teamIds,
             (filters?.report as any).content[2].selected,
@@ -154,9 +154,9 @@ export default function GetApiGeoJson() {
             (filters?.report as any).content[0].selected,
             (filters?.report as any).content[1].selected,
             (filters?.mission as any).content[0].selected,
+            //TODO: to be fixed
             (filters?.mapRequests as any).content[2].selected,
             (filters?.mapRequests as any).content[1].selected,
-            (filters?.mapRequests as any).content[0].selected,
             activityIds,
             teamIds,
             (filters?.report as any).content[2].selected,

@@ -1,5 +1,10 @@
 Ver.
 -----------------------
+- Feature - DSS notificaotins added (#126)
+
+
+Ver. 2.9.0 - 2023-06-14
+-----------------------
 - Bugfix - Fix layer opacity when timestamp changes (#120)
 - Feature - filter bar fine tuning (#123)
 - Feature - new feature colors in legend, map pins, filter bar and map drawer cards (#124)

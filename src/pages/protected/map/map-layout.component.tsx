@@ -56,6 +56,7 @@ import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { EntityType } from 'ermes-ts-sdk'
+import { multiPolygon, polygon } from '@turf/helpers'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -601,19 +602,20 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     setPolyToMap(undefined)
     if (clickedPoint) {
-      if (polyToMap) {
-        drawPolyToMap(
-          map,
-          polyToMap?.feature.properties.centroid,
-          {
-            type: 'MultiPolygon',
+        if (polyToMap) {
+          const geometry = JSON.parse(polyToMap?.feature?.geometry)
+          const polyToDraw =
+            geometry.type === 'Polygon'
+              ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+              : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
-            coordinates: [JSON.parse(polyToMap?.feature?.geometry).coordinates]
-          } as GeoJSON.MultiPolygon,
-          {},
-          EmergencyColorMap['Communication']
-        )
-      }
+          drawPolyToMap(
+            map,
+            polyToMap?.feature.properties.centroid,
+            polyToDraw,
+            EmergencyColorMap[polyToMap?.feature.properties.type]
+          )
+        }
     } else {
       removePolyToMap(map)
     }
@@ -654,7 +656,7 @@ export function MapLayout(props) {
       </MapHeadDrawer>
       <InteractiveMap
         {...viewport}
-        doubleClickZoom={false}        
+        doubleClickZoom={false}
         mapStyle={mapTheme?.style}
         onViewportChange={(nextViewport) => setViewport(nextViewport)}
         transformRequest={transformRequest}
@@ -782,7 +784,12 @@ export function MapLayout(props) {
           />
         </>
       )}
-      <MapStyleToggle mapViewRef={mapViewRef} spiderifierRef={spiderifierRef} onMapStyleChange={onMapStyleChange} mapChangeSource={0}></MapStyleToggle>
+      <MapStyleToggle
+        mapViewRef={mapViewRef}
+        spiderifierRef={spiderifierRef}
+        onMapStyleChange={onMapStyleChange}
+        mapChangeSource={0}
+      ></MapStyleToggle>
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
@@ -820,7 +827,7 @@ export function MapLayout(props) {
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}
-        title={clickedPoint ? (clickedPoint.item as EmergencyProps).descrizione : ''}
+        title={clickedPoint ? (clickedPoint.item as EmergencyProps).description : ''}
         onCloseButtonClick={() => setClickedPoint(null)}
       >
         {/* TODO a smart details component that can differentiate between content types */}

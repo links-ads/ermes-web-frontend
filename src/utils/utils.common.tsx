@@ -144,17 +144,22 @@ export const getFiltersStyle = (theme) => {
       fontSize: '15px',
       margin: '8px'
     },
+    alertApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Alert'],
+      fontSize: '15px',
+      margin: '8px'
+    },
     resetButton: {
       color: theme['palette']['text']['primary'],
-      backgroundColor: 'inherit', 
+      backgroundColor: 'inherit',
       fontSize: '15px',
       margin: '8px'
     },
     selectOption: {
       width: '100%',
-      minWidth: 180,
+      minWidth: 180
       // maxWidth:180
-
     },
     filterCheckbox: {
       marginLeft: '0px'
@@ -167,7 +172,7 @@ export const getFiltersStyle = (theme) => {
       paddingLeft: '10px',
       paddingRight: '10px',
       margin: '8px',
-      fontSize: '15px',
+      fontSize: '15px'
     }
   }
 }

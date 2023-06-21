@@ -34,7 +34,7 @@ export const CulturalHoverPopup = memo(
           <PopupCard<CulturalProps>
             Element={CulturalHoverCardContent}
             {...point.item}
-            title={point.item?.descrizione}
+            title={point.item?.description}
             src={point.item?.image}
             imageHeight={84}
             style={{ width: 300, height: 200 }}
