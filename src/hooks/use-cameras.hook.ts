@@ -1,11 +1,12 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { AlertsApiFactory, AlertDto, GetEntityByIdOutputOfAlertDto } from 'ermes-ts-sdk'
+import { StationsApiFactory, StationDto } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
+
 const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedCamera: {} }
 
 const reducer = (currentState, action) => {
@@ -64,7 +65,7 @@ export default function useCameraList() {
   const { displayErrorSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const camerasApiFactory = useMemo(() => AlertsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const camerasApiFactory = useMemo(() => StationsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
@@ -76,44 +77,22 @@ export default function useCameraList() {
       sideEffect = (data) => {},
       initialize = false
     ) => {
-      return new Promise((resolve, reject) => {
-        dispatch({
-          type: initialize ? 'INITIALIZE' : 'RESULT',
-          tot: 2,
-          value: [
-            {
-              id: 1,
-              name: 'ciao'
-            },
-            {
-              id: 2,
-              name: 'ciao2'
-            }
-          ]
-        })
-      })
-
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       camerasApiFactory
-        .alertsGetAlerts(
+        .stationsGetStations(
           (filters?.datestart as any)?.selected,
           (filters?.dateend as any)?.selected,
           (filters?.mapBounds as any).northEast[1],
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
           (filters?.mapBounds as any).southWest[0],
-          undefined,
-          undefined,
-          undefined,
           MAX_RESULT_COUNT,
           tot,
           undefined,
-          textQuery,
-          undefined,
-          undefined
+          textQuery
         )
         .then((result) => {
-          let newData: AlertDto[] = transformData(result.data.data) || [] // Where is MapRequestsDto
+          let newData: StationDto[] = transformData(result.data.data) || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
           if (initialize) {
             dispatch({
@@ -134,7 +113,7 @@ export default function useCameraList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [AlertsApiFactory, displayErrorSnackbar, textQuery, storedFilters]
+    [StationsApiFactory, displayErrorSnackbar, textQuery, storedFilters]
   )
   const applySearchQueryReloadData = (searchQuery: string) => {
     dispatch(initialState)
@@ -157,33 +136,34 @@ export default function useCameraList() {
     }
   }, [textQuery, fetchCameras])
 
-  const fetchCameraById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-      sideEffect({
-        id: 1,
-        name: 'ciao'
-      })
-      dispatch({
-        type: 'FETCHBYID',
-        value: {
-          id: 1,
-          name: 'ciao'
-        }
-      })
-      return
+  const fetchCameraSensors = useCallback(
+    (
+      stationId,
+      sensorId,
+      transformData = (data) => data?.measurements,
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
+      const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
 
-      camerasApiFactory
-        .alertsGetAlertById(id, true)
+      return camerasApiFactory
+        .stationsGetMeasuresByStationAndSensor(
+          stationId,
+          sensorId,
+          (filters?.datestart as any)?.selected,
+          (filters?.dateend as any)?.selected
+        )
         .then((result) => {
-          let newData: GetEntityByIdOutputOfAlertDto = transformData(result.data)
+          let newData: any = transformData(result.data)
           sideEffect(newData)
-          dispatch({ type: 'FETCHBYID', value: newData })
+
+          return newData
         })
         .catch((error) => {
           dispatch({ type: 'ERROR', value: error.response.data.error.message })
         })
     },
-    [camerasApiFactory]
+    [camerasApiFactory, storedFilters]
   )
-  return [dataState, fetchCameras, applySearchQueryReloadData, fetchCameraById]
+  return [dataState, fetchCameras, applySearchQueryReloadData, fetchCameraSensors]
 }

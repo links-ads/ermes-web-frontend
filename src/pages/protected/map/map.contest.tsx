@@ -1,8 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import {
-  ContainerSizeContext,
-  ContainerSize
-} from '../../../common/size-aware-container.component'
+import { ContainerSizeContext, ContainerSize } from '../../../common/size-aware-container.component'
 import { once } from '../../../utils/function.utils'
 import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 import { initObjectState } from './map-filters-init.state'
@@ -22,8 +19,7 @@ export type Cluster<T extends object = object> = {
   cluster: boolean
   cluster_id: string
   point_count: number
-} & { [k in keyof T]: number } &
-  PointLocation
+} & { [k in keyof T]: number } & PointLocation
 
 export type PointOnMap<T extends object = object> = ItemWithLatLng<T> | Cluster<T> | null
 
@@ -51,7 +47,16 @@ export type FeatureSelectionUpdater<T extends object = object> = (
   features: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
 ) => void
 
-export type ProvisionalFeatureType = 'Report' | 'ReportRequest' | 'Mission' | 'Communication' | 'MapRequest' | 'Person' | 'Coordinates' | 'Alert'
+export type ProvisionalFeatureType =
+  | 'Report'
+  | 'ReportRequest'
+  | 'Mission'
+  | 'Communication'
+  | 'MapRequest'
+  | 'Person'
+  | 'Coordinates'
+  | 'Alert'
+  | 'Camera'
 export type ProvisionalOperationType = 'create' | 'update' | 'delete' | 'copy'
 // The Map State
 interface MapStateVariables<T extends object = object> {
@@ -106,7 +111,7 @@ export function MapStateContextProvider<T extends object = object>({
 }) {
   const MapStateContext = createMapStateContext() as MapStateContexType<T>
   const containerSize = useContext<ContainerSize>(ContainerSizeContext)
-  let [storedFilters,] = useMemoryState(
+  let [storedFilters] = useMemoryState(
     'memstate-map',
     JSON.stringify(JSON.parse(JSON.stringify(initObjectState))),
     false
@@ -115,12 +120,12 @@ export function MapStateContextProvider<T extends object = object>({
   const [viewport, setViewport] = useState<MapViewportState>({
     width: containerSize.width,
     height: containerSize.height,
-    latitude: (((mapBounds.northEast[1] as number) + (mapBounds.southWest[1] as number))/2), //0, - TODO from user last known location
-    longitude: (((mapBounds.northEast[0] as number) + (mapBounds.southWest[0] as number))/2), //0, - TODO from user last known location
+    latitude: ((mapBounds.northEast[1] as number) + (mapBounds.southWest[1] as number)) / 2, //0, - TODO from user last known location
+    longitude: ((mapBounds.northEast[0] as number) + (mapBounds.southWest[0] as number)) / 2, //0, - TODO from user last known location
     zoom: mapBounds.zoom as number
   })
   const [mapMode, setMapMode] = useState<MapMode>('browse')
-  
+
   const [{ type, id, area }, setEditingFeature] = useState<{
     type: ProvisionalFeatureType | null
     id: string | number | null
@@ -249,4 +254,3 @@ export function useMapStateContext<T extends object = object>() {
   ]
   return context
 }
-

@@ -25,6 +25,7 @@ import LayerDefinition from '../../../../models/layers/LayerDefinition'
 import { FiltersContext } from '../../../../state/filters.context'
 import AlertPanel from './alerts-panel.component'
 import CamerasPanel from './cameras-panel.component'
+import { CameraDetails } from './camera-details.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -390,6 +391,7 @@ export default function MapDrawer(props) {
             backgroundColor: theme.palette.primary.main
           }}
         ></AppBar>
+        <CameraDetails />
       </div>
     </Slide>
   )

@@ -1,13 +1,18 @@
 import {
+  Button,
   CardActions,
   CardContent,
   Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   IconButton,
   makeStyles,
-  Typography
+  Typography,
+  useTheme
 } from '@material-ui/core'
 import { AlertDto, EntityType } from 'ermes-ts-sdk'
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CardWithPopup from './card-with-popup.component'
 import classes from './communication-card.module.scss'
@@ -15,6 +20,10 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from '../../../../../utils/date.utils'
 import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
+import { StationDto } from 'ermes-backoffice-ts-sdk'
+import { CameraDetails } from '../camera-details.component'
+import { useDispatch } from 'react-redux'
+import { setSelectedCamera } from '../../../../../state/selected-camera.state'
 
 const MAX_DESCRIPTION_LENGTH = 500
 
@@ -30,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
 
 const CameraCard: React.FC<{
   key: number
-  elem: AlertDto
+  elem: StationDto
   map: any
   setMapHoverState: any
   spiderLayerIds: any
@@ -41,92 +50,108 @@ const CameraCard: React.FC<{
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
-  const { info } = elem
-  const description =
-    info![0].description!.length > MAX_DESCRIPTION_LENGTH
-      ? info![0].description!.substring(0, MAX_DESCRIPTION_LENGTH) + '...'
-      : info![0].description!
-  const style = useStyles()
+  const dispatch = useDispatch()
 
-  const lowerBoundDate = FormatDate(elem.sent!)
-  const upperBoundDate = FormatDate(info![0].expires!)
+  const theme = useTheme()
+
+  const hasFire = elem?.sensors?.some((sensor) =>
+    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
+  )
+  const hasSmoke = elem?.sensors?.some((sensor) =>
+    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
+  )
+  const hasNotAvailable = elem?.sensors?.some((sensor) =>
+    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.not_available)
+  )
 
   return (
-    <CardWithPopup
-      keyID={'alert' + String(elem.id)}
-      latitude={elem!.centroid!.latitude as number}
-      longitude={elem!.centroid!.longitude as number}
-      className={classes.card}
-      map={map}
-      setMapHoverState={setMapHoverState}
-      spiderLayerIds={spiderLayerIds}
-      id={elem.id}
-      spiderifierRef={spiderifierRef}
-      type={EntityType.ALERT}
-      selectedCard={props.selectedCard}
-      setSelectedCard={props.setSelectedCard}
-    >
-      <CardContent>
-        <div className={classes.chipContainer}>
-          <Chip
-            label={elem.isARecommendation ? t('labels:recommendation') : t('labels:alert')}
-            color="primary"
-            size="small"
-            className={style.chipStyle}
-          />
-
-          <>
-            {' '}
-            <Chip label={elem.status!} color="secondary" size="small" className={style.chipStyle} />
-          </>
-
-          <>
-            {' '}
-            {elem.restriction ? (
+    <>
+      <CardWithPopup
+        keyID={'alert' + String(elem.id)}
+        latitude={elem!.location!.latitude as number}
+        longitude={elem!.location!.longitude as number}
+        className={classes.card}
+        map={map}
+        setMapHoverState={setMapHoverState}
+        spiderLayerIds={spiderLayerIds}
+        id={elem.id}
+        spiderifierRef={spiderifierRef}
+        type={EntityType.ALERT}
+        selectedCard={props.selectedCard}
+        setSelectedCard={props.setSelectedCard}
+      >
+        <CardActions>
+          <div className={classes.chipContainer}>
+            {hasFire && (
               <Chip
-                label={t('labels:' + elem.restriction?.toLowerCase())}
                 color="primary"
                 size="small"
-                className={style.chipStyle}
+                style={{
+                  backgroundColor: theme.palette.error.dark,
+                  borderColor: theme.palette.error.dark,
+                  color: theme.palette.error.contrastText
+                }}
+                className={classes.chipStyle}
+                label={t('maps:fire')}
               />
-            ) : (
-              <div />
             )}
-          </>
-        </div>
-        <Typography variant="body2" component="h2" gutterBottom>
-          {description}
-        </Typography>
-        <Typography variant="body2" component="h2" gutterBottom>
-          {t('maps:location')}: {elem.region}
-        </Typography>
-        <div>
-          <Typography color="textSecondary">
-            {' '}
-            {lowerBoundDate} - {upperBoundDate}
+            {hasSmoke && (
+              <Chip
+                color="primary"
+                size="small"
+                style={{
+                  backgroundColor: theme.palette.primary.contrastText,
+                  borderColor: theme.palette.primary.dark,
+                  color: theme.palette.primary.dark
+                }}
+                className={classes.chipStyle}
+                label={t('maps:smoke')}
+              />
+            )}
+            {hasNotAvailable && (
+              <Chip className={classes.chipStyle} label={t('maps:not_available')} />
+            )}
+          </div>
+        </CardActions>
+        <CardContent>
+          <Typography variant="body2" component="h2" gutterBottom>
+            {elem.name}
           </Typography>
-        </div>
-      </CardContent>
-      <CardActions className={classes.cardAction}>
-        <Typography color="textSecondary">
-          {(elem!.centroid!.latitude as number).toFixed(4) +
-            ' , ' +
-            (elem!.centroid!.longitude as number).toFixed(4)}
-        </Typography>
-        <IconButton
-          size="small"
-          onClick={() =>
-            props.flyToCoords(
-              elem?.centroid?.latitude as number,
-              elem?.centroid?.longitude as number
-            )
-          }
-          className={classes.viewInMap}
-        >
-          <LocationOnIcon htmlColor={EmergencyColorMap.Camera} />
-        </IconButton>
-      </CardActions>
-    </CardWithPopup>
+          <Typography variant="body2" component="h2" gutterBottom>
+            {elem.sensors?.length ?? 0} {t('maps:orientations')}
+          </Typography>
+        </CardContent>
+        <CardActions className={classes.cardAction}>
+          <Typography color="textSecondary">
+            {(elem!.location!.latitude as number).toFixed(4) +
+              ' , ' +
+              (elem!.location!.longitude as number).toFixed(4)}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() =>
+              props.flyToCoords(
+                elem?.location?.latitude as number,
+                elem?.location?.longitude as number
+              )
+            }
+            className={classes.viewInMap}
+          >
+            <LocationOnIcon htmlColor={EmergencyColorMap.Camera} />
+          </IconButton>
+        </CardActions>
+        <CardActions className={classes.cardAction}>
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={() => dispatch(setSelectedCamera(elem))}
+          >
+            {t('common:details')}
+          </Button>
+        </CardActions>
+      </CardWithPopup>
+    </>
   )
 }
 

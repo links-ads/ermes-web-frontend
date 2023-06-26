@@ -85,5 +85,6 @@
   "download_successful": "File downloaded successfully!",
   "download_button": "Download",
   "alerts": "Alerts",
-  "location": "Location"
+  "location": "Location",
+  "noMeasurements": "No measurements available"
 }

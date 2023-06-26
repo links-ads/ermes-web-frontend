@@ -8,6 +8,7 @@ import AlertCard from './drawer-cards/alert-card.component'
 import classes from './map-drawer.module.scss'
 import SearchBar from '../../../../common/search-bar.component'
 import { EntityType } from 'ermes-ts-sdk'
+import CameraCard from './drawer-cards/camera-card.component'
 
 const CamerasPanel: React.FC<{
   setGoToCoord: any
@@ -106,7 +107,7 @@ const CamerasPanel: React.FC<{
               scrollableTarget="scrollableElem"
             >
               {camerasData.data.map((elem, i: number) => (
-                <AlertCard
+                <CameraCard
                   key={i}
                   elem={elem}
                   map={props.map}
