@@ -12,6 +12,7 @@ export interface MapDrawerTabVisibility {
   Communication: boolean
   MapRequest: boolean
   Alert: boolean
+  Camera: boolean
 }
 
 const filtersInitialState = {
@@ -23,7 +24,8 @@ const filtersInitialState = {
     Mission: true,
     Communication: true,
     MapRequest: true,
-    Alert: true
+    Alert: true,
+    Camera: true
   },
   lastUpdate: new Date().toISOString()
 }
@@ -80,7 +82,7 @@ export const initializer = (userProfile, appConfig) => {
   let filtersArgs = {}
   let filtersObj = {} as any
   let storedFilters = localStorage.getItem(localStorageKey)
-  if (storedFilters === null || storedFilters === "null") {
+  if (storedFilters === null || storedFilters === 'null') {
     filtersObj = initObjectState
     filtersObj.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
     filtersObj.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
@@ -113,6 +115,7 @@ export const initializer = (userProfile, appConfig) => {
   tabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
   tabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
   tabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
+  tabVisibility.Camera = filtersObj.filters.multicheckCategories.options.Camera
 
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
@@ -152,19 +155,26 @@ export const filtersReducer = (currentState, action) => {
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: action.filters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility, 
+        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
         lastUpdate: currentLastUpdate
       }
     case 'APPLY_FILTERS':
       newFiltersObject = action.filtersObject
       updateFiltersLocalStorage(newFiltersObject)
       const updatedFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
-      newMapDrawerTabVisibility.Communication = newFiltersObject.filters.multicheckCategories.options.Communication
-      newMapDrawerTabVisibility.MapRequest = newFiltersObject.filters.multicheckCategories.options.MapRequest
-      newMapDrawerTabVisibility.Mission = newFiltersObject.filters.multicheckCategories.options.Mission
-      newMapDrawerTabVisibility.Report = newFiltersObject.filters.multicheckCategories.options.Report
+      newMapDrawerTabVisibility.Communication =
+        newFiltersObject.filters.multicheckCategories.options.Communication
+      newMapDrawerTabVisibility.MapRequest =
+        newFiltersObject.filters.multicheckCategories.options.MapRequest
+      newMapDrawerTabVisibility.Mission =
+        newFiltersObject.filters.multicheckCategories.options.Mission
+      newMapDrawerTabVisibility.Report =
+        newFiltersObject.filters.multicheckCategories.options.Report
       newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
       newMapDrawerTabVisibility.Alert = newFiltersObject.filters.multicheckCategories.options.Alert
+      newMapDrawerTabVisibility.Camera =
+        newFiltersObject.filters.multicheckCategories.options.Camera
+
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: updatedFilters,
@@ -229,16 +239,15 @@ export const filtersReducer = (currentState, action) => {
       }
     case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
       newMapDrawerTabVisibility[action.name] = action.visibility
-      if (action.name === EntityType.PERSON){
-        for (let key in newFiltersObject.filters.multicheckPersons.options){
+      if (action.name === EntityType.PERSON) {
+        for (let key in newFiltersObject.filters.multicheckPersons.options) {
           newFiltersObject.filters.multicheckPersons.options[key] = action.visibility
         }
 
-        for (let key in newFiltersObject.filters.multicheckActivities.options){
+        for (let key in newFiltersObject.filters.multicheckActivities.options) {
           newFiltersObject.filters.multicheckActivities.options[key] = action.visibility
         }
-      }
-      else {
+      } else {
         newFiltersObject.filters.multicheckCategories.options[action.name] = action.visibility
       }
 
@@ -292,9 +301,19 @@ export const filtersReducer = (currentState, action) => {
             !action.visibility
           )
         }
+
+        // TODO: use EntityType.CAMERA when available
+        if (action.name !== 'Camera') {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            'Camera',
+            !action.visibility
+          )
+        }
       }
-      
-      updateFiltersLocalStorage(newFiltersObject) 
+
+      updateFiltersLocalStorage(newFiltersObject)
       return {
         filtersLocalStorageObject: newFiltersObject,
         filters: currentFilters,

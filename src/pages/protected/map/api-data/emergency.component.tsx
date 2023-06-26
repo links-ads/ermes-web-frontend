@@ -454,27 +454,32 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
                 {commInfo.organizationName}
               </Typography>
             </div>
-             
+
             <div className={classes.chipCommContainer}>
-                          <Chip
-                            label={data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED ? t('labels:restricted') : t('labels:public')}
-                            color="primary"
-                            size="small"
-                            className={classes.chipCommStyle}
-                          />
-                          
-                         <> {data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED?(
-                         <Chip
-                            label={t('labels:' + data.data?.feature?.properties?.restriction.toLowerCase())}
-                            color="primary"
-                            size="small"
-                            className={classes.chipCommStyle}
-                         
-                          />
-                          ): null}</>
-                        </div>
-                        
-                        
+              <Chip
+                label={
+                  data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED
+                    ? t('labels:restricted')
+                    : t('labels:public')
+                }
+                color="primary"
+                size="small"
+                className={classes.chipCommStyle}
+              />
+
+              <>
+                {' '}
+                {data.data?.feature?.properties?.scope === CommunicationScopeType.RESTRICTED ? (
+                  <Chip
+                    label={t('labels:' + data.data?.feature?.properties?.restriction.toLowerCase())}
+                    color="primary"
+                    size="small"
+                    className={classes.chipCommStyle}
+                  />
+                ) : null}
+              </>
+            </div>
+
             <Typography color="textSecondary">
               {formatter.format(
                 new Date(data.data?.feature?.properties?.duration?.lowerBound as string)
@@ -765,9 +770,7 @@ const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) 
           </CardContent>
           <CardActions className={classes.cardAction}>
             <Typography color="textSecondary">
-              {(latitude as number).toFixed(4) +
-                ' , ' +
-                (longitude as number).toFixed(4)}
+              {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
             </Typography>
           </CardActions>
         </Card>
@@ -786,7 +789,14 @@ Different types of ["ReportRequest", "Communication", "Mission", "Report", "Pers
 
 export type EmergencyType =
   // | 'ReportRequest'
-  'MapRequest' | 'Communication' | 'Mission' | 'Report' | 'Person' | 'LastPosition' | 'Alert'
+  | 'MapRequest'
+  | 'Communication'
+  | 'Mission'
+  | 'Report'
+  | 'Person'
+  | 'LastPosition'
+  | 'Alert'
+  | 'Camera'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -800,6 +810,7 @@ export const EmergencyColorMap: ColorMapType = {
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
   Alert: green[800],
+  Camera: '#f9aaf9',
   LastPosition: yellow[800]
 }
 
@@ -930,7 +941,7 @@ export function EmergencyContent({
   const [catDetails, fetchCategoriesList] = useCategoriesList()
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
-  const [alertDetails,  b, c, fetchAlertDetails ] = useAlertList()
+  const [alertDetails, b, c, fetchAlertDetails] = useAlertList()
   //OLD: must be sobstituted with useMapRequestList -> fetchMapRequestById
   const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
@@ -1157,7 +1168,7 @@ export function EmergencyDrawerDetails(props) {
           setPolyToMap={props.setPolyToMap}
           setGoToCoord={props.setGoToCoord}
           setPersonTeam={props.setPersonTeam}
-            teamName={props.teamName}
+          teamName={props.teamName}
         />
       )}
     </div>

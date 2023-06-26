@@ -1,12 +1,12 @@
-import { Typography } from '@material-ui/core';
-import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk';
-import React from 'react';
-import { FiltersSocialType, FiltersType } from '../common/filters/reducer';
-import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface';
+import { Typography } from '@material-ui/core'
+import { SocialModuleLanguageType } from 'ermes-backoffice-ts-sdk'
+import React from 'react'
+import { FiltersSocialType, FiltersType } from '../common/filters/reducer'
+import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { DEFAULT_MAP_BOUNDS, getMapBounds } from '../common/map/map-common'
-import { EmergencyColorMap } from '../pages/protected/map/api-data/emergency.component';
+import { EmergencyColorMap } from '../pages/protected/map/api-data/emergency.component'
 
-export const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+export const _MS_PER_DAY = 1000 * 60 * 60 * 24
 
 export const HAZARD_SOCIAL_ICONS = {
   storm: '⚡️',
@@ -25,7 +25,7 @@ export const HAZARD_SOCIAL_ICONS = {
   rain: '⛈️',
   none: ''
   // NEW 2020!
-};
+}
 
 export const INFORMATIVE_ICONS = {
   informative: '🟢',
@@ -37,11 +37,11 @@ export const getSocialCardStyle = (theme) => {
     root: {
       width: '100%',
       marginBottom: '8px',
-      textOverflow: "ellipsis",
-      overflow: "hidden",
+      textOverflow: 'ellipsis',
+      overflow: 'hidden',
       display: 'inline-block',
       padding: 6,
-      "&:hover": {
+      '&:hover': {
         boxShadow: 'inset 0 0 0 20em rgba(255, 255, 255, 0.3)',
         cursor: 'pointer'
       }
@@ -50,11 +50,11 @@ export const getSocialCardStyle = (theme) => {
       transform: 'rotate(0deg)',
       marginLeft: 'auto',
       transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-      }),
+        duration: theme.transitions.duration.shortest
+      })
     },
     expandOpen: {
-      transform: 'rotate(180deg)',
+      transform: 'rotate(180deg)'
     },
     content: {
       margin: '5px',
@@ -150,6 +150,12 @@ export const getFiltersStyle = (theme) => {
       fontSize: '15px',
       margin: '8px'
     },
+    cameraApplyButton: {
+      color: '#000000',
+      backgroundColor: EmergencyColorMap['Camera'],
+      fontSize: '15px',
+      margin: '8px'
+    },
     resetButton: {
       color: theme['palette']['text']['primary'],
       backgroundColor: 'inherit',
@@ -178,7 +184,9 @@ export const getFiltersStyle = (theme) => {
 }
 
 export const showMoreSocialData = (shownData, annotationData, pageSize, setShownData) => {
-  const newData = shownData.data.concat([...annotationData].slice(shownData.size, shownData.size + pageSize))
+  const newData = shownData.data.concat(
+    [...annotationData].slice(shownData.size, shownData.size + pageSize)
+  )
   const newSize = newData.length
   setShownData({ size: newSize, data: newData })
 }
@@ -211,18 +219,29 @@ export const getDefaultFilterSocialArgs = (mapConfig) => {
   } as FiltersSocialType
 }
 
-export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoNames, renderInformative = true) => {
+export const getFilterObjFromFilters = (
+  defaultArgs,
+  id2hazardNames,
+  id2infoNames,
+  renderInformative = true
+) => {
   const obj = {
     tabs: 1,
     xystart: [60, 60],
     filters: {
       datestart: {
-        selected: typeof defaultArgs.datestart == 'string' ? defaultArgs.datestart : defaultArgs.datestart.toISOString(),
+        selected:
+          typeof defaultArgs.datestart == 'string'
+            ? defaultArgs.datestart
+            : defaultArgs.datestart.toISOString(),
         type: 'date',
         tab: 1
       },
       dateend: {
-        selected: typeof defaultArgs.dateend == 'string' ? defaultArgs.dateend : defaultArgs.dateend.toISOString(),
+        selected:
+          typeof defaultArgs.dateend == 'string'
+            ? defaultArgs.dateend
+            : defaultArgs.dateend.toISOString(),
         type: 'date',
         tab: 1,
         range: 4
@@ -237,14 +256,20 @@ export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoName
         name: 'hazard',
         options: Object.values(id2hazardNames),
         type: 'multipleselect',
-        selected: Object.entries(id2hazardNames).length > 0 ? defaultArgs.hazardSelect.map(id => id2hazardNames[id]) : ''
+        selected:
+          Object.entries(id2hazardNames).length > 0
+            ? defaultArgs.hazardSelect.map((id) => id2hazardNames[id])
+            : ''
       },
       infoTypeSelect: {
         name: 'information',
         options: Object.values(id2infoNames),
         type: 'multipleselect',
-        selected: Object.entries(id2infoNames).length > 0 ? defaultArgs.infoTypeSelect.map(id => id2infoNames[id]) : ''
-      },
+        selected:
+          Object.entries(id2infoNames).length > 0
+            ? defaultArgs.infoTypeSelect.map((id) => id2infoNames[id])
+            : ''
+      }
     }
   } as FiltersDescriptorType
   if (renderInformative) {
@@ -252,7 +277,7 @@ export const getFilterObjFromFilters = (defaultArgs, id2hazardNames, id2infoName
       name: 'Informative',
       options: ['all', 'true', 'false'],
       type: 'select',
-      selected: defaultArgs.informativeSelect === undefined ?  'all' : defaultArgs.informativeSelect
+      selected: defaultArgs.informativeSelect === undefined ? 'all' : defaultArgs.informativeSelect
     }
   }
   return obj
@@ -265,85 +290,101 @@ export const forceFiltersDateRange = (startDate, endDate, range, updateEndDate) 
 }
 
 export const parseTweetText = (tweetText) => {
-  const text = tweetText.replace(/\n/ig, ' ')
+  const text = tweetText.replace(/\n/gi, ' ')
   const update = () => {
-    if (accumulated.length > 0)
-      elements.push({ text: accumulated, type: 'string' })
+    if (accumulated.length > 0) elements.push({ text: accumulated, type: 'string' })
   }
   let elements = [] as any[]
-  let accumulated = ""
+  let accumulated = ''
   let v = text.trim().split(' ')
   for (let word of v) {
-    if (word.startsWith("@")) {
+    if (word.startsWith('@')) {
       update()
       elements.push({ text: word, type: 'tag' })
-      accumulated = ""
+      accumulated = ''
       continue
     }
-    if (word.startsWith("#")) {
+    if (word.startsWith('#')) {
       update()
       elements.push({ text: word, type: 'hash' })
-      accumulated = ""
+      accumulated = ''
       continue
     }
-    if (word.startsWith("http")) {
+    if (word.startsWith('http')) {
       update()
       elements.push({ text: word, type: 'link' })
-      accumulated = ""
+      accumulated = ''
       continue
     }
-    accumulated = accumulated + " " + word
+    accumulated = accumulated + ' ' + word
   }
   update()
   return elements
 }
 
-
 export const ParsedTweet = (props) => {
-
   return (
     <React.Fragment>
-      {
-        parseTweetText(props.text).map((tweet, index) => {
-          if (tweet.type === 'string') {
-            return (
-              <Typography key={index} display='inline' paragraph={true} variant={props.textSizes.body} color="textSecondary" component="p">
-                {tweet.text + " "}
-              </Typography>
-            )
+      {parseTweetText(props.text).map((tweet, index) => {
+        if (tweet.type === 'string') {
+          return (
+            <Typography
+              key={index}
+              display="inline"
+              paragraph={true}
+              variant={props.textSizes.body}
+              color="textSecondary"
+              component="p"
+            >
+              {tweet.text + ' '}
+            </Typography>
+          )
+        } else {
+          let linkToFollow = ''
+          switch (tweet.type) {
+            case 'tag':
+              linkToFollow = 'https://twitter.com/' + tweet.text.substring(1)
+              break
+            case 'hash':
+              linkToFollow =
+                'https://twitter.com/hashtag/' + tweet.text.substring(1) + '?src=hashtag_click'
+              break
+            case 'link':
+              linkToFollow = tweet.text
+              break
+            default:
           }
-          else {
-            let linkToFollow = "";
-            switch (tweet.type) {
-              case 'tag':
-                linkToFollow = "https://twitter.com/" + tweet.text.substring(1)
-                break;
-              case 'hash':
-                linkToFollow = "https://twitter.com/hashtag/" + tweet.text.substring(1) + "?src=hashtag_click"
-                break;
-              case 'link':
-                linkToFollow = tweet.text
-                break;
-              default:
-            }
-            return (<Typography key={index} style={{ cursor: 'pointer' }} display="inline" variant={props.textSizes.body} color="secondary"
+          return (
+            <Typography
+              key={index}
+              style={{ cursor: 'pointer' }}
+              display="inline"
+              variant={props.textSizes.body}
+              color="secondary"
               onClick={(evt) => {
                 evt.stopPropagation()
                 evt.preventDefault()
                 window.open(linkToFollow)
-              }}>
-              {tweet.text + " "}
-            </Typography>)
-          }
+              }}
+            >
+              {tweet.text + ' '}
+            </Typography>
+          )
         }
-        )
-      }
+      })}
     </React.Fragment>
   )
 }
 
-
-export const filterObjApplyHandler = (filtersObj, mapHazards, mapInfos, oldArgs, mapRef, setStorage, setState) => {
+export const filterObjApplyHandler = (
+  filtersObj,
+  mapHazards,
+  mapInfos,
+  oldArgs,
+  mapRef,
+  setStorage,
+  setState
+) => {
   const filters = extractFilters(filtersObj.filters, mapHazards, mapInfos)
   const newFilters = mergeFilters(oldArgs, filters, mapRef)
   setStorage(JSON.stringify(newFilters))
@@ -360,10 +401,13 @@ export const mergeFilters = (oldArgs, newArgs, mapRef) => {
 
 export const extractFilters = (filtersObj, mapHazards, mapInfos) => {
   const selectedFilters = {}
-  Object.entries(filtersObj).forEach((e: [string, any]) => selectedFilters[e[0]] = e[1].selected)
-  selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map(h => mapHazards[h])
-  selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map(i => mapInfos[i])
+  Object.entries(filtersObj).forEach((e: [string, any]) => (selectedFilters[e[0]] = e[1].selected))
+  selectedFilters['hazardSelect'] = selectedFilters['hazardSelect'].map((h) => mapHazards[h])
+  selectedFilters['infoTypeSelect'] = selectedFilters['infoTypeSelect'].map((i) => mapInfos[i])
   if (selectedFilters['informativeSelect'] !== undefined)
-    selectedFilters['informativeSelect'] = String(selectedFilters['informativeSelect']) === 'all' ? undefined : String(selectedFilters['informativeSelect']) === 'true'
+    selectedFilters['informativeSelect'] =
+      String(selectedFilters['informativeSelect']) === 'all'
+        ? undefined
+        : String(selectedFilters['informativeSelect']) === 'true'
   return selectedFilters
 }
