@@ -72,7 +72,7 @@ export default function useCameraList() {
   const fetchCameras = useCallback(
     (
       tot,
-      transformData = (data) => {},
+      transformData = (data) => data,
       errorData = {},
       sideEffect = (data) => {},
       initialize = false

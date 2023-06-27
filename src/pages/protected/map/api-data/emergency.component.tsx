@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
-import { Chip, IconButton, useTheme } from '@material-ui/core'
+import { CardHeader, Chip, Grid, IconButton, useTheme } from '@material-ui/core'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
 import { makeStyles } from '@material-ui/core/styles'
@@ -33,6 +33,7 @@ import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { yellow } from '@material-ui/core/colors'
 import useAlertList from '../../../../hooks/use-alerts.hook'
 import { FormatDate } from '../../../../utils/date.utils'
+import useCameraList from '../../../../hooks/use-cameras.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -783,6 +784,77 @@ const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) 
     </div>
   )
 }
+
+const stationCard = (data, classes, t, formatter, latitude, longitude, theme) => {
+  const hasFire = data?.sensors?.some((sensor) =>
+    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
+  )
+  const hasSmoke = data?.sensors?.some((sensor) =>
+    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
+  )
+
+  if (!data) {
+    return (
+      <Grid container style={{ height: 200 }} justifyContent="center" alignItems="center">
+        <Grid item>
+          <CircularProgress color="secondary" size={32} />
+        </Grid>
+      </Grid>
+    )
+  }
+
+  return (
+    <>
+      <Card elevation={0}>
+        <CardActions>
+          {hasFire && (
+            <Chip
+              color="primary"
+              size="small"
+              style={{
+                backgroundColor: theme.palette.error.dark,
+                borderColor: theme.palette.error.dark,
+                color: theme.palette.error.contrastText
+              }}
+              label={t('maps:fire')}
+            />
+          )}
+          {hasSmoke && (
+            <Chip
+              color="primary"
+              size="small"
+              style={{
+                backgroundColor: theme.palette.primary.contrastText,
+                borderColor: theme.palette.primary.dark,
+                color: theme.palette.primary.dark
+              }}
+              label={t('maps:smoke')}
+            />
+          )}
+        </CardActions>
+        <CardContent>
+          <Typography variant="body2" component="h2" gutterBottom>
+            {data.name}
+          </Typography>
+          {data.owner && (
+            <Typography variant="body2" component="h4" gutterBottom>
+              {data.owner}
+            </Typography>
+          )}
+          <Typography variant="body2" component="h2" gutterBottom>
+            {data.sensors?.length} {t('maps:orientations')}
+          </Typography>
+        </CardContent>
+        <CardActions className={classes.cardAction}>
+          <Typography color="textSecondary">
+            {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+          </Typography>
+          <Typography color="textSecondary">Altitude: {data.altitude?.toFixed(2)}m</Typography>
+        </CardActions>
+      </Card>
+    </>
+  )
+}
 /**
 Different types of ["ReportRequest", "Communication", "Mission", "Report", "Person", "Alert"]
  */
@@ -942,6 +1014,7 @@ export function EmergencyContent({
   const [commDetails, fetchCommDetails] = useCommById()
   const [missDetails, fetchMissDetails] = useMissionsById()
   const [alertDetails, b, c, fetchAlertDetails] = useAlertList()
+  const [cameras, fetchCameras] = useCameraList()
   //OLD: must be sobstituted with useMapRequestList -> fetchMapRequestById
   const [mapReqDetails, fetchMapReqDetails] = useMapRequestById()
   const [openModal, setOpenModal] = useState(false)
@@ -1038,6 +1111,9 @@ export function EmergencyContent({
             return data
           }
         )
+        break
+      case 'Station':
+        fetchCameras()
         break
       default:
         break
@@ -1146,6 +1222,10 @@ export function EmergencyContent({
       break
     case 'Alert':
       todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
+      break
+    case 'Station':
+      const camera = cameras.data?.find((e) => e.id === rest.details)
+      todisplay = stationCard(camera, classes, t, formatter, latitude, longitude, theme)
       break
     default: {
       todisplay = <div>Work in progress...</div>

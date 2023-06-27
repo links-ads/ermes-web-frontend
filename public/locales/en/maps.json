@@ -86,5 +86,8 @@
   "download_button": "Download",
   "alerts": "Alerts",
   "location": "Location",
-  "noMeasurements": "No measurements available"
+  "noMeasurements": "No measurements available",
+  "smoke": "Smoke",
+  "pleaseSelectSensor": "Please select a sensor",
+  "Hide measures without detections": "Hide measures without detections"
 }

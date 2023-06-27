@@ -87,5 +87,8 @@
   "download_button": "Scarica",
   "alerts": "Allerte",
   "location": "Zona",
-  "noMeasurements": "Nessuna misurazione disponibile"
+  "noMeasurements": "Nessuna misurazione disponibile",
+  "smoke": "Fumo",
+  "pleaseSelectSensor": "Seleziona un sensore",
+  "Hide measures without detections": "Nascondi misure senza rilevazioni"
 }

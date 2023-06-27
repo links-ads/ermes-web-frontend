@@ -43,6 +43,10 @@ export function CameraDetails({}: CameraDetailsProps) {
   const [hideMeasurementsWithoutDetections, setHideMeasurementsWithoutDetections] = useState(false)
 
   function handleClose() {
+    setSelectedSensorId(undefined)
+    setSensorData(null)
+    setSelectedSensorMeasurement(null)
+
     dispatch(clearSelectedCamera())
   }
 
@@ -109,7 +113,7 @@ export function CameraDetails({}: CameraDetailsProps) {
             </FormGroup>
           </div>
           <Button onClick={handleClose} variant="contained" color="primary">
-            {t('maps:Close')}
+            {t('common:close')}
           </Button>
         </div>
       </DialogTitle>
