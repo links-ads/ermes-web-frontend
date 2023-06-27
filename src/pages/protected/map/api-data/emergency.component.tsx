@@ -796,7 +796,7 @@ export type EmergencyType =
   | 'Person'
   | 'LastPosition'
   | 'Alert'
-  | 'Camera'
+  | 'Station'
 
 type ColorMapType = {
   [k in EmergencyType]: string
@@ -810,7 +810,7 @@ export const EmergencyColorMap: ColorMapType = {
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
   Alert: green[800],
-  Camera: '#f9aaf9',
+  Station: '#f9aaf9',
   LastPosition: yellow[800]
 }
 

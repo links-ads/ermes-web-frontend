@@ -152,7 +152,7 @@ export const getFiltersStyle = (theme) => {
     },
     cameraApplyButton: {
       color: '#000000',
-      backgroundColor: EmergencyColorMap['Camera'],
+      backgroundColor: EmergencyColorMap['Station'],
       fontSize: '15px',
       margin: '8px'
     },

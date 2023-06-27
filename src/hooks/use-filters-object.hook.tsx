@@ -12,7 +12,7 @@ export interface MapDrawerTabVisibility {
   Communication: boolean
   MapRequest: boolean
   Alert: boolean
-  Camera: boolean
+  Station: boolean
 }
 
 const filtersInitialState = {
@@ -25,7 +25,7 @@ const filtersInitialState = {
     Communication: true,
     MapRequest: true,
     Alert: true,
-    Camera: true
+    Station: true
   },
   lastUpdate: new Date().toISOString()
 }
@@ -115,7 +115,7 @@ export const initializer = (userProfile, appConfig) => {
   tabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
   tabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
   tabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
-  tabVisibility.Camera = filtersObj.filters.multicheckCategories.options.Camera
+  tabVisibility.Station = filtersObj.filters.multicheckCategories.options.Station
 
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
@@ -172,8 +172,8 @@ export const filtersReducer = (currentState, action) => {
         newFiltersObject.filters.multicheckCategories.options.Report
       newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
       newMapDrawerTabVisibility.Alert = newFiltersObject.filters.multicheckCategories.options.Alert
-      newMapDrawerTabVisibility.Camera =
-        newFiltersObject.filters.multicheckCategories.options.Camera
+      newMapDrawerTabVisibility.Station =
+        newFiltersObject.filters.multicheckCategories.options.Station
 
       return {
         filtersLocalStorageObject: newFiltersObject,
@@ -302,12 +302,11 @@ export const filtersReducer = (currentState, action) => {
           )
         }
 
-        // TODO: use EntityType.CAMERA when available
-        if (action.name !== 'Camera') {
+        if (action.name !== EntityType.STATION) {
           changeFeatureStatus(
             newFiltersObject,
             newMapDrawerTabVisibility,
-            'Camera',
+            EntityType.STATION,
             !action.visibility
           )
         }

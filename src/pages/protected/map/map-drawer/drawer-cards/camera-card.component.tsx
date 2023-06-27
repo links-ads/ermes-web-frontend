@@ -137,7 +137,7 @@ const CameraCard: React.FC<{
             }
             className={classes.viewInMap}
           >
-            <LocationOnIcon htmlColor={EmergencyColorMap.Camera} />
+            <LocationOnIcon htmlColor={EmergencyColorMap.Station} />
           </IconButton>
         </CardActions>
         <CardActions className={classes.cardAction}>

@@ -48,7 +48,7 @@ export const DashboardFilters = (props) => {
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
   const { localStorageFilters, mapDrawerTabVisibility, lastUpdate, onFilterChecked } = props
   const { filters: allFilters } = localStorageFilters
-  const { Person, Report, Mission, Communication, MapRequest, Alert, Camera } =
+  const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   const [personChecked, setPersonChecked] = useState<boolean>(Person)
   const [reportChecked, setReportChecked] = useState<boolean>(Report)
@@ -56,7 +56,7 @@ export const DashboardFilters = (props) => {
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [alertChecked, setAlertChecked] = useState<boolean>(Alert)
-  const [cameraChecked, setCameraChecked] = useState<boolean>(Camera)
+  const [cameraChecked, setCameraChecked] = useState<boolean>(Station)
   const [filtersState, setFiltersState] = useState(allFilters)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
@@ -73,8 +73,8 @@ export const DashboardFilters = (props) => {
     setCommunicationChecked(Communication)
     setMapRequestChecked(MapRequest)
     setAlertChecked(Alert)
-    setCameraChecked(Camera)
-  }, [Person, Report, Mission, Communication, MapRequest, Alert, Camera])
+    setCameraChecked(Station)
+  }, [Person, Report, Mission, Communication, MapRequest, Alert, Station])
 
   useEffect(() => {
     setLastUpdateState(lastUpdate)
@@ -381,9 +381,8 @@ export const DashboardFilters = (props) => {
             <CategoryFilter
               t={t}
               classes={classes}
-              // TODO: USE EntityType.CAMERA
-              label={'Camera'}
-              emergencyLabel={'Camera'}
+              label={EntityType.STATION}
+              emergencyLabel={EntityType.STATION}
               filterCheckedHandler={onFilterChecked}
               isChecked={cameraChecked}
               clickCounter={btnClickCounter}
@@ -431,8 +430,7 @@ const CategoryFilter = (props) => {
     if (label === EntityType.PERSON) return classes.personApplyButton
     if (label === EntityType.REPORT) return classes.reportApplyButton
     if (label === EntityType.ALERT) return classes.alertApplyButton
-    // TODO: USE EntityType.CAMERA
-    if (label === 'Camera') return classes.cameraApplyButton
+    if (label === EntityType.STATION) return classes.cameraApplyButton
     return classes.applyButton
   }
 

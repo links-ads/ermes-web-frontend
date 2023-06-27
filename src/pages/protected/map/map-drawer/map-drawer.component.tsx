@@ -92,7 +92,7 @@ export default function MapDrawer(props) {
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   const filtersCtx = useContext(FiltersContext)
   const { mapDrawerTabVisibility } = filtersCtx
-  const { Person, Report, Mission, Communication, MapRequest, Alert, Camera } =
+  const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
@@ -144,13 +144,13 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
-    if (Camera) {
+    if (Station) {
       if (!tabValueAssigned) {
         setTabValue(6)
         tabValueAssigned = true
       }
     }
-  }, [Person, Report, Mission, Communication, MapRequest, Alert, Camera, mapDrawerTabVisibility])
+  }, [Person, Report, Mission, Communication, MapRequest, Alert, Station, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
@@ -259,12 +259,12 @@ export default function MapDrawer(props) {
               value={6}
               label={t('maps:cameras')}
               {...a11yProps(6)}
-              className={!Camera ? classes.hiddenTab : undefined}
+              className={!Station ? classes.hiddenTab : undefined}
             />
           </Tabs>
         </AppBar>
 
-        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Camera ? (
+        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
           noData
         ) : (
           <SwipeableViews

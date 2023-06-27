@@ -56,7 +56,7 @@ export type ProvisionalFeatureType =
   | 'Person'
   | 'Coordinates'
   | 'Alert'
-  | 'Camera'
+  | 'Station'
 export type ProvisionalOperationType = 'create' | 'update' | 'delete' | 'copy'
 // The Map State
 interface MapStateVariables<T extends object = object> {
