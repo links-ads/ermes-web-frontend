@@ -30,6 +30,11 @@ function compareProperties(prevProps: EmergencyCardProps, nextProps: EmergencyCa
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {
     console.log('Point info look at me', point)
+    if(point != null && point.item)
+      point.item.details =
+        point.item.details.length > 200
+          ? point.item?.details.substring(0, 200) + '...'
+          : point.item?.details
     return point ? (
       <Popup
         tipSize={5}
