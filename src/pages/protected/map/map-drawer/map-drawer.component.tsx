@@ -257,7 +257,7 @@ export default function MapDrawer(props) {
             />
             <Tab
               value={6}
-              label={t('maps:cameras')}
+              label={t('maps:stations')}
               {...a11yProps(6)}
               className={!Station ? classes.hiddenTab : undefined}
             />

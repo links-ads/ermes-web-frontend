@@ -25,6 +25,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppState } from '../../../../state/app.state'
 import { clearSelectedCamera } from '../../../../state/selected-camera.state'
 import classes from './drawer-cards/communication-card.module.scss'
+import moment from 'moment'
+
+function getCardinalDirection(angle) {
+  const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
+  return directions[Math.round(angle / 45) % 8]
+}
 
 type CameraDetailsProps = {}
 
@@ -130,6 +136,8 @@ export function CameraDetails({}: CameraDetailsProps) {
 
               const hasFire = sensor.measurements?.some((m) => m.metadata?.detection?.fire)
               const hasSmoke = sensor.measurements?.some((m) => m.metadata?.detection?.smoke)
+              const thumbnail = firstMeasurement.measure
+              const description = sensor.description
 
               return (
                 <Tab
@@ -167,9 +175,14 @@ export function CameraDetails({}: CameraDetailsProps) {
                       </div>
                       <img
                         style={{ width: 300, height: 150, objectFit: 'cover' }}
-                        src={firstMeasurement.measure!}
+                        src={thumbnail!}
                         alt={firstMeasurement.measure!}
                       />
+                      {description && (
+                        <Typography variant="body2" gutterBottom>
+                          {description} {t('maps:degrees')} ({getCardinalDirection(description)})
+                        </Typography>
+                      )}
                     </div>
                   }
                 />
@@ -215,9 +228,10 @@ export function CameraDetails({}: CameraDetailsProps) {
             value={selectedSensorMeasurementId}
             onChange={(_, v) => setSelectedSensorMeasurement(v)}
           >
-            {filteredMeasurements.map((measurement) => {
+            {filteredMeasurements.map((measurement: MeasureDto) => {
               const hasFire = measurement.metadata?.detection?.fire
               const hasSmoke = measurement.metadata?.detection?.smoke
+              const thumbnail = measurement.metadata?.thumbnail_uri ?? measurement.measure
 
               return (
                 <Tab
@@ -257,9 +271,14 @@ export function CameraDetails({}: CameraDetailsProps) {
                       </div>
                       <img
                         style={{ width: 100, height: 75, objectFit: 'cover' }}
-                        src={measurement.measure!}
+                        src={thumbnail}
                         alt={measurement.measure!}
                       />
+                      {measurement.timestamp && (
+                        <Typography variant="body2">
+                          {moment(measurement.timestamp).format('YYYY/MM/DD HH:mm')}
+                        </Typography>
+                      )}
                     </div>
                   }
                 />
@@ -295,7 +314,7 @@ const localStyles: Record<string, CSSProperties> = {
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    bottom: 10,
+    bottom: 32,
     left: 0,
     right: 36
   }
