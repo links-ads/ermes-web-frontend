@@ -30,7 +30,13 @@ import MapSearchHere from '../../../common/map/map-search-here'
 import { FiltersContext } from '../../../state/filters.context'
 import { CircularProgress } from '@material-ui/core'
 import useInterval from '../../../hooks/use-interval.hook'
-import { AssociatedLayer, GroupLayerState, LayerSettingsState, LayerState, SubGroupLayerState } from '../../../models/layers/LayerState'
+import {
+  AssociatedLayer,
+  GroupLayerState,
+  LayerSettingsState,
+  LayerState,
+  SubGroupLayerState
+} from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 type MapFeature = CulturalProps
@@ -46,7 +52,7 @@ export function Map() {
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
-  const [ isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false) 
+  const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
   const [toggleLegend, setToggleLegend] = useState<boolean>(false)
   const [toggleMeta, setToggleMeta] = useState<boolean>(false)
@@ -55,7 +61,7 @@ export function Map() {
   const [layerName, setLayerName] = useState<string>('')
 
   const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>({})
-  
+
   const updateMapRequestsSettings = (
     mrCode: string,
     dataTypeId: number,
@@ -94,7 +100,7 @@ export function Map() {
           default:
             break
         }
-        updatedSettings = {...mapRequestsSettings}
+        updatedSettings = { ...mapRequestsSettings }
         updatedSettings[mrCode][dataTypeId] = newSettings
         setMapRequestsSettings(updatedSettings)
       }
@@ -127,7 +133,16 @@ export function Map() {
   }
 
   const filtersCtx = useContext(FiltersContext)
-  const { localStorageFilters: filtersObj, filters, applyDate, applyFilters, updateActivities, updateMapBounds, updateTeamList, resetFilters } = filtersCtx
+  const {
+    localStorageFilters: filtersObj,
+    filters,
+    applyDate,
+    applyFilters,
+    updateActivities,
+    updateMapBounds,
+    updateTeamList,
+    resetFilters
+  } = filtersCtx
 
   const appConfig = useContext<AppConfig>(AppConfigContext)
 
@@ -157,15 +172,15 @@ export function Map() {
     layerClicked: null
   })
 
-  const [ selectedLayer, setSelectedLayer ] = useState<LayerSettingsState>()
-  const [ layersSettings, setLayersSettings] = useState<GroupLayerState>({})
+  const [selectedLayer, setSelectedLayer] = useState<LayerSettingsState>()
+  const [layersSettings, setLayersSettings] = useState<GroupLayerState>({})
   const updateLayersSetting = (
-      group: string,
-      subGroup: string,
-      dataTypeId: number,
-      newValue: number,
-      actionType: string
-    ) => {
+    group: string,
+    subGroup: string,
+    dataTypeId: number,
+    newValue: number,
+    actionType: string
+  ) => {
     if (!layersSettings) return
     const currentLayer = layersSettings[group][subGroup][dataTypeId]
     let updatedSettings: GroupLayerState
@@ -200,12 +215,10 @@ export function Map() {
                   currentLayer.availableTimestamps[currentLayer.dateIndex]
                 ]
               : ''
-            
+
             break
           default:
             break
-          
-          
         }
 
         setSelectedLayer(newSettings)
@@ -286,10 +299,9 @@ export function Map() {
     setLayersSettings(groupLayersState)
   }, [getLayersState])
 
-
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
-  const [prepGeoData, fetchGeoJson, downloadGeoJson ] = GetApiGeoJson()
+  const [prepGeoData, fetchGeoJson, downloadGeoJson] = GetApiGeoJson()
 
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
@@ -323,8 +335,7 @@ export function Map() {
         }
       }
       //if there are conditions for filtering, then call getfeatures again with the filter
-      if (arrayOfTeams.length > 0) 
-        fetchGeoJson(arrayOfTeams)
+      if (arrayOfTeams.length > 0) fetchGeoJson(arrayOfTeams)
     }
   }, [teamList])
 
@@ -367,7 +378,7 @@ export function Map() {
   /**
    * when filters are updated then update the map features to show
    */
-  const updateMapFeatures = useCallback(() => {      
+  const updateMapFeatures = useCallback(() => {
     //when filters are applied use the ids[] of the selected teams in the fetchGeoJson call
     let f: any = filtersObj?.filters?.persons
     var arrayOfTeams: number[] | undefined = undefined
@@ -386,7 +397,7 @@ export function Map() {
       //if teams selections is empty reset arrayofteams to the default state (undefined)
       if (arrayOfTeams.length === 0) arrayOfTeams = undefined
     }
-    fetchGeoJson(arrayOfTeams)    
+    fetchGeoJson(arrayOfTeams)
     const newFilterList = getFilterList(filtersObj)
     setFilterList(newFilterList)
     if (!toggleSideDrawer) {
@@ -402,7 +413,7 @@ export function Map() {
       dataTypeId: NO_LAYER_SELECTED,
       multipleLayersAllowed: false,
       layerClicked: null
-    })  
+    })
     handleGetLayersCall(() => {
       return layersApiFactory.layersGetLayers(
         undefined,
@@ -418,7 +429,7 @@ export function Map() {
         }
       )
     })
-    updateMapFeatures()    
+    updateMapFeatures()
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
@@ -651,7 +662,6 @@ export function Map() {
       default:
         break
     }
-    
   }
 
   const resetListCounter = (entityType: EntityType) => {
@@ -671,67 +681,71 @@ export function Map() {
   }
 
   // Download geojson
-  const { downloadUrl } = prepGeoData.data;
-  
-  useEffect(()=>{
-    if(downloadUrl && downloadUrl.length > 0){
+  const { downloadUrl } = prepGeoData.data
+
+  useEffect(() => {
+    if (downloadUrl && downloadUrl.length > 0) {
       // download geojson file
-      window.location.href = downloadUrl;
+      window.location.href = downloadUrl
     }
   }, [downloadUrl])
 
   const downloadGeojsonFeatureCollectionHandler = () => {
     // teams - get team ids selected
-    let selectedTeamIds : number[] = [];
-    let selectedTeams = (filtersObj?.filters?.persons as any).content[1].selected;
-    if (teamList && Object.keys(teamList).length > 0 && selectedTeams.length > 0){
-      selectedTeams.forEach(selectedTeam => {
-        let teamId = getKeyByValue(teamList, selectedTeam);
-        if (teamId){
-          selectedTeamIds.push(Number(teamId));
+    let selectedTeamIds: number[] = []
+    let selectedTeams = (filtersObj?.filters?.persons as any).content[1].selected
+    if (teamList && Object.keys(teamList).length > 0 && selectedTeams.length > 0) {
+      selectedTeams.forEach((selectedTeam) => {
+        let teamId = getKeyByValue(teamList, selectedTeam)
+        if (teamId) {
+          selectedTeamIds.push(Number(teamId))
         }
-      });        
+      })
     }
     // filters map
     // entities - get entity types selected (Communication, MapRequest, Mission, Report) except for 'ReportRequest'
-    let selectedEntityTypes : string[] = [];
-    let entityOptions = (filtersObj?.filters?.multicheckCategories as any).options;
-    Object.keys(entityOptions).forEach( key => {
-      if (entityOptions[key] && key !== EntityType.REPORT_REQUEST){ 
-        selectedEntityTypes.push(key);
+    let selectedEntityTypes: string[] = []
+    let entityOptions = (filtersObj?.filters?.multicheckCategories as any).options
+    Object.keys(entityOptions).forEach((key) => {
+      if (entityOptions[key] && key !== EntityType.REPORT_REQUEST) {
+        selectedEntityTypes.push(key)
       }
-    });
+    })
     // entity person - if any type of person status has been selected, add 'Person' to entity types
-    let entityPersonOptions = (filtersObj?.filters?.multicheckPersons as any).options;
-    for (const key of Object.keys(entityPersonOptions)){
-      if(entityPersonOptions[key]){
-        selectedEntityTypes.push(EntityType.PERSON);
-        break;
+    let entityPersonOptions = (filtersObj?.filters?.multicheckPersons as any).options
+    for (const key of Object.keys(entityPersonOptions)) {
+      if (entityPersonOptions[key]) {
+        selectedEntityTypes.push(EntityType.PERSON)
+        break
       }
     }
     // activities - get ids if any activity has been selected
-    let selectedActivityIds : number[] = [];
-    let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options;
-    if (activitiesList.length > 0){
-      Object.keys(entityActiviyOptions).forEach( key => {
-        if(entityActiviyOptions[key]){
-          let selectedActivity = activitiesList.find( activity => activity.name === key)
-          if(selectedActivity && selectedActivity.id){
-            selectedActivityIds.push(selectedActivity.id);
-          }          
+    let selectedActivityIds: number[] = []
+    let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options
+    if (activitiesList.length > 0) {
+      Object.keys(entityActiviyOptions).forEach((key) => {
+        if (entityActiviyOptions[key]) {
+          let selectedActivity = activitiesList.find((activity) => activity.name === key)
+          if (selectedActivity && selectedActivity.id) {
+            selectedActivityIds.push(selectedActivity.id)
+          }
         }
       })
-    }    
-    downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds);
+    }
+    downloadGeoJson(selectedTeamIds, selectedEntityTypes, selectedActivityIds)
   }
 
   // Polling
-  useInterval(()=> {
+  useInterval(() => {
     updateMapFeatures()
   }, appConfig.mapPollingInterval)
 
-  const { isLoading: isGeoDataloading} = prepGeoData
-  const loader = <div className="full-screen centered"><CircularProgress size={120}/></div>
+  const { isLoading: isGeoDataloading } = prepGeoData
+  const loader = (
+    <div className="full-screen centered">
+      <CircularProgress size={120} />
+    </div>
+  )
   ///////
   return (
     <>

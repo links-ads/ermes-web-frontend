@@ -1,27 +1,32 @@
-// Panel displaying the list of reports (segnalazioni) on the left side Drawer.
-import React, { useEffect, useState } from 'react'
-import useReportList from '../../../../hooks/use-report-list.hook'
-import List from '@material-ui/core/List'
+import React, { useEffect } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
+import useCameras from '../../../../hooks/use-cameras.hook'
+import List from '@material-ui/core/List'
 import ItemCounter from './item-counter'
-import ReportCard from './drawer-cards/report-card.component'
+import AlertCard from './drawer-cards/alert-card.component'
 import classes from './map-drawer.module.scss'
 import SearchBar from '../../../../common/search-bar.component'
+import { EntityType } from 'ermes-ts-sdk'
+import CameraCard from './drawer-cards/camera-card.component'
 
-export default function ReportPanel(props) {
-  const [repsData, getRepsData, , applyFilterByText] = useReportList()
-  const { t } = useTranslation(['common', 'maps', 'social'])
-  const [searchText, setSearchText] = useState('')
+const CamerasPanel: React.FC<{
+  setGoToCoord: any
+  map: any
+  setMapHoverState: any
+  spiderLayerIds: any
+  spiderifierRef: any
+  flyToCoords: any
+  selectedCard: any
+  setSelectedCard: any
+}> = (props) => {
+  const { t } = useTranslation(['common', 'maps'])
+  const [searchText, setSearchText] = React.useState('')
+  const [camerasData, getCameras, applyFilterByText, getCameraById] = useCameras()
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
-  }
-
-  // calls the passed function to fly in the map to the desired point
-  const flyToCoords = function (latitude, longitude) {
-    props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
   // handle the text changes in the search field
@@ -30,18 +35,22 @@ export default function ReportPanel(props) {
   }
 
   const [prevSearchText, setPrevSearchText] = React.useState('')
-
   // on click of the search button
-  const searchInReport = () => {
-    if (searchText !== undefined && searchText !== prevSearchText) {
+  const searchInComm = () => {
+    if (searchText !== undefined && searchText != prevSearchText) {
       applyFilterByText(searchText)
       setPrevSearchText(searchText)
     }
   }
 
+  // calls the passed function to fly in the map to the desired point
+  const flyToCoords = (latitude, longitude) => {
+    props.setGoToCoord({ latitude: latitude, longitude: longitude })
+  }
+
   // Calls the data only the first time is needed
   useEffect(() => {
-    getRepsData(
+    getCameras(
       0,
       (data) => {
         return data
@@ -60,25 +69,24 @@ export default function ReportPanel(props) {
   })
 
   return (
-    <div className="containerWithSearch">
+    <div className="container">
       <SearchBar
-        isLoading={repsData.isLoading}
+        isLoading={camerasData.isLoading}
         changeTextHandler={handleSearchTextChange}
-        clickHandler={searchInReport}
+        clickHandler={searchInComm}
       />
-      {/* List of reports */}
-      {!repsData.isLoading ? (
+      {!camerasData.isLoading ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
-          style={{ height: height - 280 }}
+          style={{ height: height - 270 }}
         >
-          <ItemCounter itemCount={repsData.tot} />
+          <ItemCounter itemCount={camerasData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
-                getRepsData(
-                  repsData.data.length,
+                getCameras(
+                  camerasData.data.length,
                   (data) => {
                     return data
                   },
@@ -88,8 +96,8 @@ export default function ReportPanel(props) {
                   }
                 )
               }}
-              dataLength={repsData.data.length}
-              hasMore={repsData.data.length < repsData.tot}
+              dataLength={camerasData.data.length}
+              hasMore={camerasData.data.length < camerasData.tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -98,8 +106,8 @@ export default function ReportPanel(props) {
               }
               scrollableTarget="scrollableElem"
             >
-              {repsData.data?.map((elem, i) => (
-                <ReportCard
+              {camerasData.data.map((elem, i: number) => (
+                <CameraCard
                   key={i}
                   elem={elem}
                   map={props.map}
@@ -120,3 +128,5 @@ export default function ReportPanel(props) {
     </div>
   )
 }
+
+export default CamerasPanel

@@ -37,6 +37,7 @@ export function getInitialState(appConfig: AppConfig): Promise<Partial<AppState>
   const defaultConfigTheme = appConfig.ui.theme
 
   const state: Partial<AppState> = {
+    selectedCameraState: null,
     auth: { token, profile, loading: false },
     // preferences will be downloaded from server
     preferences: {

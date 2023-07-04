@@ -30,7 +30,12 @@ import { EmergencyHoverPopup, EmergencyDetailsCard } from './api-data/emergency.
 import { ContextMenu } from './context-menu.component'
 import { DialogResponseType, useMapDialog } from './map-dialog.hooks'
 import { MapDraw, MapDrawRefProps } from './map-draw.components'
-import { useMapStateContext, ItemWithLatLng, ProvisionalFeatureType, ProvisionalOperationType } from './map.contest'
+import {
+  useMapStateContext,
+  ItemWithLatLng,
+  ProvisionalFeatureType,
+  ProvisionalOperationType
+} from './map.contest'
 import {
   onMapLoadHandler,
   onMouseEnterHandler,
@@ -90,14 +95,14 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 99,
       backgroundColor: theme.palette.secondary.main,
       [theme.breakpoints.up('sm')]: {
-        bottom: 390,
+        bottom: 390
       },
       [theme.breakpoints.up('md')]: {
-        bottom: 280,
+        bottom: 280
       },
       [theme.breakpoints.up('lg')]: {
-        bottom: 150,
-      },
+        bottom: 150
+      }
     },
     legend_container: {
       zIndex: 98,
@@ -196,7 +201,7 @@ export function MapLayout(props) {
     }
   ] = useMapStateContext<EmergencyProps>()
 
-  const [ mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates ] = useState([] as any[])
+  const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -206,14 +211,12 @@ export function MapLayout(props) {
       mapDrawRef.current?.deleteFeatures(0) // remove polygon if any
       if (status === 'confirm') {
         props.fetchGeoJson(undefined)
-        props.refreshList(entityType)        
+        props.refreshList(entityType)
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
-
-
 
   // Display wizard or confirm dialog for features
   const showFeaturesDialog = useMapDialog(onFeatureDialogClose, null)
@@ -223,7 +226,7 @@ export function MapLayout(props) {
   const [teamName, setPersonTeam] = useState<undefined | { feature }>(undefined)
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
-  
+
   useEffect(
     () => {
       if (editingFeatureType !== null) {
@@ -282,15 +285,14 @@ export function MapLayout(props) {
   }, [props.mapHoverState])
 
   /**
-   * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to 
+   * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to
    * ensure that the style has finished loading (workaround to known bug with the official callback)
    */
   const onMapStyleChange = () => {
     const map = mapViewRef.current?.getMap()!
 
     //Management of layer not related to a Map Request
-    if(selectedLayer)
-    {
+    if (selectedLayer) {
       if (selectedLayer.activeLayer !== null) {
         map.removeLayer(selectedLayer.activeLayer)
         map.removeSource(selectedLayer.activeLayer)
@@ -321,56 +323,58 @@ export function MapLayout(props) {
             },
             'clusters'
           )
-          map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+          map.setPaintProperty(
+            selectedLayer.activeLayer,
+            'raster-opacity',
+            selectedLayer.opacity / 100
+          )
         }
       }, 1000) //after 1 sec
     }
 
     //Map request layers management
-    if(mapRequestsSettings)
-    {
-      Object.keys(mapRequestsSettings).forEach( mrCode => {
-          Object.keys(mapRequestsSettings[mrCode]).forEach( dataTypeId => {
-            const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
-            if(activeLayer && activeLayer !== ''){
-                map.removeLayer(activeLayer)
-                map.removeSource(activeLayer)
-                setTimeout(() => {
-                  const source = tileJSONIfy(
-                    map,
-                    activeLayer,
-                    mapRequestsSettings[mrCode][dataTypeId].availableTimestamps[
-                      mapRequestsSettings[mrCode][dataTypeId].dateIndex
-                    ],
-                    geoServerConfig,
-                    map.getBounds()
-                  )
-                  source['properties'] = {
-                    format: undefined,
-                    fromTime: undefined,
-                    toTime: undefined
-                  }
-                  map.addSource(activeLayer, source as mapboxgl.RasterSource)
-                  map.addLayer(
-                    {
-                      id: activeLayer,
-                      type: 'raster',
-                      source: activeLayer
-                    },
-                    'clusters'
-                  )
-                  map.setPaintProperty(
-                    activeLayer,
-                    'raster-opacity',
-                    mapRequestsSettings[mrCode][dataTypeId].opacity / 100
-                  )
-                }, 1000)
-            }
-          })
+    if (mapRequestsSettings) {
+      Object.keys(mapRequestsSettings).forEach((mrCode) => {
+        Object.keys(mapRequestsSettings[mrCode]).forEach((dataTypeId) => {
+          const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
+          if (activeLayer && activeLayer !== '') {
+            map.removeLayer(activeLayer)
+            map.removeSource(activeLayer)
+            setTimeout(() => {
+              const source = tileJSONIfy(
+                map,
+                activeLayer,
+                mapRequestsSettings[mrCode][dataTypeId].availableTimestamps[
+                  mapRequestsSettings[mrCode][dataTypeId].dateIndex
+                ],
+                geoServerConfig,
+                map.getBounds()
+              )
+              source['properties'] = {
+                format: undefined,
+                fromTime: undefined,
+                toTime: undefined
+              }
+              map.addSource(activeLayer, source as mapboxgl.RasterSource)
+              map.addLayer(
+                {
+                  id: activeLayer,
+                  type: 'raster',
+                  source: activeLayer
+                },
+                'clusters'
+              )
+              map.setPaintProperty(
+                activeLayer,
+                'raster-opacity',
+                mapRequestsSettings[mrCode][dataTypeId].opacity / 100
+              )
+            }, 1000)
+          }
+        })
       })
     }
   }
-  
 
   const onMapLoad = useCallback(
     () => {
@@ -416,12 +420,15 @@ export function MapLayout(props) {
       if (!operation) return
       if (operation === 'delete') {
         showFeaturesDialog(operation, type, itemId)
-      }
-      else if (operation == 'copy' && data){
-          navigator.clipboard.writeText(data).then(a => alert(t("common:coordinates_copied_to_clipboard")));
-      }
-       else {
-        if (type && ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)) {
+      } else if (operation == 'copy' && data) {
+        navigator.clipboard
+          .writeText(data)
+          .then((a) => alert(t('common:coordinates_copied_to_clipboard')))
+      } else {
+        if (
+          type &&
+          ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
+        ) {
           startFeatureEdit(type as ProvisionalFeatureType, null)
         } else {
           displayWarningSnackbar('Cannot create feature of type ' + type)
@@ -558,8 +565,7 @@ export function MapLayout(props) {
           props.filterList.includes(a?.properties?.activityFilter)
       )
       const map = mapViewRef?.current?.getMap()
-      if (map)
-        spiderifierRef.current?.clearSpiders(map!)
+      if (map) spiderifierRef.current?.clearSpiders(map!)
       setJsonData({
         type: 'FeatureCollection',
         features: filteredList
@@ -574,11 +580,10 @@ export function MapLayout(props) {
     updateMarkersDebounced
   ])
 
-
   useEffect(() => {
     if (goToCoord !== undefined) {
-      const map = mapViewRef.current?.getMap();
-      if(map){
+      const map = mapViewRef.current?.getMap()
+      if (map) {
         const zoom = map.getZoom()
         map.flyTo(
           {
@@ -588,8 +593,7 @@ export function MapLayout(props) {
           {
             how: 'fly',
             longitude: goToCoord.longitude,
-            latitude: goToCoord.latitude,
-            
+            latitude: goToCoord.latitude
           }
         )
       }
@@ -602,20 +606,20 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     setPolyToMap(undefined)
     if (clickedPoint) {
-        if (polyToMap) {
-          const geometry = JSON.parse(polyToMap?.feature?.geometry)
-          const polyToDraw =
-            geometry.type === 'Polygon'
-              ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-              : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
+      if (polyToMap && polyToMap?.feature?.geometry) {
+        const geometry = JSON.parse(polyToMap?.feature?.geometry)
+        const polyToDraw =
+          geometry.type === 'Polygon'
+            ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+            : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
-          drawPolyToMap(
-            map,
-            polyToMap?.feature.properties.centroid,
-            polyToDraw,
-            EmergencyColorMap[polyToMap?.feature.properties.type]
-          )
-        }
+        drawPolyToMap(
+          map,
+          polyToMap?.feature.properties.centroid,
+          polyToDraw,
+          EmergencyColorMap[polyToMap?.feature.properties.type]
+        )
+      }
     } else {
       removePolyToMap(map)
     }
@@ -629,12 +633,13 @@ export function MapLayout(props) {
 
   // when the layers change (like the spiderifier layer), update the mapLayers to show changes
   const mapLayers = useMemo(() => {
-    return geoLayerState.tileId ? [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds, geoLayerState.tileId] : [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]
+    return geoLayerState.tileId
+      ? [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds, geoLayerState.tileId]
+      : [...GEOJSON_LAYER_IDS, ...props.spiderLayerIds]
   }, [geoLayerState, props.spiderLayerIds])
 
-  const customGetCursor = ({isDragging, isHovering}: ExtraState) => isDragging ?
-    'all-scroll' :
-  (isHovering ? 'pointer' : 'auto');
+  const customGetCursor = ({ isDragging, isHovering }: ExtraState) =>
+    isDragging ? 'all-scroll' : isHovering ? 'pointer' : 'auto'
 
   return (
     <>

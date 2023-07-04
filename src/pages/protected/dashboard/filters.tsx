@@ -48,13 +48,15 @@ export const DashboardFilters = (props) => {
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
   const { localStorageFilters, mapDrawerTabVisibility, lastUpdate, onFilterChecked } = props
   const { filters: allFilters } = localStorageFilters
-  const { Person, Report, Mission, Communication, MapRequest, Alert } = mapDrawerTabVisibility
+  const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
+    mapDrawerTabVisibility
   const [personChecked, setPersonChecked] = useState<boolean>(Person)
   const [reportChecked, setReportChecked] = useState<boolean>(Report)
   const [missionChecked, setMissionChecked] = useState<boolean>(Mission)
   const [communicationChecked, setCommunicationChecked] = useState<boolean>(Communication)
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [alertChecked, setAlertChecked] = useState<boolean>(Alert)
+  const [cameraChecked, setCameraChecked] = useState<boolean>(Station)
   const [filtersState, setFiltersState] = useState(allFilters)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
@@ -71,7 +73,8 @@ export const DashboardFilters = (props) => {
     setCommunicationChecked(Communication)
     setMapRequestChecked(MapRequest)
     setAlertChecked(Alert)
-  }, [Person, Report, Mission, Communication, MapRequest, Alert])
+    setCameraChecked(Station)
+  }, [Person, Report, Mission, Communication, MapRequest, Alert, Station])
 
   useEffect(() => {
     setLastUpdateState(lastUpdate)
@@ -374,6 +377,18 @@ export const DashboardFilters = (props) => {
               setClickCounter={setBtnClickCounter}
             />
           </Grid>
+          <Grid item>
+            <CategoryFilter
+              t={t}
+              classes={classes}
+              label={EntityType.STATION}
+              emergencyLabel={EntityType.STATION}
+              filterCheckedHandler={onFilterChecked}
+              isChecked={cameraChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
+            />
+          </Grid>
         </Grid>
       </Grid>
       <Grid item style={{ position: 'absolute', right: 24, bottom: 8 }}>
@@ -408,13 +423,14 @@ const CategoryFilter = (props) => {
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
 
-  const getApplyButtonClass = (label) => {    
+  const getApplyButtonClass = (label) => {
     if (label === EntityType.COMMUNICATION) return classes.communicationApplyButton
     if (label === EntityType.MAP_REQUEST) return classes.mapRequestApplyButton
     if (label === EntityType.MISSION) return classes.missionApplyButton
     if (label === EntityType.PERSON) return classes.personApplyButton
     if (label === EntityType.REPORT) return classes.reportApplyButton
     if (label === EntityType.ALERT) return classes.alertApplyButton
+    if (label === EntityType.STATION) return classes.cameraApplyButton
     return classes.applyButton
   }
 

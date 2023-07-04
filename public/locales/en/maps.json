@@ -85,5 +85,9 @@
   "download_successful": "File downloaded successfully!",
   "download_button": "Download",
   "alerts": "Alerts",
-  "location": "Location"
+  "location": "Location",
+  "noMeasurements": "No measurements available",
+  "smoke": "Smoke",
+  "pleaseSelectSensor": "Please select a sensor",
+  "Hide measures without detections": "Hide measures without detections"
 }

@@ -30,11 +30,18 @@ export const initObjectState = {
         {
           name: 'hazard_select',
           options: [
-            'None', 'Avalanche', 'Earthquake', 'Fire', 'Flood', 'Landslide', 'Storm', 'Weather', 'Subsidence'
+            'None',
+            'Avalanche',
+            'Earthquake',
+            'Fire',
+            'Flood',
+            'Landslide',
+            'Storm',
+            'Weather',
+            'Subsidence'
           ],
           type: 'multipleselect',
-          selected: [
-          ]
+          selected: []
         },
         {
           name: 'hazard_status',
@@ -47,13 +54,13 @@ export const initObjectState = {
           options: ['Private', 'Public', 'All'],
           type: 'select',
           selected: 'Private'
-        },        
+        },
         {
           name: 'hazard_content',
           options: ['Submitted', 'Inaccurate', 'Inappropriate', 'Validated'],
           type: 'multipleselect',
           selected: []
-        },
+        }
       ]
     },
     mission: {
@@ -85,7 +92,7 @@ export const initObjectState = {
           options: [],
           type: 'multipleselect',
           selected: []
-        },
+        }
       ]
     },
     mapRequests: {
@@ -107,7 +114,17 @@ export const initObjectState = {
         },
         {
           name: 'map_request_hazards',
-          options: ['None', 'Avalanche', 'Earthquake', 'Fire', 'Flood', 'Landslide', 'Storm', 'Weather', 'Subsidence'],
+          options: [
+            'None',
+            'Avalanche',
+            'Earthquake',
+            'Fire',
+            'Flood',
+            'Landslide',
+            'Storm',
+            'Weather',
+            'Subsidence'
+          ],
           type: 'multipleselect',
           selected: []
         }
@@ -116,13 +133,21 @@ export const initObjectState = {
     multicheckCategories: {
       title: 'multicheck_categories',
       type: 'checkboxlist',
-      options: { ReportRequest: true, MapRequest:true, Communication: true, Mission: true, Report: true },
+      options: {
+        ReportRequest: true,
+        MapRequest: true,
+        Communication: true,
+        Mission: true,
+        Report: true,
+        Alert: true,
+        Station: true
+      },
       tab: 2
     },
     multicheckPersons: {
       title: 'multicheck_persons',
       type: 'checkboxlist',
-      options: { Off: true, Ready:true, Moving: true, Active: true },
+      options: { Off: true, Ready: true, Moving: true, Active: true },
       tab: 2
     }
   }

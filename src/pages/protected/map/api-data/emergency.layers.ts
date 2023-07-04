@@ -127,6 +127,7 @@ export function updateMarkers<P extends string>(
   let [markers, markersOnScreen] = allMarkers
   // let markersOnScreen = markersOnScreenRef.current || {}
   let newMarkers = {}
+
   let features = map.querySourceFeatures(sourceName) as unknown as GeoJSON.Feature<
     GeoJSON.Point,
     ClusterProps<P>
@@ -193,5 +194,12 @@ export function updateEmergencyMarkers(
 ) {
   const relevantKeys = categories
   const colors = Object.values(EmergencyColorMap)
-  return updateMarkers<EmergencyType>(sourceName, relevantKeys, colors, markersRef, map, checkFeatureState)
+  return updateMarkers<EmergencyType>(
+    sourceName,
+    relevantKeys,
+    colors,
+    markersRef,
+    map,
+    checkFeatureState
+  )
 }

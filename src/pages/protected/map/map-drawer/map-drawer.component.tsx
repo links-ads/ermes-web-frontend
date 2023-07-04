@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
@@ -18,12 +18,14 @@ import CommunicationPanel from './communication-panel.component'
 import PeoplePanel from './people-panel.component'
 import MissionsPanel from './missions-panel.component'
 import MapRequestsPanel from './map-requests-panel.component'
-import { useAPIConfiguration } from '../../../../hooks/api-hooks';
-import useAPIHandler from '../../../../hooks/use-api-handler';
-import { LayersApiFactory } from 'ermes-backoffice-ts-sdk';
-import LayerDefinition from '../../../../models/layers/LayerDefinition';
-import { FiltersContext } from '../../../../state/filters.context';
-import AlertPanel from './alerts-panel.component';
+import { useAPIConfiguration } from '../../../../hooks/api-hooks'
+import useAPIHandler from '../../../../hooks/use-api-handler'
+import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import LayerDefinition from '../../../../models/layers/LayerDefinition'
+import { FiltersContext } from '../../../../state/filters.context'
+import AlertPanel from './alerts-panel.component'
+import CamerasPanel from './cameras-panel.component'
+import { CameraDetails } from './camera-details.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,9 +41,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#FFF'
   },
   hiddenTab: {
-    display: 'none', 
+    display: 'none',
     visibility: 'hidden'
-  }  
+  }
 }))
 
 interface TabPanelProps {
@@ -90,47 +92,48 @@ export default function MapDrawer(props) {
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   const filtersCtx = useContext(FiltersContext)
   const { mapDrawerTabVisibility } = filtersCtx
-  const { Person, Report, Mission, Communication, MapRequest, Alert } = mapDrawerTabVisibility
+  const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
+    mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
   const [selectedCard, setSelectedCard] = useState<string>('')
 
-  const onCardClick = selectedItemId => {
+  const onCardClick = (selectedItemId) => {
     setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
   }
 
   useEffect(() => {
-    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())    
-  }, [])  
+    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+  }, [])
 
-  useEffect(() => {    
-    let tabValueAssigned = false;
+  useEffect(() => {
+    let tabValueAssigned = false
     if (Person) {
-      if(!tabValueAssigned){
+      if (!tabValueAssigned) {
         setTabValue(0)
         tabValueAssigned = true
       }
     }
     if (Report) {
-      if(!tabValueAssigned){
+      if (!tabValueAssigned) {
         setTabValue(1)
         tabValueAssigned = true
       }
     }
     if (Mission) {
-      if(!tabValueAssigned){
+      if (!tabValueAssigned) {
         setTabValue(2)
         tabValueAssigned = true
       }
     }
     if (Communication) {
-      if(!tabValueAssigned){
+      if (!tabValueAssigned) {
         setTabValue(3)
         tabValueAssigned = true
       }
     }
     if (MapRequest) {
-      if(!tabValueAssigned){
+      if (!tabValueAssigned) {
         setTabValue(4)
         tabValueAssigned = true
       }
@@ -141,7 +144,13 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
-  }, [Person, Report, Mission, Communication, MapRequest, Alert, mapDrawerTabVisibility])
+    if (Station) {
+      if (!tabValueAssigned) {
+        setTabValue(6)
+        tabValueAssigned = true
+      }
+    }
+  }, [Person, Report, Mission, Communication, MapRequest, Alert, Station, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
@@ -159,7 +168,7 @@ export default function MapDrawer(props) {
       return entries
     }
   }, [apiHandlerState])
-  
+
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabValue(newValue)
   }
@@ -172,7 +181,15 @@ export default function MapDrawer(props) {
     props.setToggleDrawerTab(false)
   }
 
-  const noData = <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}><Grid container justifyContent="center"><Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid></CardContent>
+  const noData = (
+    <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
+      <Grid container justifyContent="center">
+        <Typography style={{ margin: 4 }} align="center" variant="caption">
+          {t('social:no_results')}
+        </Typography>
+      </Grid>
+    </CardContent>
+  )
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
@@ -238,10 +255,16 @@ export default function MapDrawer(props) {
               {...a11yProps(5)}
               className={!Alert ? classes.hiddenTab : undefined}
             />
+            <Tab
+              value={6}
+              label={t('maps:stations')}
+              {...a11yProps(6)}
+              className={!Station ? classes.hiddenTab : undefined}
+            />
           </Tabs>
         </AppBar>
 
-        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert ? (
+        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
           noData
         ) : (
           <SwipeableViews
@@ -345,6 +368,20 @@ export default function MapDrawer(props) {
                 flyToCoords={undefined}
               />
             </TabPanel>
+
+            {/* CAMERA */}
+            <TabPanel value={tabValue} index={6} key={'camera-' + props.rerenderKey}>
+              <CamerasPanel
+                setGoToCoord={props.setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedCard}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+              />
+            </TabPanel>
           </SwipeableViews>
         )}
         <AppBar
@@ -354,6 +391,7 @@ export default function MapDrawer(props) {
             backgroundColor: theme.palette.primary.main
           }}
         ></AppBar>
+        <CameraDetails />
       </div>
     </Slide>
   )

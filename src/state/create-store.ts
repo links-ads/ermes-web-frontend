@@ -3,13 +3,15 @@ import thunk from 'redux-thunk'
 import { authReducer } from './auth/auth.reducer'
 import { preferencesReducer } from './preferences/preferences.reducer'
 import { AppState } from './app.state'
+import { selectedCameraReducer } from './selected-camera.state'
 
 const composeEnhancers = window['__REDUX_DEVTOOLS_EXTENSION_COMPOSE__'] || compose
 
 const appReducer = combineReducers<AppState>({
   // MAP pieceOfState: Reducer
   auth: authReducer,
-  preferences: preferencesReducer
+  preferences: preferencesReducer,
+  selectedCameraState: selectedCameraReducer
 })
 
 /**
@@ -38,7 +40,6 @@ const rootReducer = (state: any, action: any) => {
 }
 
 export type AppStore = Store<CombinedState<AppState>>
-
 
 /// with typed object Partial<AppState> --> compiler error
 function createReduxStore(initialState: any /*Partial<AppState> = {}*/): AppStore {
