@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - DSS notificaotins added (#126)
+- Feature - Camera management (#camera-sensors)
 
 
 Ver. 2.9.0 - 2023-06-14
