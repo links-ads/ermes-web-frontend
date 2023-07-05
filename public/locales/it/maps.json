@@ -95,5 +95,8 @@
   "noMeasurements": "Nessuna misurazione disponibile",
   "smoke": "Fumo",
   "pleaseSelectSensor": "Seleziona un sensore",
-  "Hide measures without detections": "Nascondi misure senza rilevazioni"
+  "Hide measures without detections": "Nascondi misure senza rilevazioni",
+  "fire_and_burned_areas": "Fire and Burned Areas",
+  "post_event_monitoring": "Post Event Monitoring", 
+  "wildfire_simulation": "Wildfire Simulation"  
 }

@@ -102,5 +102,8 @@
   "noMeasurements": "No measurements available",
   "smoke": "Smoke",
   "pleaseSelectSensor": "Please select a sensor",
-  "Hide measures without detections": "Hide measures without detections"
+  "Hide measures without detections": "Hide measures without detections",
+  "fire_and_burned_areas": "Fire and Burned Areas",
+  "post_event_monitoring": "Post Event Monitoring", 
+  "wildfire_simulation": "Wildfire Simulation"
 }
