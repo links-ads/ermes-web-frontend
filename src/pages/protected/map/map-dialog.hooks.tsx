@@ -79,8 +79,12 @@ export type EditActionType = {
     | 'FREQUENCY'
     | 'RESOLUTION'
     | 'REQUEST_TITLE'
+    | 'HOURS_OF_PROJECTION'
     | 'PROBABILITY_RANGE'
     | 'SIMULATION_FIRE_SPOTTING'
+    | 'BOUNDARY_CONDITION_EDIT'
+    | 'BOUNDARY_CONDITION_ADD'
+    | 'BOUNDARY_CONDITION_REMOVE'
     | 'RESTRICTION'
     | 'SCOPE'
     | 'ORGANIZATIONRECEIVERIDS'
@@ -91,6 +95,15 @@ const getStartDayDate = () =>{
   let d1 = new Date(d.setHours(0,0,0,0))
   return d1
 }
+
+const defaultBoundaryCondition = {
+  timeOffset: 0,
+  windDirection: 0,
+  windSpeed: 0,
+  fuelMoistureContent: 0,
+  fireBreakType: {}
+}
+
 const defaultEditState = {
   title: '',
   coordinatorType: CoordinatorType.NONE,
@@ -105,8 +118,8 @@ const defaultEditState = {
   dataType: [],
   resolution: '10',
   requestTitle: '',
-  probabilityRange: 0.5,
-  hoursOfProjection: 0,
+  probabilityRange: '0.5',
+  hoursOfProjection: 1,
   simulationFireSpotting: false,
   boundaryConditions: [
     {
@@ -237,6 +250,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
           ...currentState, 
           requestTitle: action.value
         }
+      case 'HOURS_OF_PROJECTION':
+        return {
+          ...currentState, 
+          hoursOfProjection: action.value
+        }
       case 'PROBABILITY_RANGE':
         return {
           ...currentState,
@@ -246,6 +264,30 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         return {
           ...currentState, 
           simulationFireSpotting: action.value
+        }
+      case 'BOUNDARY_CONDITION_ADD':
+        let currentBoundaryConditions = [...currentState.boundaryConditions]
+        let newBoundaryCondition = {...defaultBoundaryCondition}
+        currentBoundaryConditions.push(newBoundaryCondition)
+        return {
+          ...currentState, 
+          boundaryConditions: [...currentBoundaryConditions]
+        }
+      case 'BOUNDARY_CONDITION_EDIT':
+        let modifiedBoundaryConditions = [...currentState.boundaryConditions]
+        let editBoundaryCondition = modifiedBoundaryConditions[action.value.index]
+        editBoundaryCondition[action.value.property] = action.value.newValue
+        modifiedBoundaryConditions[action.value.index] = editBoundaryCondition
+        return {
+          ...currentState, 
+          boundaryConditions: [...modifiedBoundaryConditions]
+        }
+      case 'BOUNDARY_CONDITION_REMOVE':
+        let removedBoundaryConditions = [...currentState.boundaryConditions]
+        removedBoundaryConditions.splice(action.value.index, 1)
+        return {
+          ...currentState, 
+          boundaryConditions: [...removedBoundaryConditions]
         }
       case 'RESET':
         return setinitialEditState(customState)

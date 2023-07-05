@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState, useCallback } from 'react'
 
 import {
   FormControl,
@@ -27,6 +27,8 @@ import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
+import useLanguage from '../../../../../hooks/use-language.hook'
+import { AddCircle, Delete } from '@material-ui/icons'
 
 // import useLanguage from '../../../../hooks/use-language.hook';
 
@@ -52,6 +54,22 @@ export function WildFireSimulationDialog({
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
   }, [])
+
+  const { dateFormat } = useLanguage()
+  const { startDate, hoursOfProjection } = editState
+
+  const getEndDateTime = (startDate, hoursOfProjection) => {
+    const endDate = new Date(startDate)
+    const numHoursOfProjection = parseInt(hoursOfProjection)
+    endDate.setHours(endDate.getHours() + numHoursOfProjection)
+    return endDate
+  }
+
+  useEffect(() => {
+    if (!startDate || !hoursOfProjection) return
+    const endDateTime = getEndDateTime(startDate, hoursOfProjection)
+    dispatchEditAction({ type: 'END_DATE', value: endDateTime as Date })
+  }, [startDate, hoursOfProjection])
 
   /**
    * object that represents the list elements in the createmaprequest layers dropdown;
@@ -79,72 +97,83 @@ export function WildFireSimulationDialog({
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
     <Grid container direction="column">
-      <Grid container direction='row'>
-        <h3>{t("wildfire_simulation")}</h3>
+      <Grid container direction="row">
+        <h3>{t('wildfire_simulation')}</h3>
       </Grid>
       <Grid container direction="row" justifyContent="space-between" alignItems="center">
-        <Grid item style={{ width: '20%' }}>
+        <Grid item>
           <TextField
-            id="frequency-title"
+            id="hours_of_projection_title"
             label={t('maps:hours_of_projection_label')}
             error={editError && parseInt(editState.hoursOfProjection) < 0}
-            helperText={editError && parseInt(editState.hoursOfProjection) < 0 && t('maps:hours_of_projection_helper')}
+            helperText={
+              editError &&
+              parseInt(editState.hoursOfProjection) < 0 &&
+              t('maps:hours_of_projection_helper')
+            }
             type="number"
             value={editState.hoursOfProjection}
-            onChange={(e) => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+            onChange={(e) =>
+              dispatchEditAction({ type: 'HOURS_OF_PROJECTION', value: e.target.value })
+            }
             variant="outlined"
             color="primary"
             fullWidth={true}
-            inputProps={{ min: 0, max: 30 }}
+            inputProps={{ min: 1, max: 72 }}
           />
         </Grid>
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DatePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={'dd/MM/yyyy'}
-            margin="normal"
-            id="start-date-picker-inline"
-            label={t('common:date_picker_test_start')}
-            value={editState.startDate}
-            onChange={(d) => {
-              if (d != null) {
-                let d1 = new Date(d?.setHours(0, 0, 0, 0))
-                return dispatchEditAction({ type: 'START_DATE', value: d1 as Date })
-              }
-            }}
-            disableFuture={false}
-            autoOk={true}
-            clearable={true}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-          <DatePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={'dd/MM/yyyy'}
-            margin="normal"
-            id="end-date-picker-inline"
-            label={t('common:date_picker_test_end')}
-            value={editState.endDate}
-            onChange={(d) => {
-              if (d != null) {
-                let d1 = new Date(d?.setHours(23, 59, 59, 0))
-                return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
-              }
-            }}
-            disableFuture={false}
-            autoOk={true}
-            error={editError && !editState.endDate}
-            helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-            minDate={editState.startDate}
-            maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-        </MuiPickersUtilsProvider>
+        <Grid item style={{ marginLeft: 8 }}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DateTimePicker
+              style={{ paddingTop: 0, marginTop: 0 }}
+              variant="inline"
+              format={dateFormat}
+              margin="normal"
+              id="start-date-picker-inline"
+              label={t('common:date_picker_test_start')}
+              value={editState.startDate}
+              onChange={(d) => {
+                if (d != null) {
+                  //let d1 = new Date(d?.setHours(0, 0, 0, 0))
+                  return dispatchEditAction({ type: 'START_DATE', value: d as Date })
+                }
+              }}
+              disableFuture={false}
+              autoOk={true}
+              ampm={false}
+              clearable={true}
+              InputProps={{
+                endAdornment: endAdornment
+              }}
+            />
+            <DateTimePicker
+              style={{ paddingTop: 0, marginTop: 0 }}
+              variant="inline"
+              format={dateFormat}
+              margin="normal"
+              id="end-date-picker-inline"
+              label={t('common:date_picker_test_end')}
+              value={editState.endDate}
+              onChange={(d) => {
+                if (d != null) {
+                  let d1 = new Date(d?.setHours(23, 59, 59, 0))
+                  return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
+                }
+              }}
+              disableFuture={false}
+              autoOk={true}
+              error={editError && !editState.endDate}
+              helperText={editError && !editState.endDate && t('maps:mandatory_field')}
+              minDate={editState.startDate}
+              maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
+              ampm={false}
+              disabled
+              InputProps={{
+                endAdornment: endAdornment
+              }}
+            />
+          </MuiPickersUtilsProvider>
+        </Grid>
       </Grid>
       <Grid container style={{ marginBottom: 16, width: '100%' }}>
         <TextField
@@ -195,6 +224,7 @@ export function WildFireSimulationDialog({
           variant="outlined"
           color="primary"
           fullWidth={true}
+          multiline
           // inputProps={{ min: 0, max: 30 }}
         />
       </Grid>
@@ -216,9 +246,9 @@ export function WildFireSimulationDialog({
               dispatchEditAction({ type: 'PROBABILITY_RANGE', value: e.target.value })
             }
           >
-            <FormControlLabel value={0.5} control={<Radio />} label="50%" />
-            <FormControlLabel value={0.75} control={<Radio />} label="75%" />
-            <FormControlLabel value={0.9} control={<Radio />} label="90%" />
+            <FormControlLabel value={'0.5'} control={<Radio />} label="50%" />
+            <FormControlLabel value={'0.75'} control={<Radio />} label="75%" />
+            <FormControlLabel value={'0.9'} control={<Radio />} label="90%" />
           </RadioGroup>
         </FormControl>
         <FormControlLabel
@@ -231,89 +261,140 @@ export function WildFireSimulationDialog({
               }
             />
           }
-          label="Simulation Fire Spotting"
+          label={t('simulationFireSpottingLabel')}
         />
       </Grid>
+      <Grid container direction='row'>
+        <h4>{t('boundaryConditionsLabel')}</h4>
+      </Grid>
       <Grid container direction="row">
-        {editState.boundaryConditions.map(e => <WildfireSimulationBoundaryCondition
-          editError={editError}
-          editState={e}
-          dispatchEditAction={dispatchEditAction}
-          t={t}
-          hoursOfProjection={editState.hoursOfProjection}
-        />)}        
+        {editState.boundaryConditions.map((e, idx) => (
+          <WildfireSimulationBoundaryCondition
+            key={idx}
+            index={idx}
+            editError={editError}
+            editState={e}
+            dispatchEditAction={dispatchEditAction}
+            t={t}
+            hoursOfProjection={editState.hoursOfProjection}
+          />
+        ))}
+        <Grid item>
+          {(parseInt(editState.hoursOfProjection) > 1  && editState.boundaryConditions.length < parseInt(editState.hoursOfProjection))? (
+            <IconButton onClick={() => dispatchEditAction({ type: 'BOUNDARY_CONDITION_ADD' })}>
+              <AddCircle></AddCircle>
+            </IconButton>
+          ) : undefined}
+        </Grid>
       </Grid>
     </Grid>
   )
 }
 
 const WildfireSimulationBoundaryCondition = (props) => {
-  const { editError, editState, dispatchEditAction, t, hoursOfProjection } = props
+  const { editError, editState, dispatchEditAction, t, hoursOfProjection, index } = props
   return (
-    <Grid container direction="column">
-      <Grid item style={{ marginBottom: 16, width: '30%' }}>
+    <Grid item>
+      <Grid item style={{ marginBottom: 16 }}>
         <TextField
           id="time-offset"
-          label={t('maps:frequency_label')}
+          label={t('maps:timeOffsetLabel')}
           error={editError && parseInt(editState.timeOffset) < 0}
-          helperText={editError && parseInt(editState.timeOffset) < 0 && t('maps:frequency_help')}
+          helperText={editError && parseInt(editState.timeOffset) < 0 && t('maps:timeOffsetHelp')}
           type="number"
           value={editState.timeOffset}
-          onChange={(e) => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
+          onChange={(e) =>
+            dispatchEditAction({
+              type: 'BOUNDARY_CONDITION_EDIT',
+              value: { index: index, property: 'timeOffset', newValue: parseInt(e.target.value) }
+            })
+          }
           variant="outlined"
           color="primary"
           fullWidth={true}
           inputProps={{ min: 0, max: parseInt(hoursOfProjection) }}
         />
       </Grid>
-      <Grid item style={{ marginBottom: 16, width: '30%' }}>
+      <Grid item style={{ marginBottom: 16 }}>
         <TextField
           id="wind-direction"
-          label={t('maps:resolution_label')}
+          label={t('maps:windDirectionLabel')}
           error={editError && parseInt(editState.windDirection) < 0}
           helperText={
-            editError && parseInt(editState.windDirection) < 0 && t('maps:resolution_help')
+            editError && parseInt(editState.windDirection) < 0 && t('maps:windDirectionHelp')
           }
           type="number"
           value={editState.windDirection}
-          onChange={(e) => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+          onChange={(e) =>
+            dispatchEditAction({
+              type: 'BOUNDARY_CONDITION_EDIT',
+              value: { index: index, property: 'windDirection', newValue: parseInt(e.target.value) }
+            })
+          }
           variant="outlined"
           color="primary"
           fullWidth={true}
           inputProps={{ min: 0, max: 360 }}
         />
       </Grid>
-      <Grid item style={{ marginBottom: 16, width: '30%' }}>
+      <Grid item style={{ marginBottom: 16 }}>
         <TextField
           id="wind-speed"
-          label={t('maps:resolution_label')}
+          label={t('maps:windSpeedLabel')}
           error={editError && parseInt(editState.windSpeed) < 0}
-          helperText={editError && parseInt(editState.windSpeed) < 0 && t('maps:resolution_help')}
+          helperText={editError && parseInt(editState.windSpeed) < 0 && t('maps:windSpeedHelp')}
           type="number"
           value={editState.windSpeed}
-          onChange={(e) => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+          onChange={(e) =>
+            dispatchEditAction({
+              type: 'BOUNDARY_CONDITION_EDIT',
+              value: { index: index, property: 'windSpeed', newValue: parseInt(e.target.value) }
+            })
+          }
           variant="outlined"
           color="primary"
           fullWidth={true}
           inputProps={{ min: 0, max: 300 }}
         />
       </Grid>
-      <Grid item style={{ marginBottom: 16, width: '30%' }}>
+      <Grid item style={{ marginBottom: 16 }}>
         <TextField
           id="fuel-moisture-content"
-          label={t('maps:resolution_label')}
+          label={t('maps:fuelMoistureContentLabel')}
           error={editError && parseInt(editState.fuelMoistureContent) < 0}
           helperText={
-            editError && parseInt(editState.fuelMoistureContent) < 0 && t('maps:resolution_help')
+            editError &&
+            parseInt(editState.fuelMoistureContent) < 0 &&
+            t('maps:fuelMoistureContentHelp')
           }
           type="number"
           value={editState.fuelMoistureContent}
-          onChange={(e) => dispatchEditAction({ type: 'RESOLUTION', value: e.target.value })}
+          onChange={(e) =>
+            dispatchEditAction({
+              type: 'RESOLUTION',
+              value: {
+                index: index,
+                property: 'fuelMoistureContent',
+                newValue: parseInt(e.target.value)
+              }
+            })
+          }
           variant="outlined"
           color="primary"
           fullWidth={true}
           inputProps={{ min: 0, max: 100 }}
         />
+      </Grid>
+      <Grid container justifyContent="center">
+        {index > 0 ? (
+          <IconButton
+            onClick={() =>
+              dispatchEditAction({ type: 'BOUNDARY_CONDITION_REMOVE', value: { index: index } })
+            }
+          >
+            <Delete></Delete>
+          </IconButton>
+        ) : undefined}
       </Grid>
     </Grid>
   )

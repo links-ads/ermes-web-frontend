@@ -90,7 +90,7 @@ export function MapRequestDialog({
     <Grid container direction="column">
       <Grid container direction="row" style={{ marginBottom: 16 }}>
         <FormControl component="fieldset">
-          <FormLabel component="legend">Data Type</FormLabel>
+          <FormLabel component="legend">{t('labels:type')}</FormLabel>
           <RadioGroup
             // row
             aria-label="map-request-data-type"

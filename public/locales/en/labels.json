@@ -135,5 +135,6 @@
   "receivers": "Receivers",
   "legend": "Legend",
   "recommendation" : "Recommendation",
-  "alert": "Alert"
+  "alert": "Alert",
+  "type": "Type"
 }
