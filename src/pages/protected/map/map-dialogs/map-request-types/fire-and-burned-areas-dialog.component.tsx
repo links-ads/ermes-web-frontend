@@ -73,6 +73,9 @@ export function FiredAndBurnedAreasDialog({
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
     <Grid container direction="column">
+      <Grid container direction='row'>
+        <h3>{t("fire_and_burned_areas")}</h3>
+      </Grid>
       <Grid container direction="row" justifyContent="space-around" alignItems="center">
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <DatePicker

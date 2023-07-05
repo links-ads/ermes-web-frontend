@@ -79,6 +79,9 @@ export function WildFireSimulationDialog({
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
     <Grid container direction="column">
+      <Grid container direction='row'>
+        <h3>{t("wildfire_simulation")}</h3>
+      </Grid>
       <Grid container direction="row" justifyContent="space-between" alignItems="center">
         <Grid item style={{ width: '20%' }}>
           <TextField

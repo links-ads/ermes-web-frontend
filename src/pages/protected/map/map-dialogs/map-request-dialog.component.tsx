@@ -101,17 +101,17 @@ export function MapRequestDialog({
             <FormControlLabel
               value={MapRequestType.FIRE_AND_BURNED_AREA}
               control={<Radio />}
-              label="Fire and Burned Areas"
+              label={t("fire_and_burned_areas")}
             />
             <FormControlLabel
               value={MapRequestType.POST_EVENT_MONITORING}
               control={<Radio />}
-              label="Post Event Monitoring"
+              label={t("post_event_monitoring")}
             />
             <FormControlLabel
               value={MapRequestType.WILDFIRE_SIMULATION}
               control={<Radio />}
-              label="Wildfire Simulation"
+              label={t("wildfire_simulation")}
             />
           </RadioGroup>
         </FormControl>

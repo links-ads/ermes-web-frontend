@@ -96,5 +96,8 @@
   "opacity": "Opacity",
   "creator": "Creator",
   "download_successful": "File downloaded successfully!",
-  "download_button": "Download"
+  "download_button": "Download",
+  "fire_and_burned_areas": "Fire and Burned Areas",
+  "post_event_monitoring": "Post Event Monitoring", 
+  "wildfire_simulation": "Wildfire Simulation"
 }

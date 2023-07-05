@@ -89,5 +89,8 @@
   "opacity": "Trasparenza",
   "creator": "Creatore",
   "download_successful": "Il file è stato scaricato con successo!",
-  "download_button": "Scarica"  
+  "download_button": "Scarica",
+  "fire_and_burned_areas": "Fire and Burned Areas",
+  "post_event_monitoring": "Post Event Monitoring", 
+  "wildfire_simulation": "Wildfire Simulation"  
 }
