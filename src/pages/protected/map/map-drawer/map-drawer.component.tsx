@@ -221,43 +221,43 @@ export default function MapDrawer(props) {
           >
             <Tab
               value={0}
-              label={t('maps:Person')}
+              label={t('maps:tab_persons')}
               {...a11yProps(0)}
               className={!Person ? classes.hiddenTab : undefined}
             />
             <Tab
               value={1}
-              label={t('maps:Report')}
+              label={t('maps:tab_reports')}
               {...a11yProps(1)}
               className={!Report ? classes.hiddenTab : undefined}
             />
             <Tab
               value={2}
-              label={t('maps:Mission')}
+              label={t('maps:tab_missions')}
               {...a11yProps(2)}
               className={!Mission ? classes.hiddenTab : undefined}
             />
             <Tab
               value={3}
-              label={t('maps:Communication')}
+              label={t('maps:tab_communications')}
               {...a11yProps(3)}
               className={!Communication ? classes.hiddenTab : undefined}
             />
             <Tab
               value={4}
-              label={t('maps:MapRequest')}
+              label={t('maps:tab_maprequests')}
               {...a11yProps(4)}
               className={!MapRequest ? classes.hiddenTab : undefined}
             />
             <Tab
               value={5}
-              label={t('maps:alerts')}
+              label={t('maps:tab_alerts')}
               {...a11yProps(5)}
               className={!Alert ? classes.hiddenTab : undefined}
             />
             <Tab
               value={6}
-              label={t('maps:stations')}
+              label={t('maps:tab_stations')}
               {...a11yProps(6)}
               className={!Station ? classes.hiddenTab : undefined}
             />

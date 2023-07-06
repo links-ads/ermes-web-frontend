@@ -134,6 +134,13 @@
   "citizen": "Citizen",
   "receivers": "Receivers",
   "legend": "Legend",
-  "recommendation" : "Recommendation",
-  "alert": "Alert"
+  "recommendation": "Recommendation",
+  "alert": "Alert",
+  "filter_persons": "Persons",
+  "filter_report": "Reports",
+  "filter_mission": "Missions",
+  "filter_communication": "Communications",
+  "filter_maprequest": "Map requests",
+  "filter_alert": "Alerts",
+  "filter_station": "Cameras"
 }
