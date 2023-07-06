@@ -502,7 +502,7 @@ const CategoryFilter = (props) => {
                 color: clickCounter && isChecked ? EmergencyColorMap[emergencyLabel] : 'inherit'
               }}
             >
-              {t('labels:' + label)}
+              {t('labels:filter_' + label.toLowerCase())}
             </Typography>
           </Button>
           {category && category.content && category.content.length > 0 ? (

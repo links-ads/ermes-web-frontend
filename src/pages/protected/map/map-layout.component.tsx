@@ -807,7 +807,7 @@ export function MapLayout(props) {
                     }}
                     className={classes.legend_dot}
                   ></div>
-                  <div className={classes.legend_text}>&nbsp; {t('maps:' + key)} </div>
+                  <div className={classes.legend_text}>&nbsp; {t('maps:legend_' + key.toLocaleLowerCase())} </div>
                 </div>
               )
             })}

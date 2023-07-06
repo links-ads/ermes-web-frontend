@@ -136,5 +136,12 @@
   "receivers": "Riceventi",
   "legend": "Legenda",
   "recommendation": "Suggerimento",
-  "alert": "Allerta"
+  "alert": "Allerta",
+  "filter_persons": "Persone",
+  "filter_report": "Segnalazioni",
+  "filter_mission": "Missioni",
+  "filter_communication": "Comunicazioni",
+  "filter_maprequest": "Richieste Mappatura",
+  "filter_alert": "Allerte",
+  "filter_station": "Telecamere"
 }

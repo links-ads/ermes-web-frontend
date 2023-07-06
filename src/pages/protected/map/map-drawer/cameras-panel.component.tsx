@@ -75,7 +75,7 @@ const CamerasPanel: React.FC<{
         changeTextHandler={handleSearchTextChange}
         clickHandler={searchInComm}
       />
-      {!camerasData.isLoading ? (
+      {!camerasData.isLoading && !camerasData.error ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
