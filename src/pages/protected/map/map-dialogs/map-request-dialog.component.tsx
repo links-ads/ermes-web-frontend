@@ -101,43 +101,26 @@ export function MapRequestDialog({
             <FormControlLabel
               value={MapRequestType.FIRE_AND_BURNED_AREA}
               control={<Radio />}
-              label={t("fire_and_burned_areas")}
+              label={t('fire_and_burned_areas')}
             />
             <FormControlLabel
               value={MapRequestType.POST_EVENT_MONITORING}
               control={<Radio />}
-              label={t("post_event_monitoring")}
+              label={t('post_event_monitoring')}
             />
             <FormControlLabel
               value={MapRequestType.WILDFIRE_SIMULATION}
               control={<Radio />}
-              label={t("wildfire_simulation")}
+              label={t('wildfire_simulation')}
             />
           </RadioGroup>
         </FormControl>
       </Grid>
-      {/* <Grid container direction="row" style={{ marginBottom: 16 }}>
-        <FormControl variant="outlined">
-          <InputLabel id="demo-simple-select-outlined-label">Data Type</InputLabel>
-          <Select
-            labelId="demo-simple-select-outlined-label"
-            id="demo-simple-select-outlined"
-            value={value}
-            onChange={handleChange}
-            label="Data Type"
-          >
-            <MenuItem value={MapRequestType.FIRE_AND_BURNED_AREA}>Fire and Burned Areas</MenuItem>
-            <MenuItem value={MapRequestType.POST_EVENT_MONITORING}>Post Event Monitoring</MenuItem>
-            <MenuItem value={MapRequestType.WILDFIRE_SIMULATION}>Wildfire Simulation</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid> */}
-      <Divider style={{ marginBottom: 16 }} />
       {value === MapRequestType.FIRE_AND_BURNED_AREA ? (
         <FiredAndBurnedAreasDialog
           operationType={operationType}
           editError={editError}
-          editState={{...editState, dataType: [MapRequestType.FIRE_AND_BURNED_AREA]}}
+          editState={{ ...editState, dataType: [MapRequestType.FIRE_AND_BURNED_AREA] }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (
@@ -147,7 +130,7 @@ export function MapRequestDialog({
         <PostEventMonitoringDialog
           operationType={operationType}
           editError={editError}
-          editState={{...editState, dataType: [MapRequestType.POST_EVENT_MONITORING]}}
+          editState={{ ...editState, dataType: [MapRequestType.POST_EVENT_MONITORING] }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (
@@ -157,7 +140,7 @@ export function MapRequestDialog({
         <WildFireSimulationDialog
           operationType={operationType}
           editError={editError}
-          editState={{...editState, dataType: [MapRequestType.WILDFIRE_SIMULATION]}}
+          editState={{ ...editState, dataType: [MapRequestType.WILDFIRE_SIMULATION] }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (

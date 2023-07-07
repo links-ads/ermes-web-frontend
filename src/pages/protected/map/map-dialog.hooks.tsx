@@ -311,7 +311,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         <ConfirmDialog
           open={open}
           fullWidth={false}
-          maxWidth={'lg'}
+          maxWidth={'xl'}
           onExited={onExited}
           title={`${t('maps:operation_' + dialogState.operation)} ${t("maps:" + dialogState.itemType)}`}
           confirmLabel={t("maps:dialog_confirm")}

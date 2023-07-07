@@ -93,7 +93,7 @@ export function PostEventMonitoringDialog({
             }}
             disableFuture={false}
             autoOk={true}
-            clearable={true}
+            // clearable={true}
             InputProps={{
               endAdornment: endAdornment
             }}
