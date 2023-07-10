@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef, useState, useContext } from 'react'
+import React, { useMemo, useEffect } from 'react'
 
 import {
   FormControl,
@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
-import { MuiPickersUtilsProvider, DateTimePicker, DatePicker } from '@material-ui/pickers'
+import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { GenericDialogProps } from '../../map-dialog-edit.component'
 import { useTranslation } from 'react-i18next'
@@ -23,23 +23,9 @@ import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
-import InteractiveMap, {
-  ExtraState,
-  GeolocateControl,
-  NavigationControl,
-  ScaleControl
-} from 'react-map-gl'
-import { EmergencyProps } from '../../api-data/emergency.component'
-import { MapStateContextProvider, MapViewportState, useMapStateContext } from '../../map.contest'
-import { MapDraw, MapDrawRefProps } from '../../map-draw.components'
-import { useMapPreferences } from '../../../../../state/preferences/preferences.hooks'
-import bbox from '@turf/bbox'
-import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
+import { MapStateContextProvider } from '../../map.contest'
 import { CulturalProps } from '../../provisional-data/cultural.component'
-import { MapContainer } from '../../common.components'
-import { ContainerSize, ContainerSizeContext } from '../../../../../common/size-aware-container.component'
-import { useMemoryState } from '../../../../../hooks/use-memory-state.hook'
-import { initObjectState } from '../../map-filters-init.state'
+import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
 
 type MapFeature = CulturalProps
 
@@ -91,63 +77,6 @@ export function FiredAndBurnedAreasDialog({
       return Object.fromEntries(entries) //this method orders elements by the keys, could be a way to sort the contents of a dictionary
     }
   }, [apiHandlerState])
-
-  // Click Radius (see react-map-gl)
-  const CLICK_RADIUS = 4
-  const { mapTheme, transformRequest } = useMapPreferences()
-  const mapViewRef = useRef<InteractiveMap>(null)
-  const customGetCursor = ({ isDragging, isHovering }: ExtraState) =>
-    isDragging ? 'all-scroll' : isHovering ? 'pointer' : 'auto'
-  // // Map state
-  // const [
-  //   {
-  //     mapMode,
-  //     viewport,
-  //     clickedPoint,
-  //     hoveredPoint,
-  //     rightClickedPoint,
-  //     editingFeatureArea,
-  //     editingFeatureType,
-  //     editingFeatureId
-  //   },
-  //   {
-  //     setMapMode,
-  //     setViewport,
-  //     setClickedPoint,
-  //     setHoveredPoint,
-  //     setRightClickedPoint,
-  //     startFeatureEdit,
-  //     clearFeatureEdit
-  //   }
-  // ] = useMapStateContext<EmergencyProps>()
-  const [mapMode, setMapMode ] = useState('')
-  const containerSize = useContext<ContainerSize>(ContainerSizeContext)
-  let [storedFilters] = useMemoryState(
-    'memstate-map',
-    JSON.stringify(JSON.parse(JSON.stringify(initObjectState))),
-    false
-  )
-  const mapBounds = JSON.parse(storedFilters!).filters!.mapBounds
-  const [viewport, setViewport] = useState<MapViewportState>({
-    width: containerSize.width,
-    height: containerSize.height,
-    latitude: ((mapBounds.northEast[1] as number) + (mapBounds.southWest[1] as number)) / 2, //0, - TODO from user last known location
-    longitude: ((mapBounds.northEast[0] as number) + (mapBounds.southWest[0] as number)) / 2, //0, - TODO from user last known location
-    zoom: mapBounds.zoom as number
-  })
-
-  // MapDraw
-  const mapDrawRef = useRef<MapDrawRefProps>(null)
-  // Snackbars
-  const { displayMessage, displayWarningSnackbar } = useSnackbars()
-  const GEOJSON_LAYER_IDS = ['clusters', 'unclustered-point']
-  // Style for the geolocation controls
-  const geolocateStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: 45,
-    left: 0,
-    margin: 10
-  }
 
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
@@ -300,96 +229,10 @@ export function FiredAndBurnedAreasDialog({
         </Grid>
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
-        {/* <MapStateContextProvider<MapFeature>> */}
         <h5>Please draw on map</h5>
-        <MapContainer initialHeight={window.innerHeight} style={{ height: '110%', top: 0 }}>
-          <InteractiveMap
-            {...viewport}
-            doubleClickZoom={false}
-            mapStyle={mapTheme?.style}
-            onViewportChange={(nextViewport) => setViewport(nextViewport)}
-            transformRequest={transformRequest}
-            clickRadius={CLICK_RADIUS}
-            // onLoad={onMapLoad}
-            // interactiveLayerIds={mapLayers}
-            // onHover={(evt) => console.debug('Map: mouse Hover', evt)}
-            // onMouseEnter={onMouseEnter}
-            // onMouseLeave={onMouseLeave}
-            // onClick={onMapClick}
-            // onDblClick={onMapDoubleClick}
-            // onContextMenu={onContextMenu}
-            ref={mapViewRef}
-            width="100%"
-            height="100%" //was  height="calc(100% + 30px)"
-            getCursor={customGetCursor}
-          >
-            <MapDraw
-              ref={mapDrawRef}
-              onFeatureAdd={(data: GeoJSON.Feature[]) => {
-                console.debug('Feature drawn!', data)
-                // if (mapDrawRef.current && mapViewRef.current && data.length > 0) {
-                //   const map = mapViewRef.current.getMap()
-                //   if (mapMode === 'select') {
-                //     // min Longitude , min Latitude , max Longitude , max Latitude
-                //     // south Latitude, north Latitude, west Longitude, east Longitude
-                //     const [minX, minY, maxX, maxY] = bbox(
-                //       data[0] as GeoJSON.Feature<GeoJSON.Polygon>
-                //     )
-                //     const mapFeaturesInTheBox = mapViewRef.current.queryRenderedFeatures(
-                //       [map.project([minX, minY]), map.project([maxX, maxY])],
-                //       {
-                //         layers: GEOJSON_LAYER_IDS
-                //       }
-                //     )
-                //     const clustersCount = mapFeaturesInTheBox.reduce((count, f) => {
-                //       if (f?.properties?.cluster === true) {
-                //         count++
-                //       }
-                //       return count
-                //     }, 0)
-                //     // console.debug('Feature selection', mapFeaturesInTheBox, 'bbox', [
-                //     //   minX,
-                //     //   minY,
-                //     //   maxX,
-                //     //   maxY
-                //     // ])
-                //     displayMessage(
-                //       `${mapFeaturesInTheBox.length} features selected, of which ${clustersCount} clusters`
-                //     )
-                //     mapDrawRef.current?.deleteFeatures(0) // remove square
-                //     setTimeout(() => {
-                //       // change mode back - timeout needed because of mjolnir.js
-                //       // that will otherwise intercept the last click
-                //       setMapMode('browse')
-                //     }, 500)
-                //   } else if (mapMode === 'edit') {
-                //     const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
-                //     // shall we also handle multi polygon?
-                //     if (editingFeatureType !== null) {
-                //       startFeatureEdit(editingFeatureType, editingFeatureId, featurePolygon)
-                //     }
-                //     // map.getCanvas().style.cursor = ''
-                //   }
-                // }
-              }}
-            />
-            {/* Map controls */}
-            <GeolocateControl
-              // ref={geolocationControlsRef}
-              label={t('maps:show_my_location')}
-              style={geolocateStyle}
-              positionOptions={{ enableHighAccuracy: true }}
-              trackUserLocation={true}
-            />
-            <div className="controls-contaniner" style={{ top: 0 }}>
-              <NavigationControl />
-            </div>
-            <div className="controls-contaniner" style={{ bottom: 0 }}>
-              <ScaleControl />
-            </div>
-          </InteractiveMap>
-          {/* </MapStateContextProvider> */}
-        </MapContainer>
+        <MapStateContextProvider<MapFeature>>
+          <MapRequestDrawFeature />
+        </MapStateContextProvider>
       </Grid>
     </Grid>
   )

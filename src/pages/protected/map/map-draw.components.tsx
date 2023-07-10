@@ -5,7 +5,8 @@ import {
   DrawPolygonMode,
   DrawRectangleMode,
   RENDER_STATE,
-  EDIT_TYPE
+  EDIT_TYPE,
+  DrawPointMode
 } from 'react-map-gl-draw'
 import { Feature } from '@nebula.gl/edit-modes'
 import { useMapStateContext, ProvisionalFeatureType } from './map.contest'
@@ -16,10 +17,11 @@ import blueGrey from '@material-ui/core/colors/blueGrey'
 import purple from '@material-ui/core/colors/purple'
 import blue from '@material-ui/core/colors/blue'
 import pink from '@material-ui/core/colors/pink'
+import { amber } from '@material-ui/core/colors'
 
 type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | null
 type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | null
-type ModeId = 'drawRectangle' | 'drawPolygon' | 'editing' | null
+type ModeId = 'drawRectangle' | 'drawPolygon' | 'editing' | 'drawPoint' | null
 
 type Mode = {
   id: ModeId
@@ -41,7 +43,9 @@ const MODES: Mode[] = [
   // Draw Area (polygon)
   { id: 'drawPolygon', text: 'Draw Polygon', handlerType: DrawPolygonMode },
   // Edit existing
-  { id: 'editing', text: 'Edit Feature', handlerType: EditingMode }
+  { id: 'editing', text: 'Edit Feature', handlerType: EditingMode },
+  // Set Point
+  { id: 'drawPoint', text: 'Draw Point', handlerType: DrawPointMode }
 ]
 
 export type deleteFeaturesFn = (index: number | number[]) => void
@@ -57,6 +61,9 @@ function featureStyle(editingFeatureType: ProvisionalFeatureType | null) {
       break
     case 'Communication':
       color = pink
+      break
+    case 'MapRequest':
+      color = amber
       break
     default:
       break
@@ -180,6 +187,9 @@ export const MapDraw = forwardRef<unknown, MapDrawProps>(
       switch (mapMode) {
         case 'edit':
           switchMode('drawPolygon') // TODO use edit if features!==undefined
+          break
+        case 'editPoint':
+          switchMode('drawPoint')
           break
         case 'select':
           switchMode('drawRectangle')

@@ -14,7 +14,7 @@ import {
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
-import { MuiPickersUtilsProvider, DateTimePicker, DatePicker } from '@material-ui/pickers'
+import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
 import { GenericDialogProps } from '../../map-dialog-edit.component'
 import { useTranslation } from 'react-i18next'
@@ -22,8 +22,13 @@ import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
+import { MapStateContextProvider } from '../../map.contest'
+import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
+import { CulturalProps } from '../../provisional-data/cultural.component'
 
 // import useLanguage from '../../../../hooks/use-language.hook';
+
+type MapFeature = CulturalProps
 
 export function PostEventMonitoringDialog({
   operationType,
@@ -57,128 +62,138 @@ export function PostEventMonitoringDialog({
     if (Object.entries(apiHandlerState.result).length === 0) return []
     else {
       const entries = [] as any[]
-      apiHandlerState.result.data.layerGroups.filter(l => l.groupKey === 'post event monitoring').forEach((group) => {
-        group.subGroups.forEach((subGroup) => {
-          subGroup.layers.forEach((layer) => {
-            if (layer.frequency === 'OnDemand') {
-              entries.push([layer.dataTypeId as string, layer.name])
-            }
+      apiHandlerState.result.data.layerGroups
+        .filter((l) => l.groupKey === 'post event monitoring')
+        .forEach((group) => {
+          group.subGroups.forEach((subGroup) => {
+            subGroup.layers.forEach((layer) => {
+              if (layer.frequency === 'OnDemand') {
+                entries.push([layer.dataTypeId as string, layer.name])
+              }
+            })
           })
         })
-      })
       return Object.fromEntries(entries) //this method orders elements by the keys, could be a way to sort the contents of a dictionary
     }
   }, [apiHandlerState])
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
-    <Grid container direction="column">
-      <Grid container direction='row'>
-        <h3>{t("post_event_monitoring")}</h3>
-      </Grid>
-      <Grid container direction="row" justifyContent="space-around" alignItems="center">
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DatePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={'dd/MM/yyyy'}
-            margin="normal"
-            id="start-date-picker-inline"
-            label={t('common:date_picker_test_start')}
-            value={editState.startDate}
-            onChange={(d) => {
-              if (d != null) {
-                let d1 = new Date(d?.setHours(0, 0, 0, 0))
-                return dispatchEditAction({ type: 'START_DATE', value: d1 as Date })
+    <Grid container direction="row" spacing={2}>
+      <Grid item xs={6} style={{ minWidth: 600 }}>
+        <Grid container direction="row">
+          <h3>{t('post_event_monitoring')}</h3>
+        </Grid>
+        <Grid container direction="row" justifyContent="space-around" alignItems="center">
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <DatePicker
+              style={{ paddingTop: 0, marginTop: 0 }}
+              variant="inline"
+              format={'dd/MM/yyyy'}
+              margin="normal"
+              id="start-date-picker-inline"
+              label={t('common:date_picker_test_start')}
+              value={editState.startDate}
+              onChange={(d) => {
+                if (d != null) {
+                  let d1 = new Date(d?.setHours(0, 0, 0, 0))
+                  return dispatchEditAction({ type: 'START_DATE', value: d1 as Date })
+                }
+              }}
+              disableFuture={false}
+              autoOk={true}
+              // clearable={true}
+              InputProps={{
+                endAdornment: endAdornment
+              }}
+            />
+            <DatePicker
+              style={{ paddingTop: 0, marginTop: 0 }}
+              variant="inline"
+              format={'dd/MM/yyyy'}
+              margin="normal"
+              id="end-date-picker-inline"
+              label={t('common:date_picker_test_end')}
+              value={editState.endDate}
+              onChange={(d) => {
+                if (d != null) {
+                  let d1 = new Date(d?.setHours(23, 59, 59, 0))
+                  return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
+                }
+              }}
+              disableFuture={false}
+              autoOk={true}
+              error={editError && !editState.endDate}
+              helperText={editError && !editState.endDate && t('maps:mandatory_field')}
+              minDate={editState.startDate}
+              maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
+              InputProps={{
+                endAdornment: endAdornment
+              }}
+            />
+          </MuiPickersUtilsProvider>
+        </Grid>
+        <Grid container style={{ marginBottom: 16, width: '100%' }}>
+          <FormControl margin="normal" style={{ minWidth: '100%' }}>
+            <InputLabel id="select-datatype-label">{t('maps:layer')}</InputLabel>
+            <Select
+              labelId="select-datatype-label"
+              id="select-datatype"
+              value={editState.dataType}
+              multiple={true}
+              error={editError && editState.dataType.length < 1}
+              renderValue={(selected) =>
+                (selected as string[]).map((id) => dataTypeOptions[id]).join(', ')
               }
-            }}
-            disableFuture={false}
-            autoOk={true}
-            // clearable={true}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-          <DatePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={'dd/MM/yyyy'}
-            margin="normal"
-            id="end-date-picker-inline"
-            label={t('common:date_picker_test_end')}
-            value={editState.endDate}
-            onChange={(d) => {
-              if (d != null) {
-                let d1 = new Date(d?.setHours(23, 59, 59, 0))
-                return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
-              }
-            }}
-            disableFuture={false}
-            autoOk={true}
-            error={editError && !editState.endDate}
-            helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-            minDate={editState.startDate}
-            maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-        </MuiPickersUtilsProvider>
-      </Grid>
-      <Grid container style={{ marginBottom: 16, width: '100%' }}>
-        <FormControl margin="normal" style={{ minWidth: '100%' }}>
-          <InputLabel id="select-datatype-label">{t('maps:layer')}</InputLabel>
-          <Select
-            labelId="select-datatype-label"
-            id="select-datatype"
-            value={editState.dataType}
-            multiple={true}
-            error={editError && editState.dataType.length < 1}
-            renderValue={(selected) =>
-              (selected as string[]).map((id) => dataTypeOptions[id]).join(', ')
+              onChange={(event) => {
+                dispatchEditAction({ type: 'DATATYPE', value: event.target.value })
+              }}
+            >
+              {Object.entries(dataTypeOptions).map((e) => (
+                <MenuItem key={e[0]} value={e[0]}>
+                  <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
+                  <ListItemText primary={e[1]} />
+                </MenuItem>
+              ))}
+            </Select>
+            {editError && editState.dataType.length < 1 ? (
+              <FormHelperText style={{ color: '#f44336' }}>
+                {t('maps:mandatory_field')}
+              </FormHelperText>
+            ) : null}
+          </FormControl>
+        </Grid>
+        <Grid container style={{ marginBottom: 16 }}>
+          <TextField
+            id="map-request-title"
+            label={t('maps:request_title_label')}
+            error={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0)
             }
-            onChange={(event) => {
-              dispatchEditAction({ type: 'DATATYPE', value: event.target.value })
-            }}
-          >
-            {Object.entries(dataTypeOptions).map((e) => (
-              <MenuItem key={e[0]} value={e[0]}>
-                <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
-                <ListItemText primary={e[1]} />
-              </MenuItem>
-            ))}
-          </Select>
-          {editError && editState.dataType.length < 1 ? (
-            <FormHelperText style={{ color: '#f44336' }}>
-              {t('maps:mandatory_field')}
-            </FormHelperText>
-          ) : null}
-        </FormControl>
+            helperText={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0) &&
+              t('maps:request_title_help')
+            }
+            type="text"
+            value={editState.requestTitle}
+            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
+            variant="outlined"
+            color="primary"
+            fullWidth={true}
+            // inputProps={{ min: 0, max: 30 }}
+          />
+        </Grid>
       </Grid>
-      <Grid container style={{ marginBottom: 16 }}>
-        <TextField
-          id="map-request-title"
-          label={t('maps:request_title_label')}
-          error={
-            editError &&
-            (!editState.requestTitle ||
-              editState.requestTitle === null ||
-              editState.requestTitle.length === 0)
-          }
-          helperText={
-            editError &&
-            (!editState.requestTitle ||
-              editState.requestTitle === null ||
-              editState.requestTitle.length === 0) &&
-            t('maps:request_title_help')
-          }
-          type="text"
-          value={editState.requestTitle}
-          onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
-          variant="outlined"
-          color="primary"
-          fullWidth={true}
-          // inputProps={{ min: 0, max: 30 }}
-        />
+      <Grid item xs={6} style={{ minWidth: 600 }}>
+        <h5>Please draw on map</h5>
+        <MapStateContextProvider<MapFeature>>
+          <MapRequestDrawFeature />
+        </MapStateContextProvider>
       </Grid>
     </Grid>
   )
