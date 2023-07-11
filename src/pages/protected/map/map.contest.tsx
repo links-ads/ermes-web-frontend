@@ -229,7 +229,7 @@ export function useMapStateContext<T extends object = object>() {
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null = null,
     collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null = null, 
   ) {
-    if (type !== 'Report') {
+    if (type !== 'Report' && type !== 'MapRequest') {
       setMapMode('edit')
     }
     setEditingFeature({ type, id, area, collection })

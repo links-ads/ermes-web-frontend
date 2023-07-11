@@ -151,12 +151,18 @@ export function FiredAndBurnedAreasDialog({
                 dispatchEditAction({ type: 'DATATYPE', value: event.target.value })
               }}
             >
-              {Object.entries(dataTypeOptions).map((e) => (
-                <MenuItem key={e[0]} value={e[0]}>
-                  <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
-                  <ListItemText primary={e[1]} />
-                </MenuItem>
-              ))}
+              {Object.entries(dataTypeOptions)
+                .sort((a, b) => {
+                  if (a[1] < b[1]) return -1
+                  else if (a[1] < b[1]) return 1
+                  else return 0
+                })
+                .map((e) => (
+                  <MenuItem key={e[0]} value={e[0]}>
+                    <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
+                    <ListItemText primary={e[1]} />
+                  </MenuItem>
+                ))}
             </Select>
             {editError && editState.dataType.length < 1 ? (
               <FormHelperText style={{ color: '#f44336' }}>

@@ -19,8 +19,8 @@ import blue from '@material-ui/core/colors/blue'
 import pink from '@material-ui/core/colors/pink'
 import { amber } from '@material-ui/core/colors'
 
-type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | null
-type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | null
+type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | typeof DrawPointMode | null
+type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | DrawPointMode | null
 type ModeId = 'drawRectangle' | 'drawPolygon' | 'editing' | 'drawPoint' | null
 
 type Mode = {

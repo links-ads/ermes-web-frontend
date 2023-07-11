@@ -1,14 +1,19 @@
-import { useEffect, useRef, useState } from "react"
-import { MapContainer } from "../../../common.components"
-import InteractiveMap, { ExtraState, GeolocateControl, NavigationControl, ScaleControl } from "react-map-gl"
-import { useMapPreferences } from "../../../../../../state/preferences/preferences.hooks"
-import { EmergencyProps } from "../../../api-data/emergency.component"
-import { MapDraw, MapDrawRefProps } from "../../../map-draw.components"
-import { Feature, Polygon, GeoJsonProperties } from "geojson"
+import { useEffect, useRef, useState } from 'react'
+import { MapContainer } from '../../../common.components'
+import InteractiveMap, {
+  ExtraState,
+  GeolocateControl,
+  NavigationControl,
+  ScaleControl
+} from 'react-map-gl'
+import { useMapPreferences } from '../../../../../../state/preferences/preferences.hooks'
+import { EmergencyProps } from '../../../api-data/emergency.component'
+import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
+import { Feature, Polygon, GeoJsonProperties } from 'geojson'
 import bbox from '@turf/bbox'
-import { useSnackbars } from "../../../../../../hooks/use-snackbars.hook"
-import React from "react"
-import { useTranslation } from "react-i18next"
+import { useSnackbars } from '../../../../../../hooks/use-snackbars.hook'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { useMapStateContext } from '../../../map.contest'
 
 // Click Radius (see react-map-gl)
@@ -23,7 +28,6 @@ const geolocateStyle: React.CSSProperties = {
 }
 
 const MapRequestDrawFeature = (props) => {
-
   const { customMapMode } = props
 
   const { t } = useTranslation(['maps', 'labels'])
@@ -64,11 +68,11 @@ const MapRequestDrawFeature = (props) => {
   const customGetCursor = ({ isDragging, isHovering }: ExtraState) =>
     isDragging ? 'all-scroll' : isHovering ? 'pointer' : 'auto'
 
-  useEffect(() => {
-    if (customMapMode){
-      setMapMode(customMapMode)
-    }
-  }, [customMapMode])
+  // useEffect(() => {
+  //   if (customMapMode){
+  //     setMapMode(customMapMode)
+  //   }
+  // }, [customMapMode])
 
   return (
     <MapContainer initialHeight={window.innerHeight} style={{ height: '110%', top: 0 }}>
@@ -85,10 +89,9 @@ const MapRequestDrawFeature = (props) => {
         // onMouseEnter={() => {setMapMode('edit')}}
         // onMouseLeave={onMouseLeave}
         onClick={() => {
-          if (!customMapMode){
+          if (!customMapMode) {
             setMapMode('edit')
-          }
-          else {
+          } else {
             setMapMode('editPoint')
           }
         }}
@@ -141,24 +144,40 @@ const MapRequestDrawFeature = (props) => {
                 if (data.length > 1) {
                   data.shift()
                 }
-                const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
+
                 // shall we also handle multi polygon?
                 const editingFeatureType = 'MapRequest'
                 //if (editingFeatureType !== null) {
                 setEditingFeature({
                   type: editingFeatureType,
                   id: 'mapRequestEditingArea',
-                  area: null, 
+                  area: null,
                   collection: null
                 })
-                startFeatureEdit(editingFeatureType, 'mapRequestEditingArea', featurePolygon) // editingFeatureId
+                if (customMapMode) {
+                  const featurePoint = data[0] as GeoJSON.Feature<GeoJSON.Point>
+                  const featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> = {
+                    type: 'FeatureCollection',
+                    features: []
+                  }
+                  featureCollection.features.push(featurePoint)
+                  startFeatureEdit(
+                    editingFeatureType,
+                    'mapRequestEditingArea',
+                    null,
+                    featureCollection
+                  )
+                } else {
+                  const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
+                  startFeatureEdit(
+                    editingFeatureType,
+                    'mapRequestEditingArea',
+                    featurePolygon,
+                    null
+                  ) // editingFeatureId
+                }
                 setMapFeatures(data)
-                //}
-                // map.getCanvas().style.cursor = ''
               }
-              //  else if (mapMode === 'editPoint') {
-
-              // }            
             }
           }}
         />
@@ -181,4 +200,4 @@ const MapRequestDrawFeature = (props) => {
   )
 }
 
-export default MapRequestDrawFeature;
+export default MapRequestDrawFeature

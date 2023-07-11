@@ -32,6 +32,7 @@ import { AddCircle, Delete } from '@material-ui/icons'
 import { MapStateContextProvider } from '../../map.contest'
 import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
+import { FireBreakType } from '../../map-dialog.hooks'
 
 // import useLanguage from '../../../../hooks/use-language.hook';
 
@@ -398,6 +399,26 @@ const WildfireSimulationBoundaryCondition = (props) => {
           fullWidth={true}
           inputProps={{ min: 0, max: 100 }}
         />
+      </Grid>
+      <Grid item style={{ marginBottom: 16 }}>
+        <FormControl>
+          <InputLabel id="fire-break-type-select-label">Fire Break Type</InputLabel>
+          <Select
+            labelId="fire-break-type-select-label"
+            id="fire-break-type-select"
+            value={Object.keys(editState.fireBreakType)[0]}
+            onChange={(e) =>
+              dispatchEditAction({
+                type: 'BOUNDARY_CONDITION_EDIT',
+                value: { index: index, property: 'fireBreakType', newValue: Object.fromEntries([[e.target.value, null]]) }
+              })}
+          >
+            <MenuItem value={FireBreakType.CANADAIR}>Canadair</MenuItem>
+            <MenuItem value={FireBreakType.HELICOPTER}>Helicopter</MenuItem>
+            <MenuItem value={FireBreakType.WATERLINE}>Water Line</MenuItem>
+            <MenuItem value={FireBreakType.VEHICLE}>Vehicle</MenuItem>
+          </Select>
+        </FormControl>
       </Grid>
       <Grid container justifyContent="center">
         {index > 0 ? (

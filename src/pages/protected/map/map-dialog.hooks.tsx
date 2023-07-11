@@ -28,6 +28,13 @@ type DialogStateType = {
   area: any
 }
 
+export enum FireBreakType {
+  CANADAIR = 'Canadair',
+  HELICOPTER = 'Helicopter',
+  WATERLINE = 'WaterLine',
+  VEHICLE = 'Vehicle'
+}
+
 type FireSimulationBoundaryCondition = {
   timeOffset: number
   windDirection: number
@@ -46,6 +53,7 @@ export type EditStateType = {
   endDate: Date | null
   description: string
   status: MissionStatusType
+  type: string 
   frequency: string
   dataType: string[]
   requestTitle: string
@@ -96,7 +104,7 @@ const getStartDayDate = () =>{
   return d1
 }
 
-const defaultBoundaryCondition = {
+const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
   timeOffset: 0,
   windDirection: 0,
   windSpeed: 0,

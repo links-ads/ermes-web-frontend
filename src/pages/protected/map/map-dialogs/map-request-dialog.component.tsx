@@ -120,7 +120,7 @@ export function MapRequestDialog({
         <FiredAndBurnedAreasDialog
           operationType={operationType}
           editError={editError}
-          editState={{ ...editState, dataType: [MapRequestType.FIRE_AND_BURNED_AREA] }}
+          editState={{ ...editState, type: MapRequestType.FIRE_AND_BURNED_AREA }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (
@@ -130,7 +130,7 @@ export function MapRequestDialog({
         <PostEventMonitoringDialog
           operationType={operationType}
           editError={editError}
-          editState={{ ...editState, dataType: [MapRequestType.POST_EVENT_MONITORING] }}
+          editState={{ ...editState, type: MapRequestType.POST_EVENT_MONITORING }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (
@@ -140,7 +140,7 @@ export function MapRequestDialog({
         <WildFireSimulationDialog
           operationType={operationType}
           editError={editError}
-          editState={{ ...editState, dataType: [MapRequestType.WILDFIRE_SIMULATION] }}
+          editState={{ ...editState, type: MapRequestType.WILDFIRE_SIMULATION }}
           dispatchEditAction={dispatchEditAction}
         />
       ) : (
