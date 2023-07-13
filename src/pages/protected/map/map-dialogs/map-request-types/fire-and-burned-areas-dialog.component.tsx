@@ -10,8 +10,7 @@ import {
   Select,
   Checkbox,
   ListItemText,
-  FormHelperText,
-  Divider
+  FormHelperText
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
 
@@ -81,7 +80,6 @@ export function FiredAndBurnedAreasDialog({
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
     <Grid container direction="row" spacing={2}>
-      <Divider style={{ marginBottom: 16 }} />
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row">
           <h3>{t('fire_and_burned_areas')}</h3>

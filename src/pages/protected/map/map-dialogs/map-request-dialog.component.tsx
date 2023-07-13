@@ -53,8 +53,9 @@ export function MapRequestDialog({
 
   const [value, setValue] = React.useState('')
 
-  const handleChange = (event) => {
+  const handleChange = (event) => {    
     setValue(event.target.value)
+    dispatchEditAction({type: 'RESET'})
   }
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -116,6 +117,7 @@ export function MapRequestDialog({
           </RadioGroup>
         </FormControl>
       </Grid>
+      <Divider style={{ marginBottom: 16 }} />
       {value === MapRequestType.FIRE_AND_BURNED_AREA ? (
         <FiredAndBurnedAreasDialog
           operationType={operationType}

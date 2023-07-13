@@ -30,7 +30,7 @@ export type PointUpdater<T extends object = object> = (pt: PointOnMap<T>) => voi
 // edit - create or update an existing feature, e.g. by drawing or editing the polygon
 // filter - use selection as a filter
 // editPoint - set a point in the map, e.g. starting flame position of a wildfire simulation
-export type MapMode = 'browse' | 'select' | 'edit' | 'filter' | 'editPoint'
+export type MapMode = 'browse' | 'select' | 'edit' | 'filter' | 'editPoint' | 'editLine'
 export type MapModeUpdater = (m: MapMode) => void
 
 // Map Viewport parameters

@@ -28,7 +28,7 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
-import { AddCircle, Delete } from '@material-ui/icons'
+import { AddCircle, Delete, Gesture, LinearScale, Timeline } from '@material-ui/icons'
 import { MapStateContextProvider } from '../../map.contest'
 import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
@@ -63,6 +63,9 @@ export function WildFireSimulationDialog({
 
   const { dateFormat } = useLanguage()
   const { startDate, hoursOfProjection } = editState
+
+  const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
+  const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
 
   const getEndDateTime = (startDate, hoursOfProjection) => {
     const endDate = new Date(startDate)
@@ -148,7 +151,7 @@ export function WildFireSimulationDialog({
                 disableFuture={false}
                 autoOk={true}
                 ampm={false}
-                clearable={true}
+                // clearable={true}
                 InputProps={{
                   endAdornment: endAdornment
                 }}
@@ -284,6 +287,8 @@ export function WildFireSimulationDialog({
               dispatchEditAction={dispatchEditAction}
               t={t}
               hoursOfProjection={editState.hoursOfProjection}
+              setWildfireMapMode={setWildfireMapMode}
+              setBoundaryConditionIdx={setBoundaryConditionIdx}
             />
           ))}
           <Grid item>
@@ -299,7 +304,7 @@ export function WildFireSimulationDialog({
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <h5>Please draw on map</h5>
         <MapStateContextProvider<MapFeature>>
-          <MapRequestDrawFeature customMapMode="editPoint" />
+          <MapRequestDrawFeature customMapMode={wildfireMapMode} lineIdx={boundaryConditionIdx} />
         </MapStateContextProvider>
       </Grid>
     </Grid>
@@ -307,7 +312,16 @@ export function WildFireSimulationDialog({
 }
 
 const WildfireSimulationBoundaryCondition = (props) => {
-  const { editError, editState, dispatchEditAction, t, hoursOfProjection, index } = props
+  const {
+    editError,
+    editState,
+    dispatchEditAction,
+    t,
+    hoursOfProjection,
+    index,
+    setWildfireMapMode,
+    setBoundaryConditionIdx
+  } = props
   return (
     <Grid item>
       <Grid item style={{ marginBottom: 16 }}>
@@ -410,8 +424,13 @@ const WildfireSimulationBoundaryCondition = (props) => {
             onChange={(e) =>
               dispatchEditAction({
                 type: 'BOUNDARY_CONDITION_EDIT',
-                value: { index: index, property: 'fireBreakType', newValue: Object.fromEntries([[e.target.value, null]]) }
-              })}
+                value: {
+                  index: index,
+                  property: 'fireBreakType',
+                  newValue: Object.fromEntries([[e.target.value, null]])
+                }
+              })
+            }
           >
             <MenuItem value={FireBreakType.CANADAIR}>Canadair</MenuItem>
             <MenuItem value={FireBreakType.HELICOPTER}>Helicopter</MenuItem>
@@ -419,6 +438,16 @@ const WildfireSimulationBoundaryCondition = (props) => {
             <MenuItem value={FireBreakType.VEHICLE}>Vehicle</MenuItem>
           </Select>
         </FormControl>
+      </Grid>
+      <Grid item style={{ marginBottom: 16 }}>
+        <IconButton
+          onClick={() => {
+            setWildfireMapMode('editLine')
+            setBoundaryConditionIdx(index)
+          }}
+        >
+          <Timeline></Timeline>
+        </IconButton>
       </Grid>
       <Grid container justifyContent="center">
         {index > 0 ? (
