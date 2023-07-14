@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Grid } from '@material-ui/core'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
-import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
+import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MapRequestType, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.contest'
 import { DialogEdit } from './map-dialog-edit.component'
@@ -61,7 +61,9 @@ export type EditStateType = {
   probabilityRange: number
   hoursOfProjection: string
   boundaryConditions: FireSimulationBoundaryCondition[]
-  simulationFireSpotting: boolean  
+  simulationFireSpotting: boolean
+  mapSelectionCompleted: boolean
+  mapArea: any
   scope: CommunicationScopeType | null
   restrictionType: CommunicationRestrictionType | null
   organizationReceiverIds: number[]
@@ -84,6 +86,7 @@ export type EditActionType = {
     | 'STATUS'
     | 'RESET'
     | 'DATATYPE'
+    | 'TYPE'
     | 'FREQUENCY'
     | 'RESOLUTION'
     | 'REQUEST_TITLE'
@@ -93,6 +96,8 @@ export type EditActionType = {
     | 'BOUNDARY_CONDITION_EDIT'
     | 'BOUNDARY_CONDITION_ADD'
     | 'BOUNDARY_CONDITION_REMOVE'
+    | 'MAP_SELECTION_COMPLETED'
+    | 'MAP_AREA'
     | 'RESTRICTION'
     | 'SCOPE'
     | 'ORGANIZATIONRECEIVERIDS'
@@ -122,6 +127,7 @@ const defaultEditState = {
   endDate: null,
   description: '',
   status: MissionStatusType.CREATED,
+  type: '',
   frequency: '0',
   dataType: [],
   resolution: '10',
@@ -137,7 +143,9 @@ const defaultEditState = {
       fuelMoistureContent: 0,
       fireBreakType: {}
     }
-  ],  
+  ],
+  mapSelectionCompleted: false,
+  mapArea: {},
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
@@ -241,6 +249,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
           ...currentState,
           organizationReceiverIds: action.value as number[]
         }
+      case 'TYPE':
+        return {
+          ...currentState,
+          type: action.value
+        }
       case 'FREQUENCY':
         var number = parseInt(action.value)
         return {
@@ -296,6 +309,16 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         return {
           ...currentState, 
           boundaryConditions: [...removedBoundaryConditions]
+        }
+      case 'MAP_SELECTION_COMPLETED':
+        return {
+          ...currentState, 
+          mapSelectionCompleted: action.value
+        }
+      case 'MAP_AREA':
+        return {
+          ...currentState,
+          mapArea: action.value
         }
       case 'RESET':
         return setinitialEditState(customState)
@@ -411,7 +434,55 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
       editState.coordinatorType === CoordinatorType.NONE
     )
       return false
-    if (dialogState.itemType === EntityType.MAP_REQUEST && ((isNaN(parseInt(editState.frequency)) || parseInt(editState.frequency) < 0) || editState.dataType.length == 0)) return false
+    if (
+      dialogState.itemType === EntityType.MAP_REQUEST &&
+      editState.type === MapRequestType.FIRE_AND_BURNED_AREA
+    ) {
+      if (
+        isNaN(parseInt(editState.frequency)) ||
+        parseInt(editState.frequency) < 0 ||
+        editState.dataType.length == 0 ||
+        !editState.mapSelectionCompleted ||
+        !editState.requestTitle ||
+        editState.requestTitle === '' ||
+        editState.requestTitle.length < 1
+      )
+        return false
+    }
+    if (
+      dialogState.itemType === EntityType.MAP_REQUEST &&
+      editState.type === MapRequestType.POST_EVENT_MONITORING
+    ) {
+      if (
+        editState.dataType.length == 0 ||
+        !editState.mapSelectionCompleted ||
+        !editState.requestTitle ||
+        editState.requestTitle === '' ||
+        editState.requestTitle.length < 1
+      )
+        return false
+    }
+    if (
+      dialogState.itemType === EntityType.MAP_REQUEST &&
+      editState.type === MapRequestType.WILDFIRE_SIMULATION
+    ) {
+      if (
+        !editState.mapSelectionCompleted ||
+        !editState.requestTitle ||
+        editState.requestTitle === '' ||
+        editState.requestTitle.length < 1 ||
+        !editState.description ||
+        editState.description === '' ||
+        editState.description.length < 1 ||
+        isNaN(editState.probabilityRange) ||
+        editState.simulationFireSpotting === undefined ||
+        editState.boundaryConditions.length < 1 ||
+        Object.keys(editState.boundaryConditions[0].fireBreakType).length < 1 ||
+        Object.values(editState.boundaryConditions[0].fireBreakType).length < 1
+      )
+        return false
+    }
+    
     if (dialogState.itemType === EntityType.COMMUNICATION)
     { 
       if (!(!!editState.scope || !!editState.restrictionType)) return false
@@ -498,21 +569,43 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
     }
     switch (dialogState.itemType) {
       case EntityType.COMMUNICATION:
-        baseObj['feature']['properties']['message'] = editState.description 
+        baseObj['feature']['properties']['message'] = editState.description
         baseObj['feature']['properties']['scope'] = editState.scope as string
         baseObj['feature']['properties']['restriction'] = editState.restrictionType as string
         baseObj['feature']['properties']['organizationReceiverIds'] =
           editState.organizationReceiverIds
-        break;
+        break
       case EntityType.MAP_REQUEST:
-        baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
-        baseObj['feature']['properties']['resolution'] = parseInt(editState.resolution)
-        if (editState.dataType.length > 0)
-          baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map(d=>parseInt(d))
-        break;
+        baseObj['feature']['properties']['type'] = editState.type
+        baseObj['feature']['geometry'] = editState.mapArea.geometry
+        baseObj['feature']['properties']['title'] = editState.requestTitle
+        switch (editState.type) {
+          case MapRequestType.FIRE_AND_BURNED_AREA:
+            baseObj['feature']['properties']['frequency'] = parseInt(editState.frequency)
+            baseObj['feature']['properties']['resolution'] = parseInt(editState.resolution)
+            if (editState.dataType.length > 0)
+              baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map((d) =>
+                parseInt(d)
+              )
+            break
+          case MapRequestType.POST_EVENT_MONITORING:
+            if (editState.dataType.length > 0)
+              baseObj['feature']['properties']['dataTypeIds'] = editState.dataType.map((d) =>
+                parseInt(d)
+              )
+            break
+          case MapRequestType.WILDFIRE_SIMULATION:
+            baseObj['feature']['properties']['description'] = editState.description
+            baseObj['feature']['properties']['timeLimit'] = editState.hoursOfProjection
+            baseObj['feature']['properties']['probabilityRange'] = editState.probabilityRange
+            baseObj['feature']['properties']['doSpotting'] = editState.simulationFireSpotting
+            baseObj['feature']['properties']['boundaryConditions'] = editState.boundaryConditions
+            break
+        }
+        break
       case EntityType.MISSION:
-        baseObj['feature']['properties']['title'] = editState.title 
-        baseObj['feature']['properties']['description'] = editState.description 
+        baseObj['feature']['properties']['title'] = editState.title
+        baseObj['feature']['properties']['description'] = editState.description
         baseObj['feature']['properties']['currentStatus'] = editState.status as string
         baseObj['feature']['properties']['organizationId'] = editState.orgId as number
         switch (editState.coordinatorType) {
@@ -523,7 +616,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
             baseObj['feature']['properties']['coordinatorPersonId'] = editState.userId as number
             break
         }
-        break;
+        break
     }
     return baseObj
   }

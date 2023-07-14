@@ -108,5 +108,10 @@
   "Hide measures without detections": "Nascondi misure senza rilevazioni",
   "fire_and_burned_areas": "Aree Bruciate",
   "post_event_monitoring": "Monitoraggio Post-Event", 
-  "wildfire_simulation": "Simulazione Incendio"  
+  "wildfire_simulation": "Simulazione Incendio",
+  "mapSelectionInfoMessage": "Clicca sulla mappa per iniziare a disegnare",
+  "mapSelectionSuccessMessage": "Selezione sulla mappa completata con successo", 
+  "mapSelectionErrorMessage": "Selezione sulla mappa non completata",
+  "drawLine": "Disegna la linea sulla mappa",
+  "drawPoint": "Disegna il punto sulla mappa"
 }

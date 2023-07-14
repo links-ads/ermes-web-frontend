@@ -107,5 +107,10 @@
   "Hide measures without detections": "Hide measures without detections",
   "fire_and_burned_areas": "Fire and Burned Areas",
   "post_event_monitoring": "Post Event Monitoring", 
-  "wildfire_simulation": "Wildfire Simulation"
+  "wildfire_simulation": "Wildfire Simulation",
+  "mapSelectionInfoMessage": "Click on map to start drawing",
+  "mapSelectionSuccessMessage": "Map selection successfully completed", 
+  "mapSelectionErrorMessage": "Map selection not completed",
+  "drawLine": "Draw line on map",
+  "drawPoint": "Draw point on map"
 }

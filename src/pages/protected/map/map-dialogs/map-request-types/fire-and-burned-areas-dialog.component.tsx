@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 
 import {
   FormControl,
@@ -25,10 +25,9 @@ import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import { MapStateContextProvider } from '../../map.contest'
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
+import { Alert, Color } from '@material-ui/lab'
 
 type MapFeature = CulturalProps
-
-// import useLanguage from '../../../../hooks/use-language.hook';
 
 export function FiredAndBurnedAreasDialog({
   operationType,
@@ -36,7 +35,6 @@ export function FiredAndBurnedAreasDialog({
   dispatchEditAction,
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
-  //const { dateFormat } = useLanguage()
   const { t } = useTranslation(['maps', 'labels'])
   const endAdornment = useMemo(() => {
     return (
@@ -46,12 +44,38 @@ export function FiredAndBurnedAreasDialog({
     )
   }, [])
 
+  const { mapSelectionCompleted } = editState
+  const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
+  const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
+    useState<string>('mapSelectionInfoMessage')
+
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
   }, [])
+
+  const setMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
+  }
+
+  useEffect(() => {
+    if (mapSelectionCompleted) {
+      setAreaSelectionStatus('success')
+      setAreaSelectionStatusMessage('mapSelectionSuccessMessage')
+    } else if (editError && !mapSelectionCompleted) {
+      setAreaSelectionStatus('error')
+      setAreaSelectionStatusMessage('mapSelectionErrorMessage')
+    } else {
+      setAreaSelectionStatus('info')
+      setAreaSelectionStatusMessage('mapSelectionInfoMessage')
+    }
+  }, [mapSelectionCompleted, editError])
+
+  const setMapArea = (area) => {
+    dispatchEditAction({ type: 'MAP_AREA', value: area })
+  }
 
   /**
    * object that represents the list elements in the createmaprequest layers dropdown;
@@ -102,7 +126,6 @@ export function FiredAndBurnedAreasDialog({
               }}
               disableFuture={false}
               autoOk={true}
-              // clearable={true}
               InputProps={{
                 endAdornment: endAdornment
               }}
@@ -192,7 +215,6 @@ export function FiredAndBurnedAreasDialog({
             variant="outlined"
             color="primary"
             fullWidth={true}
-            // inputProps={{ min: 0, max: 30 }}
           />
         </Grid>
         <Grid container direction="row">
@@ -233,9 +255,13 @@ export function FiredAndBurnedAreasDialog({
         </Grid>
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
-        <h5>Please draw on map</h5>
+        <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
         <MapStateContextProvider<MapFeature>>
-          <MapRequestDrawFeature />
+          <MapRequestDrawFeature
+            areaSelectedAlertHandler={setAreaSelectionStatus}
+            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            setMapAreaHandler={setMapArea}
+          />
         </MapStateContextProvider>
       </Grid>
     </Grid>

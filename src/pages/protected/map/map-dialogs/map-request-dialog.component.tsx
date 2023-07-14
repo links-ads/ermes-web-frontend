@@ -53,9 +53,10 @@ export function MapRequestDialog({
 
   const [value, setValue] = React.useState('')
 
-  const handleChange = (event) => {    
+  const handleChange = (event) => {
     setValue(event.target.value)
-    dispatchEditAction({type: 'RESET'})
+    dispatchEditAction({ type: 'RESET' })
+    dispatchEditAction({ type: 'TYPE', value: event.target.value })
   }
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
