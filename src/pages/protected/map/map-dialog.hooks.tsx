@@ -132,7 +132,7 @@ const defaultEditState = {
   dataType: [],
   resolution: '10',
   requestTitle: '',
-  probabilityRange: '0.5',
+  probabilityRange: 0.75,
   hoursOfProjection: 1,
   simulationFireSpotting: false,
   boundaryConditions: [
@@ -477,6 +477,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         isNaN(editState.probabilityRange) ||
         editState.simulationFireSpotting === undefined ||
         editState.boundaryConditions.length < 1 ||
+        editState.boundaryConditions.map(e => e.timeOffset).filter((e, idx) => editState.boundaryConditions.map(e => e.timeOffset).indexOf(e) !== idx).length > 0 ||
         Object.keys(editState.boundaryConditions[0].fireBreakType).length < 1 ||
         Object.values(editState.boundaryConditions[0].fireBreakType).length < 1
       )
@@ -577,7 +578,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         break
       case EntityType.MAP_REQUEST:
         baseObj['feature']['properties']['type'] = editState.type
-        baseObj['feature']['geometry'] = editState.mapArea.geometry
+        baseObj['feature']['geometry'] = JSON.stringify(editState.mapArea.geometry)
         baseObj['feature']['properties']['title'] = editState.requestTitle
         switch (editState.type) {
           case MapRequestType.FIRE_AND_BURNED_AREA:

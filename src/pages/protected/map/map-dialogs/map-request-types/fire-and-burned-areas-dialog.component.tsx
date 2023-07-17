@@ -106,7 +106,7 @@ export function FiredAndBurnedAreasDialog({
     <Grid container direction="row" spacing={2}>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row">
-          <h3>{t('fire_and_burned_areas')}</h3>
+          <h3>{t('fireAndBurnedAreas')}</h3>
         </Grid>
         <Grid container direction="row" justifyContent="space-around" alignItems="center">
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -195,7 +195,7 @@ export function FiredAndBurnedAreasDialog({
         <Grid container style={{ marginBottom: 16 }}>
           <TextField
             id="map-request-title"
-            label={t('maps:request_title_label')}
+            label={t('maps:requestTitleLabel')}
             error={
               editError &&
               (!editState.requestTitle ||
@@ -207,7 +207,7 @@ export function FiredAndBurnedAreasDialog({
               (!editState.requestTitle ||
                 editState.requestTitle === null ||
                 editState.requestTitle.length === 0) &&
-              t('maps:request_title_help')
+              t('maps:requestTitleHelp')
             }
             type="text"
             value={editState.requestTitle}
@@ -221,10 +221,10 @@ export function FiredAndBurnedAreasDialog({
           <Grid item style={{ marginBottom: 16, width: '50%' }}>
             <TextField
               id="frequency-title"
-              label={t('maps:frequency_label')}
+              label={t('maps:frequencyLabel')}
               error={editError && parseInt(editState.frequency) < 0}
               helperText={
-                editError && parseInt(editState.frequency) < 0 && t('maps:frequency_help')
+                editError && parseInt(editState.frequency) < 0 && t('maps:frequencyHelp')
               }
               type="number"
               value={editState.frequency}
@@ -238,10 +238,10 @@ export function FiredAndBurnedAreasDialog({
           <Grid item style={{ marginBottom: 16, width: '50%' }}>
             <TextField
               id="resolution-title"
-              label={t('maps:resolution_label')}
+              label={t('maps:resolutionLabel')}
               error={editError && parseInt(editState.resolution) < 0}
               helperText={
-                editError && parseInt(editState.resolution) < 0 && t('maps:resolution_help')
+                editError && parseInt(editState.resolution) < 0 && t('maps:resolutionHelp')
               }
               type="number"
               value={editState.resolution}

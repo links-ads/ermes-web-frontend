@@ -105,7 +105,7 @@ export function PostEventMonitoringDialog({
     <Grid container direction="row" spacing={2}>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row">
-          <h3>{t('post_event_monitoring')}</h3>
+          <h3>{t('postEventMonitoring')}</h3>
         </Grid>
         <Grid container direction="row" justifyContent="space-around" alignItems="center">
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -125,7 +125,6 @@ export function PostEventMonitoringDialog({
               }}
               disableFuture={false}
               autoOk={true}
-              // clearable={true}
               InputProps={{
                 endAdornment: endAdornment
               }}
@@ -189,7 +188,7 @@ export function PostEventMonitoringDialog({
         <Grid container style={{ marginBottom: 16 }}>
           <TextField
             id="map-request-title"
-            label={t('maps:request_title_label')}
+            label={t('maps:requestTitleLabel')}
             error={
               editError &&
               (!editState.requestTitle ||
@@ -201,7 +200,7 @@ export function PostEventMonitoringDialog({
               (!editState.requestTitle ||
                 editState.requestTitle === null ||
                 editState.requestTitle.length === 0) &&
-              t('maps:request_title_help')
+              t('maps:requestTitleHelp')
             }
             type="text"
             value={editState.requestTitle}
@@ -209,7 +208,6 @@ export function PostEventMonitoringDialog({
             variant="outlined"
             color="primary"
             fullWidth={true}
-            // inputProps={{ min: 0, max: 30 }}
           />
         </Grid>
       </Grid>

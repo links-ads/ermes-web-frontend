@@ -14,9 +14,12 @@ import {
   Radio,
   Switch,
   FormHelperText,
-  Tooltip
+  Tooltip,
+  ListItemText,
+  Checkbox
 } from '@material-ui/core'
 import TodayIcon from '@material-ui/icons/Today'
+import InfoIcon from '@material-ui/icons/Info'
 
 import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
 import DateFnsUtils from '@date-io/date-fns'
@@ -89,7 +92,7 @@ export function WildFireSimulationDialog({
 
   const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
-  const [ fireBreakType, setFireBreakType ] = useState<string>('')
+  const [fireBreakType, setFireBreakType] = useState<string>('')
 
   const setBoundaryLine = (idx, line) => {
     dispatchEditAction({
@@ -120,41 +123,41 @@ export function WildFireSimulationDialog({
    * typescript and javascript keep the dictionaries ordered by key, so the elements
    * order is different from what comes form the apis
    */
-  // const dataTypeOptions = useMemo(() => {
-  //   if (Object.entries(apiHandlerState.result).length === 0) return []
-  //   else {
-  //     const entries = [] as any[]
-  //     apiHandlerState.result.data.layerGroups
-  //       .filter((l) => l.groupKey === 'fire simulation')
-  //       .forEach((group) => {
-  //         group.subGroups.forEach((subGroup) => {
-  //           subGroup.layers.forEach((layer) => {
-  //             if (layer.frequency === 'OnDemand') {
-  //               entries.push([layer.dataTypeId as string, layer.name])
-  //             }
-  //           })
-  //         })
-  //       })
-  //     return Object.fromEntries(entries) //this method orders elements by the keys, could be a way to sort the contents of a dictionary
-  //   }
-  // }, [apiHandlerState])
+  const dataTypeOptions = useMemo(() => {
+    if (Object.entries(apiHandlerState.result).length === 0) return []
+    else {
+      const entries = [] as any[]
+      apiHandlerState.result.data.layerGroups
+        .filter((l) => l.groupKey === 'fire simulation')
+        .forEach((group) => {
+          group.subGroups.forEach((subGroup) => {
+            subGroup.layers.forEach((layer) => {
+              if (layer.frequency === 'OnDemand') {
+                entries.push([layer.dataTypeId as string, layer.name])
+              }
+            })
+          })
+        })
+      return Object.fromEntries(entries) //this method orders elements by the keys, could be a way to sort the contents of a dictionary
+    }
+  }, [apiHandlerState])
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
     <Grid container direction="row" spacing={2}>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row">
-          <h3>{t('wildfire_simulation')}</h3>
+          <h3>{t('wildfireSimulation')}</h3>
         </Grid>
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Grid item>
             <TextField
               id="hours_of_projection_title"
-              label={t('maps:hours_of_projection_label')}
+              label={t('maps:hoursOfProjectionLabel')}
               error={editError && parseInt(editState.hoursOfProjection) < 0}
               helperText={
                 editError &&
                 parseInt(editState.hoursOfProjection) < 0 &&
-                t('maps:hours_of_projection_helper')
+                t('maps:hoursOfProjectionHelper')
               }
               type="number"
               value={editState.hoursOfProjection}
@@ -219,9 +222,45 @@ export function WildFireSimulationDialog({
           </Grid>
         </Grid>
         <Grid container style={{ marginBottom: 16, width: '100%' }}>
+          <FormControl margin="normal" style={{ minWidth: '100%' }}>
+            <InputLabel id="select-datatype-label">{t('maps:layer')}</InputLabel>
+            <Select
+              labelId="select-datatype-label"
+              id="select-datatype"
+              value={editState.dataType}
+              multiple={true}
+              error={editError && editState.dataType.length < 1}
+              renderValue={(selected) =>
+                (selected as string[]).map((id) => dataTypeOptions[id]).join(', ')
+              }
+              onChange={(event) => {
+                dispatchEditAction({ type: 'DATATYPE', value: event.target.value })
+              }}
+            >
+              {Object.entries(dataTypeOptions)
+                .sort((a, b) => {
+                  if (a[1] < b[1]) return -1
+                  else if (a[1] < b[1]) return 1
+                  else return 0
+                })
+                .map((e) => (
+                  <MenuItem key={e[0]} value={e[0]}>
+                    <Checkbox checked={editState.dataType.indexOf(e[0]) > -1} />
+                    <ListItemText primary={e[1]} />
+                  </MenuItem>
+                ))}
+            </Select>
+            {editError && editState.dataType.length < 1 ? (
+              <FormHelperText style={{ color: '#f44336' }}>
+                {t('maps:mandatory_field')}
+              </FormHelperText>
+            ) : null}
+          </FormControl>
+        </Grid>
+        <Grid container style={{ marginBottom: 16, width: '100%' }}>
           <TextField
             id="map-request-title"
-            label={t('maps:request_title_label')}
+            label={t('maps:requestTitleLabel')}
             error={
               editError &&
               (!editState.requestTitle ||
@@ -233,7 +272,7 @@ export function WildFireSimulationDialog({
               (!editState.requestTitle ||
                 editState.requestTitle === null ||
                 editState.requestTitle.length === 0) &&
-              t('maps:request_title_help')
+              t('maps:requestTitleHelp')
             }
             type="text"
             value={editState.requestTitle}
@@ -276,8 +315,20 @@ export function WildFireSimulationDialog({
           alignItems="center"
           style={{ marginBottom: 16 }}
         >
-          <FormControl component="fieldset">
-            <FormLabel component="legend">{t('maps:probability_range_label')}</FormLabel>
+          <FormControl
+            component="fieldset"
+            error={
+              editError && (!editState.probabilityRange || editState.probabilityRange === null)
+            }
+          >
+            <FormLabel component="legend">
+              {t('maps:probabilityRangeLabel')}
+              <Tooltip title={t('maps:probabilityRangeInfo') ?? ''}>
+                <IconButton>
+                  <InfoIcon fontSize="small"></InfoIcon>
+                </IconButton>
+              </Tooltip>
+            </FormLabel>
             <RadioGroup
               row
               aria-label="probability-range"
@@ -291,19 +342,27 @@ export function WildFireSimulationDialog({
               <FormControlLabel value={0.75} control={<Radio />} label="75%" />
               <FormControlLabel value={0.9} control={<Radio />} label="90%" />
             </RadioGroup>
+            {editError && (!editState.probabilityRange || editState.probabilityRange === null) && (
+              <FormHelperText error>{t('maps:probabilityRangeHelp')}</FormHelperText>
+            )}
           </FormControl>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={editState.simulationFireSpotting}
-                name="simulation-fire-spotting"
-                onChange={(e) =>
-                  dispatchEditAction({ type: 'SIMULATION_FIRE_SPOTTING', value: e.target.checked })
-                }
-              />
-            }
-            label={t('simulationFireSpottingLabel')}
-          />
+          <FormControl component="fieldset">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={editState.simulationFireSpotting}
+                  name="simulation-fire-spotting"
+                  onChange={(e) =>
+                    dispatchEditAction({
+                      type: 'SIMULATION_FIRE_SPOTTING',
+                      value: e.target.checked
+                    })
+                  }
+                />
+              }
+              label={t('simulationFireSpottingLabel')}
+            />
+          </FormControl>
         </Grid>
         <Grid container direction="row">
           <h4>{t('boundaryConditionsLabel')}</h4>
@@ -321,6 +380,7 @@ export function WildFireSimulationDialog({
               setWildfireMapMode={setWildfireMapMode}
               setBoundaryConditionIdx={setBoundaryConditionIdx}
               setFireBreakType={setFireBreakType}
+              otherTimeOffsets={editState.boundaryConditions.map((e) => e.timeOffset)}
             />
           ))}
           <Grid item>
@@ -367,7 +427,8 @@ const WildfireSimulationBoundaryCondition = (props) => {
     index,
     setWildfireMapMode,
     setBoundaryConditionIdx,
-    setFireBreakType
+    setFireBreakType,
+    otherTimeOffsets
   } = props
   return (
     <Grid item>
@@ -375,10 +436,15 @@ const WildfireSimulationBoundaryCondition = (props) => {
         <TextField
           id="time-offset"
           label={t('maps:timeOffsetLabel')}
-          error={editError && parseInt(editState.timeOffset) < 0}
+          error={
+            editError &&
+            (parseInt(editState.timeOffset) < 0 ||
+              otherTimeOffsets.filter((e, idx) => otherTimeOffsets.indexOf(e) !== idx).length > 0)
+          }
           helperText={editError && parseInt(editState.timeOffset) < 0 && t('maps:timeOffsetHelp')}
           type="number"
-          value={editState.timeOffset}
+          disabled={index === 0}
+          value={index === 0 ? 0 : editState.timeOffset}
           onChange={(e) =>
             dispatchEditAction({
               type: 'BOUNDARY_CONDITION_EDIT',
@@ -499,16 +565,18 @@ const WildfireSimulationBoundaryCondition = (props) => {
       </Grid>
       <Grid item style={{ marginBottom: 16 }}>
         <Tooltip title={t('maps:drawLine')}>
-          <IconButton
-            disabled={Object.keys(editState.fireBreakType).length < 1}
-            onClick={() => {
-              setWildfireMapMode('editLine')
-              setBoundaryConditionIdx(index)
-              setFireBreakType(Object.keys(editState.fireBreakType)[0])
-            }}
-          >
-            <Timeline></Timeline>
-          </IconButton>
+          <span>
+            <IconButton
+              disabled={Object.keys(editState.fireBreakType).length < 1}
+              onClick={() => {
+                setWildfireMapMode('editLine')
+                setBoundaryConditionIdx(index)
+                setFireBreakType(Object.keys(editState.fireBreakType)[0])
+              }}
+            >
+              <Timeline></Timeline>
+            </IconButton>
+          </span>
         </Tooltip>
       </Grid>
       <Grid container justifyContent="center">
