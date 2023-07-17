@@ -378,6 +378,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
                 editState={editState}
                 dispatchEditAction={dispatchEditAction}
                 editError={editError}
+                setEditError={setEditError}
               />
             )}
           {dialogState.operation === 'delete' && (
@@ -552,7 +553,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
   }
 
   const getFeatureDto = (editState: EditStateType, dialogState: DialogStateType) => {
-    console.log('getFeatureDto', dialogState)
+    console.debug('getFeatureDto', dialogState)
     const baseObj = {
       "feature": {
         "type": "Feature",

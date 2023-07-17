@@ -108,6 +108,31 @@ export function FiredAndBurnedAreasDialog({
         <Grid container direction="row">
           <h3>{t('fireAndBurnedAreas')}</h3>
         </Grid>
+        <Grid container style={{ marginBottom: 16 }}>
+          <TextField
+            id="map-request-title"
+            label={t('maps:requestTitleLabel')}
+            error={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0)
+            }
+            helperText={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0) &&
+              t('maps:requestTitleHelp')
+            }
+            type="text"
+            value={editState.requestTitle}
+            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
+            variant="outlined"
+            color="primary"
+            fullWidth={true}
+          />
+        </Grid>
         <Grid container direction="row" justifyContent="space-around" alignItems="center">
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
@@ -191,32 +216,7 @@ export function FiredAndBurnedAreasDialog({
               </FormHelperText>
             ) : null}
           </FormControl>
-        </Grid>
-        <Grid container style={{ marginBottom: 16 }}>
-          <TextField
-            id="map-request-title"
-            label={t('maps:requestTitleLabel')}
-            error={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0)
-            }
-            helperText={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0) &&
-              t('maps:requestTitleHelp')
-            }
-            type="text"
-            value={editState.requestTitle}
-            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
-            variant="outlined"
-            color="primary"
-            fullWidth={true}
-          />
-        </Grid>
+        </Grid>        
         <Grid container direction="row">
           <Grid item style={{ marginBottom: 16, width: '50%' }}>
             <TextField

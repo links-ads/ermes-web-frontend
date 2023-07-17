@@ -107,6 +107,31 @@ export function PostEventMonitoringDialog({
         <Grid container direction="row">
           <h3>{t('postEventMonitoring')}</h3>
         </Grid>
+        <Grid container style={{ marginBottom: 16 }}>
+          <TextField
+            id="map-request-title"
+            label={t('maps:requestTitleLabel')}
+            error={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0)
+            }
+            helperText={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0) &&
+              t('maps:requestTitleHelp')
+            }
+            type="text"
+            value={editState.requestTitle}
+            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
+            variant="outlined"
+            color="primary"
+            fullWidth={true}
+          />
+        </Grid>
         <Grid container direction="row" justifyContent="space-around" alignItems="center">
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <DatePicker
@@ -184,32 +209,7 @@ export function PostEventMonitoringDialog({
               </FormHelperText>
             ) : null}
           </FormControl>
-        </Grid>
-        <Grid container style={{ marginBottom: 16 }}>
-          <TextField
-            id="map-request-title"
-            label={t('maps:requestTitleLabel')}
-            error={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0)
-            }
-            helperText={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0) &&
-              t('maps:requestTitleHelp')
-            }
-            type="text"
-            value={editState.requestTitle}
-            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
-            variant="outlined"
-            color="primary"
-            fullWidth={true}
-          />
-        </Grid>
+        </Grid>        
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>

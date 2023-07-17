@@ -93,6 +93,7 @@ export function WildFireSimulationDialog({
   const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
+  const [toRemoveLineIdx, setToRemoveLineIdx] = useState<number>(-1)
 
   const setBoundaryLine = (idx, line) => {
     dispatchEditAction({
@@ -100,7 +101,7 @@ export function WildFireSimulationDialog({
       value: {
         index: idx,
         property: 'fireBreakType',
-        newValue: Object.fromEntries([[fireBreakType, line]])
+        newValue: Object.fromEntries([[fireBreakType, JSON.stringify(line)]])
       }
     })
   }
@@ -147,6 +148,31 @@ export function WildFireSimulationDialog({
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row">
           <h3>{t('wildfireSimulation')}</h3>
+        </Grid>
+        <Grid container style={{ marginBottom: 16, width: '100%' }}>
+          <TextField
+            id="map-request-title"
+            label={t('maps:requestTitleLabel')}
+            error={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0)
+            }
+            helperText={
+              editError &&
+              (!editState.requestTitle ||
+                editState.requestTitle === null ||
+                editState.requestTitle.length === 0) &&
+              t('maps:requestTitleHelp')
+            }
+            type="text"
+            value={editState.requestTitle}
+            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
+            variant="outlined"
+            color="primary"
+            fullWidth={true}
+          />
         </Grid>
         <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Grid item>
@@ -257,31 +283,6 @@ export function WildFireSimulationDialog({
             ) : null}
           </FormControl>
         </Grid>
-        <Grid container style={{ marginBottom: 16, width: '100%' }}>
-          <TextField
-            id="map-request-title"
-            label={t('maps:requestTitleLabel')}
-            error={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0)
-            }
-            helperText={
-              editError &&
-              (!editState.requestTitle ||
-                editState.requestTitle === null ||
-                editState.requestTitle.length === 0) &&
-              t('maps:requestTitleHelp')
-            }
-            type="text"
-            value={editState.requestTitle}
-            onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
-            variant="outlined"
-            color="primary"
-            fullWidth={true}
-          />
-        </Grid>
         <Grid container style={{ marginBottom: 16 }}>
           <TextField
             id="map-request-description"
@@ -381,6 +382,7 @@ export function WildFireSimulationDialog({
               setBoundaryConditionIdx={setBoundaryConditionIdx}
               setFireBreakType={setFireBreakType}
               otherTimeOffsets={editState.boundaryConditions.map((e) => e.timeOffset)}
+              setToRemoveLineIdx={setToRemoveLineIdx}
             />
           ))}
           <Grid item>
@@ -410,6 +412,8 @@ export function WildFireSimulationDialog({
             mmapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             setBoundaryLineHandler={setBoundaryLine}
+            toRemoveLineIdx={toRemoveLineIdx}
+            setToRemoveLineIdx={setToRemoveLineIdx}
           />
         </MapStateContextProvider>
       </Grid>
@@ -428,8 +432,15 @@ const WildfireSimulationBoundaryCondition = (props) => {
     setWildfireMapMode,
     setBoundaryConditionIdx,
     setFireBreakType,
-    otherTimeOffsets
+    otherTimeOffsets,
+    setToRemoveLineIdx
   } = props
+
+  const removeBoundaryCondition = () => {
+    dispatchEditAction({ type: 'BOUNDARY_CONDITION_REMOVE', value: { index: index } })
+    setToRemoveLineIdx(index)
+  }
+
   return (
     <Grid item>
       <Grid item style={{ marginBottom: 16 }}>
@@ -581,11 +592,7 @@ const WildfireSimulationBoundaryCondition = (props) => {
       </Grid>
       <Grid container justifyContent="center">
         {index > 0 ? (
-          <IconButton
-            onClick={() =>
-              dispatchEditAction({ type: 'BOUNDARY_CONDITION_REMOVE', value: { index: index } })
-            }
-          >
+          <IconButton onClick={removeBoundaryCondition}>
             <Delete></Delete>
           </IconButton>
         ) : undefined}

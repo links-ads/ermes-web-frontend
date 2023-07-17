@@ -34,7 +34,9 @@ const MapRequestDrawFeature = (props) => {
     areaSelectedAlertHandler,
     mmapSelectionCompletedHandler,
     setMapAreaHandler,
-    setBoundaryLineHandler
+    setBoundaryLineHandler,
+    toRemoveLineIdx,
+    setToRemoveLineIdx
   } = props
 
   const { t } = useTranslation(['maps', 'labels'])
@@ -87,6 +89,29 @@ const MapRequestDrawFeature = (props) => {
       setMapMode(customMapMode)
     }
   }, [customMapMode])
+
+  useEffect(() => {
+    if (toRemoveLineIdx > -1) {
+      const removeIdx = featureCollection.features.findIndex(
+        (e) => e.properties && e.properties.boundaryConditionIdx === toRemoveLineIdx
+      )
+      let updatedFeatureCollection = featureCollection
+      // update other indeces
+      updatedFeatureCollection.features = updatedFeatureCollection.features.map((e) => {
+        if (e.properties && e.properties.boundaryConditionIdx > toRemoveLineIdx) {
+          const updatedIdx = e.properties.boundaryConditionIdx - 1
+          e.properties.boundaryConditionIdx = updatedIdx
+        }
+        return e
+      })
+      // remove deleted element
+      updatedFeatureCollection.features.splice(removeIdx, 1)
+      setFeatureCollection(updatedFeatureCollection)
+      setMapFeatures(updatedFeatureCollection.features)
+      setMapMode(customMapMode)
+      setToRemoveLineIdx(-1)
+    }
+  }, [toRemoveLineIdx])
 
   return (
     <MapContainer initialHeight={window.innerHeight} style={{ height: '110%', top: 0 }}>

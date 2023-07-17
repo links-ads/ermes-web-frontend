@@ -22,7 +22,8 @@ export function MapRequestDialog({
   operationType,
   editState,
   dispatchEditAction,
-  editError
+  editError,
+  setEditError
 }: React.PropsWithChildren<GenericDialogProps>) {
   const { t } = useTranslation(['maps', 'labels'])
 
@@ -32,6 +33,7 @@ export function MapRequestDialog({
     setValue(event.target.value)
     dispatchEditAction({ type: 'RESET' })
     dispatchEditAction({ type: 'TYPE', value: event.target.value })
+    setEditError(false)
   }
 
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
@@ -71,6 +73,7 @@ export function MapRequestDialog({
           editError={editError}
           editState={{ ...editState, type: MapRequestType.FIRE_AND_BURNED_AREA }}
           dispatchEditAction={dispatchEditAction}
+          setEditError={setEditError}
         />
       ) : (
         <></>
@@ -81,6 +84,7 @@ export function MapRequestDialog({
           editError={editError}
           editState={{ ...editState, type: MapRequestType.POST_EVENT_MONITORING }}
           dispatchEditAction={dispatchEditAction}
+          setEditError={setEditError}
         />
       ) : (
         <></>
@@ -91,6 +95,7 @@ export function MapRequestDialog({
           editError={editError}
           editState={{ ...editState, type: MapRequestType.WILDFIRE_SIMULATION }}
           dispatchEditAction={dispatchEditAction}
+          setEditError={setEditError}
         />
       ) : (
         <></>
