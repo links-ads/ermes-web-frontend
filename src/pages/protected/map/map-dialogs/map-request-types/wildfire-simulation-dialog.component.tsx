@@ -179,11 +179,9 @@ export function WildFireSimulationDialog({
             <TextField
               id="hours_of_projection_title"
               label={t('maps:hoursOfProjectionLabel')}
-              error={editError && parseInt(editState.hoursOfProjection) < 0}
+              error={editError && editState.hoursOfProjection < 0}
               helperText={
-                editError &&
-                parseInt(editState.hoursOfProjection) < 0 &&
-                t('maps:hoursOfProjectionHelper')
+                editError && editState.hoursOfProjection < 0 && t('maps:hoursOfProjectionHelper')
               }
               type="number"
               value={editState.hoursOfProjection}
@@ -386,8 +384,8 @@ export function WildFireSimulationDialog({
             />
           ))}
           <Grid item>
-            {parseInt(editState.hoursOfProjection) > 1 &&
-            editState.boundaryConditions.length < parseInt(editState.hoursOfProjection) ? (
+            {editState.hoursOfProjection > 1 &&
+            editState.boundaryConditions.length < editState.hoursOfProjection ? (
               <IconButton onClick={() => dispatchEditAction({ type: 'BOUNDARY_CONDITION_ADD' })}>
                 <AddCircle></AddCircle>
               </IconButton>
@@ -589,8 +587,6 @@ const WildfireSimulationBoundaryCondition = (props) => {
             </IconButton>
           </span>
         </Tooltip>
-      </Grid>
-      <Grid container justifyContent="center">
         {index > 0 ? (
           <IconButton onClick={removeBoundaryCondition}>
             <Delete></Delete>
