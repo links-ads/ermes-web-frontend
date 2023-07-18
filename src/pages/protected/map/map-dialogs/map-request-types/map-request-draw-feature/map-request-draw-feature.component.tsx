@@ -125,8 +125,16 @@ const MapRequestDrawFeature = (props) => {
       updatedFeatureCollection.features.splice(removeIdx, 1)
       setFeatureCollection(updatedFeatureCollection)
       setMapFeatures(updatedFeatureCollection.features)
-      setMapMode('select')
+      setMapMode('browse')
       setToRemoveLineIdx(-1)
+      // update map
+      const map = mapViewRef!!.current!!.getMap()
+      if (map) {
+        const source = map.getSource('pointSource') as mapboxgl.GeoJSONSource
+        if (source) {
+          source.setData(updatedFeatureCollection)
+        }
+      }
     }
   }, [toRemoveLineIdx])
 
