@@ -143,5 +143,6 @@
   "filter_communication": "Comunicazioni",
   "filter_maprequest": "Richieste Mappatura",
   "filter_alert": "Allerte",
-  "filter_station": "Telecamere"
+  "filter_station": "Telecamere",
+  "type": "Tipo"
 }

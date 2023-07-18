@@ -5,7 +5,9 @@ import {
   DrawPolygonMode,
   DrawRectangleMode,
   RENDER_STATE,
-  EDIT_TYPE
+  EDIT_TYPE,
+  DrawPointMode,
+  DrawLineStringMode
 } from 'react-map-gl-draw'
 import { Feature } from '@nebula.gl/edit-modes'
 import { useMapStateContext, ProvisionalFeatureType } from './map.contest'
@@ -16,10 +18,11 @@ import blueGrey from '@material-ui/core/colors/blueGrey'
 import purple from '@material-ui/core/colors/purple'
 import blue from '@material-ui/core/colors/blue'
 import pink from '@material-ui/core/colors/pink'
+import { amber } from '@material-ui/core/colors'
 
-type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | null
-type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | null
-type ModeId = 'drawRectangle' | 'drawPolygon' | 'editing' | null
+type ModeCtor = typeof EditingMode | typeof DrawPolygonMode | typeof DrawRectangleMode | typeof DrawPointMode | null
+type Handler = EditingMode | DrawPolygonMode | DrawRectangleMode | DrawPointMode | DrawLineStringMode | null
+type ModeId = 'drawRectangle' | 'drawPolygon' | 'editing' | 'drawPoint' | 'drawLine' |null
 
 type Mode = {
   id: ModeId
@@ -41,7 +44,11 @@ const MODES: Mode[] = [
   // Draw Area (polygon)
   { id: 'drawPolygon', text: 'Draw Polygon', handlerType: DrawPolygonMode },
   // Edit existing
-  { id: 'editing', text: 'Edit Feature', handlerType: EditingMode }
+  { id: 'editing', text: 'Edit Feature', handlerType: EditingMode },
+  // Set Point
+  { id: 'drawPoint', text: 'Draw Point', handlerType: DrawPointMode },
+  // Draw Line 
+  { id: 'drawLine', text: 'Draw Line', handlerType: DrawLineStringMode}
 ]
 
 export type deleteFeaturesFn = (index: number | number[]) => void
@@ -58,6 +65,9 @@ function featureStyle(editingFeatureType: ProvisionalFeatureType | null) {
     case 'Communication':
       color = pink
       break
+    case 'MapRequest':
+      color = amber
+      break
     default:
       break
   }
@@ -72,16 +82,47 @@ function featureStyle(editingFeatureType: ProvisionalFeatureType | null) {
     state: RENDER_STATE
   }) => {
     if (state === RENDER_STATE.UNCOMMITTED) {
-      return {
-        stroke: alpha(yellow[800], 0.9),
-        fill: alpha(yellow[500], 0.2)
+      if (feature.geometry.type === 'LineString'){
+        return {
+          stroke: alpha(yellow[800], 0.9),
+          fill: alpha(yellow[500], 0)
+        }
       }
+      else if (feature.geometry.type === 'Point'){
+        return {
+          stroke: alpha(yellow[800], 0.9),
+          fill: alpha(yellow[500], 1)
+        }
+      }
+      else {
+        return {
+          stroke: alpha(yellow[800], 0.9),
+          fill: alpha(yellow[500], 0.2)
+        }
+      }      
     }
-    return {
-      stroke: alpha(color[800], 0.9),
-      fill: alpha(color[500], 0.2),
-      strokeDasharray: '4,2'
-    }
+    else {
+      if (feature.geometry.type === 'LineString'){
+        return {
+          stroke: alpha(color[800], 0.9),
+          fill: alpha(color[500], 0),
+          strokeDasharray: '4,2'
+        }
+      }
+      else if (feature.geometry.type === 'Point'){
+        return {
+          stroke: alpha(color[800], 1),
+          fill: alpha(color[500], 1)
+        }
+      }
+      else {
+        return {
+          stroke: alpha(color[800], 0.9),
+          fill: alpha(color[500], 0.2),
+          strokeDasharray: '4,2'
+        }
+      }      
+    }    
   }
 }
 
@@ -181,6 +222,12 @@ export const MapDraw = forwardRef<unknown, MapDrawProps>(
         case 'edit':
           switchMode('drawPolygon') // TODO use edit if features!==undefined
           break
+        case 'editPoint':
+          switchMode('drawPoint')
+          break
+        case 'editLine':
+          switchMode('drawLine')
+          break
         case 'select':
           switchMode('drawRectangle')
           break
@@ -194,7 +241,7 @@ export const MapDraw = forwardRef<unknown, MapDrawProps>(
 
     return (
       <Editor
-        selectable={mapMode === 'edit'}
+        selectable={mapMode === 'edit' || mapMode === 'editLine' || mapMode === 'editPoint'}
         ref={editorRef}
         featureStyle={featureStyle(editingFeatureType)} // TODO make dynamic (mode, type) => featureStyle
         selectedFeatureIndex={selectedFeatureIndex}

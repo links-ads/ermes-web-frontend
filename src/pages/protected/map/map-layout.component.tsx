@@ -231,7 +231,7 @@ export function MapLayout(props) {
     () => {
       if (editingFeatureType !== null) {
         const operation = editingFeatureId === null ? 'create' : 'update'
-        if (editingFeatureType === 'Report') {
+        if (editingFeatureType === 'Report' || editingFeatureType === 'MapRequest') {
           showFeaturesDialog(
             operation,
             editingFeatureType,

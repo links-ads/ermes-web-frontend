@@ -127,6 +127,12 @@ export const initObjectState = {
           ],
           type: 'multipleselect',
           selected: []
+        },
+        {
+          name: 'map_request_types',
+          options: ["FireAndBurnedArea", "PostEventMonitoring", "WildfireSimulation"],
+          type: 'multipleselect',
+          selected: ["FireAndBurnedArea", "PostEventMonitoring", "WildfireSimulation"]
         }
       ]
     },

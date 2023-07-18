@@ -142,5 +142,6 @@
   "filter_communication": "Communications",
   "filter_maprequest": "Map requests",
   "filter_alert": "Alerts",
-  "filter_station": "Cameras"
+  "filter_station": "Cameras",
+  "type": "Type"
 }

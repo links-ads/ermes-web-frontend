@@ -11,6 +11,7 @@ interface DialogEditProps {
     editState: EditStateType
     dispatchEditAction: React.Dispatch<EditActionType>
     editError: boolean
+    setEditError: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export interface GenericDialogProps {
@@ -18,6 +19,7 @@ export interface GenericDialogProps {
     editState: EditStateType
     dispatchEditAction: React.Dispatch<EditActionType>
     editError: boolean
+    setEditError: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function DialogEdit({
@@ -25,7 +27,8 @@ export function DialogEdit({
     operationType,
     editState,
     dispatchEditAction,
-    editError
+    editError,
+    setEditError
 }: React.PropsWithChildren<DialogEditProps>) {
 
     switch(itemType) {
@@ -35,6 +38,7 @@ export function DialogEdit({
                 editState={editState}
                 dispatchEditAction={dispatchEditAction}
                 editError={editError}
+                setEditError={setEditError}
                 />)
         case 'Communication':
             return (<CommunicationDialog
@@ -42,6 +46,7 @@ export function DialogEdit({
                 editState={editState}
                 dispatchEditAction={dispatchEditAction}
                 editError={editError}
+                setEditError={setEditError}
                 />)
         case 'MapRequest':
             return (<MapRequestDialog
@@ -49,6 +54,7 @@ export function DialogEdit({
                 editState={editState}
                 dispatchEditAction={dispatchEditAction}
                 editError={editError}
+                setEditError={setEditError}
                 />)
         default:
             return (<div>Coming Soon</div>)

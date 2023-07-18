@@ -29,7 +29,8 @@ export type PointUpdater<T extends object = object> = (pt: PointOnMap<T>) => voi
 // select - feature selection, by clicking or drawing a box
 // edit - create or update an existing feature, e.g. by drawing or editing the polygon
 // filter - use selection as a filter
-export type MapMode = 'browse' | 'select' | 'edit' | 'filter'
+// editPoint - set a point in the map, e.g. starting flame position of a wildfire simulation
+export type MapMode = 'browse' | 'select' | 'edit' | 'filter' | 'editPoint' | 'editLine'
 export type MapModeUpdater = (m: MapMode) => void
 
 // Map Viewport parameters
@@ -87,6 +88,7 @@ interface MapStateSelectors<T extends object = object> {
     type: ProvisionalFeatureType | null
     id: string | number | null
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
   }) => void
   // Point features
   setClickedPoint: PointUpdater<T>
@@ -130,10 +132,12 @@ export function MapStateContextProvider<T extends object = object>({
     type: ProvisionalFeatureType | null
     id: string | number | null
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
   }>({
     type: null,
     id: null,
-    area: null
+    area: null,
+    collection: null
   })
 
   const [clickedPoint, setClickedPoint] = useState<PointOnMap<T>>(null)
@@ -173,7 +177,8 @@ interface FeatureEditingSelectors {
   startFeatureEdit: (
     type: ProvisionalFeatureType,
     id: string | number | null,
-    area?: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null
+    area?: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null,
+    collection?: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
   ) => void
   clearFeatureEdit: () => void
 }
@@ -221,18 +226,19 @@ export function useMapStateContext<T extends object = object>() {
   function startFeatureEdit(
     type: ProvisionalFeatureType,
     id: string | number | null = null,
-    area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null = null
+    area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null = null,
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null = null, 
   ) {
-    if (type !== 'Report') {
+    if (type !== 'Report' && type !== 'MapRequest') {
       setMapMode('edit')
     }
-    setEditingFeature({ type, id, area })
+    setEditingFeature({ type, id, area, collection })
   }
 
   // clear all
   function clearFeatureEdit() {
     setMapMode('browse')
-    setEditingFeature({ type: null, id: null, area: null })
+    setEditingFeature({ type: null, id: null, area: null, collection: null })
   }
 
   const selectors: MapStateSelectors<T> & FeatureEditingSelectors = {
