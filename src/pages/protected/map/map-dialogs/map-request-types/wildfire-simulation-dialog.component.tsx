@@ -32,7 +32,9 @@ import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
 import { AddCircle, Delete, ScatterPlot, Timeline } from '@material-ui/icons'
 import { MapStateContextProvider } from '../../map.contest'
-import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
+import MapRequestDrawFeature, {
+  lineColors
+} from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import { FireBreakType } from '../../map-dialog.hooks'
 import { Alert, Color } from '@material-ui/lab'
@@ -320,7 +322,7 @@ export function WildFireSimulationDialog({
               editError && (!editState.probabilityRange || editState.probabilityRange === null)
             }
           >
-            <FormLabel component="legend">
+            <FormLabel component="legend" style={{ color: 'white' }}>
               {t('maps:probabilityRangeLabel')}
               <Tooltip title={t('maps:probabilityRangeInfo') ?? ''}>
                 <IconButton>
@@ -345,7 +347,9 @@ export function WildFireSimulationDialog({
               <FormHelperText error>{t('maps:probabilityRangeHelp')}</FormHelperText>
             )}
           </FormControl>
-          <FormControl component="fieldset">
+        </Grid>
+        <Grid container direction="row">
+          <FormControl component="fieldset" margin="none" style={{ marginLeft: -18 }}>
             <FormControlLabel
               control={
                 <Switch
@@ -360,6 +364,7 @@ export function WildFireSimulationDialog({
                 />
               }
               label={t('simulationFireSpottingLabel')}
+              labelPlacement="start"
             />
           </FormControl>
         </Grid>
@@ -412,6 +417,7 @@ export function WildFireSimulationDialog({
             setBoundaryLineHandler={setBoundaryLine}
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
+            boundaryLinesTot={editState.boundaryConditions.length}
           />
         </MapStateContextProvider>
       </Grid>
@@ -582,6 +588,7 @@ const WildfireSimulationBoundaryCondition = (props) => {
                 setBoundaryConditionIdx(index)
                 setFireBreakType(Object.keys(editState.fireBreakType)[0])
               }}
+              style={{ color: lineColors[index > 5 ? index % 6 : index] }}
             >
               <Timeline></Timeline>
             </IconButton>

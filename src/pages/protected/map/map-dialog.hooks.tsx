@@ -157,7 +157,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
     else return defaultEditState }, [customState])
   const setinitialEditState = (customState) => {
       if(customState!=null) return customState 
-      else return defaultEditState }
+      else return { ...defaultEditState, boundaryConditions: [{...defaultBoundaryCondition}] } }
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
   const { t } = useTranslation(['maps'])
 
@@ -472,6 +472,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         !editState.requestTitle ||
         editState.requestTitle === '' ||
         editState.requestTitle.length < 1 ||
+        editState.dataType.length == 0 ||
         !editState.description ||
         editState.description === '' ||
         editState.description.length < 1 ||
@@ -613,7 +614,8 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
             upperBoundIsInclusive: true
           },
           mapRequestType: editState.type,
-          title: editState.requestTitle
+          title: editState.requestTitle,
+          dataTypeIds: editState.dataType.length > 0 ? editState.dataType.map((d) => parseInt(d)) : []
         },
         geometry: JSON.stringify(editState.mapArea.geometry)
       }
@@ -623,14 +625,8 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
       case MapRequestType.FIRE_AND_BURNED_AREA:
         newMapRequest.feature.properties.frequency = parseInt(editState.frequency)
         newMapRequest.feature.properties.resolution = parseInt(editState.resolution)
-        if (editState.dataType.length > 0) {
-          newMapRequest.feature.properties.dataTypeIds = editState.dataType.map((d) => parseInt(d))
-        }
         break
       case MapRequestType.POST_EVENT_MONITORING:
-        if (editState.dataType.length > 0) {
-          newMapRequest.feature.properties.dataTypeIds = editState.dataType.map((d) => parseInt(d))
-        }
         break
       case MapRequestType.WILDFIRE_SIMULATION:
         newMapRequest.feature.properties.description = editState.description

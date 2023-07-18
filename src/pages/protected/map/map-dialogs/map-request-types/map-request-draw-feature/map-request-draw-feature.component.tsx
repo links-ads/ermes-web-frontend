@@ -15,7 +15,7 @@ import { GeoJsonProperties } from 'geojson'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMapStateContext } from '../../../map.contest'
-import { red } from '@material-ui/core/colors'
+import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -27,6 +27,15 @@ const geolocateStyle: React.CSSProperties = {
   margin: 10
 }
 
+export const lineColors = {
+  0: cyan[800],
+  1: blue[600],
+  2: yellow[600],
+  3: orange[600],
+  4: pink[600],
+  5: purple[600]
+}
+
 const MapRequestDrawFeature = (props) => {
   const {
     customMapMode,
@@ -36,7 +45,8 @@ const MapRequestDrawFeature = (props) => {
     setMapAreaHandler,
     setBoundaryLineHandler,
     toRemoveLineIdx,
-    setToRemoveLineIdx
+    setToRemoveLineIdx,
+    boundaryLinesTot
   } = props
 
   const { t } = useTranslation(['maps', 'labels'])
@@ -100,7 +110,14 @@ const MapRequestDrawFeature = (props) => {
       updatedFeatureCollection.features = updatedFeatureCollection.features.map((e) => {
         if (e.properties && e.properties.boundaryConditionIdx > toRemoveLineIdx) {
           const updatedIdx = e.properties.boundaryConditionIdx - 1
-          e.properties.boundaryConditionIdx = updatedIdx
+          const colorIdx = updatedIdx > 5 ? updatedIdx % 6 : updatedIdx
+          return {
+            ...e,
+            properties: {
+              boundaryConditionIdx: updatedIdx,
+              color: lineColors[colorIdx]
+            }
+          }
         }
         return e
       })
@@ -108,7 +125,7 @@ const MapRequestDrawFeature = (props) => {
       updatedFeatureCollection.features.splice(removeIdx, 1)
       setFeatureCollection(updatedFeatureCollection)
       setMapFeatures(updatedFeatureCollection.features)
-      setMapMode(customMapMode)
+      setMapMode('select')
       setToRemoveLineIdx(-1)
     }
   }, [toRemoveLineIdx])
@@ -175,12 +192,15 @@ const MapRequestDrawFeature = (props) => {
                   features: []
                 }
                 if (mapMode === 'editPoint') {
+                  const points = data.filter(
+                    (e) => e.geometry.type === 'Point'
+                  ) as GeoJSON.Feature<GeoJSON.Point>[]
                   let pointIdx = 0
-                  if (data.length > 1) {
+                  if (points.length > 1) {
                     const prevPointIdx = data.findIndex((e) => e.geometry.type === 'Point')
                     data.splice(prevPointIdx, 1)
-                    pointIdx = data.findIndex((e) => e.geometry.type === 'Point')
                   }
+                  pointIdx = data.findIndex((e) => e.geometry.type === 'Point')
                   const featurePoint = data[pointIdx] as GeoJSON.Feature<GeoJSON.Point>
                   featureCollection.features.push(featurePoint)
                   // keep lines drawn
@@ -200,8 +220,11 @@ const MapRequestDrawFeature = (props) => {
                   if (prevLinesLength === 1) {
                     // add index of corresponding boundary condition
                     const lineToMark = prevLines[0] as GeoJSON.Feature<GeoJSON.LineString>
+                    lineToMark.properties = {
+                      boundaryConditionIdx: lineIdx,
+                      color: lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
+                    }
                     setBoundaryLineHandler(lineIdx, lineToMark)
-                    lineToMark.properties = { boundaryConditionIdx: lineIdx }
                     prevLines[0] = lineToMark
                     // update data
                     const toUdpdateIdx = data.findIndex((e) => e.geometry.type === 'LineString')
@@ -216,23 +239,32 @@ const MapRequestDrawFeature = (props) => {
                         prevLinesLength - 1
                       ] as GeoJSON.Feature<GeoJSON.LineString>
                       prevLines.pop()
-                      prevLines[lineToUpdateIdx].properties = { boundaryConditionIdx: lineIdx }
+                      prevLines[lineToUpdateIdx].properties = {
+                        boundaryConditionIdx: lineIdx,
+                        color: lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
+                      }
                       // update data
                       const toUdpdateIdx = data.findIndex(
                         (e) => e.properties && e.properties.boundaryConditionIdx === lineIdx
                       )
                       const dataLength = data.length
                       data[toUdpdateIdx] = data[dataLength - 1]
+                      data[toUdpdateIdx].properties = {
+                        boundaryConditionIdx: lineIdx,
+                        color: lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
+                      }
                       setBoundaryLineHandler(lineIdx, data[toUdpdateIdx])
-                      data[toUdpdateIdx].properties = { boundaryConditionIdx: lineIdx }
                       data.pop()
                     } else {
                       // no element found - add properties to last one (meaning new line added)
                       const lineToMark = prevLines[
                         prevLinesLength - 1
                       ] as GeoJSON.Feature<GeoJSON.LineString>
+                      lineToMark.properties = {
+                        boundaryConditionIdx: lineIdx,
+                        color: lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
+                      }
                       setBoundaryLineHandler(lineIdx, lineToMark)
-                      lineToMark.properties = { boundaryConditionIdx: lineIdx }
                       prevLines[prevLinesLength - 1] = lineToMark
                       // update data
                       const toUdpdateIdx = data.findIndex(
@@ -247,7 +279,9 @@ const MapRequestDrawFeature = (props) => {
                       GeoJsonProperties
                     >[]
                   }
-                  featureCollection.features.push(featurePoint)
+                  if (featurePoint) {
+                    featureCollection.features.push(featurePoint)
+                  }
                   setFeatureCollection(featureCollection)
                 }
                 startFeatureEdit(editingFeatureType, editingFeatureId, null, featureCollection)
@@ -255,7 +289,8 @@ const MapRequestDrawFeature = (props) => {
 
                 if (
                   featureCollection.features.find((e) => e.geometry.type === 'Point') &&
-                  featureCollection.features.find((e) => e.geometry.type === 'LineString')
+                  featureCollection.features.filter((e) => e.geometry.type === 'LineString')
+                    .length === boundaryLinesTot
                 ) {
                   areaSelectedAlertHandler('success')
                   mmapSelectionCompletedHandler()
@@ -281,6 +316,16 @@ const MapRequestDrawFeature = (props) => {
             paint={{
               'circle-radius': 5,
               'circle-color': red[800]
+            }}
+          />
+          <Layer
+            id="lineLayer"
+            type="line"
+            source="pointSource"
+            filter={['==', ['geometry-type'], 'LineString']}
+            paint={{
+              'line-width': 5,
+              'line-color': ['get', 'color']
             }}
           />
         </Source>
