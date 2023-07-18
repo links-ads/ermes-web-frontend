@@ -95,6 +95,8 @@
   "windSpeedLabel": "Wind Speed (km/h)",
   "fuelMoistureContentHelp": "Fuel Moisture Content should be between 0 and 100",
   "fuelMoistureContentLabel": "Fuel Moisture Content (%)",
+  "fireBreakLabel": "Firebreak Type",
+  "fireBreakTypeHelp": "Select firebreak type",
   "one_datapoint": "Only one data point available for this date range",
   "layer": "Layer",
   "opacity": "Opacity",
