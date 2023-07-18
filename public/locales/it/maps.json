@@ -95,6 +95,8 @@
   "windSpeedLabel": "Velocità del vento (km/h)",
   "fuelMoistureContentHelp": "Contenuto di umidità del carburante deve essere un valore tra 0 e 100",
   "fuelMoistureContentLabel": "Contenuto di umidità del carburante (%)",
+  "fireBreakLabel": "Tipo di tagliafuoco",
+  "fireBreakTypeHelp": "Seleziona il tipo di tagliafuoco",
   "one_datapoint": "Solo un timestamp disponibile per questo layer",
   "layer": "Layer",
   "opacity": "Trasparenza",

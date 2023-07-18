@@ -371,7 +371,7 @@ export function WildFireSimulationDialog({
         <Grid container direction="row">
           <h4>{t('boundaryConditionsLabel')}</h4>
         </Grid>
-        <Grid container direction="row">
+        <Grid container direction="row" spacing={1}>
           {editState.boundaryConditions.map((e, idx) => (
             <WildfireSimulationBoundaryCondition
               key={idx}
@@ -446,7 +446,7 @@ const WildfireSimulationBoundaryCondition = (props) => {
   }
 
   return (
-    <Grid item>
+    <Grid item xs={4}>
       <Grid item style={{ marginBottom: 16 }}>
         <TextField
           id="time-offset"
@@ -543,8 +543,8 @@ const WildfireSimulationBoundaryCondition = (props) => {
         />
       </Grid>
       <Grid item style={{ marginBottom: 16 }}>
-        <FormControl variant="outlined">
-          <InputLabel id="fire-break-type-select-label">Fire Break Type</InputLabel>
+        <FormControl variant="outlined" fullWidth>
+          <InputLabel id="fire-break-type-select-label">{t('maps:fireBreakLabel')}</InputLabel>
           <Select
             labelId="fire-break-type-select-label"
             id="fire-break-type-select"
@@ -574,26 +574,28 @@ const WildfireSimulationBoundaryCondition = (props) => {
           (!Object.keys(editState.fireBreakType)[0] ||
             Object.keys(editState.fireBreakType)[0] === '' ||
             Object.keys(editState.fireBreakType)[0] === undefined) ? (
-            <FormHelperText error>Select fire break type</FormHelperText>
+            <FormHelperText error>{t('maps:fireBreakTypeHelp')}</FormHelperText>
           ) : undefined}
         </FormControl>
       </Grid>
       <Grid item style={{ marginBottom: 16 }}>
-        <Tooltip title={t('maps:drawLine')}>
-          <span>
-            <IconButton
-              disabled={Object.keys(editState.fireBreakType).length < 1}
-              onClick={() => {
-                setWildfireMapMode('editLine')
-                setBoundaryConditionIdx(index)
-                setFireBreakType(Object.keys(editState.fireBreakType)[0])
-              }}
-              style={{ color: lineColors[index > 5 ? index % 6 : index] }}
-            >
-              <Timeline></Timeline>
-            </IconButton>
-          </span>
-        </Tooltip>
+        {editState.fireBreakType && Object.keys(editState.fireBreakType).length > 0 ? (
+          <Tooltip title={t('maps:drawLine')}>
+            <span>
+              <IconButton
+                disabled={Object.keys(editState.fireBreakType).length < 1}
+                onClick={() => {
+                  setWildfireMapMode('editLine')
+                  setBoundaryConditionIdx(index)
+                  setFireBreakType(Object.keys(editState.fireBreakType)[0])
+                }}
+                style={{ color: lineColors[index > 5 ? index % 6 : index] }}
+              >
+                <Timeline></Timeline>
+              </IconButton>
+            </span>
+          </Tooltip>
+        ) : undefined}
         {index > 0 ? (
           <IconButton onClick={removeBoundaryCondition}>
             <Delete></Delete>
