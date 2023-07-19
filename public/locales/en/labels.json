@@ -136,5 +136,12 @@
   "legend": "Legend",
   "recommendation" : "Recommendation",
   "alert": "Alert",
-  "type": "Type"
+  "type": "Type",
+  "filter_persons": "Persons",
+  "filter_report": "Reports",
+  "filter_mission": "Missions",
+  "filter_communication": "Communications",
+  "filter_maprequest": "Map requests",
+  "filter_alert": "Alerts",
+  "filter_station": "Cameras"
 }

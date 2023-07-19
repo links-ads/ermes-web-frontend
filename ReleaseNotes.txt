@@ -2,6 +2,10 @@ Ver.
 -----------------------
 - Feature - New map request types (#125)
 
+Ver. 2.10.1 - 2023-07-06
+-----------------------
+- Bugfix - Fix labels in filters and legend (#128)
+
 Ver. 2.10.0 - 2023-07-04
 -----------------------
 - Feature - DSS notificaotins added (#126)
