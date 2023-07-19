@@ -108,11 +108,14 @@ const mapRequestCard = (
           <Box component="div" display="inline-block">
             <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
               {details['details']}
+            </Typography>           
+            <Typography gutterBottom variant="h6" component="h3" style={{ marginBottom: '0px' }}>
+              {details['details']}
             </Typography>
           </Box>
         </div>
         <br />
-        {['status', 'organizationName'].map((type) => {
+        {['status', 'organizationName', 'creator', 'mapRequestTypeFilter'].map((type) => {
           if (details[type]) {
             return (
               <>
@@ -1208,7 +1211,7 @@ export function EmergencyContent({
       )
       break
     case 'MapRequest':
-      console.log('MAP REQUEST DETAILS', mapReqDetails)
+      console.debug('MAP REQUEST DETAILS', mapReqDetails)
       todisplay = mapRequestCard(
         rest,
         classes,

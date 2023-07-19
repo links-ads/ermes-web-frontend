@@ -67,6 +67,9 @@ const MapRequestCard: React.FC<{
           <div>
             <Box component="div" display="inline-block">
               <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
+                {mapRequestInfo.title}
+              </Typography>
+              <Typography gutterBottom variant="h6" component="h3" style={{ marginBottom: '0px' }}>
                 {mapRequestInfo.code}
               </Typography>
             </Box>
@@ -90,6 +93,22 @@ const MapRequestCard: React.FC<{
               color="textSecondary"
               style={{ textTransform: 'uppercase' }}
             >
+              {t('labels:type')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestInfo.mapRequestType}
+            </Typography>
+            <br />
+          </div>
+        </div>
+        <div className={classes.pos}>
+          <div>
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
               {t('labels:creator')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
@@ -98,7 +117,7 @@ const MapRequestCard: React.FC<{
             <br />
           </div>
         </div>
-        <div className={classes.pos}>
+        {/* <div className={classes.pos}>
           <div>
             <Typography
               component={'span'}
@@ -113,8 +132,8 @@ const MapRequestCard: React.FC<{
             </Typography>
             <br />
           </div>
-        </div>
-        <div className={classes.pos}>
+        </div> */}
+        {/* <div className={classes.pos}>
           <div>
             <Typography
               component={'span'}
@@ -129,7 +148,7 @@ const MapRequestCard: React.FC<{
             </Typography>
             <br />
           </div>
-        </div>
+        </div> */}
         <div className={classes.pos}>
           {['layer', 'status'].map((type, index) => {
             if (mapRequestInfo[type]) {
