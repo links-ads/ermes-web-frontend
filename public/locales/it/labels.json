@@ -125,6 +125,8 @@
   "map_request_status": "Stato",
   "map_request_layer": "Tipo",
   "map_request_hazards": "Evento",
+  "mapRequestFrequency": "Frequenza",
+  "mapRequestResolution": "Risoluzione",
   "MapRequest": "Richieste mappatura",
   "scope": "Visibilità",
   "restriction": "Restrizione",

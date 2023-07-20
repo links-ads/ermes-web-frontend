@@ -34,6 +34,7 @@ import { yellow } from '@material-ui/core/colors'
 import useAlertList from '../../../../hooks/use-alerts.hook'
 import { FormatDate } from '../../../../utils/date.utils'
 import useCameraList from '../../../../hooks/use-cameras.hook'
+import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,47 +102,188 @@ const mapRequestCard = (
   latitude,
   longitude
 ) => {
+  const { isLoading, data } = details
+
+  if (isLoading) {
+    return <p>...</p>
+  }
+  else {
+  const mapRequestDetails = data.feature.properties
   return (
     <Card elevation={0}>
       <CardContent style={{ paddingTop: '10px' }}>
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
             <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
-              {details['details']}
-            </Typography>           
+              {mapRequestDetails.title}
+            </Typography>
             <Typography gutterBottom variant="h6" component="h3" style={{ marginBottom: '0px' }}>
-              {details['details']}
+              {mapRequestDetails.code}
             </Typography>
           </Box>
         </div>
         <br />
-        {['status', 'organizationName', 'creator', 'mapRequestTypeFilter'].map((type) => {
-          if (details[type]) {
-            return (
-              <>
-                <Typography
-                  component={'span'}
-                  variant="caption"
-                  color="textSecondary"
-                  style={{ textTransform: 'uppercase' }}
-                >
-                  {t('maps:' + type)}:&nbsp;
-                  {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
-                </Typography>
-                <Typography component={'span'} variant="body1">
-                  {t('labels:' + details[type].toLowerCase())}
-                </Typography>
-                <br />
-              </>
-            )
-          }
-          return null
-        })}
+        <Typography
+          component={'span'}
+          variant="caption"
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
+          {t('maps:status')}:&nbsp;
+        </Typography>
+        <Typography component={'span'} variant="body1">
+          {t('labels:' + mapRequestDetails.status.toLowerCase())}
+        </Typography>
+        <br />
+        <Typography
+          component={'span'}
+          variant="caption"
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
+          {t('maps:organizationName')}:&nbsp;
+        </Typography>
+        <Typography component={'span'} variant="body1">
+          {t('labels:' + mapRequestDetails.organization.name.toLowerCase())}
+        </Typography>
+        <br />
+        <Typography
+          component={'span'}
+          variant="caption"
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
+          {t('maps:creator')}:&nbsp;
+        </Typography>
+        <Typography component={'span'} variant="body1">
+          {t('labels:' + mapRequestDetails.username.toLowerCase())}
+        </Typography>
+        <br />
+        <Typography
+          component={'span'}
+          variant="caption"
+          color="textSecondary"
+          style={{ textTransform: 'uppercase' }}
+        >
+          {t('labels:type')}:&nbsp;
+        </Typography>
+        {mapRequestDetails.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ? (
+          <>
+            <Typography component={'span'} variant="body1">
+              {t('maps:fireAndBurnedAreas')}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('labels:mapRequestFrequency')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.frequency}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('labels:mapRequestResolution')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.resolution}
+            </Typography>
+            <br />
+          </>
+        ) : undefined}
+        {mapRequestDetails.mapRequestType === MapRequestType.POST_EVENT_MONITORING ? (
+          <>
+            <Typography component={'span'} variant="body1">
+              {t('maps:postEventMonitoring')}
+            </Typography>
+            <br />
+          </>
+        ) : undefined}
+        {mapRequestDetails.mapRequestType === MapRequestType.WILDFIRE_SIMULATION ? (
+          <>            
+            <Typography component={'span'} variant="body1">
+              {t('maps:wildfireSimulation')}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('maps:probabilityRangeLabel')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.probabilityRange * 100 +'%'}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('maps:simulationFireSpottingLabel')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.doSpotting ? t('labels:Active') : t('labels:none')}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('maps:boundaryConditionsLabel')}:&nbsp;
+            </Typography>
+            <Table className={classes.table} aria-label="simple table">
+              <TableHead>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>{t('maps:timeOffsetLabel')}</TableCell>
+                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
+                      <TableCell align="right">{row.time}</TableCell>))}
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('maps:windDirectionLabel')}</TableCell>
+                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
+                      <TableCell align="right">{row.windDirection}</TableCell>))}
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('maps:windSpeedLabel')}</TableCell>
+                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
+                      <TableCell align="right">{row.windSpeed}</TableCell>))}
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('maps:fuelMoistureContentLabel')}</TableCell>
+                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
+                      <TableCell align="right">{row.moisture}</TableCell>))}
+                </TableRow>
+                <TableRow>
+                  <TableCell>{t('maps:fireBreakLabel')}</TableCell>
+                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
+                      <TableCell align="right">{Object.keys(row.fireBreak)[0]}</TableCell>))}
+                </TableRow>
+              </TableBody>
+            </Table>
+            <br />
+          </>
+        ) : undefined}
       </CardContent>
       <CardActions className={classes.cardAction}>
         <Typography color="textSecondary">
-          {formatter.format(new Date(details.startDate as string))} - <br />{' '}
-          {formatter.format(new Date(details.endDate as string))}
+          {formatter.format(new Date(mapRequestDetails.duration.lowerBound as string))} - <br />{' '}
+          {formatter.format(new Date(mapRequestDetails.duration.upperBound as string))}
         </Typography>
 
         <Typography color="textSecondary">
@@ -149,7 +291,7 @@ const mapRequestCard = (
         </Typography>
       </CardActions>
     </Card>
-  )
+  )}
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
@@ -1213,7 +1355,7 @@ export function EmergencyContent({
     case 'MapRequest':
       console.debug('MAP REQUEST DETAILS', mapReqDetails)
       todisplay = mapRequestCard(
-        rest,
+        mapReqDetails,
         classes,
         formatter,
         t,

@@ -80,7 +80,7 @@
   "resolutionLabel":"Risoluzione (Metri)",
   "requestTitleHelp": "Aggiungi il titolo della richiesta qui",
   "requestTitleLabel": "Titolo Richiesta",
-  "probabilityRangeLabel": "Intervallo di provabilità",
+  "probabilityRangeLabel": "Intervallo di probabilità",
   "probabilityRangeHelp": "Seleziona intervallo di probabilità",
   "probabilityRangeInfo": "L'output di PROPAGATOR per ogni passo temporale è un campo di probabilità (da 0 a 1) che esprime per ogni pixel la probabilità che l'incendio raggiunga quel punto specifico nel passo temporale dato. Per derivare un contorno, possiamo scegliere di mostrare il contorno relativo allo 0.5, 0.75 e 0.9 della probabilità. Ad esempio, il contorno di probabilità 50% - 0,5 incapsula tutti i pixel che hanno più del 50% di probabilità di essere raggiunti da un incendio al dato tempo di simulazione.",
   "hoursOfProjectionLabel": "Ore di proiezione",
