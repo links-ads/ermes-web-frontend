@@ -3,7 +3,8 @@ import {
   EmergencyPropsWithLocation,
   EmergencyHoverCardContent,
   EmergencyProps,
-  EmergencyDrawerDetails
+  EmergencyDrawerDetails,
+  EmergencyColorMap
 } from './emergency.component'
 import { PopupCard } from '../popup-card.component'
 import { Popup } from 'react-map-gl'
@@ -51,7 +52,7 @@ export const EmergencyHoverPopup = memo(
             title={point.item?.details}
             // src={point.item?.image}
             // imageHeight={84}
-            style={{ width: 300, borderRadius: 10 }}
+            style={{ width: 300, borderRadius: 10, borderStyle: 'solid', borderWidth: 3, borderColor: EmergencyColorMap[point?.item?.type] }}
           />
         )}
       </Popup>

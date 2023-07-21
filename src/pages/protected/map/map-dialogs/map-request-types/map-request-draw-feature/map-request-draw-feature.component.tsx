@@ -46,14 +46,15 @@ const MapRequestDrawFeature = (props) => {
     setBoundaryLineHandler,
     toRemoveLineIdx,
     setToRemoveLineIdx,
-    boundaryLinesTot
+    boundaryLinesTot,
+    mapSelectedFeatures
   } = props
 
   const { t } = useTranslation(['maps', 'labels'])
 
   const [mapFeatures, setMapFeatures] = useState<GeoJSON.Feature[]>([])
   const [featureCollection, setFeatureCollection] = useState<
-    GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString>
+    GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon>
   >({
     type: 'FeatureCollection',
     features: []
@@ -100,6 +101,53 @@ const MapRequestDrawFeature = (props) => {
     }
   }, [customMapMode])
 
+  // useEffect(() => {
+  //   if (mapSelectedFeatures) {
+  //     const mappedFeatures = mapSelectedFeatures.map(e => { return { type: 'Feature', geometry: e, properties: {}} as GeoJSON.Feature})
+  //     setMapFeatures(mappedFeatures)
+  //     setFeatureCollection({
+  //       type: 'FeatureCollection',
+  //       features: mapSelectedFeatures
+  //     })
+  //     updateMap(featureCollection)
+  //   }
+  //     // if (!mapSelectedFeatures.type) {
+  //     //   setFeatureCollection({
+  //     //     type: 'FeatureCollection',
+  //     //     features: mapSelectedFeatures
+  //     //       ? mapSelectedFeatures.length > 1
+  //     //         ? mapSelectedFeatures
+  //     //         : [
+  //     //             {
+  //     //               type: 'Feature',
+  //     //               geometry: mapSelectedFeatures,
+  //     //               properties: {}
+  //     //             }
+  //     //           ]
+  //     //       : []
+  //     //   })
+  //     //   updateMap(featureCollection)
+  //     // }
+    
+  // }, [mapSelectedFeatures])
+
+  // useEffect(() => {
+  //   console.log("Map features: ")
+  //   console.log(mapFeatures)
+  //   console.log("Feature Collection: ")
+  //   console.log(featureCollection)
+  // }, [mapFeatures, featureCollection])
+
+  const updateMap = (updatedFeatureCollection) => {
+    const map = mapViewRef!!.current!!.getMap()
+    if (map) {
+      const source = map.getSource('pointSource') as mapboxgl.GeoJSONSource
+      if (source) {
+        source.setData(updatedFeatureCollection)
+      }
+    }
+  }
+
   useEffect(() => {
     if (toRemoveLineIdx > -1) {
       const removeIdx = featureCollection.features.findIndex(
@@ -128,13 +176,7 @@ const MapRequestDrawFeature = (props) => {
       setMapMode('browse')
       setToRemoveLineIdx(-1)
       // update map
-      const map = mapViewRef!!.current!!.getMap()
-      if (map) {
-        const source = map.getSource('pointSource') as mapboxgl.GeoJSONSource
-        if (source) {
-          source.setData(updatedFeatureCollection)
-        }
-      }
+      updateMap(updatedFeatureCollection)
     }
   }, [toRemoveLineIdx])
 
@@ -334,6 +376,16 @@ const MapRequestDrawFeature = (props) => {
             paint={{
               'line-width': 5,
               'line-color': ['get', 'color']
+            }}
+          />
+          <Layer
+            id="polygonLayer"
+            type="fill"
+            source="pointSource"
+            filter={['==', ['geometry-type'], 'Polygon']}
+            paint={{
+              'fill-color': red[800],
+              'fill-opacity': 0.5
             }}
           />
         </Source>

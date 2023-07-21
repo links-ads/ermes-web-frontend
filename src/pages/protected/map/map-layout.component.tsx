@@ -836,6 +836,7 @@ export function MapLayout(props) {
         open={clickedPoint !== null}
         title={clickedPoint ? (clickedPoint.item as EmergencyProps).description : ''}
         onCloseButtonClick={() => setClickedPoint(null)}
+        featureType={clickedPoint ? (clickedPoint?.item as EmergencyProps).type : ''}
       >
         {/* TODO a smart details component that can differentiate between content types */}
         {clickedPoint && (

@@ -261,6 +261,7 @@ export function FiredAndBurnedAreasDialog({
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mmapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
+            mapSelectedFeatures={[editState.mapArea]}
           />
         </MapStateContextProvider>
       </Grid>

@@ -234,7 +234,7 @@ const mapRequestCard = (
               {t('maps:simulationFireSpottingLabel')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
-              {mapRequestDetails.doSpotting ? t('labels:Active') : t('labels:none')}
+              {mapRequestDetails.doSpotting ? t('maps:yes') : t('maps:no')}
             </Typography>
             <br />
             <Typography
@@ -252,27 +252,27 @@ const mapRequestCard = (
                 <TableRow>
                   <TableCell>{t('maps:timeOffsetLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell align="right">{row.time}</TableCell>))}
+                      <TableCell key={'time-'+idx} align="right">{row.time}</TableCell>))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:windDirectionLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell align="right">{row.windDirection}</TableCell>))}
+                      <TableCell key={'wind-direction-'+idx} align="right">{row.windDirection}</TableCell>))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:windSpeedLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell align="right">{row.windSpeed}</TableCell>))}
+                      <TableCell key={'wind-speed-'+idx} align="right">{row.windSpeed}</TableCell>))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:fuelMoistureContentLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell align="right">{row.moisture}</TableCell>))}
+                      <TableCell key={'moisture-'+idx} align="right">{row.moisture}</TableCell>))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:fireBreakLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell align="right">{Object.keys(row.fireBreak)[0]}</TableCell>))}
+                      <TableCell key={'firebreak-'+idx} align="right">{Object.keys(row.fireBreak)[0]}</TableCell>))}
                 </TableRow>
               </TableBody>
             </Table>
@@ -1065,7 +1065,9 @@ export function EmergencyHoverCardContent({
   creator,
   details,
   type,
-  organizationName
+  organizationName, 
+  mapRequestTypeFilter,
+  status
 }: EmergencyProps) {
   const classes = useStyles()
   const { t } = useTranslation(['maps'])
@@ -1137,6 +1139,40 @@ export function EmergencyHoverCardContent({
           </Typography>
         </div>
       ) : null}
+      {mapRequestTypeFilter && mapRequestTypeFilter !== 'null' ? (
+        <div>
+          <Typography
+            component={'span'}
+            variant="caption"
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {t('maps:type')}
+          </Typography>
+          <br />
+          <Typography component={'span'} variant="body1">
+            {mapRequestTypeFilter === MapRequestType.FIRE_AND_BURNED_AREA ? t('maps:fireAndBurnedAreas') 
+            : mapRequestTypeFilter === MapRequestType.POST_EVENT_MONITORING ? t('maps:postEventMonitoring') 
+            : t('maps:wildfireSimulation') }
+          </Typography>
+        </div>
+      ) : undefined}
+      {status && status !== 'null' ? (
+        <div>
+          <Typography
+            component={'span'}
+            variant="caption"
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
+            {t('maps:status')}
+          </Typography>
+          <br />
+          <Typography component={'span'} variant="body1">
+            {t('labels:' + status.toLowerCase())}
+          </Typography>
+        </div>
+      ) : undefined}
     </CardContent>
   )
 }

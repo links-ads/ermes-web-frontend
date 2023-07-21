@@ -27,7 +27,7 @@ export function MapRequestDialog({
 }: React.PropsWithChildren<GenericDialogProps>) {
   const { t } = useTranslation(['maps', 'labels'])
 
-  const [value, setValue] = React.useState('')
+  const [value, setValue] = React.useState(editState.type ?? '')
 
   const handleChange = (event) => {
     setValue(event.target.value)

@@ -418,6 +418,7 @@ export function WildFireSimulationDialog({
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
             boundaryLinesTot={editState.boundaryConditions.length}
+            mapSelectedFeatures={editState.mapArea}
           />
         </MapStateContextProvider>
       </Grid>

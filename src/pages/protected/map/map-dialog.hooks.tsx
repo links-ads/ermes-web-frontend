@@ -109,7 +109,7 @@ const getStartDayDate = () =>{
   return d1
 }
 
-const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
+export const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
   timeOffset: 0,
   windDirection: 0,
   windSpeed: 0,

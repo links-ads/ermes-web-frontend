@@ -9,7 +9,8 @@ import {
   EntityType,
   LayerImportStatusType,
   MapRequestDto,
-  MapRequestStatusType
+  MapRequestStatusType,
+  MapRequestType
 } from 'ermes-ts-sdk'
 import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import SearchBar from '../../../../common/search-bar.component'
@@ -203,7 +204,46 @@ const MapRequestsPanel: React.FC<{
         dataType: ids.length > 0 ? ids : [],
         resolution: !!mr.feature.properties.resolution ? mr.feature.properties.resolution : '10',
         restrictionType: CommunicationRestrictionType.NONE,
-        scope: null
+        scope: null,
+        type: !!mr.feature.properties.mapRequestType ? mr.feature.properties.mapRequestType : '',
+        boundaryConditions:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.boundaryConditions.map((e) => {
+                return {
+                  ...e,
+                  timeOffset: e.time,
+                  fuelMoistureContent: e.moisture,
+                  fireBreakType: {
+                    [Object.keys(e.fireBreak)[0]]: JSON.parse(Object.values(e.fireBreak)[0] as string)
+                  }
+                }
+              })
+            : [],
+        hoursOfProjection:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.timeLimit
+            : 1,
+        simulationFireSpotting:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.doSpotting
+            : false,
+        probabilityRange:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.probabilityRange
+            : 0.75,
+        mapArea:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? [fetchedArea].concat(
+                mr.feature.properties.boundaryConditions.map((e) =>
+                  JSON.parse(Object.values(e.fireBreak)[0] as string)
+                )
+              )
+            : fetchedArea
       }
       setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
