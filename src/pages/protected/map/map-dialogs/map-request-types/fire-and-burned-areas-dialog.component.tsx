@@ -216,16 +216,14 @@ export function FiredAndBurnedAreasDialog({
               </FormHelperText>
             ) : null}
           </FormControl>
-        </Grid>        
+        </Grid>
         <Grid container direction="row">
           <Grid item style={{ marginBottom: 16, width: '50%' }}>
             <TextField
               id="frequency-title"
               label={t('maps:frequencyLabel')}
               error={editError && parseInt(editState.frequency) < 0}
-              helperText={
-                editError && parseInt(editState.frequency) < 0 && t('maps:frequencyHelp')
-              }
+              helperText={editError && parseInt(editState.frequency) < 0 && t('maps:frequencyHelp')}
               type="number"
               value={editState.frequency}
               onChange={(e) => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
@@ -261,7 +259,9 @@ export function FiredAndBurnedAreasDialog({
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mmapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
-            mapSelectedFeatures={[editState.mapArea]}
+            mapSelectedFeatures={[editState.mapArea].map((e) => {
+              return { ...e, properties: {} }
+            })}
           />
         </MapStateContextProvider>
       </Grid>

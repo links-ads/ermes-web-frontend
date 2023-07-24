@@ -209,7 +209,7 @@ export function PostEventMonitoringDialog({
               </FormHelperText>
             ) : null}
           </FormControl>
-        </Grid>        
+        </Grid>
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
@@ -218,7 +218,9 @@ export function PostEventMonitoringDialog({
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mmapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
-            mapSelectedFeatures={[editState.mapArea]}
+            mapSelectedFeatures={[editState.mapArea].map((e) => {
+              return { ...e, properties: {} }
+            })}
           />
         </MapStateContextProvider>
       </Grid>
