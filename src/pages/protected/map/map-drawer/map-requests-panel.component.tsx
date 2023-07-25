@@ -113,7 +113,10 @@ const MapRequestsPanel: React.FC<{
                       if (currentLayer) {
                         let settings = currentLayer[layer.dataTypeId!]
                         if (!settings)
-                          settings = new MapRequestLayerSettingsState(LayerImportStatusType.CREATED, [])
+                          settings = new MapRequestLayerSettingsState(
+                            LayerImportStatusType.CREATED,
+                            []
+                          )
                         settings.name = layer.name!
                         settings.metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode
@@ -125,12 +128,16 @@ const MapRequestsPanel: React.FC<{
                         })
                         //keep availableTimestamp sorted
                         //use Set to ensure timestamps are unique inside the final array
-                        settings.availableTimestamps = Array.from(new Set(timestamps
-                          .map((item) => {
-                            return { dateString: item, dateValue: new Date(item) }
-                          })
-                          .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
-                          .map((item) => item.dateString)))
+                        settings.availableTimestamps = Array.from(
+                          new Set(
+                            timestamps
+                              .map((item) => {
+                                return { dateString: item, dateValue: new Date(item) }
+                              })
+                              .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                              .map((item) => item.dateString)
+                          )
+                        )
                       }
                     }
                   })
@@ -215,7 +222,9 @@ const MapRequestsPanel: React.FC<{
                   timeOffset: e.time,
                   fuelMoistureContent: e.moisture,
                   fireBreakType: {
-                    [Object.keys(e.fireBreak)[0]]: JSON.parse(Object.values(e.fireBreak)[0] as string)
+                    [Object.keys(e.fireBreak)[0]]: JSON.parse(
+                      Object.values(e.fireBreak)[0] as string
+                    )
                   }
                 }
               })
@@ -239,11 +248,14 @@ const MapRequestsPanel: React.FC<{
           !!mr.feature.properties.mapRequestType &&
           mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
             ? [fetchedArea].concat(
-                mr.feature.properties.boundaryConditions.map((e) =>
-                  JSON.parse(Object.values(e.fireBreak)[0] as string)
-                )
+                mr.feature.properties.boundaryConditions.map((e) => {
+                  if (e.fireBreakFullFeature) {
+                    return JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                  } else return JSON.parse(Object.values(e.fireBreak)[0] as string)
+                })
               )
-            : fetchedArea
+            : fetchedArea,
+        mapSelectionCompleted: true
       }
       setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
@@ -275,8 +287,7 @@ const MapRequestsPanel: React.FC<{
     }
   }, [props.mapRequestCounter])
 
-  if(mapRequestsData.error)
-    return <div></div>
+  if (mapRequestsData.error) return <div></div>
 
   return (
     <div className="containerWithSearch">

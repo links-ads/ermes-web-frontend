@@ -101,43 +101,6 @@ const MapRequestDrawFeature = (props) => {
     }
   }, [customMapMode])
 
-  // useEffect(() => {
-  //   if (mapSelectedFeatures) {
-  //     const mappedFeatures = mapSelectedFeatures.map(e => { return { type: 'Feature', geometry: e, properties: {}} as GeoJSON.Feature})
-  //     setMapFeatures(mappedFeatures)
-  //     setFeatureCollection({
-  //       type: 'FeatureCollection',
-  //       features: mapSelectedFeatures
-  //     })
-  //     updateMap(featureCollection)
-  //   }
-  //     // if (!mapSelectedFeatures.type) {
-  //     //   setFeatureCollection({
-  //     //     type: 'FeatureCollection',
-  //     //     features: mapSelectedFeatures
-  //     //       ? mapSelectedFeatures.length > 1
-  //     //         ? mapSelectedFeatures
-  //     //         : [
-  //     //             {
-  //     //               type: 'Feature',
-  //     //               geometry: mapSelectedFeatures,
-  //     //               properties: {}
-  //     //             }
-  //     //           ]
-  //     //       : []
-  //     //   })
-  //     //   updateMap(featureCollection)
-  //     // }
-
-  // }, [mapSelectedFeatures])
-
-  // useEffect(() => {
-  //   console.log("Map features: ")
-  //   console.log(mapFeatures)
-  //   console.log("Feature Collection: ")
-  //   console.log(featureCollection)
-  // }, [mapFeatures, featureCollection])
-
   const updateMap = (updatedFeatureCollection) => {
     const map = mapViewRef!!.current!!.getMap()
     if (map) {
@@ -386,7 +349,7 @@ const MapRequestDrawFeature = (props) => {
                 source="pointSource"
                 filter={['==', ['geometry-type'], 'Polygon']}
                 paint={{
-                  'fill-color': red[800],
+                  'fill-color': purple[800],
                   'fill-opacity': 0.5
                 }}
               />

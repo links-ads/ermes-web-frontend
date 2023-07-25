@@ -44,7 +44,7 @@ export function FiredAndBurnedAreasDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted } = editState
+  const { mapSelectionCompleted, mapArea } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -259,9 +259,15 @@ export function FiredAndBurnedAreasDialog({
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mmapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
-            mapSelectedFeatures={[editState.mapArea].map((e) => {
-              return { ...e, properties: {} }
-            })}
+            mapSelectedFeatures={
+              mapSelectionCompleted && mapArea
+                ? [{...mapArea}].map((e) => {
+                    if (e.type !== 'Feature') {
+                      return { type: 'Feature', geometry: e, properties: {} }
+                    } else return e
+                  })
+                : []
+            }
           />
         </MapStateContextProvider>
       </Grid>

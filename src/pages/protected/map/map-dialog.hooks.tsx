@@ -145,7 +145,7 @@ const defaultEditState = {
     }
   ],
   mapSelectionCompleted: false,
-  mapArea: {},
+  mapArea: null,
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
