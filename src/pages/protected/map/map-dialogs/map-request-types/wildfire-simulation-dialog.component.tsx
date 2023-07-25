@@ -61,7 +61,6 @@ export function WildFireSimulationDialog({
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
-  const [selectedArea, setSelectedArea ] = useState<any[]>([])
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -86,22 +85,6 @@ export function WildFireSimulationDialog({
       setAreaSelectionStatusMessage('mapSelectionInfoMessage')
     }
   }, [mapSelectionCompleted, editError])
-
-  useEffect(() => {
-    if (mapSelectionCompleted && mapArea.length > 0){
-      const featuresArea = mapArea.map((e) => {
-        if (e.type !== 'Feature') {
-          return { type: 'Feature', geometry: e, properties: {} }
-        } else {
-          return e
-        }
-      })
-      setSelectedArea(featuresArea)
-    }
-    else {
-      setSelectedArea([])
-    }
-  }, [mapArea])
 
   const setMapArea = (area) => {
     dispatchEditAction({ type: 'MAP_AREA', value: area })
@@ -435,13 +418,13 @@ export function WildFireSimulationDialog({
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
             boundaryLinesTot={editState.boundaryConditions.length}
-            mapSelectedFeatures={(editState.mapSelectionCompleted && editState.mapArea.length > 0) ? editState.mapArea.map((e) => {
-              if (e.type !== 'Feature') {
-                return { type: 'Feature', geometry: e, properties: {} }
-              } else {
-                return e
-              }
-            }) : []}
+            mapSelectedFeatures={
+              editState.mapSelectionCompleted && editState.mapArea
+                ? [editState.mapArea].concat(
+                    editState.boundaryConditions.map((e) => Object.values(e.fireBreakType)[0])
+                  )
+                : []
+            }
           />
         </MapStateContextProvider>
       </Grid>

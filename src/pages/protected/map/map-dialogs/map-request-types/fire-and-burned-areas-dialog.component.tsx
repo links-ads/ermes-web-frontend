@@ -261,11 +261,7 @@ export function FiredAndBurnedAreasDialog({
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
               mapSelectionCompleted && mapArea
-                ? [{...mapArea}].map((e) => {
-                    if (e.type !== 'Feature') {
-                      return { type: 'Feature', geometry: e, properties: {} }
-                    } else return e
-                  })
+                ? [{...mapArea}]
                 : []
             }
           />

@@ -68,7 +68,7 @@ export function MapRequestDialog({
           </FormControl>
         </Grid>
         <Divider style={{ marginBottom: 16 }} />
-        {value === MapRequestType.FIRE_AND_BURNED_AREA ? (
+        {editState && value === MapRequestType.FIRE_AND_BURNED_AREA ? (
           <FiredAndBurnedAreasDialog
             operationType={operationType}
             editError={editError}
@@ -79,7 +79,7 @@ export function MapRequestDialog({
         ) : (
           <></>
         )}
-        {value === MapRequestType.POST_EVENT_MONITORING ? (
+        {editState && value === MapRequestType.POST_EVENT_MONITORING ? (
           <PostEventMonitoringDialog
             operationType={operationType}
             editError={editError}
@@ -90,7 +90,7 @@ export function MapRequestDialog({
         ) : (
           <></>
         )}
-        {value === MapRequestType.WILDFIRE_SIMULATION ? (
+        {editState && value === MapRequestType.WILDFIRE_SIMULATION ? (
           <WildFireSimulationDialog
             operationType={operationType}
             editError={editError}

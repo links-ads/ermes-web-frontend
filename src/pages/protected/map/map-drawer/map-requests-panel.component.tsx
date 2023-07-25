@@ -12,7 +12,7 @@ import {
   MapRequestStatusType,
   MapRequestType
 } from 'ermes-ts-sdk'
-import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
+import { CoordinatorType, DialogResponseType, FireBreakType, useMapDialog } from '../map-dialog.hooks'
 import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import MapRequestCard from './drawer-cards/maprequest-card.component'
@@ -222,9 +222,9 @@ const MapRequestsPanel: React.FC<{
                   timeOffset: e.time,
                   fuelMoistureContent: e.moisture,
                   fireBreakType: {
-                    [Object.keys(e.fireBreak)[0]]: JSON.parse(
-                      Object.values(e.fireBreak)[0] as string
-                    )
+                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
+                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
                   }
                 }
               })
@@ -245,16 +245,9 @@ const MapRequestsPanel: React.FC<{
             ? mr.feature.properties.probabilityRange
             : 0.75,
         mapArea:
-          !!mr.feature.properties.mapRequestType &&
-          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
-            ? [fetchedArea].concat(
-                mr.feature.properties.boundaryConditions.map((e) => {
-                  if (e.fireBreakFullFeature) {
-                    return JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
-                  } else return JSON.parse(Object.values(e.fireBreak)[0] as string)
-                })
-              )
-            : fetchedArea,
+          !!mr.feature.properties.mapRequestType
+            ? { type: 'Feature', properties: {}, geometry: fetchedArea }
+            : null,
         mapSelectionCompleted: true
       }
       setCopystate(defaultEditState)
