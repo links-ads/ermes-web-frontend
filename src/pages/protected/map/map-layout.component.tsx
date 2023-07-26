@@ -612,7 +612,7 @@ export function MapLayout(props) {
           geometry.type === 'Polygon'
             ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
             : geometry.type === 'Point' ?
-            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)).geometry)))
+            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)))))
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
         drawPolyToMap(

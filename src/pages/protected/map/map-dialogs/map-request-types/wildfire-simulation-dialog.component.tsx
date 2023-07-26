@@ -412,14 +412,14 @@ export function WildFireSimulationDialog({
             customMapMode={wildfireMapMode}
             lineIdx={boundaryConditionIdx}
             areaSelectedAlertHandler={setAreaSelectionStatus}
-            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             setBoundaryLineHandler={setBoundaryLine}
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
             boundaryLinesTot={editState.boundaryConditions.length}
             mapSelectedFeatures={
-              editState.mapSelectionCompleted && editState.mapArea
+              editState.mapSelectionCompleted && editState.mapArea && editState.mapArea.geometry.type === 'Point'
                 ? [editState.mapArea].concat(
                     editState.boundaryConditions.map((e) => Object.values(e.fireBreakType)[0])
                   )

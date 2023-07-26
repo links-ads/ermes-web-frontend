@@ -216,7 +216,7 @@ export function PostEventMonitoringDialog({
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
-            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
               mapSelectionCompleted && mapArea

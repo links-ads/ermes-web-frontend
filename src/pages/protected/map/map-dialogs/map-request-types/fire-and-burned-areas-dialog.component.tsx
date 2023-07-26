@@ -257,7 +257,7 @@ export function FiredAndBurnedAreasDialog({
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
-            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
               mapSelectionCompleted && mapArea

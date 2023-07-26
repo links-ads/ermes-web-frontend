@@ -1147,7 +1147,7 @@ export function EmergencyHoverCardContent({
             color="textSecondary"
             style={{ textTransform: 'uppercase' }}
           >
-            {t('maps:type')}
+            {t('labels:type')}
           </Typography>
           <br />
           <Typography component={'span'} variant="body1">
