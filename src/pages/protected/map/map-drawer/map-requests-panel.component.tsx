@@ -9,9 +9,10 @@ import {
   EntityType,
   LayerImportStatusType,
   MapRequestDto,
-  MapRequestStatusType
+  MapRequestStatusType,
+  MapRequestType
 } from 'ermes-ts-sdk'
-import { CoordinatorType, DialogResponseType, useMapDialog } from '../map-dialog.hooks'
+import { CoordinatorType, DialogResponseType, FireBreakType, useMapDialog } from '../map-dialog.hooks'
 import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import MapRequestCard from './drawer-cards/maprequest-card.component'
@@ -112,7 +113,10 @@ const MapRequestsPanel: React.FC<{
                       if (currentLayer) {
                         let settings = currentLayer[layer.dataTypeId!]
                         if (!settings)
-                          settings = new MapRequestLayerSettingsState(LayerImportStatusType.CREATED, [])
+                          settings = new MapRequestLayerSettingsState(
+                            LayerImportStatusType.CREATED,
+                            []
+                          )
                         settings.name = layer.name!
                         settings.metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode
@@ -124,12 +128,16 @@ const MapRequestsPanel: React.FC<{
                         })
                         //keep availableTimestamp sorted
                         //use Set to ensure timestamps are unique inside the final array
-                        settings.availableTimestamps = Array.from(new Set(timestamps
-                          .map((item) => {
-                            return { dateString: item, dateValue: new Date(item) }
-                          })
-                          .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
-                          .map((item) => item.dateString)))
+                        settings.availableTimestamps = Array.from(
+                          new Set(
+                            timestamps
+                              .map((item) => {
+                                return { dateString: item, dateValue: new Date(item) }
+                              })
+                              .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                              .map((item) => item.dateString)
+                          )
+                        )
                       }
                     }
                   })
@@ -203,7 +211,44 @@ const MapRequestsPanel: React.FC<{
         dataType: ids.length > 0 ? ids : [],
         resolution: !!mr.feature.properties.resolution ? mr.feature.properties.resolution : '10',
         restrictionType: CommunicationRestrictionType.NONE,
-        scope: null
+        scope: null,
+        type: !!mr.feature.properties.mapRequestType ? mr.feature.properties.mapRequestType : '',
+        boundaryConditions:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.boundaryConditions.map((e) => {
+                return {
+                  ...e,
+                  timeOffset: e.time,
+                  fuelMoistureContent: e.moisture,
+                  fireBreakType: {
+                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
+                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
+                  }
+                }
+              })
+            : [],
+        hoursOfProjection:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.timeLimit
+            : 1,
+        simulationFireSpotting:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.doSpotting
+            : false,
+        probabilityRange:
+          !!mr.feature.properties.mapRequestType &&
+          mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+            ? mr.feature.properties.probabilityRange
+            : 0.75,
+        mapArea:
+          !!mr.feature.properties.mapRequestType
+            ? { type: 'Feature', properties: {}, geometry: fetchedArea }
+            : null,
+        mapSelectionCompleted: true
       }
       setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
@@ -235,8 +280,7 @@ const MapRequestsPanel: React.FC<{
     }
   }, [props.mapRequestCounter])
 
-  if(mapRequestsData.error)
-    return <div></div>
+  if (mapRequestsData.error) return <div></div>
 
   return (
     <div className="containerWithSearch">

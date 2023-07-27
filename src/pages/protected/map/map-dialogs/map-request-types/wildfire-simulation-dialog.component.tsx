@@ -57,7 +57,7 @@ export function WildFireSimulationDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted } = editState
+  const { mapSelectionCompleted, mapArea } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -412,12 +412,19 @@ export function WildFireSimulationDialog({
             customMapMode={wildfireMapMode}
             lineIdx={boundaryConditionIdx}
             areaSelectedAlertHandler={setAreaSelectionStatus}
-            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             setBoundaryLineHandler={setBoundaryLine}
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
             boundaryLinesTot={editState.boundaryConditions.length}
+            mapSelectedFeatures={
+              editState.mapSelectionCompleted && editState.mapArea && editState.mapArea.geometry.type === 'Point'
+                ? [editState.mapArea].concat(
+                    editState.boundaryConditions.map((e) => Object.values(e.fireBreakType)[0])
+                  )
+                : []
+            }
           />
         </MapStateContextProvider>
       </Grid>

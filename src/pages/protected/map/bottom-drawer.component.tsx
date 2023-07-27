@@ -3,6 +3,7 @@ import React from 'react'
 import Drawer from '@material-ui/core/Drawer'
 
 import { useSidebarCollapse } from '@mui-treasury/layout'
+import { EmergencyColorMap } from './api-data/emergency.component'
 
 // const BottomDrawerHeader = styled.div`
 //   display: flex;
@@ -31,6 +32,7 @@ interface BottomDrawerProps {
   title?: string
   onClose?: () => void
   onCloseButtonClick?: () => void
+  featureType: string
 }
 
 // const useStyles = makeStyles((theme) => ({
@@ -52,6 +54,7 @@ export function BottomDrawerComponent({
   title,
   onClose,
   onCloseButtonClick,
+  featureType,
   children
 }: React.PropsWithChildren<BottomDrawerProps>) {
   const { state } = useSidebarCollapse('left_sidebar')
@@ -73,8 +76,11 @@ export function BottomDrawerComponent({
           right: '54px',
           top: '183px',
           height: 'auto',
-          width: '450px'
+          width: '450px',
           // position: 'relative'
+          borderWidth: 3,
+          borderStyle: 'solid',
+          borderColor: EmergencyColorMap[featureType]
         }
       }}
       BackdropProps={{

@@ -61,7 +61,7 @@ import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { EntityType } from 'ermes-ts-sdk'
-import { multiPolygon, polygon } from '@turf/helpers'
+import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -611,6 +611,8 @@ export function MapLayout(props) {
         const polyToDraw =
           geometry.type === 'Polygon'
             ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+            : geometry.type === 'Point' ?
+            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)))))
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
         drawPolyToMap(
@@ -834,6 +836,7 @@ export function MapLayout(props) {
         open={clickedPoint !== null}
         title={clickedPoint ? (clickedPoint.item as EmergencyProps).description : ''}
         onCloseButtonClick={() => setClickedPoint(null)}
+        featureType={clickedPoint ? (clickedPoint?.item as EmergencyProps).type : ''}
       >
         {/* TODO a smart details component that can differentiate between content types */}
         {clickedPoint && (

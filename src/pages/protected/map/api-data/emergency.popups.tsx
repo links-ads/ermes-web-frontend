@@ -3,7 +3,8 @@ import {
   EmergencyPropsWithLocation,
   EmergencyHoverCardContent,
   EmergencyProps,
-  EmergencyDrawerDetails
+  EmergencyDrawerDetails,
+  EmergencyColorMap
 } from './emergency.component'
 import { PopupCard } from '../popup-card.component'
 import { Popup } from 'react-map-gl'
@@ -29,7 +30,7 @@ function compareProperties(prevProps: EmergencyCardProps, nextProps: EmergencyCa
 
 export const EmergencyHoverPopup = memo(
   function EmergencyHoverPopup({ point }: { point: EmergencyCardProps | null }) {
-    console.log('Point info look at me', point)
+    console.debug('Point info look at me', point)
     if (point != null && point.item)
       point.item.details =
         point.item.details.length > 200
@@ -51,7 +52,7 @@ export const EmergencyHoverPopup = memo(
             title={point.item?.details}
             // src={point.item?.image}
             // imageHeight={84}
-            style={{ width: 300, borderRadius: 10 }}
+            style={{ width: 300, borderRadius: 10, borderStyle: 'solid', borderWidth: 3, borderColor: EmergencyColorMap[point?.item?.type] }}
           />
         )}
       </Popup>

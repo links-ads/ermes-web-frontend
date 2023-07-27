@@ -44,7 +44,7 @@ export function FiredAndBurnedAreasDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted } = editState
+  const { mapSelectionCompleted, mapArea } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -216,16 +216,14 @@ export function FiredAndBurnedAreasDialog({
               </FormHelperText>
             ) : null}
           </FormControl>
-        </Grid>        
+        </Grid>
         <Grid container direction="row">
           <Grid item style={{ marginBottom: 16, width: '50%' }}>
             <TextField
               id="frequency-title"
               label={t('maps:frequencyLabel')}
               error={editError && parseInt(editState.frequency) < 0}
-              helperText={
-                editError && parseInt(editState.frequency) < 0 && t('maps:frequencyHelp')
-              }
+              helperText={editError && parseInt(editState.frequency) < 0 && t('maps:frequencyHelp')}
               type="number"
               value={editState.frequency}
               onChange={(e) => dispatchEditAction({ type: 'FREQUENCY', value: e.target.value })}
@@ -259,8 +257,13 @@ export function FiredAndBurnedAreasDialog({
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
-            mmapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionCompletedHandler={setMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
+            mapSelectedFeatures={
+              mapSelectionCompleted && mapArea
+                ? [{...mapArea}]
+                : []
+            }
           />
         </MapStateContextProvider>
       </Grid>

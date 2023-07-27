@@ -27,7 +27,7 @@ export function MapRequestDialog({
 }: React.PropsWithChildren<GenericDialogProps>) {
   const { t } = useTranslation(['maps', 'labels'])
 
-  const [value, setValue] = React.useState('')
+  const [value, setValue] = React.useState(editState.type ?? '')
 
   const handleChange = (event) => {
     setValue(event.target.value)
@@ -38,68 +38,70 @@ export function MapRequestDialog({
 
   console.debug('datatype', editState.dataType, typeof editState.dataType[0])
   return (
-    <Grid container direction="column">
-      <Grid container direction="row" style={{ marginBottom: 16 }}>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">{t('labels:type')}</FormLabel>
-          <RadioGroup
-            aria-label="map-request-data-type"
-            name="map-request-data-type"
-            value={value}
-            onChange={handleChange}
-          >
-            <FormControlLabel
-              value={MapRequestType.FIRE_AND_BURNED_AREA}
-              control={<Radio />}
-              label={t('fireAndBurnedAreas')}
-            />
-            <FormControlLabel
-              value={MapRequestType.POST_EVENT_MONITORING}
-              control={<Radio />}
-              label={t('postEventMonitoring')}
-            />
-            <FormControlLabel
-              value={MapRequestType.WILDFIRE_SIMULATION}
-              control={<Radio />}
-              label={t('wildfireSimulation')}
-            />
-          </RadioGroup>
-        </FormControl>
+    editState && (
+      <Grid container direction="column">
+        <Grid container direction="row" style={{ marginBottom: 16 }}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">{t('labels:type')}</FormLabel>
+            <RadioGroup
+              aria-label="map-request-data-type"
+              name="map-request-data-type"
+              value={value}
+              onChange={handleChange}
+            >
+              <FormControlLabel
+                value={MapRequestType.FIRE_AND_BURNED_AREA}
+                control={<Radio />}
+                label={t('fireAndBurnedAreas')}
+              />
+              <FormControlLabel
+                value={MapRequestType.POST_EVENT_MONITORING}
+                control={<Radio />}
+                label={t('postEventMonitoring')}
+              />
+              <FormControlLabel
+                value={MapRequestType.WILDFIRE_SIMULATION}
+                control={<Radio />}
+                label={t('wildfireSimulation')}
+              />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+        <Divider style={{ marginBottom: 16 }} />
+        {editState && value === MapRequestType.FIRE_AND_BURNED_AREA ? (
+          <FiredAndBurnedAreasDialog
+            operationType={operationType}
+            editError={editError}
+            editState={{ ...editState, type: MapRequestType.FIRE_AND_BURNED_AREA }}
+            dispatchEditAction={dispatchEditAction}
+            setEditError={setEditError}
+          />
+        ) : (
+          <></>
+        )}
+        {editState && value === MapRequestType.POST_EVENT_MONITORING ? (
+          <PostEventMonitoringDialog
+            operationType={operationType}
+            editError={editError}
+            editState={{ ...editState, type: MapRequestType.POST_EVENT_MONITORING }}
+            dispatchEditAction={dispatchEditAction}
+            setEditError={setEditError}
+          />
+        ) : (
+          <></>
+        )}
+        {editState && value === MapRequestType.WILDFIRE_SIMULATION ? (
+          <WildFireSimulationDialog
+            operationType={operationType}
+            editError={editError}
+            editState={{ ...editState, type: MapRequestType.WILDFIRE_SIMULATION }}
+            dispatchEditAction={dispatchEditAction}
+            setEditError={setEditError}
+          />
+        ) : (
+          <></>
+        )}
       </Grid>
-      <Divider style={{ marginBottom: 16 }} />
-      {value === MapRequestType.FIRE_AND_BURNED_AREA ? (
-        <FiredAndBurnedAreasDialog
-          operationType={operationType}
-          editError={editError}
-          editState={{ ...editState, type: MapRequestType.FIRE_AND_BURNED_AREA }}
-          dispatchEditAction={dispatchEditAction}
-          setEditError={setEditError}
-        />
-      ) : (
-        <></>
-      )}
-      {value === MapRequestType.POST_EVENT_MONITORING ? (
-        <PostEventMonitoringDialog
-          operationType={operationType}
-          editError={editError}
-          editState={{ ...editState, type: MapRequestType.POST_EVENT_MONITORING }}
-          dispatchEditAction={dispatchEditAction}
-          setEditError={setEditError}
-        />
-      ) : (
-        <></>
-      )}
-      {value === MapRequestType.WILDFIRE_SIMULATION ? (
-        <WildFireSimulationDialog
-          operationType={operationType}
-          editError={editError}
-          editState={{ ...editState, type: MapRequestType.WILDFIRE_SIMULATION }}
-          dispatchEditAction={dispatchEditAction}
-          setEditError={setEditError}
-        />
-      ) : (
-        <></>
-      )}
-    </Grid>
+    )
   )
 }

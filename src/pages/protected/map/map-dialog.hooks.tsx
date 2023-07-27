@@ -109,7 +109,7 @@ const getStartDayDate = () =>{
   return d1
 }
 
-const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
+export const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
   timeOffset: 0,
   windDirection: 0,
   windSpeed: 0,
@@ -145,7 +145,7 @@ const defaultEditState = {
     }
   ],
   mapSelectionCompleted: false,
-  mapArea: {},
+  mapArea: null,
   restrictionType: CommunicationRestrictionType.NONE,
   scope: CommunicationScopeType.PUBLIC,
   organizationReceiverIds: []
@@ -639,7 +639,10 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
             windDirection: e.windDirection, 
             windSpeed: e.windSpeed,
             moisture: e.fuelMoistureContent,
-            fireBreak: e.fireBreakType
+            fireBreak: {
+              [Object.keys(e.fireBreakType)[0]] : JSON.stringify(JSON.parse((Object.values(e.fireBreakType)[0] as string)).geometry)
+            },
+            fireBreakFullFeature: e.fireBreakType
           }
         })
         break

@@ -285,7 +285,7 @@ export const drawPolyToMap = (
     s.setData(source_data)
   }
 
-  if (map.getLayer(POLYGON_LAYER_ID) === undefined) {
+  if (map.getLayer(POLYGON_LAYER_ID) === undefined && feature.geometry.type !== 'GeometryCollection') {
     map.addLayer({
       id: POLYGON_LAYER_ID,
       type: 'fill',
