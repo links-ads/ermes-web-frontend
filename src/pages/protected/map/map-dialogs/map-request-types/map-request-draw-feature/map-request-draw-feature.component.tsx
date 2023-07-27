@@ -318,8 +318,8 @@ const MapRequestDrawFeature = (props) => {
                   setMapFeatures(pointLinesFeatureCollection.features)
 
                   if (
-                    featureCollection.features.find((e) => e.geometry.type === 'Point') &&
-                    featureCollection.features.filter((e) => e.geometry.type === 'LineString')
+                    pointLinesFeatureCollection.features.find((e) => e.geometry.type === 'Point') &&
+                    pointLinesFeatureCollection.features.filter((e) => e.geometry.type === 'LineString')
                       .length === boundaryLinesTot
                   ) {
                     areaSelectedAlertHandler('success')
