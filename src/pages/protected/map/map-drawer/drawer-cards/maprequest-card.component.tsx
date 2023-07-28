@@ -7,7 +7,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import DeleteIcon from '@material-ui/icons/Delete'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import classes from './maprequest-card.module.scss'
-import { EntityType, MapRequestDto, MapRequestStatusType } from "ermes-ts-sdk";
+import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from "ermes-ts-sdk";
 import MapRequestAccordion from "./maprequest-accordion.component";
 import { MapRequestLayerState } from "../../../../../models/mapRequest/MapRequestState";
 import { EmergencyColorMap } from "../../api-data/emergency.component";
@@ -96,7 +96,9 @@ const MapRequestCard: React.FC<{
               {t('labels:type')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
-              {mapRequestInfo.mapRequestType}
+            {mapRequestInfo.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ? t('maps:fireAndBurnedAreas') 
+            : mapRequestInfo.mapRequestType === MapRequestType.POST_EVENT_MONITORING ? t('maps:postEventMonitoring') 
+            : t('maps:wildfireSimulation') }
             </Typography>
             <br />
           </div>

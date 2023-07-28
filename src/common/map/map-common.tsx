@@ -255,9 +255,13 @@ const distance = (a, b) => {
 
 export const removePolyToMap = (map) => {
   let s = map.getSource(POLYGON_SOURCE_ID) as mapboxgl.GeoJSONSource
-  if (s && map.getLayer(POLYGON_LAYER_ID) && map.getLayer(POLYGON_STROKE_ID)) {
-    map.removeLayer(POLYGON_LAYER_ID)
-    map.removeLayer(POLYGON_STROKE_ID)
+  if (s) {
+    if (map.getLayer(POLYGON_LAYER_ID)) {
+      map.removeLayer(POLYGON_LAYER_ID)
+    }
+    if (map.getLayer(POLYGON_STROKE_ID)) {
+      map.removeLayer(POLYGON_STROKE_ID)
+    }
     map.removeSource(POLYGON_SOURCE_ID)
   }
 }
@@ -379,9 +383,24 @@ export const addUserClickedPoint = (
 // remove added layer at user's click
 export const removeUserClickedPoint = (map) => {
   let s = map.getSource(POSITION_SOURCE_ID) as mapboxgl.GeoJSONSource
-  if (s && map.getLayer(POSITION_LAYER_ID)) {
-    map.removeLayer(POSITION_LAYER_ID)
+  if (s) {
+    if (map.getLayer(POSITION_LAYER_ID)) {
+      map.removeLayer(POSITION_LAYER_ID)
+    }    
+    if (map.getLayer(POLYGON_STROKE_ID)) {
+      map.removeLayer(POLYGON_STROKE_ID)
+    }
     map.removeSource(POSITION_SOURCE_ID)
+  }
+  let ps = map.getSource(POLYGON_SOURCE_ID) as mapboxgl.GeoJSONSource
+  if (ps) {
+    if (map.getLayer(POLYGON_LAYER_ID)) {
+      map.removeLayer(POLYGON_LAYER_ID)
+    }
+    if (map.getLayer(POLYGON_STROKE_ID)) {
+      map.removeLayer(POLYGON_STROKE_ID)
+    }
+    map.removeSource(POLYGON_SOURCE_ID)
   }
 }
 
