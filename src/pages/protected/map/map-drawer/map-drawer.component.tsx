@@ -1,6 +1,6 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo, useContext, useState } from 'react'
+import React, { useEffect, useMemo, useContext, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
@@ -26,6 +26,7 @@ import { FiltersContext } from '../../../../state/filters.context'
 import AlertPanel from './alerts-panel.component'
 import CamerasPanel from './cameras-panel.component'
 import { CameraDetails } from './camera-details.component'
+import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,6 +102,17 @@ export default function MapDrawer(props) {
   const onCardClick = (selectedItemId) => {
     setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
   }
+
+  const onFeatureDialogClose = useCallback(
+    (status: DialogResponseType) => {
+      if (status === 'confirm') {
+        props.fetchGeoJson(undefined)
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+  const showFeaturesDialog = useMapDialog(onFeatureDialogClose, null)
 
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
@@ -352,6 +364,7 @@ export default function MapDrawer(props) {
                 resetListCounter={props.resetListCounter}
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
+                showFeaturesDialog={showFeaturesDialog}
               />
             </TabPanel>
 

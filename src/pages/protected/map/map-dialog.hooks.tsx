@@ -151,13 +151,174 @@ const defaultEditState = {
   organizationReceiverIds: []
 }
 
+const editReducer = (currentState: EditStateType, action: EditActionType): EditStateType => {
+  switch (action.type) {
+    case 'START_DATE':
+      return {
+        ...currentState,
+        startDate: action.value as Date
+      }
+    case 'END_DATE':
+      return {
+        ...currentState,
+        endDate: action.value as Date
+      }
+    case 'DESCRIPTION':
+      return {
+        ...currentState,
+        description: action.value as string
+      }
+    case 'TITLE':
+      return {
+        ...currentState,
+        title: action.value as string
+      }
+    case 'COORDINATOR':
+      switch (action.value.coordType) {
+        case CoordinatorType.ORGANIZATION:
+          return {
+            ...currentState,
+            coordinatorType: CoordinatorType.ORGANIZATION,
+            orgId: action.value.coordId as number,
+            teamId: -1,
+            userId: -1
+          }
+        case CoordinatorType.TEAM:
+          return {
+            ...currentState,
+            coordinatorType:
+              (action.value.coordId as number) !== -1
+                ? CoordinatorType.TEAM
+                : CoordinatorType.ORGANIZATION,
+            teamId: action.value.coordId as number,
+            userId: -1
+          }
+        case CoordinatorType.USER:
+          return {
+            ...currentState,
+            coordinatorType:
+              (action.value.coordId as number) !== -1 ? CoordinatorType.USER : CoordinatorType.TEAM,
+            userId: action.value.coordId as number
+          }
+        default:
+          return currentState
+      }
+    case 'STATUS':
+      return {
+        ...currentState,
+        status: action.value as MissionStatusType
+      }
+    case 'DATATYPE':
+      return {
+        ...currentState,
+        dataType: action.value
+      }
+
+    case 'RESTRICTION':
+      return {
+        ...currentState,
+        restrictionType: action.value as CommunicationRestrictionType
+      }
+
+    case 'SCOPE':
+      return {
+        ...currentState,
+        scope: action.value as CommunicationScopeType
+      }
+    case 'ORGANIZATIONRECEIVERIDS':
+      return {
+        ...currentState,
+        organizationReceiverIds: action.value as number[]
+      }
+    case 'TYPE':
+      return {
+        ...currentState,
+        type: action.value
+      }
+    case 'FREQUENCY':
+      var number = parseInt(action.value)
+      return {
+        ...currentState,
+        frequency: isNaN(number) || number < 0 ? '0' : number > 30 ? '30' : number.toString()
+      }
+    case 'RESOLUTION':
+      var number = parseInt(action.value)
+      return {
+        ...currentState,
+        resolution: isNaN(number) || number < 0 ? '0' : number > 60 ? '60' : number.toString()
+      }
+    case 'REQUEST_TITLE':
+      return {
+        ...currentState,
+        requestTitle: action.value
+      }
+    case 'HOURS_OF_PROJECTION':
+      return {
+        ...currentState,
+        hoursOfProjection: action.value
+      }
+    case 'PROBABILITY_RANGE':
+      return {
+        ...currentState,
+        probabilityRange: action.value
+      }
+    case 'SIMULATION_FIRE_SPOTTING':
+      return {
+        ...currentState,
+        simulationFireSpotting: action.value
+      }
+    case 'BOUNDARY_CONDITION_ADD':
+      let currentBoundaryConditions = [...currentState.boundaryConditions]
+      let newBoundaryCondition = { ...defaultBoundaryCondition }
+      currentBoundaryConditions.push(newBoundaryCondition)
+      return {
+        ...currentState,
+        boundaryConditions: [...currentBoundaryConditions]
+      }
+    case 'BOUNDARY_CONDITION_EDIT':
+      let modifiedBoundaryConditions = [...currentState.boundaryConditions]
+      let editBoundaryCondition = modifiedBoundaryConditions[action.value.index]
+      editBoundaryCondition[action.value.property] = action.value.newValue
+      modifiedBoundaryConditions[action.value.index] = editBoundaryCondition
+      return {
+        ...currentState,
+        boundaryConditions: [...modifiedBoundaryConditions]
+      }
+    case 'BOUNDARY_CONDITION_REMOVE':
+      let removedBoundaryConditions = [...currentState.boundaryConditions]
+      removedBoundaryConditions.splice(action.value.index, 1)
+      return {
+        ...currentState,
+        boundaryConditions: [...removedBoundaryConditions]
+      }
+    case 'MAP_SELECTION_COMPLETED':
+      return {
+        ...currentState,
+        mapSelectionCompleted: action.value
+      }
+    case 'MAP_AREA':
+      return {
+        ...currentState,
+        mapArea: action.value
+      }
+    case 'RESET':
+      return setinitialEditState(action.value) // customState
+    //return defaultEditState
+    default:
+      throw new Error('Invalid action type')
+  }
+}
+
+const setinitialEditState = (customState) => {
+  if (customState !== null) return customState
+  else return { ...defaultEditState, boundaryConditions: [{ ...defaultBoundaryCondition }] }
+}
+
 export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) => void, customState: any | null) {
   const initialEditState = useMemo(() => {
     if(!!customState) return customState 
     else return defaultEditState }, [customState])
-  const setinitialEditState = (customState) => {
-      if(customState!=null) return customState 
-      else return { ...defaultEditState, boundaryConditions: [{...defaultBoundaryCondition}] } }
+  
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
   const { t } = useTranslation(['maps'])
 
@@ -167,170 +328,8 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
   const mapRequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler()
   //const [editState, dispatchEditAction] = useReducer(editReducer, initialEditState)
-
-  const editReducer = (currentState: EditStateType, action: EditActionType): EditStateType => {
-    switch (action.type) {
-      case 'START_DATE':
-        return {
-          ...currentState,
-          startDate: action.value as Date
-        }
-      case 'END_DATE':
-        return {
-          ...currentState,
-          endDate: action.value as Date
-        }
-      case 'DESCRIPTION':
-        return {
-          ...currentState,
-          description: action.value as string
-        }
-      case 'TITLE':
-        return {
-          ...currentState,
-          title: action.value as string
-        }
-      case 'COORDINATOR':
-        switch (action.value.coordType) {
-          case CoordinatorType.ORGANIZATION:
-            return {
-              ...currentState,
-              coordinatorType: CoordinatorType.ORGANIZATION,
-              orgId: action.value.coordId as number,
-              teamId: -1,
-              userId: -1
-            }
-          case CoordinatorType.TEAM:
-            return {
-              ...currentState,
-              coordinatorType:
-                (action.value.coordId as number) !== -1
-                  ? CoordinatorType.TEAM
-                  : CoordinatorType.ORGANIZATION,
-              teamId: action.value.coordId as number,
-              userId: -1
-            }
-          case CoordinatorType.USER:
-            return {
-              ...currentState,
-              coordinatorType:
-                (action.value.coordId as number) !== -1
-                  ? CoordinatorType.USER
-                  : CoordinatorType.TEAM,
-              userId: action.value.coordId as number
-            }
-          default:
-            return currentState
-        }
-      case 'STATUS':
-        return {
-          ...currentState,
-          status: action.value as MissionStatusType
-        }
-      case 'DATATYPE':
-        return {
-          ...currentState,
-          dataType: action.value
-        }
-
-      case 'RESTRICTION':
-        return {
-          ...currentState,
-          restrictionType: action.value as CommunicationRestrictionType
-        }
-
-      case 'SCOPE':
-        return {
-          ...currentState,
-          scope: action.value as CommunicationScopeType
-        }
-      case 'ORGANIZATIONRECEIVERIDS':
-        return {
-          ...currentState,
-          organizationReceiverIds: action.value as number[]
-        }
-      case 'TYPE':
-        return {
-          ...currentState,
-          type: action.value
-        }
-      case 'FREQUENCY':
-        var number = parseInt(action.value)
-        return {
-          ...currentState,
-          frequency: isNaN(number) || number < 0 ? '0' : number > 30 ? '30' : number.toString()
-        }
-      case 'RESOLUTION':
-        var number = parseInt(action.value)
-        return {
-          ...currentState,
-          resolution: isNaN(number) || number < 0 ? '0' : number > 60 ? '60' : number.toString()
-        }
-      case 'REQUEST_TITLE':
-        return {
-          ...currentState,
-          requestTitle: action.value
-        }
-      case 'HOURS_OF_PROJECTION':
-        return {
-          ...currentState,
-          hoursOfProjection: action.value
-        }
-      case 'PROBABILITY_RANGE':
-        return {
-          ...currentState,
-          probabilityRange: action.value
-        }
-      case 'SIMULATION_FIRE_SPOTTING':
-        return {
-          ...currentState,
-          simulationFireSpotting: action.value
-        }
-      case 'BOUNDARY_CONDITION_ADD':
-        let currentBoundaryConditions = [...currentState.boundaryConditions]
-        let newBoundaryCondition = {...defaultBoundaryCondition}
-        currentBoundaryConditions.push(newBoundaryCondition)
-        return {
-          ...currentState,
-          boundaryConditions: [...currentBoundaryConditions]
-        }
-      case 'BOUNDARY_CONDITION_EDIT':
-        let modifiedBoundaryConditions = [...currentState.boundaryConditions]
-        let editBoundaryCondition = modifiedBoundaryConditions[action.value.index]
-        editBoundaryCondition[action.value.property] = action.value.newValue
-        modifiedBoundaryConditions[action.value.index] = editBoundaryCondition
-        return {
-          ...currentState,
-          boundaryConditions: [...modifiedBoundaryConditions]
-        }
-      case 'BOUNDARY_CONDITION_REMOVE':
-        let removedBoundaryConditions = [...currentState.boundaryConditions]
-        removedBoundaryConditions.splice(action.value.index, 1)
-        return {
-          ...currentState,
-          boundaryConditions: [...removedBoundaryConditions]
-        }
-      case 'MAP_SELECTION_COMPLETED':
-        return {
-          ...currentState,
-          mapSelectionCompleted: action.value
-        }
-      case 'MAP_AREA':
-        return {
-          ...currentState,
-          mapArea: action.value
-        }
-      case 'RESET':
-        return setinitialEditState(customState)
-      //return defaultEditState
-      default:
-        throw new Error('Invalid action type')
-    }
-  }
-
   const [editState, dispatchEditAction] = useReducer(editReducer, defaultEditState, setinitialEditState)
   const [editError, setEditError] = useState(false)
-
 
   //const customState = {coordinatorType: CoordinatorType.ORGANIZATION,dataType: [],description: "",endDate: null,frequency: "5",orgId: -1,resolution: "12",restrictionType: CommunicationRestrictionType.NONE,scope: null,startDate: new Date(),status: MissionStatusType.CREATED,teamId: -1,title: "",userId: -1}
 
@@ -405,9 +404,9 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
     [dialogState]
   )
 
-  function openDialog(operation?: OperationType, itemType?: ProvisionalFeatureType, itemId?: string, area: any = {}) {
+  function openDialog(operation?: OperationType, itemType?: ProvisionalFeatureType, itemId?: string, area: any = {}, customState?: any | null) {
     if (operation) {
-      dispatchEditAction({ type: 'RESET' })
+      dispatchEditAction({ type: 'RESET', value: customState })
       resetApiHandlerState()
       setEditError(false)
       setDialogState({
