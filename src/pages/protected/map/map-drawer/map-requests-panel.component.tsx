@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useMapRequestList from '../../../../hooks/use-map-requests-list.hook'
@@ -42,6 +42,7 @@ const MapRequestsPanel: React.FC<{
   resetListCounter
   selectedCard
   setSelectedCard
+  showFeaturesDialog
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
@@ -59,7 +60,8 @@ const MapRequestsPanel: React.FC<{
     getLegend,
     setMapRequestsSettings,
     availableLayers,
-    layersDefinition
+    layersDefinition,
+    showFeaturesDialog
   } = props
   const [height, setHeight] = React.useState(window.innerHeight)
 
@@ -252,20 +254,9 @@ const MapRequestsPanel: React.FC<{
       }
       setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
-      showFeaturesDialog('create', 'MapRequest', '', areaObject)
+      showFeaturesDialog('create', 'MapRequest', '', areaObject, defaultEditState)
     }
   }, [mapRequestsData.selectedMr])
-
-  const onFeatureDialogClose = useCallback(
-    (status: DialogResponseType) => {
-      if (status === 'confirm') {
-        props.fetchGeoJson(undefined)
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
-  const showFeaturesDialog = useMapDialog(onFeatureDialogClose, copyState)
 
   // Calls the data only the first time is needed
   useEffect(() => {
