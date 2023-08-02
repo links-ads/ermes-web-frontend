@@ -75,7 +75,7 @@ const reducer = (currentState, action) => {
           isLoading: false,
           data: [...action.value],
           hasMore: false,
-          error: true,
+          error: false,
           tot: action.tot
         }
     }

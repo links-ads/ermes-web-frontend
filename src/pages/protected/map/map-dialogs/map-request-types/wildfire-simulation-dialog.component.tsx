@@ -169,7 +169,7 @@ export function WildFireSimulationDialog({
               t('maps:requestTitleHelp')
             }
             type="text"
-            value={editState.requestTitle}
+            value={editState.requestTitle || ''}
             onChange={(e) => dispatchEditAction({ type: 'REQUEST_TITLE', value: e.target.value })}
             variant="outlined"
             color="primary"
