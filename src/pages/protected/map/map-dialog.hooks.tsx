@@ -310,7 +310,7 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
 }
 
 const setinitialEditState = (customState) => {
-  if (customState !== null) return customState
+  if (customState && customState !== null) return customState
   else return { ...defaultEditState, boundaryConditions: [{ ...defaultBoundaryCondition }] }
 }
 
@@ -639,9 +639,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
             windSpeed: e.windSpeed,
             moisture: e.fuelMoistureContent,
             fireBreak: {
-              [Object.keys(e.fireBreakType)[0]] : JSON.stringify(JSON.parse((Object.values(e.fireBreakType)[0] as string)).geometry)
+              [Object.keys(e.fireBreakType)[0]] : JSON.stringify((Object.values(e.fireBreakType)[0] as GeoJSON.Feature).geometry)
             },
-            fireBreakFullFeature: e.fireBreakType
+            fireBreakFullFeature: {
+              [Object.keys(e.fireBreakType)[0]] : JSON.stringify(Object.values(e.fireBreakType)[0])
+            },
           }
         })
         break
