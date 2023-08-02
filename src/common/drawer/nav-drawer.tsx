@@ -10,7 +10,7 @@ import { Theme, createStyles, makeStyles } from '@material-ui/core'
 const SidebarContent = styled(getSidebarContent(styled))`
 background-color:  ${(props) => props.theme.palette.secondary.contrastText};
 `
-const useStyles = makeStyles((theme: Theme) => createStyles({
+const useStyles = props => makeStyles((theme: Theme) => createStyles({
   drawerSidebarContainer: {
     top: 56,
     [theme.breakpoints.up('sm')]: {
@@ -22,6 +22,20 @@ const useStyles = makeStyles((theme: Theme) => createStyles({
     [theme.breakpoints.up('lg')]: {
       top: 56,
     },
+  },
+  "@global": {
+    ".iLWgBZ": {
+      height: props.filterActive ? '108px!important' : 64,
+      [theme.breakpoints.up('sm')]: {
+        height: props.filterActive ? '245px!important' : 64,
+      },
+      [theme.breakpoints.up('md')]: {
+        height: props.filterActive ? '245px!important' : 64,
+      },
+      [theme.breakpoints.up('lg')]: {
+        height: props.filterActive ? '108px!important' : 64,
+      },
+    }
   }
 }))
 
@@ -44,15 +58,14 @@ export function NavDrawer() {
   const path = location.pathname.split('/')
   path.shift()
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
-  const classes = useStyles()
+  const classes = useStyles({filterActive})
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
       <SidebarContent
       style={{
-        position: filterActive ? 'relative' : 'static',
-        overflow: 'hidden'
+        overflowX: 'hidden'
       }}
-      className={classes.drawerSidebarContainer}
+      className={classes().drawerSidebarContainer}
      >
         <NavHeader />
         <NavContent />
