@@ -103,7 +103,7 @@ export function WildFireSimulationDialog({
       value: {
         index: idx,
         property: 'fireBreakType',
-        newValue: Object.fromEntries([[fireBreakType, JSON.stringify(line)]])
+        newValue: Object.fromEntries([[fireBreakType, line]])
       }
     })
   }
