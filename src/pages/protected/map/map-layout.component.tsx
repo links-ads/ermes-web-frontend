@@ -56,7 +56,7 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Button, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -123,6 +123,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     legend_text: {
       display: 'inline-block'
+    },
+    mapCoorZoom: {
+      zIndex: 97,
+      top: 10, 
+      left: 56, 
+      position: 'absolute'
     }
   })
 )
@@ -643,9 +649,30 @@ export function MapLayout(props) {
   const customGetCursor = ({ isDragging, isHovering }: ExtraState) =>
     isDragging ? 'all-scroll' : isHovering ? 'pointer' : 'auto'
 
+  const mapCoordinatesZoom =
+    (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
+      ? t('social:map_latitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[1].toFixed(2) +
+        '  ' +
+        t('social:map_longitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[0].toFixed(2)
+      : t('social:map_latitude') +
+        ': ' +
+        viewport.latitude.toFixed(2) +
+        '  ' +
+        t('social:map_longitude') +
+        ': ' +
+        viewport.longitude.toFixed(2)) +
+    '  ' +
+    t('social:map_zoom') +
+    ': ' +
+    viewport.zoom.toFixed(2)
+
   return (
-    <>
-      <MapHeadDrawer
+    <>      
+      {/* <MapHeadDrawer
         mapRef={mapViewRef}
         filterApplyHandler={() => filterApplyBoundsHandler()} //props.filterApplyHandler
         mapViewport={viewport}
@@ -660,7 +687,7 @@ export function MapLayout(props) {
         >
           {t('maps:download_button')}
         </Button>
-      </MapHeadDrawer>
+      </MapHeadDrawer> */}
       <InteractiveMap
         {...viewport}
         doubleClickZoom={false}
@@ -771,6 +798,7 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
+            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           ></ContextMenu>
         )}
       </InteractiveMap>
@@ -830,7 +858,9 @@ export function MapLayout(props) {
       >
         <InfoIcon />
       </Fab>
-
+      <Chip className={classes.mapCoorZoom} 
+        label={mapCoordinatesZoom}
+      />
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

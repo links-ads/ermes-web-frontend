@@ -132,7 +132,7 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
     top: 210px;
   }
   @media screen and (min-width: 1280px){
-    top: 56px;
+    top: 43px;
   }
 `
 
