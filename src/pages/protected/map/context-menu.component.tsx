@@ -13,7 +13,7 @@ import Delete from '@material-ui/icons/Delete'
 import CloseOutlined from '@material-ui/icons/CloseOutlined'
 import { ProvisionalFeatureType, ProvisionalOperationType } from './map.contest'
 import { useTranslation } from 'react-i18next'
-import { Info } from '@material-ui/icons'
+import { GetApp, Info } from '@material-ui/icons'
 
 export type ItemWithType<T = any> = T & { type: string }
 
@@ -30,10 +30,11 @@ interface ContextMenuProps {
   latitude?: number
   longitude?: number
   onListItemClick: ContextMenuItemClickListener
+  downloadGeojsonFeatureCollection: () => void
 }
 
 export const ContextMenu = memo(
-  function ContextMenu({ item, latitude, longitude, onListItemClick }: ContextMenuProps) {
+  function ContextMenu({ item, latitude, longitude, onListItemClick, downloadGeojsonFeatureCollection }: ContextMenuProps) {
     
     const { t } = useTranslation(['maps'])
     const coordInfo = latitude+ ', ' + longitude;
@@ -116,6 +117,18 @@ export const ContextMenu = memo(
                     </ListItemIcon>
                     <ListItemText
                       primary={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
+                    />
+                  </ListItem>,
+                  <Divider key="div" />,
+                  <ListItem
+                    key="dwl"
+                    onClick={downloadGeojsonFeatureCollection}
+                  >
+                    <ListItemIcon>
+                      <GetApp />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t('maps:downloadMenuOption')}
                     />
                   </ListItem>,
                   <Divider key="div" />,

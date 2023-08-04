@@ -50,23 +50,23 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { MapHeadDrawer } from '../../../common/map/map-drawer'
 import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Button, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
+import { DownloadButton } from './map-drawer/download-button.component'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
-  top: 45,
+  top: 0,
   left: 0,
   margin: 10
 }
@@ -123,6 +123,14 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     legend_text: {
       display: 'inline-block'
+    },
+    mapCoorZoom: {
+      zIndex: 97,
+      top: 10, 
+      left: 56, 
+      position: 'absolute',
+      color: '#fff',
+      backgroundColor: '#333'
     }
   })
 )
@@ -643,24 +651,29 @@ export function MapLayout(props) {
   const customGetCursor = ({ isDragging, isHovering }: ExtraState) =>
     isDragging ? 'all-scroll' : isHovering ? 'pointer' : 'auto'
 
+  const mapCoordinatesZoom =
+    (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
+      ? t('social:map_latitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[1].toFixed(2) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[0].toFixed(2)
+      : t('social:map_latitude') +
+        ': ' +
+        viewport.latitude.toFixed(2) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        viewport.longitude.toFixed(2)) +
+    ' | ' +
+    t('social:map_zoom') +
+    ': ' +
+    viewport.zoom.toFixed(2)
+
   return (
     <>
-      <MapHeadDrawer
-        mapRef={mapViewRef}
-        filterApplyHandler={() => filterApplyBoundsHandler()} //props.filterApplyHandler
-        mapViewport={viewport}
-        coordinates={mapHeadDrawerCoordinates}
-        customStyle={{ barHeight: '48px' }}
-        isLoading={false}
-      >
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={props.downloadGeojsonFeatureCollection}
-        >
-          {t('maps:download_button')}
-        </Button>
-      </MapHeadDrawer>
       <InteractiveMap
         {...viewport}
         doubleClickZoom={false}
@@ -754,7 +767,7 @@ export function MapLayout(props) {
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
         />
-        <div className="controls-contaniner" style={{ top: '45px' }}>
+        <div className="controls-contaniner" style={{ top: 0 }}>
           <NavigationControl />
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>
@@ -771,6 +784,7 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
+            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           ></ContextMenu>
         )}
       </InteractiveMap>
@@ -788,6 +802,9 @@ export function MapLayout(props) {
           <LayersButton
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
+          />
+          <DownloadButton 
+            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           />
         </>
       )}
@@ -830,7 +847,9 @@ export function MapLayout(props) {
       >
         <InfoIcon />
       </Fab>
-
+      <Chip className={classes.mapCoorZoom} 
+        label={mapCoordinatesZoom}
+      />
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.dark,
     position: 'absolute',
     zIndex: 99,
-    top: 56
+    top: 43
   },
   indicator: {
     backgroundColor: '#FFF'
