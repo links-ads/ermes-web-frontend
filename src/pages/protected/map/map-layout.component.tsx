@@ -784,7 +784,6 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
-            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           ></ContextMenu>
         )}
       </InteractiveMap>
