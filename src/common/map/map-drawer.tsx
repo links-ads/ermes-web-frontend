@@ -42,7 +42,8 @@ export const MapHeadDrawer = (props) => {
         maxHeight: 50,
         backgroundColor: 'black',
         zIndex: 10,
-        opacity: 0.5
+        opacity: 0.5,
+        top: -7
       }}
     >
       <Grid

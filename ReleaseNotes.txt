@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Overlay bar in Map page removed (#115)
 
 Ver. 2.11.1
 -----------------------

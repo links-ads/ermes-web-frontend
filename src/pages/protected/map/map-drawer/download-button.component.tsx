@@ -1,42 +1,43 @@
-// Toggle button to get the left drawer
+// Download button for feature collection
 import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
-import ViewCompactIcon from '@material-ui/icons/ViewCompact'
 import Tooltip from '@material-ui/core/Tooltip'
 
 import styled from 'styled-components'
+import { GetApp } from '@material-ui/icons'
+import { useTranslation } from 'react-i18next'
 
-const DrawerToggleContainer = styled.div.attrs({
+const DownloadButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 33px;
-  left: 0px;
+  top: 130px;
+  right: 0px;
   margin: 10px;
 `
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 
-export function DrawerToggle(props) {
-  const color = props.toggleDrawerTab? 'secondary' : 'inherit'
+export function DownloadButton(props) {
+  const { t } = useTranslation(['maps'])
   function onClick(e: React.MouseEvent) {
-    props.setToggleDrawerTab(!props.toggleDrawerTab)
+    props.downloadGeojsonFeatureCollection()
   }
 
   return (
-    <DrawerToggleContainer>
-      <Tooltip title={'Open/close drawer'}>
+    <DownloadButtonContainer>
+      <Tooltip title={t('maps:downloadButton') ?? 'Download'}>
         <span>
           <IconButton
             onClick={onClick}
-            aria-label="toggle-drawer"
+            aria-label="download-button"
             className="mapboxgl-ctrl-icon"
             disabled={false}
           >
-            <ViewCompactIcon style={ICON_STYLE} color={color} />
+            <GetApp style={ICON_STYLE} color={'inherit'} />
           </IconButton>
         </span>
       </Tooltip>
-    </DrawerToggleContainer>
+    </DownloadButtonContainer>
   )
 }

@@ -10,7 +10,7 @@ const LayersButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 112px;
+  top: 67px;
   left: 0px;
   margin: 10px;
 `
@@ -29,7 +29,7 @@ export function LayersButton(props) {
 
   return (
     <LayersButtonContainer>
-      <Tooltip title={'UPDATE TITLE HERE'}>
+      <Tooltip title={'Map layers'}>
         <span>
           <IconButton
             onClick={onClickHandler}

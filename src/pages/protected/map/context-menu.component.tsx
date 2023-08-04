@@ -128,7 +128,7 @@ export const ContextMenu = memo(
                       <GetApp />
                     </ListItemIcon>
                     <ListItemText
-                      primary={t('maps:download_button')}
+                      primary={t('maps:downloadMenuOption')}
                     />
                   </ListItem>,
                   <Divider key="div" />,
