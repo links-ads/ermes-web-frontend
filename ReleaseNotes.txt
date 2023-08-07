@@ -1,8 +1,12 @@
 Ver.
 -----------------------
+- Feature - Search here button (#132)
+
+Ver. 2.11.2 - 2023-08-04
+-----------------------
 - Feature - Overlay bar in Map page removed (#115)
 
-Ver. 2.11.1
+Ver. 2.11.1 - 2023-08-03
 -----------------------
 - Bugfix - Left drawer scroll (#130)
 
