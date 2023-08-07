@@ -62,6 +62,7 @@ import { tileJSONIfy } from '../../../utils/map.utils'
 import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
+import MapSearchHere from '../../../common/map/map-search-here'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -234,6 +235,8 @@ export function MapLayout(props) {
   const [teamName, setPersonTeam] = useState<undefined | { feature }>(undefined)
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
+
+  const [ searchHereActive, setSearchHereActive ] = useState<boolean>(false)
 
   useEffect(
     () => {
@@ -537,6 +540,7 @@ export function MapLayout(props) {
   )
 
   const filterApplyBoundsHandler = () => {
+    setSearchHereActive(false)
     const bounds = getMapBounds(mapViewRef)
     // Keep the current filter if it is already a bounding box
     // This is to prevent a backend bug which returned null
@@ -672,13 +676,20 @@ export function MapLayout(props) {
     ': ' +
     viewport.zoom.toFixed(2)
 
+  const onViewportChangeHandler = (nextViewport) => {
+    setViewport(nextViewport)
+    if (viewport.latitude !== nextViewport.latitude || viewport.longitude !== nextViewport.longitude || viewport.zoom !== nextViewport.zoom){
+      setSearchHereActive(true)
+    }
+  }
+
   return (
     <>
       <InteractiveMap
         {...viewport}
         doubleClickZoom={false}
         mapStyle={mapTheme?.style}
-        onViewportChange={(nextViewport) => setViewport(nextViewport)}
+        onViewportChange={(nextViewport) => onViewportChangeHandler(nextViewport)}
         transformRequest={transformRequest}
         clickRadius={CLICK_RADIUS}
         onLoad={onMapLoad}
@@ -805,6 +816,7 @@ export function MapLayout(props) {
           <DownloadButton 
             downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           />
+          <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
       )}
       <MapStyleToggle

@@ -1,32 +1,35 @@
-import React from "react";
-import SearchIcon from '@material-ui/icons/Search'
-import { Button, createStyles, IconButton, makeStyles, Theme } from "@material-ui/core";
-import { useTranslation } from "react-i18next";
+import React from 'react'
+import { Button, createStyles, makeStyles, Theme } from '@material-ui/core'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
-        button: {
-            borderColor: 'white',
-            color: 'white',
-            borderWidth: 1
-        }
-    })
+  createStyles({
+    button: {
+      textTransform: 'initial'
+    }
+  })
 )
 
-const MapSearchHere: React.FC<{}> = () => {
+const MapSearchHere: React.FC<{ disabled; onClickHandler }> = ({ disabled, onClickHandler }) => {
   const { t } = useTranslation(['social'])
   const classes = useStyles()
   return (
     <div
       style={{
         position: 'absolute',
-        left: '50%',
-        top: '50px',
+        left: '46%',
+        top: '10px',
         backgroundColor: 'black',
-        opacity: 0.8
+        opacity: 0.8,
+        borderRadius: 5
       }}
     >
-      <Button variant="outlined" startIcon={<SearchIcon />} className={classes.button}>
+      <Button
+        variant="contained"
+        className={classes.button}
+        disabled={disabled}
+        onClick={onClickHandler}
+      >
         {t('social:map_button_label')}
       </Button>
     </div>
@@ -34,4 +37,3 @@ const MapSearchHere: React.FC<{}> = () => {
 }
 
 export default MapSearchHere
-
