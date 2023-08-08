@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - Wrong logout behaviour (#134)
+
+Ver. 2.11.3 - 2023-08-07
+-----------------------
 - Feature - Search here button (#132)
 
 Ver. 2.11.2 - 2023-08-04
