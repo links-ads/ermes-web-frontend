@@ -33,6 +33,11 @@ export type PointUpdater<T extends object = object> = (pt: PointOnMap<T>) => voi
 export type MapMode = 'browse' | 'select' | 'edit' | 'filter' | 'editPoint' | 'editLine'
 export type MapModeUpdater = (m: MapMode) => void
 
+type MapCoordinates = {latitude: number, longitude: number} 
+type MapGoToCoordUpdater = (coord: MapCoordinates | undefined) => void
+
+type MapSelectedCardUpdater = (cardId: string) => void
+
 // Map Viewport parameters
 export interface MapViewportState {
   width: number
@@ -76,6 +81,10 @@ interface MapStateVariables<T extends object = object> {
   rightClickedPoint: PointOnMap<T>
   // Selection (e.g. by polygon)
   selectedFeatures: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
+  // Go to coordinates
+  goToCoord: MapCoordinates | undefined
+  // Selected card
+  selectedCard: string
 }
 
 interface MapStateSelectors<T extends object = object> {
@@ -96,6 +105,10 @@ interface MapStateSelectors<T extends object = object> {
   setRightClickedPoint: PointUpdater<T>
   // Selection (e.g. by polygon)
   setSelectedFeatures: FeatureSelectionUpdater<T>
+  // Go to coordinates
+  setGoToCoord: MapGoToCoordUpdater
+  // Selected card
+  setSelectedCard: MapSelectedCardUpdater
 }
 
 export type MapState<T extends object = object> = MapStateVariables<T> & MapStateSelectors<T>
@@ -146,6 +159,10 @@ export function MapStateContextProvider<T extends object = object>({
   const [selectedFeatures, setSelectedFeatures] = useState<
     GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
   >([])
+  const [goToCoord, setGoToCoord] = useState<MapCoordinates | undefined>(
+    undefined
+  )
+  const [selectedCard, setSelectedCard] = useState<string>('')
 
   const mapState: MapState<T> = {
     viewport,
@@ -167,7 +184,13 @@ export function MapStateContextProvider<T extends object = object>({
     setRightClickedPoint,
     // Selection (e.g. by polygon)
     selectedFeatures,
-    setSelectedFeatures
+    setSelectedFeatures,
+    // Go to coordinates
+    goToCoord, 
+    setGoToCoord,
+    // Selected card
+    selectedCard,
+    setSelectedCard
   }
 
   return <MapStateContext.Provider value={mapState}>{children}</MapStateContext.Provider>
@@ -207,7 +230,13 @@ export function useMapStateContext<T extends object = object>() {
     setRightClickedPoint,
     // Selection (e.g. by polygon)
     selectedFeatures,
-    setSelectedFeatures
+    setSelectedFeatures,
+    // Go to coordinates
+    goToCoord, 
+    setGoToCoord,
+    // Selected card
+    selectedCard,
+    setSelectedCard
   } = mapStateCtx
 
   const variables: MapStateVariables<T> = {
@@ -219,7 +248,9 @@ export function useMapStateContext<T extends object = object>() {
     clickedPoint,
     hoveredPoint,
     rightClickedPoint,
-    selectedFeatures
+    selectedFeatures, 
+    goToCoord,
+    selectedCard
   }
 
   // id null = create
@@ -251,7 +282,9 @@ export function useMapStateContext<T extends object = object>() {
     setSelectedFeatures,
     // non-raw methods
     startFeatureEdit,
-    clearFeatureEdit
+    clearFeatureEdit,
+    setGoToCoord,
+    setSelectedCard
   }
 
   const context: [MapStateVariables<T>, MapStateSelectors<T> & FeatureEditingSelectors] = [

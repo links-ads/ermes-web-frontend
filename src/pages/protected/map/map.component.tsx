@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer, useContext, useMemo, useCallbac
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
-import { MapStateContextProvider } from './map.contest'
+import { MapStateContextProvider } from './map.context'
 import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
@@ -148,10 +148,6 @@ export function Map() {
 
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
-
-  const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
-    undefined
-  )
 
   const [map, setMap] = useState(undefined)
   const [mapHoverState, setMapHoverState] = useState({ set: false })
@@ -746,91 +742,90 @@ export function Map() {
   ///////
   return (
     <>
-      <MapDrawer
-        toggleSideDrawer={toggleSideDrawer}
-        setGoToCoord={setGoToCoord}
-        map={map}
-        setMapHoverState={setMapHoverState}
-        spiderLayerIds={spiderLayerIds}
-        spiderifierRef={spiderifierRef}
-        setToggleDrawerTab={setToggleSideDrawer}
-        filtersObj={filtersObj}
-        rerenderKey={fakeKey}
-        setDateIndex={setDateIndex}
-        dateIndex={dateIndex}
-        getLegend={getLegend}
-        getMeta={getMeta}
-        forceUpdate={forceUpdate}
-        teamList={teamList}
-        onPlayerChange={changePlayer}
-        handleOpacityChange={handleOpacityChange}
-        fetchGeoJson={fetchGeoJson}
-        mapRequestsSettings={mapRequestsSettings}
-        updateMapRequestsSettings={updateMapRequestsSettings}
-        setMapRequestsSettings={setMapRequestsSettings}
-        availableLayers={getLayersState?.result.data}
-        communicationCounter={communicationCounter}
-        missionCounter={missionCounter}
-        mapRequestCounter={mapRequestCounter}
-        resetListCounter={resetListCounter}
-      />
-      <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        <LayersPlayer
-          visibility={togglePlayer}
-          setVisibility={setTogglePlayer}
-          position={layersPlayerPosition}
-          onPositionChange={setLayersPlayerPosition}
+      <MapStateContextProvider<MapFeature>>
+        <MapDrawer
+          toggleSideDrawer={toggleSideDrawer}
+          map={map}
+          setMapHoverState={setMapHoverState}
+          spiderLayerIds={spiderLayerIds}
+          spiderifierRef={spiderifierRef}
+          setToggleDrawerTab={setToggleSideDrawer}
+          filtersObj={filtersObj}
+          rerenderKey={fakeKey}
+          setDateIndex={setDateIndex}
+          dateIndex={dateIndex}
           getLegend={getLegend}
           getMeta={getMeta}
-          map={map}
-          selectedLayer={selectedLayer}
-          updateLayersSetting={updateLayersSetting}
+          forceUpdate={forceUpdate}
+          teamList={teamList}
+          onPlayerChange={changePlayer}
+          handleOpacityChange={handleOpacityChange}
+          fetchGeoJson={fetchGeoJson}
+          mapRequestsSettings={mapRequestsSettings}
+          updateMapRequestsSettings={updateMapRequestsSettings}
+          setMapRequestsSettings={setMapRequestsSettings}
+          availableLayers={getLayersState?.result.data}
+          communicationCounter={communicationCounter}
+          missionCounter={missionCounter}
+          mapRequestCounter={mapRequestCounter}
+          resetListCounter={resetListCounter}
         />
-
-        <PlayerLegend
-          visibility={toggleLegend}
-          defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
-          position={layersLegendPosition}
-          onPositionChange={setLayersLegendPosition}
-          setVisibility={setToggleLegend}
-          imgSrc={legendSrc}
-        />
-
-        <PlayerMetadata
-          visibility={toggleMeta}
-          defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
-          position={layersMetaPosition}
-          onPositionChange={setLayersMetaPosition}
-          setVisibility={setToggleMeta}
-          layerData={layerMeta}
-        />
-
-        {dblClickFeatures && dblClickFeatures.showCard && (
-          <MapTimeSeries
-            dblClickFeatures={dblClickFeatures}
-            setDblClickFeatures={setDblClickFeatures}
-            defaultPosition={mapTimeSeriesContainerDefaultCoord}
-            position={mapTimeSeriesContainerPosition}
-            onPositionChange={setMapTimeSeriesContainerPosition}
-            selectedFilters={filtersObj?.filters}
+        <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
+          <LayersPlayer
+            visibility={togglePlayer}
+            setVisibility={setTogglePlayer}
+            position={layersPlayerPosition}
+            onPositionChange={setLayersPlayerPosition}
+            getLegend={getLegend}
+            getMeta={getMeta}
+            map={map}
             selectedLayer={selectedLayer}
+            updateLayersSetting={updateLayersSetting}
           />
-        )}
 
-        <LayersFloatingPanel
-          layerGroups={layersSettings}
-          isVisible={isLayersPanelVisible}
-          setIsVisible={setIsLayersPanelVisible}
-          isLoading={getLayersState.loading}
-          setLayerSelection={setLayerSelection}
-          updateLayersSetting={updateLayersSetting}
-          map={map}
-          selectedLayer={selectedLayer}
-          position={layersSelectContainerPosition}
-          setPosition={setLayersSelectContainerPosition}
-        />
+          <PlayerLegend
+            visibility={toggleLegend}
+            defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+            position={layersLegendPosition}
+            onPositionChange={setLayersLegendPosition}
+            setVisibility={setToggleLegend}
+            imgSrc={legendSrc}
+          />
 
-        <MapStateContextProvider<MapFeature>>
+          <PlayerMetadata
+            visibility={toggleMeta}
+            defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+            position={layersMetaPosition}
+            onPositionChange={setLayersMetaPosition}
+            setVisibility={setToggleMeta}
+            layerData={layerMeta}
+          />
+
+          {dblClickFeatures && dblClickFeatures.showCard && (
+            <MapTimeSeries
+              dblClickFeatures={dblClickFeatures}
+              setDblClickFeatures={setDblClickFeatures}
+              defaultPosition={mapTimeSeriesContainerDefaultCoord}
+              position={mapTimeSeriesContainerPosition}
+              onPositionChange={setMapTimeSeriesContainerPosition}
+              selectedFilters={filtersObj?.filters}
+              selectedLayer={selectedLayer}
+            />
+          )}
+
+          <LayersFloatingPanel
+            layerGroups={layersSettings}
+            isVisible={isLayersPanelVisible}
+            setIsVisible={setIsLayersPanelVisible}
+            isLoading={getLayersState.loading}
+            setLayerSelection={setLayerSelection}
+            updateLayersSetting={updateLayersSetting}
+            map={map}
+            selectedLayer={selectedLayer}
+            position={layersSelectContainerPosition}
+            setPosition={setLayersSelectContainerPosition}
+          />
+
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
@@ -843,8 +838,6 @@ export function Map() {
             filterList={filterList}
             prepGeoJson={prepGeoData.data}
             isGeoJsonPrepared={!prepGeoData.isLoading}
-            setGoToCoord={setGoToCoord}
-            goToCoord={goToCoord}
             setMap={setMap}
             mapHoverState={mapHoverState}
             spiderLayerIds={spiderLayerIds}
@@ -859,10 +852,10 @@ export function Map() {
             selectedLayer={selectedLayer}
             mapRequestsSettings={mapRequestsSettings}
           />
-        </MapStateContextProvider>
 
-        {isGeoDataloading ? loader : undefined}
-      </MapContainer>
+          {isGeoDataloading ? loader : undefined}
+        </MapContainer>
+      </MapStateContextProvider>
       {/* <MapSearchHere /> */}
     </>
   )

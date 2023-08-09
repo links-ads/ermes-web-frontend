@@ -30,7 +30,7 @@ export default function CardWithPopup(props) {
   return (
     <Card
       className={`${props.className} ${classes.root}`}
-      style={{borderStyle: (props.selectedCard === props.keyID) ? 'solid' : '', borderColor: (props.selectedCard === props.keyID) ? EmergencyColorMap[props.type] : ''}}
+      style={{borderStyle: (props.selectedCard === props.id) ? 'solid' : '', borderColor: (props.selectedCard === props.id) ? EmergencyColorMap[props.type] : ''}}
       raised={true}
       onPointerEnter={() => {
         if (!props.latitude || !props.longitude) return
@@ -108,7 +108,7 @@ export default function CardWithPopup(props) {
         }
         setFeatureHover({ type: null, id: null })
       }}
-      onClick={() => props.setSelectedCard(props.keyID)}
+      onClick={() => props.setSelectedCard(props.id)}
     >
       {props.children}
     </Card>

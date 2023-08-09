@@ -27,6 +27,8 @@ import AlertPanel from './alerts-panel.component'
 import CamerasPanel from './cameras-panel.component'
 import { CameraDetails } from './camera-details.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
+import { EmergencyProps } from '../api-data/emergency.component'
+import { useMapStateContext } from '../map.context'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -88,6 +90,33 @@ export default function MapDrawer(props) {
     availableLayers
   } = props
 
+  // Map state
+  const [
+    {
+      mapMode,
+      viewport,
+      clickedPoint,
+      hoveredPoint,
+      rightClickedPoint,
+      editingFeatureArea,
+      editingFeatureType,
+      editingFeatureId,
+      goToCoord,
+      selectedCard
+    },
+    {
+      setMapMode,
+      setViewport,
+      setClickedPoint,
+      setHoveredPoint,
+      setRightClickedPoint,
+      startFeatureEdit,
+      clearFeatureEdit,
+      setGoToCoord,
+      setSelectedCard
+    }
+  ] = useMapStateContext<EmergencyProps>()
+
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
@@ -97,7 +126,6 @@ export default function MapDrawer(props) {
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const [tabValue, setTabValue] = React.useState(0)
-  const [selectedCard, setSelectedCard] = useState<string>('')
 
   const onCardClick = (selectedItemId) => {
     setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
@@ -288,7 +316,7 @@ export default function MapDrawer(props) {
             {/* PEOPLE */}
             <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
               <PeoplePanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -303,7 +331,7 @@ export default function MapDrawer(props) {
             {/* REPORTS */}
             <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
               <ReportPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -316,7 +344,7 @@ export default function MapDrawer(props) {
             {/* MISSIONS */}
             <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
               <MissionsPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -331,7 +359,7 @@ export default function MapDrawer(props) {
             {/* COMMUNICATION */}
             <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
               <CommunicationPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -347,7 +375,7 @@ export default function MapDrawer(props) {
             <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
               <MapRequestsPanel
                 filters={props.filtersObj.filters.mapRequests}
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -371,7 +399,7 @@ export default function MapDrawer(props) {
             {/* ALERTS */}
             <TabPanel value={tabValue} index={5} key={'alert-' + props.rerenderKey}>
               <AlertPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -385,7 +413,7 @@ export default function MapDrawer(props) {
             {/* CAMERA */}
             <TabPanel value={tabValue} index={6} key={'camera-' + props.rerenderKey}>
               <CamerasPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}

@@ -144,7 +144,7 @@ export const getPolygonArea = (coordinates) => {
   return area
 }
 
-const getBboxSizeFromZoom = (zoom: number) => {
+export const getBboxSizeFromZoom = (zoom: number) => {
   if (!zoom) return 100
   if (zoom < 3) return 100
   if (zoom < 5) return 150
