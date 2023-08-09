@@ -9,7 +9,7 @@ import { CircularProgress, Grid } from '@material-ui/core'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MapRequestType, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
-import { ProvisionalFeatureType } from './map.contest'
+import { ProvisionalFeatureType } from './map.context'
 import { DialogEdit } from './map-dialog-edit.component'
 import { geojsonToWKT } from "@terraformer/wkt"
 

@@ -451,6 +451,53 @@ export class Spiderifier {
     }
   }
 
+  public toggleSpidersByPoint(map: mapboxgl.Map, pointOrBox: mapboxgl.PointLike | [mapboxgl.PointLike, mapboxgl.PointLike]) {
+    const features = map.queryRenderedFeatures(pointOrBox, {
+      layers: ['clusters']
+    })
+    if (Array.isArray(features) && features.length > 0) {
+      const feature = features[0]
+      if (feature.geometry.type === 'Point') {
+        const clusterId = feature?.properties?.cluster_id
+        const coordinates = feature.geometry.coordinates as [number, number]
+        if (clusterId) {
+          // Zoom on cluster or spiderify it
+          if (map.getZoom() < this.spiderMaxZoom) {
+            const source = map.getSource(this.sourceName)
+            if (!!source && source.type === 'geojson') {
+              source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+                if (err) return
+                // This signal that the events was caused by click on cluster
+                const evtData = { fromCluster: true, clusterId: clusterId }
+                map.easeTo(
+                  {
+                    center: coordinates,
+                    zoom: zoom
+                  },
+                  evtData
+                )
+              })
+            }
+          } else {
+            // Check if already open
+            const alreadyOpen =
+              this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
+            if (alreadyOpen) {
+              this.clearSpiders(map)
+              
+            } else {
+              this.spiderifiedCluster = {
+                id: clusterId,
+                coordinates
+              }
+              this.spiderifyCluster(map, this.spiderifiedCluster)
+            }
+          }
+        }
+      }
+    }
+  }
+
   public spiderifyClusterIfNotOpen(map: mapboxgl.Map, clusterId: number, coord: [number, number]) {
     const alreadyOpen = this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
     if (alreadyOpen) {

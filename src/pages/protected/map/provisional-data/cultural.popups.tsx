@@ -7,7 +7,7 @@ import {
 } from './cultural.component'
 import { PopupCard } from '../popup-card.component'
 import { Popup } from 'react-map-gl'
-import { ItemWithLatLng } from '../map.contest'
+import { ItemWithLatLng } from '../map.context'
 
 type CulturalCardProps = ItemWithLatLng<CulturalProps>
 

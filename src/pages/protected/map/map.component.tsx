@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer, useContext, useMemo, useCallbac
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
-import { MapStateContextProvider } from './map.contest'
+import { MapStateContextProvider } from './map.context'
 import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
@@ -137,10 +137,6 @@ export function Map() {
 
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
-
-  const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
-    undefined
-  )
 
   const [map, setMap] = useState(undefined)
   const [mapHoverState, setMapHoverState] = useState({ set: false })
@@ -566,9 +562,9 @@ export function Map() {
   ///////
   return (
     <>
+    <MapStateContextProvider<MapFeature>>
       <MapDrawer
         toggleSideDrawer={toggleSideDrawer}
-        setGoToCoord={setGoToCoord}
         map={map}
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
@@ -638,8 +634,7 @@ export function Map() {
             onPositionChange={setMapTimeSeriesContainerPosition}
             selectedFilters={filtersObj?.filters}
             selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
-          />
-        )}
+        />)}
 
         <LayersFloatingPanel
           layerGroups={groupedLayers}
@@ -654,7 +649,6 @@ export function Map() {
           toBeRemovedLayers={toBeRemovedLayers}
         />
 
-        <MapStateContextProvider<MapFeature>>
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
@@ -665,8 +659,6 @@ export function Map() {
             filterList={filterList}
             prepGeoJson={prepGeoData.data}
             isGeoJsonPrepared={!prepGeoData.isLoading}
-            setGoToCoord={setGoToCoord}
-            goToCoord={goToCoord}
             setMap={setMap}
             mapHoverState={mapHoverState}
             spiderLayerIds={spiderLayerIds}
@@ -681,10 +673,10 @@ export function Map() {
             selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             mapRequestsSettings={mapRequestsSettings}
           />
-        </MapStateContextProvider>
 
-        {isGeoDataloading ? loader : undefined}
-      </MapContainer>
+          {isGeoDataloading ? loader : undefined}
+        </MapContainer>
+      </MapStateContextProvider>
       {/* <MapSearchHere /> */}
     </>
   )
