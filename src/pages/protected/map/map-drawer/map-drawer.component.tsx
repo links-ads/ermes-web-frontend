@@ -79,6 +79,16 @@ function a11yProps(index: any) {
   }
 }
 
+const TabValuesDict = {
+  'Person': 0,
+  'Report': 1,
+  'Mission': 2, 
+  'Communication': 3, 
+  'MapRequest': 4, 
+  'Alert': 5, 
+  'Station': 6
+}
+
 export default function MapDrawer(props) {
   const classes = useStyles()
   const theme = useTheme()
@@ -220,6 +230,24 @@ export default function MapDrawer(props) {
   const onClick = function () {
     props.setToggleDrawerTab(false)
   }
+
+  useEffect(() => {
+    if (clickedPoint && clickedPoint !== null && clickedPoint.item && props.toggleSideDrawer) {
+      const clickedItem = clickedPoint.item as EmergencyProps
+      const clickedItemType = clickedItem.type
+      const clickedItemId = clickedItem.id
+      const newTabValue = TabValuesDict[clickedItemType]
+      if (tabValue !== newTabValue) {
+        setTabValue(newTabValue)
+      }
+      if (selectedCard !== clickedItemId){
+        onCardClick(clickedItemId)
+      } 
+    }
+    else {
+      setSelectedCard('')
+    }
+  }, [clickedPoint])
 
   const noData = (
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>

@@ -605,7 +605,7 @@ export function MapLayout(props) {
         map.flyTo(
           {
             center: new mapboxgl.LngLat(goToCoord.longitude, goToCoord.latitude),
-            //zoom: zoom
+            zoom: zoom
           },
           {
             how: 'fly',

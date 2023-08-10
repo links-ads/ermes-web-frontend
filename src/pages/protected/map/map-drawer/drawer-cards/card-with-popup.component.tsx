@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Card from '@material-ui/core/Card'
 import { queryHoveredFeature } from '../../../../../common/map/map-common'
 import { updatePointFeatureLayerIdFilter } from '../../../../../utils/map.utils'
@@ -19,18 +19,26 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function CardWithPopup(props) {
-  const map = props.map
+  const { map, selectedCard, id } = props
   const [featureToHover, setFeatureHover] = useState<{
     type: 'leaf' | 'point' | 'cluster' | null
     id: string | number | null
     source?: string
   }>({ type: null, id: null })
   const classes = useStyles()
+  const ref = useRef<any>(null)
+
+  useEffect(() => {
+    if (selectedCard !== '' && selectedCard === id) {
+      ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [selectedCard])
 
   return (
     <Card
+      ref={ref}
       className={`${props.className} ${classes.root}`}
-      style={{borderStyle: (props.selectedCard === props.id) ? 'solid' : '', borderColor: (props.selectedCard === props.id) ? EmergencyColorMap[props.type] : ''}}
+      style={{borderStyle: (selectedCard === id) ? 'solid' : '', borderColor: (selectedCard === id) ? EmergencyColorMap[props.type] : ''}}
       raised={true}
       onPointerEnter={() => {
         if (!props.latitude || !props.longitude) return
@@ -44,7 +52,7 @@ export default function CardWithPopup(props) {
             [GEOJSON_LAYER_IDS, CLUSTER_LAYER_ID, ...props.spiderLayerIds],
             GEOJSON_LAYER_IDS,
             CLUSTER_LAYER_ID,
-            props.id,
+            id,
             props.type
           )
 
@@ -108,7 +116,7 @@ export default function CardWithPopup(props) {
         }
         setFeatureHover({ type: null, id: null })
       }}
-      onClick={() => props.setSelectedCard(props.id)}
+      onClick={() => props.setSelectedCard(id)}
     >
       {props.children}
     </Card>
