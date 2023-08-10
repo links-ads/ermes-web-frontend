@@ -897,8 +897,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 }
 
 const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) => {
-  const lowerBoundDate = FormatDate(alertInfo.startDate)
-  const upperBoundDate = FormatDate(alertInfo.endDate)
+  const lowerBoundDate = formatter.format(new Date(alertInfo.startDate)) //FormatDate(alertInfo.startDate)
+  const upperBoundDate = formatter.format(new Date(alertInfo.endDate)) //FormatDate(alertInfo.endDate)
   if (!data.isLoading) {
     return (
       <>

@@ -67,7 +67,7 @@ const CameraCard: React.FC<{
   return (
     <>
       <CardWithPopup
-        keyID={'alert' + String(elem.id)}
+        keyID={EntityType.STATION + '-' + String(elem.id)}
         latitude={elem!.location!.latitude as number}
         longitude={elem!.location!.longitude as number}
         className={classes.card}

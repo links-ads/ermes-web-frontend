@@ -620,7 +620,10 @@ export function MapLayout(props) {
 
   useEffect(() => {
     if (selectedCard !== ''){
-      const selectedFeature = jsonData.features.find(e => e?.properties?.id === selectedCard)
+      const selectedItems = selectedCard.split('-')
+      const selectedId = Number(selectedItems[1])
+      const selectedType = selectedItems[0]
+      const selectedFeature = jsonData.features.find(e => e?.properties?.id === selectedId && e?.properties?.type === selectedType)
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
         setGoToCoord({latitude: coord[1], longitude: coord[0]})
@@ -652,6 +655,9 @@ export function MapLayout(props) {
           polyToDraw,
           EmergencyColorMap[polyToMap?.feature.properties.type]
         )
+      }
+      else if (!['Communication', 'MapRequest', 'Mission'].includes((clickedPoint.item as EmergencyProps).type)) {
+        removePolyToMap(map)
       }
     } else {
       removePolyToMap(map)

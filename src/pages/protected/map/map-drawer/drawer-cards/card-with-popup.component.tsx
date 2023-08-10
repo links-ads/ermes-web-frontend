@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 export default function CardWithPopup(props) {
-  const { map, selectedCard, id } = props
+  const { map, selectedCard, id, keyID } = props
   const [featureToHover, setFeatureHover] = useState<{
     type: 'leaf' | 'point' | 'cluster' | null
     id: string | number | null
@@ -29,7 +29,7 @@ export default function CardWithPopup(props) {
   const ref = useRef<any>(null)
 
   useEffect(() => {
-    if (selectedCard !== '' && selectedCard === id) {
+    if (selectedCard !== '' && selectedCard === keyID) {
       ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   }, [selectedCard])
@@ -38,7 +38,7 @@ export default function CardWithPopup(props) {
     <Card
       ref={ref}
       className={`${props.className} ${classes.root}`}
-      style={{borderStyle: (selectedCard === id) ? 'solid' : '', borderColor: (selectedCard === id) ? EmergencyColorMap[props.type] : ''}}
+      style={{borderStyle: (selectedCard === keyID) ? 'solid' : '', borderColor: (selectedCard === keyID) ? EmergencyColorMap[props.type] : ''}}
       raised={true}
       onPointerEnter={() => {
         if (!props.latitude || !props.longitude) return
@@ -116,7 +116,7 @@ export default function CardWithPopup(props) {
         }
         setFeatureHover({ type: null, id: null })
       }}
-      onClick={() => props.setSelectedCard(id)}
+      onClick={() => props.setSelectedCard(keyID)}
     >
       {props.children}
     </Card>
