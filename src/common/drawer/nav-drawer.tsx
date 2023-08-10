@@ -58,14 +58,14 @@ export function NavDrawer() {
   const path = location.pathname.split('/')
   path.shift()
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
-  const classes = useStyles({filterActive})
+  const classes = useStyles({filterActive})()
   return isAuthenticated ? (
     <DrawerSidebar sidebarId="left_sidebar">
       <SidebarContent
       style={{
         overflowX: 'hidden'
       }}
-      className={classes().drawerSidebarContainer}
+      className={classes.drawerSidebarContainer}
      >
         <NavHeader />
         <NavContent />
