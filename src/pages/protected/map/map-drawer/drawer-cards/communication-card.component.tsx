@@ -29,7 +29,7 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
 
   return (
     <CardWithPopup
-      keyID={'communication' + String(elem.id)}
+      keyID={EntityType.COMMUNICATION + '-' + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}
       className={classes.card}

@@ -237,17 +237,30 @@ export default function MapDrawer(props) {
       const clickedItemType = clickedItem.type
       const clickedItemId = clickedItem.id
       const newTabValue = TabValuesDict[clickedItemType]
+      const selected = clickedItemType + '-' + clickedItemId
       if (tabValue !== newTabValue) {
         setTabValue(newTabValue)
       }
-      if (selectedCard !== clickedItemId){
-        onCardClick(clickedItemId)
-      } 
     }
     else {
       setSelectedCard('')
     }
   }, [clickedPoint])
+
+  useEffect(() => {
+    if (clickedPoint && clickedPoint !== null && clickedPoint.item && props.toggleSideDrawer) {
+      const clickedItem = clickedPoint.item as EmergencyProps
+      const clickedItemType = clickedItem.type
+      const clickedItemId = clickedItem.id
+      const newTabValue = TabValuesDict[clickedItemType]
+      const selected = clickedItemType + '-' + clickedItemId
+      if (tabValue === newTabValue) {
+        if (selectedCard !== selected) {
+          onCardClick(selected)
+        }
+      }
+    }
+  }, [tabValue])
 
   const noData = (
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
