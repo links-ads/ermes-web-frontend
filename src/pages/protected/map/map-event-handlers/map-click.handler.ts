@@ -71,6 +71,8 @@ export const highlightClickedPoint = <T extends object>(
 
   // Cast is necessary
   if (layer === 'clusters') {
+    // remove clicked point
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
     // Depending on settings, it will either expand the cluster or open the spider
     if (spiderifierRef.current && mapViewRef.current) {
       spiderifierRef.current.toggleSpidersByPoint(map, bbox)

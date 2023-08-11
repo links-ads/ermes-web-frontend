@@ -29,6 +29,7 @@ import { CameraDetails } from './camera-details.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import { EmergencyProps } from '../api-data/emergency.component'
 import { useMapStateContext } from '../map.context'
+import useMapDrawer from '../../../../hooks/use-map-drawer.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -135,7 +136,9 @@ export default function MapDrawer(props) {
   const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
-  const [tabValue, setTabValue] = React.useState(0)
+  // const [tabValue, setTabValue] = React.useState(0)
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
+  const { tabIndex: tabValue, selectedFeatureId } = dataState
 
   const onCardClick = (selectedItemId) => {
     setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
@@ -160,43 +163,43 @@ export default function MapDrawer(props) {
     let tabValueAssigned = false
     if (Person) {
       if (!tabValueAssigned) {
-        setTabValue(0)
+        updateTabIndex(0)
         tabValueAssigned = true
       }
     }
     if (Report) {
       if (!tabValueAssigned) {
-        setTabValue(1)
+        updateTabIndex(1)
         tabValueAssigned = true
       }
     }
     if (Mission) {
       if (!tabValueAssigned) {
-        setTabValue(2)
+        updateTabIndex(2)
         tabValueAssigned = true
       }
     }
     if (Communication) {
       if (!tabValueAssigned) {
-        setTabValue(3)
+        updateTabIndex(3)
         tabValueAssigned = true
       }
     }
     if (MapRequest) {
       if (!tabValueAssigned) {
-        setTabValue(4)
+        updateTabIndex(4)
         tabValueAssigned = true
       }
     }
     if (Alert) {
       if (!tabValueAssigned) {
-        setTabValue(5)
+        updateTabIndex(5)
         tabValueAssigned = true
       }
     }
     if (Station) {
       if (!tabValueAssigned) {
-        setTabValue(6)
+        updateTabIndex(6)
         tabValueAssigned = true
       }
     }
@@ -220,10 +223,10 @@ export default function MapDrawer(props) {
   }, [apiHandlerState])
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setTabValue(newValue)
+    updateTabIndex(newValue)
   }
   const handleChangeIndex = (index: number) => {
-    setTabValue(index)
+    updateTabIndex(index)
   }
 
   // toggle on off drawer
@@ -238,29 +241,18 @@ export default function MapDrawer(props) {
       const clickedItemId = clickedItem.id
       const newTabValue = TabValuesDict[clickedItemType]
       const selected = clickedItemType + '-' + clickedItemId
-      if (tabValue !== newTabValue) {
-        setTabValue(newTabValue)
+      
+      if (tabValue !== newTabValue || selectedFeatureId !== selected) {
+        selectTabCard(newTabValue, selected)
+        if (selectedCard !== selected) {
+          onCardClick(selected)
+        }
       }
     }
     else {
       setSelectedCard('')
     }
   }, [clickedPoint])
-
-  useEffect(() => {
-    if (clickedPoint && clickedPoint !== null && clickedPoint.item && props.toggleSideDrawer) {
-      const clickedItem = clickedPoint.item as EmergencyProps
-      const clickedItemType = clickedItem.type
-      const clickedItemId = clickedItem.id
-      const newTabValue = TabValuesDict[clickedItemType]
-      const selected = clickedItemType + '-' + clickedItemId
-      if (tabValue === newTabValue) {
-        if (selectedCard !== selected) {
-          onCardClick(selected)
-        }
-      }
-    }
-  }, [tabValue])
 
   const noData = (
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>

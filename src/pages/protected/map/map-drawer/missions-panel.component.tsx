@@ -12,7 +12,8 @@ import { EntityType } from 'ermes-ts-sdk'
 export default function CommunicationPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [missionsData, getMissionsData, applyFilterByText] = useMissionsList()
+  const [missionsData, getMissionsData, applyFilterByText, fetchMissionById] = useMissionsList()
+  const { selectedCard } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -52,6 +53,17 @@ export default function CommunicationPanel(props) {
       }
     )
   }, [])
+
+  useEffect(() => {
+    if (missionsData && missionsData.data && missionsData.data.length > 0 && selectedCard !== '') {
+      const selectedTypeAndId = selectedCard.split('-')
+      const selectedMission = missionsData.data.findIndex(e => e.id === selectedTypeAndId[1])
+      if (selectedMission < 0) {
+        // TODO fetch single mission
+        fetchMissionById(selectedTypeAndId[1])
+      }
+    }
+  }, [selectedCard])
 
   //reload data when a new communication is created from the map
   useEffect(() => {
