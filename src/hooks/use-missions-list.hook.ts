@@ -1,5 +1,5 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { MissionsApiFactory, MissionDto } from 'ermes-ts-sdk'
+import { MissionsApiFactory, MissionDto, GetEntityByIdOutputOfMissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -17,6 +17,13 @@ const reducer = (currentState, action) => {
         data: [],
         error: false,
         tot: action.tot
+      }
+    case 'FETCH_BY_ID': 
+      return {
+        ...currentState, 
+        isLoading: false, 
+        error: false, 
+        data: [action.value, ...currentState.data]
       }
     case 'RESULT':
       return {
@@ -60,6 +67,23 @@ export default function useMissionsList() {
     null,
     false
   )
+  
+  const fetchMissionById = useCallback(
+    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      missionsApiFactory
+        .missionsGetMissionById(id, true)
+        .then((result) => {
+          const newData: GetEntityByIdOutputOfMissionDto = transformData(result.data)
+          sideEffect(newData)
+          dispatch({ type: 'FETCH_BY_ID', value: newData })
+        })
+        .catch((error) => {
+          dispatch({ type: 'ERROR', value: error.response.data.error.message })
+        })
+    },
+    [missionsApiFactory]
+  )
+
   const fetchMissions = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}, initialize = false) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
@@ -123,5 +147,5 @@ export default function useMissionsList() {
       mounted.current = true
     }
   }, [textQuery])
-  return [dataState, fetchMissions, applySearchQueryReloadData]
+  return [dataState, fetchMissions, applySearchQueryReloadData, fetchMissionById]
 }
