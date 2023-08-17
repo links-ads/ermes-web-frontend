@@ -280,8 +280,12 @@ export function Map() {
     if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
+<<<<<<< HEAD
     forceUpdate()
   }, [fetchGeoJson])
+=======
+  }, [fetchGeoJson, handleGetLayersCall, layersApiFactory])
+>>>>>>> ad7f98e (mission tab sync ref #129)
 
   useEffect(() => {
     fetchLayers(filtersObj, (result) => {
@@ -353,7 +357,12 @@ export function Map() {
       return groupLayersState
     })
     updateMapFeatures()
+<<<<<<< HEAD
   }, [filtersObj, fetchGeoJson, fetchLayers])
+=======
+    forceUpdate()
+  }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
+>>>>>>> ad7f98e (mission tab sync ref #129)
 
   useEffect(() => {
     if (defaultDimension.w !== innerWidth) {

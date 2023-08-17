@@ -6,7 +6,20 @@ import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
-const initialState = { error: false, isLoading: true, data: [], tot: 0 }
+const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedItems: [] }
+
+const mergeAndRemoveDuplicates = (a, b) => {
+  const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const removeDuplicates = (a, b) => {
+  if (a.length > 0) {
+    const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+    return c
+  }
+  return a
+}
 
 const reducer = (currentState, action) => {
   switch (action.type) {
@@ -18,20 +31,25 @@ const reducer = (currentState, action) => {
         error: false,
         tot: action.tot
       }
-    case 'FETCH_BY_ID': 
+    case 'FETCH_BY_ID':
       return {
-        ...currentState, 
-        isLoading: false, 
-        error: false, 
-        data: [action.value, ...currentState.data]
+        ...currentState,
+        isLoading: false,
+        error: false,
+        data: [action.value, ...currentState.data],
+        selectedItems: [...currentState.selectedItems, action.value]
       }
     case 'RESULT':
       return {
         ...currentState,
         isLoading: false,
-        data: [...currentState.data, ...action.value],
+        data: mergeAndRemoveDuplicates(
+          [...currentState.selectedItems],
+          [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
+        ),
         error: false,
-        tot: action.tot
+        tot: action.tot,
+        selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
       }
     case 'ERROR':
       return {
