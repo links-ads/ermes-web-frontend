@@ -396,7 +396,6 @@ export function Map() {
     if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
-    forceUpdate()
   }, [fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {
@@ -423,6 +422,7 @@ export function Map() {
       )
     })
     updateMapFeatures()
+    forceUpdate()
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
   useEffect(() => {

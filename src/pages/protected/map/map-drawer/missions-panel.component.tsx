@@ -9,7 +9,7 @@ import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import { EntityType } from 'ermes-ts-sdk'
 
-export default function CommunicationPanel(props) {
+export default function MissionsPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
   const [missionsData, getMissionsData, applyFilterByText, fetchMissionById] = useMissionsList()
@@ -57,10 +57,23 @@ export default function CommunicationPanel(props) {
   useEffect(() => {
     if (missionsData && missionsData.data && missionsData.data.length > 0 && selectedCard !== '') {
       const selectedTypeAndId = selectedCard.split('-')
-      const selectedMission = missionsData.data.findIndex(e => e.id === selectedTypeAndId[1])
+      const selectedMissionId = Number(selectedTypeAndId[1])
+      const selectedMission = missionsData.data.findIndex((e) => e.id === selectedMissionId)
       if (selectedMission < 0) {
-        // TODO fetch single mission
-        fetchMissionById(selectedTypeAndId[1])
+        fetchMissionById(
+          selectedTypeAndId[1],
+          (data) => {
+            return {
+              ...data.feature.properties
+            }
+          },
+          (error) => {
+            console.debug(error)
+          },
+          (data) => {
+            return data
+          }
+        )
       }
     }
   }, [selectedCard])
@@ -107,7 +120,7 @@ export default function CommunicationPanel(props) {
             <InfiniteScroll
               next={() => {
                 getMissionsData(
-                  missionsData.data.length,
+                  missionsData.data.length - missionsData.selectedItems.length,
                   (data) => {
                     return data
                   },
