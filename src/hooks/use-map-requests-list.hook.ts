@@ -6,7 +6,20 @@ import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
-const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedMr: {} }
+const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedMr: {}, selectedItems: [] }
+
+const mergeAndRemoveDuplicates = (a, b) => {
+  const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const removeDuplicates = (a, b) => {
+  if (a.length > 0) {
+    const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+    return c
+  }
+  return a
+}
 
 const reducer = (currentState, action) => {
     switch (action.type) {
@@ -23,10 +36,14 @@ const reducer = (currentState, action) => {
         return {
           ...currentState,
           isLoading: false,
-          data: [...currentState.data, ...action.value],
+          data: mergeAndRemoveDuplicates(
+            [...currentState.selectedItems],
+            [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
+          ),
           error: false,
           tot: action.tot,
-          selectedMr: {}
+          selectedMr: {},
+          selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
         }
       case 'ERROR':
         return {
@@ -68,6 +85,16 @@ const reducer = (currentState, action) => {
           hasMore: false,
           error: false,
           selectedMr: action.value
+        }
+      case 'APPEND_BY_ID':
+        return {
+          ...currentState,
+          isLoading: false,
+          data: mergeAndRemoveDuplicates([action.value], [...currentState.data]),
+          hasMore: false,
+          error: false,
+          selectedMr: {},
+          selectedItems: [...currentState.selectedItems, action.value]
         }
       case 'INITIALIZE':
         return {
@@ -183,16 +210,34 @@ export default function useMapRequestList() {
             dispatch({ type: 'FETCHBYID', value: newData })
           })
           .catch((error) => {
-            dispatch({ type: 'ERROR', value: error.response.data.error.message })
+            dispatch({ type: 'ERROR', value: error.message })
           })
       },
       [maprequestApiFactory]
     )
+
+    const appendMapRequestById = useCallback(
+      (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+        maprequestApiFactory
+          .mapRequestsGetMapRequestById(id, true)
+          .then((result) => {
+            let newData: GetEntityByIdOutputOfMapRequestDto = transformData(result.data)
+            sideEffect(newData)
+            dispatch({ type: 'APPEND_BY_ID', value: newData })
+          })
+          .catch((error) => {
+            dispatch({ type: 'ERROR', value: error.message })
+          })
+      },
+      [maprequestApiFactory]
+    )
+
     return [
       dataState,
       fetchMapRequests,
       applySearchQueryReloadData,
       deleteMapRequest,
-      fetchMapRequestById
+      fetchMapRequestById,
+      appendMapRequestById
     ]
 }

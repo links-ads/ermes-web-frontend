@@ -10,7 +10,20 @@ import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 
 const MAX_RESULT_COUNT = 9
-const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedAlert: {} }
+const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedAlert: {}, selectedItems: [] }
+
+const mergeAndRemoveDuplicates = (a, b) => {
+  const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const removeDuplicates = (a, b) => {
+  if (a.length > 0) {
+    const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+    return c
+  }
+  return a
+}
 
 const reducer = (currentState, action) => {
   switch (action.type) {
@@ -27,10 +40,14 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        data: [...currentState.data, ...action.value],
+        data: mergeAndRemoveDuplicates(
+          [...currentState.selectedItems],
+          [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
+        ),
         error: false,
         tot: action.tot,
-        selectedAlert: {}
+        selectedAlert: {},
+        selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
       }
     case 'ERROR':
       return {
@@ -49,6 +66,16 @@ const reducer = (currentState, action) => {
         hasMore: false,
         error: false,
         selectedAlert: action.value
+      }
+    case 'APPEND_BY_ID':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: mergeAndRemoveDuplicates([action.value], [...currentState.data]),
+        hasMore: false,
+        error: false,
+        selectedMr: {},
+        selectedItems: [...currentState.selectedItems, action.value]
       }
     case 'INITIALIZE':
       return {
@@ -162,10 +189,28 @@ export default function useAlertList() {
     },
     [alertsApiFactory]
   )
+
+  const appendAlertById = useCallback(
+    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      alertsApiFactory
+        .alertsGetAlertById(id, true)
+        .then((result) => {
+          let newData: GetEntityByIdOutputOfAlertDto = transformData(result.data)
+          sideEffect(newData)
+          dispatch({ type: 'APPEND_BY_ID', value: newData })
+        })
+        .catch((error) => {
+          dispatch({ type: 'ERROR', value: error.message })
+        })
+    },
+    [alertsApiFactory]
+  )
+
   return [
     dataState,
     fetchAlerts,
     applySearchQueryReloadData,
-    fetchAlertById
+    fetchAlertById,
+    appendAlertById
   ]
 }

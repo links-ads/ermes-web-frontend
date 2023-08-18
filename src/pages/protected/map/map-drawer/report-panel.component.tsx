@@ -10,9 +10,10 @@ import classes from './map-drawer.module.scss'
 import SearchBar from '../../../../common/search-bar.component'
 
 export default function ReportPanel(props) {
-  const [repsData, getRepsData, , applyFilterByText] = useReportList()
+  const [repsData, getRepsData, , applyFilterByText, fetchReportById] = useReportList()
   const { t } = useTranslation(['common', 'maps', 'social'])
   const [searchText, setSearchText] = useState('')
+  const { selectedCard } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -53,6 +54,30 @@ export default function ReportPanel(props) {
     )
   }, [])
 
+  useEffect(() => {
+    if (repsData && repsData.data && repsData.data.length > 0 && selectedCard !== '') {
+      const selectedTypeAndId = selectedCard.split('-')
+      const selectedReportId = Number(selectedTypeAndId[1])
+      const selectedReport = repsData.data.findIndex((e) => e.id === selectedReportId)
+      if (selectedReport < 0) {
+        fetchReportById(
+          selectedTypeAndId[1],
+          (data) => {
+            return {
+              ...data.feature.properties
+            }
+          },
+          (error) => {
+            console.debug(error)
+          },
+          (data) => {
+            return data
+          }
+        )
+      }
+    }
+  }, [selectedCard])
+
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
@@ -78,7 +103,7 @@ export default function ReportPanel(props) {
             <InfiniteScroll
               next={() => {
                 getRepsData(
-                  repsData.data.length,
+                  repsData.data.length - repsData.selectedItems.length,
                   (data) => {
                     return data
                   },
