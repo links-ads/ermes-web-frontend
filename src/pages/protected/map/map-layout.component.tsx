@@ -623,18 +623,25 @@ export function MapLayout(props) {
   }, [goToCoord, setGoToCoord])
 
   useEffect(() => {
-    if (selectedCard !== ''){
+    if (selectedCard !== '') {
       const selectedItems = selectedCard.split('-')
-      const selectedId = Number(selectedItems[1])
+      const selectedId =
+        selectedItems[0] === EntityType.STATION ? selectedItems[1] : Number(selectedItems[1])
       const selectedType = selectedItems[0]
-      const selectedFeature = jsonData.features.find(e => e?.properties?.id === selectedId && e?.properties?.type === selectedType)
+      const selectedFeature =
+        selectedItems[0] === EntityType.STATION
+          ? jsonData.features.find(
+              (e) => e?.properties?.details === selectedId && e?.properties?.type === selectedType
+            )
+          : jsonData.features.find(
+              (e) => e?.properties?.id === selectedId && e?.properties?.type === selectedType
+            )
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
-        setGoToCoord({latitude: coord[1], longitude: coord[0]})
+        setGoToCoord({ latitude: coord[1], longitude: coord[0] })
         highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, setClickedPoint)
-      }      
-    }
-    else {
+      }
+    } else {
       tonedownClickedPoint(mapViewRef, setClickedPoint)
     }
   }, [selectedCard])

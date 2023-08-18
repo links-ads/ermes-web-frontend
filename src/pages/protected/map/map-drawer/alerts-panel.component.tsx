@@ -21,7 +21,8 @@ const AlertPanel: React.FC<{
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [alertsData, getAlerts, applyFilterByText, getAlertById] = useAlerts()
+  const [alertsData, getAlerts, applyFilterByText, getAlertById, appendAlertById] = useAlerts()
+  const { selectedCard } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -61,6 +62,30 @@ const AlertPanel: React.FC<{
     )
   }, [])
 
+  useEffect(() => {
+    if (alertsData && alertsData.data && alertsData.data.length > 0 && selectedCard !== '') {
+      const selectedTypeAndId = selectedCard.split('-')
+      const selectedAlertId = Number(selectedTypeAndId[1])
+      const selectedAlert = alertsData.data.findIndex((e) => e.id === selectedAlertId)
+      if (selectedAlert < 0) {
+        appendAlertById(
+          selectedAlertId,
+          (data) => {
+            return {
+              ...data.feature.properties
+            }
+          },
+          (error) => {
+            console.debug(error)
+          },
+          (data) => {
+            return data
+          }
+        )
+      }
+    }
+  }, [selectedCard])
+
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
@@ -85,7 +110,7 @@ const AlertPanel: React.FC<{
             <InfiniteScroll
               next={() => {
                 getAlerts(
-                  alertsData.data.length,
+                  alertsData.data.length - alertsData.selectedItems.length,
                   (data) => {
                     return data
                   },

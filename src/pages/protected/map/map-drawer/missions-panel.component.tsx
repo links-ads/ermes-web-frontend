@@ -61,7 +61,7 @@ export default function MissionsPanel(props) {
       const selectedMission = missionsData.data.findIndex((e) => e.id === selectedMissionId)
       if (selectedMission < 0) {
         fetchMissionById(
-          selectedTypeAndId[1],
+          selectedMissionId,
           (data) => {
             return {
               ...data.feature.properties

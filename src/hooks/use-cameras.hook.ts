@@ -7,7 +7,20 @@ import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-f
 
 const MAX_RESULT_COUNT = 9
 
-const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedCamera: {} }
+const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedCamera: {}, selectedItems: [] }
+
+const mergeAndRemoveDuplicates = (a, b) => {
+  const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const removeDuplicates = (a, b) => {
+  if (a.length > 0) {
+    const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+    return c
+  }
+  return a
+}
 
 const reducer = (currentState, action) => {
   switch (action.type) {
@@ -24,10 +37,14 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        data: [...currentState.data, ...action.value],
+        data: mergeAndRemoveDuplicates(
+          [...currentState.selectedItems],
+          [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
+        ),
         error: false,
         tot: action.tot,
-        selectedCamera: {}
+        selectedCamera: {},
+        selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
       }
     case 'ERROR':
       return {
@@ -46,6 +63,16 @@ const reducer = (currentState, action) => {
         hasMore: false,
         error: false,
         selectedCamera: action.value
+      }
+    case 'APPEND_BY_ID':
+      return {
+        ...currentState,
+        isLoading: false,
+        data: mergeAndRemoveDuplicates([action.value], [...currentState.data]),
+        hasMore: false,
+        error: false,
+        selectedMr: {},
+        selectedItems: [...currentState.selectedItems, action.value]
       }
     case 'INITIALIZE':
       return {
@@ -165,5 +192,21 @@ export default function useCameraList() {
     },
     [camerasApiFactory, storedFilters]
   )
+  // TODO: get camera by id 
+  // const appendCameraById = useCallback(
+  //   (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+  //     camerasApiFactory
+  //       .stationsGetStationById(id, true)
+  //       .then((result) => {
+  //         let newData: GetEntityByIdOutputOfStationDto = transformData(result.data)
+  //         sideEffect(newData)
+  //         dispatch({ type: 'APPEND_BY_ID', value: newData })
+  //       })
+  //       .catch((error) => {
+  //         dispatch({ type: 'ERROR', value: error.message })
+  //       })
+  //   },
+  //   [camerasApiFactory]
+  // )
   return [dataState, fetchCameras, applySearchQueryReloadData, fetchCameraSensors]
 }

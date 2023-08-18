@@ -52,7 +52,8 @@ const MapRequestsPanel: React.FC<{
     getMapRequestsData,
     applyFilterByText,
     deleteMapRequest,
-    fetchMapRequestById
+    fetchMapRequestById,
+    appendMapRequestById
   ] = useMapRequestList()
   const {
     mapRequestsSettings,
@@ -62,7 +63,8 @@ const MapRequestsPanel: React.FC<{
     setMapRequestsSettings,
     availableLayers,
     layersDefinition,
-    showFeaturesDialog
+    showFeaturesDialog,
+    selectedCard
   } = props
   const [height, setHeight] = React.useState(window.innerHeight)
 
@@ -83,7 +85,7 @@ const MapRequestsPanel: React.FC<{
 
   const fetchData = (initialize: boolean = false) => {
     getMapRequestsData(
-      mapRequestsData.data.length,
+      mapRequestsData.data.length - mapRequestsData.selectedItems.length,
       (data: MapRequestDto[]) => {
         data.forEach((mr) => {
           var currentMr = mapRequestsSettings[mr.code!]
@@ -178,14 +180,14 @@ const MapRequestsPanel: React.FC<{
         return data
       },
       (error) => {
-        console.log(error)
+        console.debug(error)
       },
       (data) => {
         return data
       }
     )
   }
-  const [copyState, setCopystate] = useState<any | null>(null)
+
   useEffect(() => {
     if (mapRequestsData.selectedMr && mapRequestsData.selectedMr.feature) {
       const mr = mapRequestsData.selectedMr
@@ -259,11 +261,37 @@ const MapRequestsPanel: React.FC<{
             : null,
         mapSelectionCompleted: true
       }
-      setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
       showFeaturesDialog('create', 'MapRequest', '', areaObject, defaultEditState)
     }
   }, [mapRequestsData.selectedMr])
+
+  useEffect(() => {
+    if (
+      mapRequestsData &&
+      mapRequestsData.data &&
+      mapRequestsData.data.length > 0 &&
+      selectedCard !== ''
+    ) {
+      const selectedTypeAndId = selectedCard.split('-')
+      const selectedMapReqId = Number(selectedTypeAndId[1])
+      const selectedMapReq  = mapRequestsData.data.findIndex((e) => e.id === selectedMapReqId)
+      if (selectedMapReq < 0) {
+        appendMapRequestById(
+          selectedMapReqId,
+          (data) => {
+            return { ...data.feature.properties } 
+          },
+          (error) => {
+            console.debug(error)
+          },
+          (data) => {
+            return data
+          }
+        )
+      }
+    }
+  }, [selectedCard])
 
   // Calls the data only the first time is needed
   useEffect(() => {

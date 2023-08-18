@@ -76,7 +76,7 @@ const CameraCard: React.FC<{
         spiderLayerIds={spiderLayerIds}
         id={elem.id}
         spiderifierRef={spiderifierRef}
-        type={EntityType.ALERT}
+        type={EntityType.STATION}
         selectedCard={props.selectedCard}
         setSelectedCard={props.setSelectedCard}
       >
