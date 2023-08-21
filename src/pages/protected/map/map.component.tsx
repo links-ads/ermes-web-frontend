@@ -36,6 +36,7 @@ import {
 } from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
+import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 type MapFeature = CulturalProps
 
 const NO_LAYER_SELECTED = '-1'
@@ -48,6 +49,7 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -769,6 +771,9 @@ export function Map() {
           missionCounter={missionCounter}
           mapRequestCounter={mapRequestCounter}
           resetListCounter={resetListCounter}
+          dataState={dataState}
+          updateTabIndex={updateTabIndex}
+          selectTabCard={selectTabCard}
         />
         <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
           <LayersPlayer

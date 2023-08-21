@@ -29,7 +29,6 @@ import { CameraDetails } from './camera-details.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import { EmergencyProps } from '../api-data/emergency.component'
 import { useMapStateContext } from '../map.context'
-import useMapDrawer from '../../../../hooks/use-map-drawer.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -98,7 +97,10 @@ export default function MapDrawer(props) {
     mapRequestsSettings,
     updateMapRequestsSettings,
     setMapRequestsSettings,
-    availableLayers
+    availableLayers,
+    dataState,
+    updateTabIndex,
+    selectTabCard
   } = props
 
   // Map state
@@ -136,9 +138,7 @@ export default function MapDrawer(props) {
   const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
-  // const [tabValue, setTabValue] = React.useState(0)
-  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
-  const { tabIndex: tabValue, selectedFeatureId } = dataState
+  const { tabIndex: tabValue, selectedFeatureId, selectedItemsList } = dataState
 
   const onCardClick = (selectedItemId) => {
     setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
@@ -241,9 +241,10 @@ export default function MapDrawer(props) {
       const clickedItemId = clickedItem.id
       const newTabValue = TabValuesDict[clickedItemType]
       const selected = clickedItemType + '-' + clickedItemId
-      
+      selectTabCard(clickedItemType, clickedItemId)
+      //onCardClick(selected)
       if (tabValue !== newTabValue || selectedFeatureId !== selected) {
-        selectTabCard(newTabValue, selected)
+        // selectTabCard(clickedItemType, clickedItemId)
         if (selectedCard !== selected) {
           onCardClick(selected)
         }
@@ -371,6 +372,7 @@ export default function MapDrawer(props) {
                 spiderifierRef={props.spiderifierRef}
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
@@ -386,6 +388,7 @@ export default function MapDrawer(props) {
                 resetListCounter={props.resetListCounter}
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
@@ -401,6 +404,7 @@ export default function MapDrawer(props) {
                 resetListCounter={props.resetListCounter}
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
@@ -426,6 +430,7 @@ export default function MapDrawer(props) {
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
@@ -440,6 +445,7 @@ export default function MapDrawer(props) {
                 selectedCard={selectedCard}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 

@@ -1,5 +1,9 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { ReportsApiFactory, DTResultOfReportDto, GetEntityByIdOutputOfReportDto } from 'ermes-ts-sdk'
+import {
+  ReportsApiFactory,
+  DTResultOfReportDto,
+  GetEntityByIdOutputOfReportDto
+} from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -10,6 +14,12 @@ const initialState = { error: false, isLoading: true, data: [], tot: 0, selected
 
 const mergeAndRemoveDuplicates = (a, b) => {
   const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const appendWithoutDuplicates = (a, b) => {
+  const appendList = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+  const c = appendList.concat(b)
   return c
 }
 
@@ -51,6 +61,12 @@ const reducer = (currentState, action) => {
         tot: action.tot,
         selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
       }
+    case 'APPEND_SELECTED':
+      return {
+        ...currentState,
+        data: appendWithoutDuplicates([...action.value], [...currentState.data]),
+        selectedItems: [...action.value]
+      }
     case 'ERROR':
       return {
         ...currentState,
@@ -72,11 +88,7 @@ export default function useReportList() {
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [storedFilters, , ] = useMemoryState(
-    'memstate-map',
-    null,
-    false
-  )
+  const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
 
   const fetchReportById = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -159,5 +171,15 @@ export default function useReportList() {
     }
   }, [querySearch])
 
-  return [dataState, fetchReports, applyFilterReloadData, applySearchFilterReloadData, fetchReportById]
+  const appendSelectedItems = useCallback((selectedItems) => {
+    dispatch({ type: 'APPEND_SELECTED', value: selectedItems })
+  }, [])
+
+  return [
+    dataState,
+    fetchReports,
+    applyFilterReloadData,
+    applySearchFilterReloadData,
+    appendSelectedItems
+  ]
 }

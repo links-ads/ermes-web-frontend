@@ -43,6 +43,7 @@ const MapRequestsPanel: React.FC<{
   selectedCard
   setSelectedCard
   showFeaturesDialog
+  selectedItemsList
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
@@ -52,7 +53,7 @@ const MapRequestsPanel: React.FC<{
     applyFilterByText,
     deleteMapRequest,
     fetchMapRequestById,
-    appendMapRequestById
+    appendSelectedItems
   ] = useMapRequestList()
   const {
     mapRequestsSettings,
@@ -63,7 +64,7 @@ const MapRequestsPanel: React.FC<{
     availableLayers,
     layersDefinition,
     showFeaturesDialog,
-    selectedCard
+    selectedItemsList
   } = props
   const [height, setHeight] = React.useState(window.innerHeight)
 
@@ -260,31 +261,10 @@ const MapRequestsPanel: React.FC<{
   }, [mapRequestsData.selectedMr])
 
   useEffect(() => {
-    if (
-      mapRequestsData &&
-      mapRequestsData.data &&
-      mapRequestsData.data.length > 0 &&
-      selectedCard !== ''
-    ) {
-      const selectedTypeAndId = selectedCard.split('-')
-      const selectedMapReqId = Number(selectedTypeAndId[1])
-      const selectedMapReq  = mapRequestsData.data.findIndex((e) => e.id === selectedMapReqId)
-      if (selectedMapReq < 0) {
-        appendMapRequestById(
-          selectedMapReqId,
-          (data) => {
-            return { ...data.feature.properties } 
-          },
-          (error) => {
-            console.debug(error)
-          },
-          (data) => {
-            return data
-          }
-        )
-      }
+    if(selectedItemsList.length > 0){
+      appendSelectedItems(selectedItemsList)
     }
-  }, [selectedCard])
+  }, [selectedItemsList])
 
   // Calls the data only the first time is needed
   useEffect(() => {

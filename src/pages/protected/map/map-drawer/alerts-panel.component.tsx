@@ -18,11 +18,12 @@ const AlertPanel: React.FC<{
   flyToCoords: any
   selectedCard: any
   setSelectedCard: any
+  selectedItemsList: []
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [alertsData, getAlerts, applyFilterByText, getAlertById, appendAlertById] = useAlerts()
-  const { selectedCard } = props
+  const [alertsData, getAlerts, applyFilterByText, getAlertById, appendSelectedItems] = useAlerts()
+  const { selectedItemsList } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -63,28 +64,10 @@ const AlertPanel: React.FC<{
   }, [])
 
   useEffect(() => {
-    if (alertsData && alertsData.data && alertsData.data.length > 0 && selectedCard !== '') {
-      const selectedTypeAndId = selectedCard.split('-')
-      const selectedAlertId = Number(selectedTypeAndId[1])
-      const selectedAlert = alertsData.data.findIndex((e) => e.id === selectedAlertId)
-      if (selectedAlert < 0) {
-        appendAlertById(
-          selectedAlertId,
-          (data) => {
-            return {
-              ...data.feature.properties
-            }
-          },
-          (error) => {
-            console.debug(error)
-          },
-          (data) => {
-            return data
-          }
-        )
-      }
+    if(selectedItemsList.length > 0){
+      appendSelectedItems(selectedItemsList)
     }
-  }, [selectedCard])
+  }, [selectedItemsList])
 
   // Fix height of the list when the window is resized
   useEffect(() => {
