@@ -35,6 +35,7 @@ import {
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
+import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -43,6 +44,7 @@ export function Map() {
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -280,12 +282,8 @@ export function Map() {
     if (!toggleSideDrawer) {
       setToggleActiveFilterTab(false)
     }
-<<<<<<< HEAD
     forceUpdate()
   }, [fetchGeoJson])
-=======
-  }, [fetchGeoJson, handleGetLayersCall, layersApiFactory])
->>>>>>> ad7f98e (mission tab sync ref #129)
 
   useEffect(() => {
     fetchLayers(filtersObj, (result) => {
@@ -357,12 +355,7 @@ export function Map() {
       return groupLayersState
     })
     updateMapFeatures()
-<<<<<<< HEAD
   }, [filtersObj, fetchGeoJson, fetchLayers])
-=======
-    forceUpdate()
-  }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
->>>>>>> ad7f98e (mission tab sync ref #129)
 
   useEffect(() => {
     if (defaultDimension.w !== innerWidth) {
@@ -594,6 +587,9 @@ export function Map() {
         missionCounter={missionCounter}
         mapRequestCounter={mapRequestCounter}
         resetListCounter={resetListCounter}
+        dataState={dataState}
+        updateTabIndex={updateTabIndex}
+        selectTabCard={selectTabCard}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
         {selectedLayers && selectedLayers.length > 0 &&
@@ -681,6 +677,7 @@ export function Map() {
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
             selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             mapRequestsSettings={mapRequestsSettings}
+            mapDrawerDataState={dataState}
           />
 
           {isGeoDataloading ? loader : undefined}

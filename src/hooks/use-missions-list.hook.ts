@@ -13,6 +13,12 @@ const mergeAndRemoveDuplicates = (a, b) => {
   return c
 }
 
+const appendWithoutDuplicates = (a, b) => {
+  const appendList = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+  const c = appendList.concat(b)
+  return c
+}
+
 const removeDuplicates = (a, b) => {
   if (a.length > 0) {
     const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
@@ -67,6 +73,12 @@ const reducer = (currentState, action) => {
         hasMore: false,
         error: true,
         tot: action.tot
+      }
+    case 'APPEND_SELECTED':
+      return {
+        ...currentState,
+        data: appendWithoutDuplicates([...action.value], [...currentState.data]),
+        selectedItems: [...action.value]
       }
   }
   return initialState
@@ -165,5 +177,10 @@ export default function useMissionsList() {
       mounted.current = true
     }
   }, [textQuery])
-  return [dataState, fetchMissions, applySearchQueryReloadData, fetchMissionById]
+
+  const appendSelectedItems = useCallback((selectedItems) => {
+    dispatch({ type: 'APPEND_SELECTED', value: selectedItems })
+  }, [])
+
+  return [dataState, fetchMissions, applySearchQueryReloadData, appendSelectedItems]
 }
