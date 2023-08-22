@@ -1,14 +1,16 @@
 import { InteractiveMap, PointerEvent } from 'react-map-gl'
-import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
+import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.context'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
 import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID } from '../../../../common/map/map-common';
 import { LayerSettingsState } from '../../../../models/layers/LayerState';
+import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
+import { getBboxSizeFromZoom } from '../../../../common/map/map-common';
 
 // add position pin at click or db click of the user 
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
 // remove pin if user clicks on it 
-const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates) => {
+const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature) => {
   // check if users is clicking on the position point - if so, remove it
   const features = map.queryRenderedFeatures(evt.point);
   if (features && features.length > 0){
@@ -24,9 +26,63 @@ const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates) => {
     addUserClickedPoint(map, longitude, latitude)
     // show coordinates of the point
     setMapHeadDrawerCoordinates(evt.lngLat)
+    // remove clicked point
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+    // closed open feature
+    setLeftClickedFeature(null)
   }
 }
 
+export const tonedownClickedPoint = (mapViewRef, setLeftClickedFeature) => {
+  const map = mapViewRef.current?.getMap()
+  // remove clicked point
+  updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+  // closed open feature
+  setLeftClickedFeature(null)
+}
+
+export const highlightClickedPoint = <T extends object>(
+  feature,
+  mapViewRef,
+  spiderifierRef,
+  setLeftClickedFeature
+) => {
+  const map = mapViewRef.current?.getMap()
+  let layer = 'unclustered-point'
+  const point = map.project(feature.geometry.coordinates)
+  const bboxSize = getBboxSizeFromZoom(map.getZoom())
+  var bbox = [
+    [point.x - bboxSize / 2, point.y - bboxSize / 2],
+    [point.x + bboxSize / 2, point.y + bboxSize / 2]
+  ]
+  const renderedFeature = map.queryRenderedFeatures(bbox)
+
+  if (renderedFeature && renderedFeature.length > 0) {
+    const layers = renderedFeature.map((e) => e.layer.id)
+    if (layers.includes('clusters')) {
+      layer = 'clusters'
+    }
+  }
+
+  const properties = feature.properties
+  const [longitude, latitude] = feature.geometry.coordinates
+  const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
+  setLeftClickedFeature(leftClickedFeature)
+
+  // Cast is necessary
+  if (layer === 'clusters') {
+    // remove clicked point
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+    // Depending on settings, it will either expand the cluster or open the spider
+    if (spiderifierRef.current && mapViewRef.current) {
+      spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+    }
+  } else {
+    // layer === 'unclustered-point' and others    
+    const id = feature.properties['id'] || feature.id
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', id)
+  }
+}
 
 /**
  * handler for left click on the map
@@ -71,7 +127,7 @@ export function onMapLeftClickHandler<T extends object>(
 
   // add position point at user's click on the map - do not add in case the user is clicking on feature
   if (map && features && features.length === 0) {
-    manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates)
+    manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
   } 
 
   if (map && Array.isArray(features) && features.length > 0) {
@@ -124,6 +180,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   selectedLayer: LayerSettingsState,
   setDblClickFeatures,
   setMapHeadDrawerCoordinates: React.Dispatch<React.SetStateAction<any[]>>,
+  setLeftClickedFeature,
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
@@ -132,7 +189,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   }
 
   // manage user clicked point
-  manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates)
+  manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
 
   if (
     selectedLayer &&

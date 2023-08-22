@@ -14,7 +14,7 @@ import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
 import { GeoJsonProperties } from 'geojson'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMapStateContext } from '../../../map.contest'
+import { useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
 
 // Click Radius (see react-map-gl)

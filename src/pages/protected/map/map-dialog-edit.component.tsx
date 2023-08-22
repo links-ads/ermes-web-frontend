@@ -1,6 +1,6 @@
 import React from 'react';
 import { EditActionType, EditStateType, OperationType } from './map-dialog.hooks';
-import { ProvisionalFeatureType } from './map.contest';
+import { ProvisionalFeatureType } from './map.context';
 import { MissionDialog } from './map-dialogs/mission-dialog.component';
 import { CommunicationDialog } from './map-dialogs/comm-dialog.component';
 import { MapRequestDialog } from './map-dialogs/map-request-dialog.component';

@@ -85,6 +85,25 @@ export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' |
   }
 }
 
+export const clickedPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom'>> = {
+  id: 'unclustered-point-clicked',
+  type: 'symbol',
+  source: 'emergency-source',
+  filter: ['all', ['!has', 'point_count'], ['==', 'id', 'null']],
+  layout: {
+    'icon-image': ['get', 'type'],
+    'icon-allow-overlap': true,
+    'icon-size': 1.5,
+    'icon-anchor': 'bottom-right' // use bottom with regular pins
+  },
+  paint: {
+    // Halo does not work easy with svg and addImage https://github.com/mapbox/mapbox-gl-js/issues/5684
+    // 'icon-halo-color': yellow[500],
+    // 'icon-halo-width': 10,
+    // 'icon-halo-blur': 5
+  }
+}
+
 // All possible types
 // TODO type and category refer both to "type of feature". Stick to 1 single definition
 export const categories: EmergencyType[] = Object.keys(EmergencyColorMap) as EmergencyType[]

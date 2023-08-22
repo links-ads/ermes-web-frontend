@@ -17,7 +17,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const theme = useTheme()
   return (
     <CardWithPopup
-      keyID={'report' + String(elem.id)}
+      keyID={EntityType.REPORT + '-' + String(elem.id)}
       latitude={elem!.location!.latitude as number}
       longitude={elem!.location!.longitude as number}
       className={classes.card}

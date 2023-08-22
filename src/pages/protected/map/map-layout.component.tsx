@@ -21,6 +21,7 @@ import {
   clusterLayer,
   unclusteredPointPinsPaint,
   unclusteredPointLayerPins,
+  clickedPointPin,
   updateEmergencyMarkers,
   hoveredPointPin
 } from './api-data/emergency.layers'
@@ -35,7 +36,7 @@ import {
   ItemWithLatLng,
   ProvisionalFeatureType,
   ProvisionalOperationType
-} from './map.contest'
+} from './map.context'
 import {
   onMapLoadHandler,
   onMouseEnterHandler,
@@ -63,6 +64,8 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
+import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import { findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -178,13 +181,12 @@ export function MapLayout(props) {
 
   // Parse props
   const {
-    goToCoord,
-    setGoToCoord,
     setMap,
     setSpiderifierRef,
     setDblClickFeatures,
     selectedLayer,
-    mapRequestsSettings
+    mapRequestsSettings,
+    mapDrawerDataState
   } = props
 
   // Map state
@@ -197,7 +199,8 @@ export function MapLayout(props) {
       rightClickedPoint,
       editingFeatureArea,
       editingFeatureType,
-      editingFeatureId
+      editingFeatureId,
+      goToCoord
     },
     {
       setMapMode,
@@ -206,11 +209,13 @@ export function MapLayout(props) {
       setHoveredPoint,
       setRightClickedPoint,
       startFeatureEdit,
-      clearFeatureEdit
+      clearFeatureEdit,
+      setGoToCoord
     }
   ] = useMapStateContext<EmergencyProps>()
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
+  const { selectedFeatureId } = mapDrawerDataState
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -514,6 +519,7 @@ export function MapLayout(props) {
         props.selectedLayer,
         setDblClickFeatures,
         setMapHeadDrawerCoordinates,
+        setClickedPoint,
         evt
       )
     },
@@ -613,6 +619,19 @@ export function MapLayout(props) {
     }
   }, [goToCoord, setGoToCoord])
 
+  useEffect(() => {
+    if (selectedFeatureId !== '') {
+      const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
+      if (selectedFeature) {
+        const coord = (selectedFeature as any).geometry.coordinates
+        setGoToCoord({ latitude: coord[1], longitude: coord[0] })
+        highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, setClickedPoint)
+      }
+    } else {
+      tonedownClickedPoint(mapViewRef, setClickedPoint)
+    }
+  }, [selectedFeatureId])
+
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
     const map = mapViewRef.current?.getMap()
@@ -633,6 +652,9 @@ export function MapLayout(props) {
           polyToDraw,
           EmergencyColorMap[polyToMap?.feature.properties.type]
         )
+      }
+      else if (!['Communication', 'MapRequest', 'Mission'].includes((clickedPoint.item as EmergencyProps).type)) {
+        removePolyToMap(map)
       }
     } else {
       removePolyToMap(map)
@@ -769,6 +791,7 @@ export function MapLayout(props) {
           <Layer {...clusterLayer} />
           <Layer {...unclusteredPointLayerPins} />
           <Layer {...hoveredPointPin} />
+          <Layer {...clickedPointPin} />
         </Source>
         {/* Map controls */}
         <GeolocateControl
@@ -873,7 +896,7 @@ export function MapLayout(props) {
           <EmergencyDetailsCard
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
-            setGoToCoord={props.setGoToCoord}
+            setGoToCoord={setGoToCoord}
             setPersonTeam={setPersonTeam}
             teamName={teamName}
           />
