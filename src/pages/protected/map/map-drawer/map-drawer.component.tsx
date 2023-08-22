@@ -1,6 +1,6 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo, useContext, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useContext, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
@@ -77,16 +77,6 @@ function a11yProps(index: any) {
     id: `full-width-tab-${index}`,
     'aria-controls': `full-width-tabpanel-${index}`
   }
-}
-
-const TabValuesDict = {
-  'Person': 0,
-  'Report': 1,
-  'Mission': 2, 
-  'Communication': 3, 
-  'MapRequest': 4, 
-  'Alert': 5, 
-  'Station': 6
 }
 
 export default function MapDrawer(props) {

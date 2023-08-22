@@ -66,6 +66,7 @@ import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import { wktToGeoJSON } from "@terraformer/wkt"
+import { findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -624,18 +625,7 @@ export function MapLayout(props) {
 
   useEffect(() => {
     if (selectedFeatureId !== '') {
-      const selectedItems = selectedFeatureId.split('-')
-      const selectedId =
-        selectedItems[0] === EntityType.STATION ? selectedItems[1] : Number(selectedItems[1])
-      const selectedType = selectedItems[0]
-      const selectedFeature =
-        selectedItems[0] === EntityType.STATION
-          ? jsonData.features.find(
-              (e) => e?.properties?.details === selectedId && e?.properties?.type === selectedType
-            )
-          : jsonData.features.find(
-              (e) => e?.properties?.id === selectedId && e?.properties?.type === selectedType
-            )
+      const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
         setGoToCoord({ latitude: coord[1], longitude: coord[0] })

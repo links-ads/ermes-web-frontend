@@ -64,16 +64,6 @@ const reducer = (currentState, action) => {
         error: false,
         selectedCamera: action.value
       }
-    case 'APPEND_BY_ID':
-      return {
-        ...currentState,
-        isLoading: false,
-        data: mergeAndRemoveDuplicates([action.value], [...currentState.data]),
-        hasMore: false,
-        error: false,
-        selectedMr: {},
-        selectedItems: [...currentState.selectedItems, action.value]
-      }
     case 'INITIALIZE':
       return {
         ...currentState,
@@ -192,21 +182,5 @@ export default function useCameraList() {
     },
     [camerasApiFactory, storedFilters]
   )
-  // TODO: get camera by id 
-  // const appendCameraById = useCallback(
-  //   (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-  //     camerasApiFactory
-  //       .stationsGetStationById(id, true)
-  //       .then((result) => {
-  //         let newData: GetEntityByIdOutputOfStationDto = transformData(result.data)
-  //         sideEffect(newData)
-  //         dispatch({ type: 'APPEND_BY_ID', value: newData })
-  //       })
-  //       .catch((error) => {
-  //         dispatch({ type: 'ERROR', value: error.message })
-  //       })
-  //   },
-  //   [camerasApiFactory]
-  // )
   return [dataState, fetchCameras, applySearchQueryReloadData, fetchCameraSensors]
 }
