@@ -92,16 +92,6 @@ const reducer = (currentState, action) => {
           error: false,
           selectedMr: action.value
         }
-      case 'APPEND_BY_ID':
-        return {
-          ...currentState,
-          isLoading: false,
-          data: mergeAndRemoveDuplicates([action.value], [...currentState.data]),
-          hasMore: false,
-          error: false,
-          selectedMr: {},
-          selectedItems: [...currentState.selectedItems, action.value]
-        }
       case 'INITIALIZE':
         return {
           ...currentState,
@@ -220,22 +210,6 @@ export default function useMapRequestList() {
             let newData: GetEntityByIdOutputOfMapRequestDto = transformData(result.data)
             sideEffect(newData)
             dispatch({ type: 'FETCHBYID', value: newData })
-          })
-          .catch((error) => {
-            dispatch({ type: 'ERROR', value: error.message })
-          })
-      },
-      [maprequestApiFactory]
-    )
-
-    const appendMapRequestById = useCallback(
-      (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-        maprequestApiFactory
-          .mapRequestsGetMapRequestById(id, true)
-          .then((result) => {
-            let newData: GetEntityByIdOutputOfMapRequestDto = transformData(result.data)
-            sideEffect(newData)
-            dispatch({ type: 'APPEND_BY_ID', value: newData })
           })
           .catch((error) => {
             dispatch({ type: 'ERROR', value: error.message })

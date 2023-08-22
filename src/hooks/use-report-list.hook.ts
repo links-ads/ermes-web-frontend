@@ -1,8 +1,7 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
 import {
   ReportsApiFactory,
-  DTResultOfReportDto,
-  GetEntityByIdOutputOfReportDto
+  DTResultOfReportDto
 } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
@@ -40,14 +39,6 @@ const reducer = (currentState, action) => {
         data: [],
         error: false,
         tot: action.tot
-      }
-    case 'FETCH_BY_ID':
-      return {
-        ...currentState,
-        isLoading: false,
-        error: false,
-        data: [action.value, ...currentState.data],
-        selectedItems: [...currentState.selectedItems, action.value]
       }
     case 'RESULT':
       return {
@@ -89,22 +80,6 @@ export default function useReportList() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
-
-  const fetchReportById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-      repApiFactory
-        .reportsGetReportById(id, true)
-        .then((result) => {
-          const newData: GetEntityByIdOutputOfReportDto = transformData(result.data)
-          sideEffect(newData)
-          dispatch({ type: 'FETCH_BY_ID', value: newData })
-        })
-        .catch((error) => {
-          dispatch({ type: 'ERROR', value: error.response.data.error.message })
-        })
-    },
-    [repApiFactory]
-  )
 
   const fetchReports = useCallback(
     (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {

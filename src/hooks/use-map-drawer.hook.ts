@@ -31,6 +31,32 @@ const mergeAndRemoveDuplicates = (a, b) => {
   return c
 }
 
+const getCardId = (type, id) => {
+  return type + '-' + id
+}
+
+const getFeatureTypeAndIdFromCardId = (cardId) => {
+  const cardDetails = cardId.split('-')
+  const featureType = cardDetails[0]
+  const featureId = featureType === EntityType.STATION ? cardDetails[1] : Number(cardDetails[1])
+  return [featureType, featureId]
+}
+
+export const findFeatureByTypeAndId = (featureList, cardId) => {
+  const [type, id] = getFeatureTypeAndIdFromCardId(cardId)
+  if (type === EntityType.STATION) {
+    const stationFeature = featureList.find(
+      (e) => e?.properties?.details === id && e?.properties?.type === type
+    )
+    return stationFeature
+  } else {
+    const feature = featureList.find(
+      (e) => e?.properties?.id === id && e?.properties?.type === type
+    )
+    return feature
+  }
+}
+
 const reducer = (currentState, action) => {
   switch (action.type) {
     case 'SELECT_CARD':
@@ -47,11 +73,6 @@ const reducer = (currentState, action) => {
           currentState.tabIndex === action.value.tabIndex
             ? mergeAndRemoveDuplicates([action.value.item], [...currentState.selectedItemsList])
             : []
-      }
-    case 'CLEAR_SELECTED_LIST':
-      return {
-        ...currentState,
-        selectedItemsList: []
       }
     case 'SET_TAB_INDEX':
       return {
@@ -223,7 +244,7 @@ export default function useMapDrawer() {
     const featureType = feature.type
     const featureId = feature.id
     const newTabValue = TabValuesDict[featureType]
-    const featureCardId = featureType + '-' + featureId
+    const featureCardId = getCardId(featureType, featureId)
     switch (featureType) {
       case EntityType.PERSON:
         dispatch({
@@ -321,7 +342,7 @@ export default function useMapDrawer() {
         return
       case EntityType.STATION:
         const stationFeatureId = feature.details
-        const stationCardId = featureType + '-' + stationFeatureId
+        const stationCardId = getCardId(featureType, stationFeatureId)
         dispatch({
           type: 'SELECT_CARD',
           value: { tabIndex: newTabValue, featureId: stationCardId }

@@ -1,5 +1,5 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import { CommunicationsApiFactory, DTResultOfCommunicationDto, GetEntityByIdOutputOfCommunicationDto } from 'ermes-ts-sdk'
+import { CommunicationsApiFactory, DTResultOfCommunicationDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -36,14 +36,6 @@ const reducer = (currentState, action) => {
         data: [],
         error: false,
         tot: action.tot
-      }
-    case 'FETCH_BY_ID':
-      return {
-        ...currentState,
-        isLoading: false,
-        error: false,
-        data: [action.value, ...currentState.data],
-        selectedItems: [...currentState.selectedItems, action.value]
       }
     case 'RESULT':
       return {
@@ -164,23 +156,6 @@ export default function useCommList() {
       mounted.current = true
     }
   }, [searchText])
-
-  const getCommunicationById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
-      commApiFactory
-        .communicationsGetCommunicationById(id, true)
-        .then((result) => {
-          const newData: GetEntityByIdOutputOfCommunicationDto = transformData(result.data)
-          sideEffect(newData)
-          dispatch({ type: 'FETCH_BY_ID', value: newData })
-        })
-        .catch((error) => {
-          displayErrorSnackbar(error)
-          dispatch({ type: 'ERROR', value: error.response.data.error.message })
-        })
-    },
-    [commApiFactory]
-  )
 
   const appendSelectedItems = useCallback((selectedItems) => {
     dispatch({ type: 'APPEND_SELECTED', value: selectedItems })
