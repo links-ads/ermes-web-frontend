@@ -100,7 +100,8 @@ export default function MapDrawer(props) {
     availableLayers,
     dataState,
     updateTabIndex,
-    selectTabCard
+    selectTabCard,
+    updateCardId
   } = props
 
   // Map state
@@ -114,8 +115,7 @@ export default function MapDrawer(props) {
       editingFeatureArea,
       editingFeatureType,
       editingFeatureId,
-      goToCoord,
-      selectedCard
+      goToCoord
     },
     {
       setMapMode,
@@ -125,8 +125,7 @@ export default function MapDrawer(props) {
       setRightClickedPoint,
       startFeatureEdit,
       clearFeatureEdit,
-      setGoToCoord,
-      setSelectedCard
+      setGoToCoord
     }
   ] = useMapStateContext<EmergencyProps>()
 
@@ -141,7 +140,7 @@ export default function MapDrawer(props) {
   const { tabIndex: tabValue, selectedFeatureId, selectedItemsList } = dataState
 
   const onCardClick = (selectedItemId) => {
-    setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
+    updateCardId(selectedFeatureId === selectedItemId ? '' : selectedItemId)
   }
 
   const onFeatureDialogClose = useCallback(
@@ -237,21 +236,10 @@ export default function MapDrawer(props) {
   useEffect(() => {
     if (clickedPoint && clickedPoint !== null && clickedPoint.item && props.toggleSideDrawer) {
       const clickedItem = clickedPoint.item as EmergencyProps
-      const clickedItemType = clickedItem.type
-      const clickedItemId = clickedItem.id
-      const newTabValue = TabValuesDict[clickedItemType]
-      const selected = clickedItemType + '-' + clickedItemId
-      selectTabCard(clickedItemType, clickedItemId)
-      //onCardClick(selected)
-      if (tabValue !== newTabValue || selectedFeatureId !== selected) {
-        // selectTabCard(clickedItemType, clickedItemId)
-        if (selectedCard !== selected) {
-          onCardClick(selected)
-        }
-      }
+      selectTabCard(clickedItem)
     }
     else {
-      setSelectedCard('')
+      updateCardId('')
     }
   }, [clickedPoint])
 
@@ -357,7 +345,7 @@ export default function MapDrawer(props) {
                 spiderifierRef={props.spiderifierRef}
                 filters={props.filtersObj.filters.persons}
                 teamList={props.teamList}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
               />
             </TabPanel>
@@ -370,7 +358,7 @@ export default function MapDrawer(props) {
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
               />
@@ -386,7 +374,7 @@ export default function MapDrawer(props) {
                 spiderifierRef={props.spiderifierRef}
                 missionCounter={props.missionCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
               />
@@ -402,7 +390,7 @@ export default function MapDrawer(props) {
                 spiderifierRef={props.spiderifierRef}
                 communicationCounter={props.communicationCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
               />
@@ -427,7 +415,7 @@ export default function MapDrawer(props) {
                 layersDefinition={layersDefinition}
                 mapRequestCounter={props.mapRequestCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
                 selectedItemsList={selectedItemsList}
@@ -442,7 +430,7 @@ export default function MapDrawer(props) {
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
                 selectedItemsList={selectedItemsList}
@@ -457,7 +445,7 @@ export default function MapDrawer(props) {
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
               />

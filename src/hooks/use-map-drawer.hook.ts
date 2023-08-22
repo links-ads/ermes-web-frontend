@@ -59,6 +59,11 @@ const reducer = (currentState, action) => {
         tabIndex: action.value,
         selectedItemsList: []
       }
+    case 'SET_SELECTED_FEATURE_ID':
+      return {
+        ...currentState,
+        selectedFeatureId: action.value
+      }
     case 'ERROR':
       return {
         ...currentState
@@ -84,17 +89,22 @@ export default function useMapDrawer() {
   const alertsApiFactory = useMemo(() => AlertsApiFactory(backendAPIConfig), [backendAPIConfig])
 
   const fetchReportById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      id,
+      tabValue,
+      cardId,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       repApiFactory
         .reportsGetReportById(id, true)
         .then((result) => {
           const newData: GetEntityByIdOutputOfReportDto = transformData(result.data)
           sideEffect(newData)
-          const newTabValue = TabValuesDict[EntityType.REPORT]
-          const newFeatureId = EntityType.REPORT + '-' + id
           dispatch({
             type: 'ADD_TO_SELECTED_LIST',
-            value: { item: newData, tabIndex: newTabValue, featureId: newFeatureId }
+            value: { item: newData, tabIndex: tabValue, featureId: cardId }
           })
         })
         .catch((error) => {
@@ -105,17 +115,22 @@ export default function useMapDrawer() {
   )
 
   const fetchMissionById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      id,
+      tabValue,
+      cardId,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       missionsApiFactory
         .missionsGetMissionById(id, true)
         .then((result) => {
           const newData: GetEntityByIdOutputOfMissionDto = transformData(result.data)
           sideEffect(newData)
-          const newTabValue = TabValuesDict[EntityType.MISSION]
-          const newFeatureId = EntityType.MISSION + '-' + id
           dispatch({
             type: 'ADD_TO_SELECTED_LIST',
-            value: { item: newData, tabIndex: newTabValue, featureId: newFeatureId }
+            value: { item: newData, tabIndex: tabValue, featureId: cardId }
           })
         })
         .catch((error) => {
@@ -126,17 +141,22 @@ export default function useMapDrawer() {
   )
 
   const getCommunicationById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      id,
+      tabValue,
+      cardId,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       commApiFactory
         .communicationsGetCommunicationById(id, true)
         .then((result) => {
           const newData: GetEntityByIdOutputOfCommunicationDto = transformData(result.data)
           sideEffect(newData)
-          const newTabValue = TabValuesDict[EntityType.COMMUNICATION]
-          const newFeatureId = EntityType.COMMUNICATION + '-' + id
           dispatch({
             type: 'ADD_TO_SELECTED_LIST',
-            value: { item: newData, tabIndex: newTabValue, featureId: newFeatureId }
+            value: { item: newData, tabIndex: tabValue, featureId: cardId }
           })
         })
         .catch((error) => {
@@ -148,17 +168,22 @@ export default function useMapDrawer() {
   )
 
   const fetchMapRequestById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      id,
+      tabValue,
+      cardId,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       maprequestApiFactory
         .mapRequestsGetMapRequestById(id, true)
         .then((result) => {
           let newData: GetEntityByIdOutputOfMapRequestDto = transformData(result.data)
           sideEffect(newData)
-          const newTabValue = TabValuesDict[EntityType.MAP_REQUEST]
-          const newFeatureId = EntityType.MAP_REQUEST + '-' + id
           dispatch({
             type: 'ADD_TO_SELECTED_LIST',
-            value: { item: newData, tabIndex: newTabValue, featureId: newFeatureId }
+            value: { item: newData, tabIndex: tabValue, featureId: cardId }
           })
         })
         .catch((error) => {
@@ -169,17 +194,22 @@ export default function useMapDrawer() {
   )
 
   const fetchAlertById = useCallback(
-    (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      id,
+      tabValue,
+      cardId,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       alertsApiFactory
         .alertsGetAlertById(id, true)
         .then((result) => {
           let newData: GetEntityByIdOutputOfAlertDto = transformData(result.data)
           sideEffect(newData)
-          const newTabValue = TabValuesDict[EntityType.ALERT]
-          const newFeatureId = EntityType.ALERT + '-' + id
           dispatch({
             type: 'ADD_TO_SELECTED_LIST',
-            value: { item: newData, tabIndex: newTabValue, featureId: newFeatureId }
+            value: { item: newData, tabIndex: tabValue, featureId: cardId }
           })
         })
         .catch((error) => {
@@ -189,16 +219,23 @@ export default function useMapDrawer() {
     [alertsApiFactory]
   )
 
-  const selectTabCard = (featureType, featureId) => {
+  const selectTabCard = (feature) => {
+    const featureType = feature.type
+    const featureId = feature.id
+    const newTabValue = TabValuesDict[featureType]
+    const featureCardId = featureType + '-' + featureId
     switch (featureType) {
       case EntityType.PERSON:
-        const newTabValue = TabValuesDict[EntityType.PERSON]
-        const newFeatureId = EntityType.PERSON + '-' + featureId
-        dispatch({ type: 'SELECT_CARD', value: { tabIndex: newTabValue, featureId: newFeatureId } })
+        dispatch({
+          type: 'SELECT_CARD',
+          value: { tabIndex: newTabValue, featureId: featureCardId }
+        })
         return
       case EntityType.REPORT:
         fetchReportById(
           featureId,
+          newTabValue,
+          featureCardId,
           (data) => {
             return {
               ...data.feature.properties
@@ -215,6 +252,8 @@ export default function useMapDrawer() {
       case EntityType.MISSION:
         fetchMissionById(
           featureId,
+          newTabValue,
+          featureCardId,
           (data) => {
             return {
               ...data.feature.properties
@@ -231,6 +270,8 @@ export default function useMapDrawer() {
       case EntityType.COMMUNICATION:
         getCommunicationById(
           featureId,
+          newTabValue,
+          featureCardId,
           (data) => {
             return {
               ...data.feature.properties
@@ -247,6 +288,8 @@ export default function useMapDrawer() {
       case EntityType.MAP_REQUEST:
         fetchMapRequestById(
           featureId,
+          newTabValue,
+          featureCardId,
           (data) => {
             return { ...data.feature.properties }
           },
@@ -261,6 +304,8 @@ export default function useMapDrawer() {
       case EntityType.ALERT:
         fetchAlertById(
           featureId,
+          newTabValue,
+          featureCardId,
           (data) => {
             return {
               ...data.feature.properties
@@ -275,14 +320,18 @@ export default function useMapDrawer() {
         )
         return
       case EntityType.STATION:
-        const stationTabValue = TabValuesDict[EntityType.STATION]
-        const stationFeatureId = EntityType.STATION + '-' + featureId
+        const stationFeatureId = feature.details
+        const stationCardId = featureType + '-' + stationFeatureId
         dispatch({
           type: 'SELECT_CARD',
-          value: { tabIndex: stationTabValue, featureId: stationFeatureId }
+          value: { tabIndex: newTabValue, featureId: stationCardId }
         })
         return
     }
+  }
+
+  const updateCardId = (cardId) => {
+    dispatch({ type: 'SET_SELECTED_FEATURE_ID', value: cardId })
   }
 
   const addCardToTabList = (card) => {
@@ -293,5 +342,5 @@ export default function useMapDrawer() {
     dispatch({ type: 'SET_TAB_INDEX', value: index })
   }
 
-  return [dataState, updateTabIndex, selectTabCard, addCardToTabList]
+  return [dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId]
 }

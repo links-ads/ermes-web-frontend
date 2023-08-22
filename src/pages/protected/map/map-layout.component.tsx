@@ -184,7 +184,8 @@ export function MapLayout(props) {
     setSpiderifierRef,
     setDblClickFeatures,
     selectedLayer,
-    mapRequestsSettings
+    mapRequestsSettings,
+    mapDrawerDataState
   } = props
 
   // Map state
@@ -198,8 +199,7 @@ export function MapLayout(props) {
       editingFeatureArea,
       editingFeatureType,
       editingFeatureId,
-      goToCoord,
-      selectedCard
+      goToCoord
     },
     {
       setMapMode,
@@ -209,12 +209,12 @@ export function MapLayout(props) {
       setRightClickedPoint,
       startFeatureEdit,
       clearFeatureEdit,
-      setGoToCoord,
-      setSelectedCard
+      setGoToCoord
     }
   ] = useMapStateContext<EmergencyProps>()
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
+  const { selectedFeatureId } = mapDrawerDataState
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -619,8 +619,8 @@ export function MapLayout(props) {
   }, [goToCoord, setGoToCoord])
 
   useEffect(() => {
-    if (selectedCard !== '') {
-      const selectedItems = selectedCard.split('-')
+    if (selectedFeatureId !== '') {
+      const selectedItems = selectedFeatureId.split('-')
       const selectedId =
         selectedItems[0] === EntityType.STATION ? selectedItems[1] : Number(selectedItems[1])
       const selectedType = selectedItems[0]
@@ -640,7 +640,7 @@ export function MapLayout(props) {
     } else {
       tonedownClickedPoint(mapViewRef, setClickedPoint)
     }
-  }, [selectedCard])
+  }, [selectedFeatureId])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {

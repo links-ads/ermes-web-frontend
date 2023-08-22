@@ -49,7 +49,7 @@ export function Map() {
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
   const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
   const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
-  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId ] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -774,6 +774,7 @@ export function Map() {
           dataState={dataState}
           updateTabIndex={updateTabIndex}
           selectTabCard={selectTabCard}
+          updateCardId={updateCardId}
         />
         <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
           <LayersPlayer
@@ -856,6 +857,7 @@ export function Map() {
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
             selectedLayer={selectedLayer}
             mapRequestsSettings={mapRequestsSettings}
+            mapDrawerDataState={dataState}
           />
 
           {isGeoDataloading ? loader : undefined}

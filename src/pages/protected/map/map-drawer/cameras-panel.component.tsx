@@ -63,32 +63,6 @@ const CamerasPanel: React.FC<{
     )
   }, [])
 
-  // TODO fix this
-  // useEffect(() => {
-  //   if (camerasData && camerasData.data && camerasData.data.length > 0 && selectedCard !== '') {
-  //     const selectedTypeAndId = selectedCard.split('-')
-  //     const selectedCameraId = Number(selectedTypeAndId[1])
-  //     const selectedCamera = camerasData.data.findIndex((e) => e.id === selectedCameraId)
-  //     if (selectedCamera < 0) {
-  //       appendCameraById(
-  //         selectedTypeAndId[1],
-  //         (data) => {
-  //           return {
-  //             ...data.feature.properties
-  //           }
-  //         },
-  //         (error) => {
-  //           console.debug(error)
-  //         },
-  //         (data) => {
-  //           return data
-  //         }
-  //       )
-  //     }
-  //   }
-  // }, [selectedCard])
-
-
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
