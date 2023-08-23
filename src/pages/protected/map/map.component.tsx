@@ -38,6 +38,13 @@ import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 type MapFeature = CulturalProps
 
+interface Position {
+  x: number, 
+  y: number
+}
+
+type LayersPlayersPosition = Position[]
+
 const NO_LAYER_SELECTED = '-1'
 
 export function Map() {
@@ -223,6 +230,7 @@ export function Map() {
         updatedSettings = { ...layersSettings }
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         setLayersSettings(updatedSettings)
+        // setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
       }
     }
   }
@@ -386,7 +394,8 @@ export function Map() {
                   layer.format!,
                   layer.frequency!,
                   layer.type!,
-                  layer.unitOfMeasure!
+                  layer.unitOfMeasure!, 
+                  layersPlayerDefaultCoord.y
                 )
                 layer.details!.forEach((detail) => {
                   layerSettingState.metadataId = detail.metadata_Id
@@ -452,9 +461,7 @@ export function Map() {
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<
     PixelPostion | undefined
   >(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<
-    { x: number; y: number } | undefined
-  >(undefined)
+  const [layersPlayerPosition, setLayersPlayerPosition] = useState<LayersPlayersPosition>([])
   const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<
     { x: number; y: number } | undefined
   >(undefined)
@@ -486,6 +493,14 @@ export function Map() {
 
   const [singleLayerOpacityStatus, handleOpacityChange] = useState<[number, string]>([100, ''])
 
+  const updateLayerPlayerPosition = (x, y, group, subGroup, dataTypeId) => {
+    let toBeUpdated = layersSettings[group][subGroup][dataTypeId]
+    toBeUpdated.position = { x, y }
+    const updatedSettings = { ...layersSettings }
+    updatedSettings[group][subGroup][dataTypeId] = toBeUpdated
+    setLayersSettings(updatedSettings)
+  }
+
   useEffect(() => {
     if (toggleSideDrawer) {
       if (isLayersPanelVisible) {
@@ -500,10 +515,25 @@ export function Map() {
       }
 
       if (togglePlayer) {
-        if (layersPlayerPosition == undefined)
-          setLayersPlayerPosition({ x: 470, y: layersPlayerDefaultCoord.y })
-        else if (layersPlayerPosition!.x < 450)
-          setLayersPlayerPosition({ x: 470, y: layersPlayerPosition!.y })
+        // if (layersPlayerPosition.length === 0)
+        //   setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
+        // else {
+        //   let toAdjust = false
+        //   const adjustedLayerPlayers = layersPlayerPosition.map((e) => {
+        //     if (e.x < 450) {
+        //       toAdjust = true
+        //       return {
+        //         x: 470,
+        //         y: e.y
+        //       }
+        //     } else {
+        //       return e
+        //     }
+        //   })
+        //   if (toAdjust) {
+        //     setLayersPlayerPosition(adjustedLayerPlayers)
+        //   }
+        // }
       }
 
       if (toggleActiveFilterTab) {
@@ -517,34 +547,49 @@ export function Map() {
     }
   }, [toggleSideDrawer])
 
-  useMemo(() => {
-    if (toggleSideDrawer) {
-      if (layersSelectVisibility) {
-        //layers container is visible, move it
-        //opening drawer
-        if (layersSelectContainerPosition == undefined)
-          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
-        else if (layersSelectContainerPosition!.x < 450)
-          setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
-      }
+  // useMemo(() => {
+  //   if (toggleSideDrawer) {
+  //     if (layersSelectVisibility) {
+  //       //layers container is visible, move it
+  //       //opening drawer
+  //       if (layersSelectContainerPosition == undefined)
+  //         setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
+  //       else if (layersSelectContainerPosition!.x < 450)
+  //         setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
+  //     }
 
-      if (togglePlayer) {
-        if (layersPlayerPosition == undefined)
-          setLayersPlayerPosition({ x: 470, y: layersPlayerDefaultCoord.y })
-        else if (layersPlayerPosition!.x < 450)
-          setLayersPlayerPosition({ x: 470, y: layersPlayerPosition!.y })
-      }
+  //     if (togglePlayer) {
+  //       if (layersPlayerPosition.length === 0)
+  //         setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
+  //       else {
+  //         let toAdjust = false
+  //         const adjustedLayerPlayers = layersPlayerPosition.map((e) => {
+  //           if (e.x < 450) {
+  //             toAdjust = true
+  //             return {
+  //               x: 470,
+  //               y: e.y
+  //             }
+  //           } else {
+  //             return e
+  //           }
+  //         })
+  //         if (toAdjust) {
+  //           setLayersPlayerPosition(adjustedLayerPlayers)
+  //         }
+  //       }
+  //     }
 
-      if (toggleActiveFilterTab) {
-        if (floatingFilterContainerPosition == undefined)
-          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
-        else if (floatingFilterContainerPosition!.x < 450)
-          setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
-      }
-    } else {
-      //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
-    }
-  }, [toggleSideDrawer])
+  //     if (toggleActiveFilterTab) {
+  //       if (floatingFilterContainerPosition == undefined)
+  //         setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
+  //       else if (floatingFilterContainerPosition!.x < 450)
+  //         setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
+  //     }
+  //   } else {
+  //     //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
+  //   }
+  // }, [toggleSideDrawer])
 
   /**
    *
@@ -785,20 +830,20 @@ export function Map() {
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {selectedLayers.map((layer, idx) => {
+        {selectedLayers && selectedLayers.map((layer, idx) => 
           <LayersPlayer
             key={'layer-player-' + idx}
             visibility={togglePlayer}
             setVisibility={setTogglePlayer}
-            position={layersPlayerPosition}
-            onPositionChange={setLayersPlayerPosition}
+            position={layer.position}
+            onPositionChange={updateLayerPlayerPosition}
             getLegend={getLegend}
             getMeta={getMeta}
             map={map}
             selectedLayer={layer} // TODO
             updateLayersSetting={updateLayersSetting}
           />
-        })}
+        )}
 
         <PlayerLegend
           visibility={toggleLegend}

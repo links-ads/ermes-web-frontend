@@ -1,5 +1,9 @@
 import { TimestampToFile } from "../common/TimestampToFile"
 
+interface Position {
+  x: number, 
+  y: number
+}
 
 export class AssociatedLayer {
   dataTypeId: number
@@ -32,6 +36,7 @@ export class LayerSettingsState {
   timestampsToFiles: TimestampToFile
   activeLayer: string
   toBeRemovedLayer: string
+  position: Position
 
   associatedLayers: AssociatedLayer[]
 
@@ -43,7 +48,8 @@ export class LayerSettingsState {
     format: string,
     frequency: number | string,
     type: string,
-    unitOfMeasure: string
+    unitOfMeasure: string,
+    yPosition: number
   ) {
     this.group = group
     this.subGroup = subGroup
@@ -64,6 +70,7 @@ export class LayerSettingsState {
     this.activeLayer = ''
     this.toBeRemovedLayer = ''
     this.associatedLayers = []
+    this.position = { x: 470, y: yPosition }
   }
 }
 

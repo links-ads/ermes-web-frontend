@@ -28,9 +28,9 @@ import { PixelPostion } from '../../../../models/common/PixelPosition'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
-    width: '75%',
+    width: '60%',
     display: 'inline-block',
-    paddingLeft: 32,
+    paddingLeft: 11,
     paddingTop: 11,
     paddingBottom: 11
   },
@@ -45,8 +45,14 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     width: '75%',
     height: '50px',
-    verticalAlign: '-moz-middle-with-baseline',
-  
+    verticalAlign: '-moz-middle-with-baseline',  
+    alignItems:'flex-end'
+  },
+  transparencyContainer: {
+    display: 'inline-flex',
+    width: '25%',
+    // height: '50px',
+    verticalAlign: '-moz-middle-with-baseline',  
     alignItems:'flex-end'
   },
   slider: {
@@ -72,6 +78,31 @@ const useStyles = makeStyles((theme) => ({
       color: '#fff',
       display: 'none'
     }
+  },
+  transparencySlider: {
+    width: '45%',
+    marginLeft: 10
+    // display: 'inline-block',
+    // '& .MuiSlider-thumb': {
+    //   backgroundColor: '#fff',
+    //   width: '16px',
+    //   height: '16px'
+    // },
+    // '& .MuiSlider-track': {
+    //   border: 'none',
+    //   height: '6px',
+    //   borderRadius: '3px'
+    // },
+    // '& .MuiSlider-rail': {
+    //   opacity: 0.5,
+    //   backgroundColor: '#fff',
+    //   height: '6px',
+    //   borderRadius: '3px'
+    // },
+    // '& .MuiSlider-mark ': {
+    //   color: '#fff',
+    //   display: 'none'
+    // }
   },
   buttonsContainer: {
     width: '25%',
@@ -249,16 +280,69 @@ const LayersPlayer: React.FC<{
 
   if (!selectedLayer) return <div></div>
 
+  const onPositionUpdate = (updatedPosition) => {
+    props.onPositionChange(updatedPosition.x, updatedPosition.y, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+  }
+
+  const createLayerMarks = () => {
+    const layerDates = [...new Set(selectedLayer.availableTimestamps.map((e) => {
+      const dateValue = new Date(e)
+      return dateValue.getDate()
+    }))]
+  
+    const layerFullDates = [...new Set(selectedLayer.availableTimestamps.map((e) => {
+      const dateValue = new Date(e)
+      return dateValue.getDate() + '/' + (dateValue.getMonth() + 1)
+    }))]
+  
+    const calcHours = (hourValues, upTo) => {
+      let totHours = 0
+      for(let i = 0; i < upTo; i ++){
+        totHours += hourValues[i]
+      }
+      return totHours
+    }
+  
+    const lastHour = new Date(selectedLayer.availableTimestamps[selectedLayer.availableTimestamps.length - 1]).getHours()
+  
+    const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' ' + lastHour
+  
+    const layerHoursPerDate = layerDates.map(e => selectedLayer.availableTimestamps.filter(d => new Date(d).getDate() === e).length)
+  
+    const layerMarks = [...layerFullDates, additionalLastValue].map((e, idx) => {
+      if (idx === 0) {
+        return {
+          value: 0, 
+          label: e as string
+        }
+      }
+      const hourValue = calcHours(layerHoursPerDate, idx)
+      return {
+        value: hourValue, 
+        label: e as string
+      }
+    })
+
+    return layerMarks
+  }
+
+  const layerMarks = createLayerMarks()
+
+  const valuetext = (value, index) => {
+    return 'h' //String(hour)
+  }
+
   return (
     <FloatingCardContainer
       bounds={'parent'}
       defaultPosition={defaultPosition}
+      selectedLayer={selectedLayer}
       position={props.position}
-      onPositionChange={props.onPositionChange}
+      onPositionChange={onPositionUpdate}
       toggleActiveFilterTab={visibility}
       dim={{
-        width: 500,
-        height: 275
+        width: 1000,
+        height: 190
       }}
       onResize={null}
       resizable={true}
@@ -274,9 +358,26 @@ const LayersPlayer: React.FC<{
         className="handle handleResize"
       >
         <span className={classes.titleContainer}>
-          <Typography align="left" variant="h4" style={{ fontSize: '2rem' }}>
-            {selectedLayer.name}
+          <Typography align="left" variant="h4" style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}>
+            {selectedLayer.group + ' | ' +selectedLayer.name}
           </Typography>
+        </span>
+        <span className={classes.transparencyContainer}>
+          <label htmlFor="opacity-slider">
+            {t('maps:opacity') + ': ' +  selectedLayer.opacity + '%'}
+          </label>
+          <Slider
+            id="opacity-slider"
+            className={classes.transparencySlider}
+            defaultValue={100}
+            valueLabelDisplay="off"
+            step={1}
+            value={selectedLayer.opacity}
+            min={0}
+            max={100}
+            color="secondary"
+            onChange={handleOpacityChange}
+          />
         </span>
         <span>
           <IconButton
@@ -284,25 +385,28 @@ const LayersPlayer: React.FC<{
             onClick={() => {
               setVisibility(false)
             }}
+            size='small'
           >
             <CloseIcon />
           </IconButton>
           <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '60px' }}
-            onClick={() => {
-              props.getLegend(layerName)
-            }}
-          >
-            <LegendIcon />
-          </IconButton>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
+            style={{ marginTop: '10px', position: 'absolute', right: '45px' }}
             onClick={() => {
               if (selectedLayer)
                 props.getMeta(selectedLayer.metadataId)
             }}
+            size='small'
           >
             <MetaIcon />
+          </IconButton>
+          <IconButton
+            style={{ marginTop: '10px', position: 'absolute', right: '85px' }}
+            onClick={() => {
+              props.getLegend(layerName)
+            }}
+            size='small'
+          >
+            <LegendIcon />
           </IconButton>
         </span>
       </AppBar>
@@ -323,23 +427,6 @@ const LayersPlayer: React.FC<{
         <div className={classes.playerContainer}>
           {selectedLayer.availableTimestamps.length > 1 ? (
             <span className={classes.spanContainer}>
-              <div className={classes.sliderContainer}>
-                <Slider
-                  aria-label="Temperature"
-                  defaultValue={0}
-                  //getAriaValueText={valuetext}
-                  valueLabelDisplay="on"
-                  step={1}
-                  value={selectedLayer.dateIndex}
-                  // marks
-                  min={0}
-                  max={selectedLayer.availableTimestamps.length - 1}
-                  color="secondary"
-                  onChange={(event, value) => {
-                    changeDateHandler(event, value)
-                  }}
-                />
-              </div>
               <div className={classes.buttonsContainer}>
                 <IconButton aria-label="play/pause" onClick={playPause}>
                   {playing ? (
@@ -351,6 +438,28 @@ const LayersPlayer: React.FC<{
                 <IconButton aria-label="next" onClick={onClickDateHandler}>
                   <SkipNextIcon />
                 </IconButton>
+              </div>
+              <div className={classes.sliderContainer}>
+                <Slider
+                  aria-labelledby="discrete-slider-custom"
+                  // aria-label="Temperature"
+                  defaultValue={0}
+                  getAriaValueText={valuetext}
+                  valueLabelDisplay="on"
+                  //step={1}
+                  value={selectedLayer.dateIndex}
+                  // marks
+                  min={0}
+                  max={selectedLayer.availableTimestamps.length}
+                  // max={selectedLayer.availableTimestamps.length - 1}
+                  color="secondary"
+                  onChange={(event, value) => {
+                    changeDateHandler(event, value)
+                  }}
+                  marks={layerMarks}
+                />
+              </div>
+              <div className={classes.buttonsContainer}>
                 {!isLoading ? (
                   <IconButton
                     aria-label="download"
@@ -368,7 +477,7 @@ const LayersPlayer: React.FC<{
             <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
           )}
         </div>
-        <div className={classes.sliderContainer}>
+        {/* <div className={classes.sliderContainer}>
           <label htmlFor="opacity-slider">
             {t('maps:opacity')} {selectedLayer.opacity}%
           </label>
@@ -383,7 +492,7 @@ const LayersPlayer: React.FC<{
             color="secondary"
             onChange={handleOpacityChange}
           />
-        </div>
+        </div> */}
       </CardContent>
     </FloatingCardContainer>
   )
