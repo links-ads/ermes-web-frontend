@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from "react"
 import { LayerSettingsState } from "../../../../models/layers/LayerState"
 import {
-  Radio,
   AccordionDetails,
   FormControlLabel,
   makeStyles,
+  Checkbox,
 } from '@material-ui/core'
 import { tileJSONIfy } from "../../../../utils/map.utils"
 import { AppConfig, AppConfigContext } from "../../../../config"
@@ -18,17 +18,18 @@ const useStyles = makeStyles((theme) => ({
 
 const LayersAccordionDetails: React.FC<{
   layerSettings: LayerSettingsState
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayers: LayerSettingsState[] | undefined
   setLayerSelection: any
   updateLayersSetting: any
   map: any
+  checkboxDisabled: boolean
 }> = (props) => {
   const classes = useStyles()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
-  const { updateLayersSetting, layerSettings, map, selectedLayer } = props
+  const { updateLayersSetting, layerSettings, map, selectedLayers, checkboxDisabled } = props
   
-  const radioClickHandler = (event: any) => {
+  const checkboxClickHandler = (event: any) => {
     //TODO: to be removed after optimization
     if (layerSettings && layerSettings.isChecked) {
       props.setLayerSelection({
@@ -56,6 +57,7 @@ const LayersAccordionDetails: React.FC<{
   }
 
   useEffect(() => {
+    const selectedLayer = selectedLayers ? selectedLayers[0] : null
     if (!selectedLayer) return
     if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
       map.removeLayer(selectedLayer?.toBeRemovedLayer)
@@ -86,11 +88,11 @@ const LayersAccordionDetails: React.FC<{
       )
       map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
     }
-  }, [selectedLayer?.activeLayer])
+  }, [selectedLayers]) //?[0]?.activeLayer?])
 
   const layerComponent = (
     <FormControlLabel
-      control={<Radio onClick={radioClickHandler} checked={layerSettings.isChecked} />}
+      control={<Checkbox onChange={checkboxClickHandler} checked={layerSettings.isChecked} disabled={checkboxDisabled && !layerSettings.isChecked} />}
       label={layerSettings.name}
     />
   )

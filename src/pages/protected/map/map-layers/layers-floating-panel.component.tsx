@@ -37,7 +37,7 @@ const LayersFloatingPanel: React.FC<{
   setLayerSelection: any
   updateLayersSetting: any
   map: any
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayers: LayerSettingsState[] | undefined
   position: PixelPostion | undefined
   setPosition: any
 }> = (props) => {
@@ -128,7 +128,7 @@ const LayersFloatingPanel: React.FC<{
                   setLayerSelection={props.setLayerSelection}
                   updateLayersSetting={props.updateLayersSetting}
                   map={props.map}
-                  selectedLayer={props.selectedLayer}
+                  selectedLayers={props.selectedLayers}
                 />
               ))}
             </FormControl>

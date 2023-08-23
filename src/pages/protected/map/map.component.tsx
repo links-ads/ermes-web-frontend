@@ -11,7 +11,7 @@ import { AppConfig, AppConfigContext } from '../../../config'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
-import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import { GetLayersOutput, LayerDto, LayerSubGroupDto, LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import LayersPlayer from './map-player/player.component'
 import { PlayerLegend } from './map-popup-legend.component'
 import { useTranslation } from 'react-i18next'
@@ -169,7 +169,7 @@ export function Map() {
     layerClicked: null
   })
 
-  const [selectedLayer, setSelectedLayer] = useState<LayerSettingsState>()
+  const [selectedLayers, setSelectedLayers] = useState<LayerSettingsState[]>([])
   const [layersSettings, setLayersSettings] = useState<GroupLayerState>({})
   const updateLayersSetting = (
     group: string,
@@ -198,15 +198,15 @@ export function Map() {
               ]
             break
           case 'ISCHECKED':
-            Object.keys(layersSettings).forEach((group) => {
-              Object.keys(layersSettings[group]).forEach((subGroup) => {
-                Object.keys(layersSettings[group][subGroup]).forEach((dataTypeId) => {
-                  layersSettings[group][subGroup][dataTypeId].isChecked = false
-                })
-              })
-            })
+            // Object.keys(layersSettings).forEach((group) => {
+            //   Object.keys(layersSettings[group]).forEach((subGroup) => {
+            //     Object.keys(layersSettings[group][subGroup]).forEach((dataTypeId) => {
+            //       layersSettings[group][subGroup][dataTypeId].isChecked = false
+            //     })
+            //   })
+            // })
             newSettings.isChecked = !!newValue
-            newSettings.toBeRemovedLayer = selectedLayer ? selectedLayer.activeLayer : ''
+            //newSettings.toBeRemovedLayer = selectedLayer ? selectedLayer.activeLayer : ''
             newSettings.activeLayer = newSettings.isChecked
               ? currentLayer.timestampsToFiles[
                   currentLayer.availableTimestamps[currentLayer.dateIndex]
@@ -217,8 +217,9 @@ export function Map() {
           default:
             break
         }
-
-        setSelectedLayer(newSettings)
+        let updatedSelectedLayers = [...selectedLayers]
+        updatedSelectedLayers.push(newSettings)
+        setSelectedLayers(updatedSelectedLayers)
         updatedSettings = { ...layersSettings }
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         setLayersSettings(updatedSettings)
@@ -226,75 +227,12 @@ export function Map() {
     }
   }
 
-  const [getLayersState, handleGetLayersCall] = useAPIHandler(false)
+  const [getLayersState, handleGetLayersCall] = useAPIHandler(false, true)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
   const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
   const [legendLayer, setLegendLayer] = useState('')
   const [metaLayer, setMetaLayer] = useState('')
-
-  useEffect(() => {
-    let groupLayersState = new GroupLayerState()
-    if (Object.keys(getLayersState.result).length === 0) return
-    if (!getLayersState.result.data['layerGroups']) return
-
-    getLayersState.result.data['layerGroups'].forEach((group) => {
-      let subGroupLayerState = new SubGroupLayerState()
-      group['subGroups'].forEach((subGroup) => {
-        let layerState = new LayerState()
-        subGroup['layers']
-          .filter((a) => a['frequency'] !== 'OnDemand')
-          .forEach((layer) => {
-            let layerSettingState = new LayerSettingsState(
-              group.group,
-              subGroup.subGroup,
-              layer.dataTypeId,
-              layer.name,
-              layer.format,
-              layer.frequency,
-              layer.type,
-              layer.unitOfMeasure
-            )
-            layer.details!.forEach((detail) => {
-              layerSettingState.metadataId = detail.metadata_Id
-              let timestamps: string[] = [...layerSettingState.availableTimestamps]
-              detail.timestamps!.forEach((timestamp) => {
-                layerSettingState.timestampsToFiles[timestamp] = detail.name!
-                timestamps.push(timestamp)
-              })
-              //keep availableTimestamp sorted
-              //use Set to ensure timestamps are unique inside the final array
-              layerSettingState.availableTimestamps = Array.from(
-                new Set(
-                  timestamps
-                    .map((item) => {
-                      return { dateString: item, dateValue: new Date(item) }
-                    })
-                    .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
-                    .map((item) => item.dateString)
-                )
-              )
-            })
-            layerState[layer.dataTypeId] = layerSettingState
-          })
-        if (Object.keys(layerState).length > 0)
-          subGroupLayerState[subGroup['subGroup']] = layerState
-      })
-      if (Object.keys(subGroupLayerState).length > 0)
-        groupLayersState[group['group']] = subGroupLayerState
-    })
-
-    if (getLayersState.result.data['associatedLayers']) {
-      getLayersState.result.data['associatedLayers'].forEach((assLayer) => {
-        let parent = groupLayersState[assLayer.group][assLayer.subGroup][assLayer.parentDataTypeId]
-        parent.associatedLayers.push(
-          new AssociatedLayer(assLayer.dataTypeId, assLayer.name, parent.dataTypeId, parent.name)
-        )
-      })
-    }
-
-    setLayersSettings(groupLayersState)
-  }, [getLayersState])
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -411,21 +349,93 @@ export function Map() {
       multipleLayersAllowed: false,
       layerClicked: null
     })
-    handleGetLayersCall(() => {
-      return layersApiFactory.layersGetLayers(
-        undefined,
-        undefined,
-        filtersObj!.filters!.datestart['selected'],
-        filtersObj!.filters!.dateend['selected'],
-        undefined, //TODO: add MapRequestCode management
-        true,
-        {
-          headers: {
-            'Accept-Language': i18n.language
+    handleGetLayersCall(
+      () => {
+        return layersApiFactory.layersGetLayers(
+          undefined,
+          undefined,
+          filtersObj!.filters!.datestart['selected'],
+          filtersObj!.filters!.dateend['selected'],
+          undefined, //TODO: add MapRequestCode management
+          true,
+          {
+            headers: {
+              'Accept-Language': i18n.language
+            }
           }
+        )
+      },
+      null,
+      () => {},
+      () => {},
+      (result) => {
+        const layerData: GetLayersOutput = result.data
+        let groupLayersState = new GroupLayerState()
+        layerData?.layerGroups?.forEach((group) => {
+          let subGroupLayerState = new SubGroupLayerState()
+          group?.subGroups?.forEach((subGroup: LayerSubGroupDto) => {
+            let layerState = new LayerState()
+            subGroup?.layers
+              ?.filter((a) => a.frequency !== 'OnDemand')
+              .forEach((layer: LayerDto) => {
+                let layerSettingState = new LayerSettingsState(
+                  group.group!,
+                  subGroup.subGroup!,
+                  layer.dataTypeId!,
+                  layer.name!,
+                  layer.format!,
+                  layer.frequency!,
+                  layer.type!,
+                  layer.unitOfMeasure!
+                )
+                layer.details!.forEach((detail) => {
+                  layerSettingState.metadataId = detail.metadata_Id
+                  let timestamps: string[] = [...layerSettingState.availableTimestamps]
+                  detail.timestamps!.forEach((timestamp) => {
+                    layerSettingState.timestampsToFiles[timestamp] = detail.name!
+                    timestamps.push(timestamp)
+                  })
+                  //keep availableTimestamp sorted
+                  //use Set to ensure timestamps are unique inside the final array
+                  layerSettingState.availableTimestamps = Array.from(
+                    new Set(
+                      timestamps
+                        .map((item) => {
+                          return { dateString: item, dateValue: new Date(item) }
+                        })
+                        .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                        .map((item) => item.dateString)
+                    )
+                  )
+                })
+                layerState[layer.dataTypeId!] = layerSettingState
+              })
+            if (Object.keys(layerState).length > 0)
+              subGroupLayerState[subGroup.subGroup!] = layerState
+          })
+          if (Object.keys(subGroupLayerState).length > 0)
+            groupLayersState[group.group!] = subGroupLayerState
+        })
+
+        if (layerData.associatedLayers) {
+          layerData.associatedLayers.forEach((assLayer) => {
+            let parent =
+              groupLayersState[assLayer.group!][assLayer.subGroup!][assLayer.parentDataTypeId!]
+            parent.associatedLayers.push(
+              new AssociatedLayer(
+                assLayer.dataTypeId,
+                assLayer.name,
+                parent.dataTypeId,
+                parent.name
+              )
+            )
+          })
         }
-      )
-    })
+
+        setLayersSettings(groupLayersState)
+        return groupLayersState
+      }
+    )
     updateMapFeatures()
   }, [filtersObj, fetchGeoJson, handleGetLayersCall, layersApiFactory])
 
@@ -775,17 +785,20 @@ export function Map() {
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        <LayersPlayer
-          visibility={togglePlayer}
-          setVisibility={setTogglePlayer}
-          position={layersPlayerPosition}
-          onPositionChange={setLayersPlayerPosition}
-          getLegend={getLegend}
-          getMeta={getMeta}
-          map={map}
-          selectedLayer={selectedLayer}
-          updateLayersSetting={updateLayersSetting}
-        />
+        {selectedLayers.map((layer, idx) => {
+          <LayersPlayer
+            key={'layer-player-' + idx}
+            visibility={togglePlayer}
+            setVisibility={setTogglePlayer}
+            position={layersPlayerPosition}
+            onPositionChange={setLayersPlayerPosition}
+            getLegend={getLegend}
+            getMeta={getMeta}
+            map={map}
+            selectedLayer={layer} // TODO
+            updateLayersSetting={updateLayersSetting}
+          />
+        })}
 
         <PlayerLegend
           visibility={toggleLegend}
@@ -813,7 +826,7 @@ export function Map() {
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
             selectedFilters={filtersObj?.filters}
-            selectedLayer={selectedLayer}
+            selectedLayer={selectedLayers} // TODO
           />
         )}
 
@@ -825,7 +838,7 @@ export function Map() {
           setLayerSelection={setLayerSelection}
           updateLayersSetting={updateLayersSetting}
           map={map}
-          selectedLayer={selectedLayer}
+          selectedLayers={selectedLayers} // TODO
           position={layersSelectContainerPosition}
           setPosition={setLayersSelectContainerPosition}
         />
@@ -856,7 +869,7 @@ export function Map() {
             setDblClickFeatures={setDblClickFeatures}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
-            selectedLayer={selectedLayer}
+            selectedLayer={selectedLayers} // TODO
             mapRequestsSettings={mapRequestsSettings}
           />
         </MapStateContextProvider>

@@ -19,7 +19,7 @@ export class LayerSettingsState {
   subGroup: string
   dataTypeId: number
   format: string
-  frequency: number
+  frequency: number | string
   name: string
   order: number
   type: string
@@ -41,7 +41,7 @@ export class LayerSettingsState {
     dataTypeId: number,
     name: string,
     format: string,
-    frequency: number,
+    frequency: number | string,
     type: string,
     unitOfMeasure: string
   ) {
