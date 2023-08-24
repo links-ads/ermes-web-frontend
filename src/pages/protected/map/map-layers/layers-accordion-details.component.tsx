@@ -20,14 +20,14 @@ const LayersAccordionDetails: React.FC<{
   layerSettings: LayerSettingsState
   selectedLayers: LayerSettingsState[] | undefined
   setLayerSelection: any
-  updateLayersSetting: any
+  updateLayerSelection: any
   map: any
   checkboxDisabled: boolean
 }> = (props) => {
   const classes = useStyles()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
-  const { updateLayersSetting, layerSettings, map, selectedLayers, checkboxDisabled } = props
+  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled } = props
   
   const checkboxClickHandler = (event: any) => {
     //TODO: to be removed after optimization
@@ -47,12 +47,11 @@ const LayersAccordionDetails: React.FC<{
       })
     }
     //////////////////////////////////////////
-    updateLayersSetting(
+    updateLayerSelection(
       layerSettings.group,
       layerSettings.subGroup,
       layerSettings.dataTypeId,
-      !layerSettings.isChecked,
-      'ISCHECKED'
+      !layerSettings.isChecked
     )
   }
 

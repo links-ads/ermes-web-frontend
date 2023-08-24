@@ -35,7 +35,7 @@ const LayersFloatingPanel: React.FC<{
   isLoading: boolean
   setIsVisible: any
   setLayerSelection: any
-  updateLayersSetting: any
+  updateLayerSelection: any
   map: any
   selectedLayers: LayerSettingsState[] | undefined
   position: PixelPostion | undefined
@@ -126,7 +126,7 @@ const LayersFloatingPanel: React.FC<{
                   groupName={key}
                   layerSubGroups={props.layerGroups[key]}
                   setLayerSelection={props.setLayerSelection}
-                  updateLayersSetting={props.updateLayersSetting}
+                  updateLayerSelection={props.updateLayerSelection}
                   map={props.map}
                   selectedLayers={props.selectedLayers}
                 />
