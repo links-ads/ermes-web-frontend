@@ -169,7 +169,7 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   // const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [ layersState, fetchLayers, changeOpacity, updateTimestamp, updateSelectedLayers, updatePlayerPosition, getMetaData, updateDefaultPosAndDim ] = useMapLayers()
+  const [ layersState, fetchLayers, changeOpacity, updateTimestamp, updateSelectedLayers, updatePlayerPosition, updateLayerPlayerVisibility, getMetaData, updateDefaultPosAndDim ] = useMapLayers()
   const { groupedLayers, layersMetadata, selectedLayers, toBeRemovedLayer, defaultDimension, defaultPosition } = layersState
 
   const [layerSelection, setLayerSelection] = React.useState({
@@ -932,15 +932,13 @@ export function Map() {
         {selectedLayers && selectedLayers.map((layer, idx) => 
           <LayersPlayer
             key={'layer-player-' + idx}
-            visibility={togglePlayer}
-            setVisibility={setTogglePlayer}
+            updateVisibility={updateLayerPlayerVisibility}
             onPositionChange={updatePlayerPosition}
             getLegend={getLegend}
             getMeta={getMeta}
             map={map}
-            selectedLayer={layer} // TODO
+            selectedLayer={layer}
             toBeRemovedLayer={toBeRemovedLayer}
-            // updateLayersSetting={updateLayersSetting}
             changeLayerOpacity={changeOpacity}
             updateLayerTimestamp={updateTimestamp}
           />

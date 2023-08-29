@@ -40,9 +40,9 @@ export class LayerSettingsState {
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
   activeLayer: string
-  toBeRemovedLayer: string
   position: Position
   dimension: Dimension
+  isPlayerVisible: boolean
 
   associatedLayers: AssociatedLayer[]
 
@@ -75,10 +75,10 @@ export class LayerSettingsState {
     this.timestampsToFiles = {}
     this.availableTimestamps = []
     this.activeLayer = ''
-    this.toBeRemovedLayer = '' // TODO remove
     this.associatedLayers = []
     this.position = { x: 0, y: yPosition }
     this.dimension = { h: 136, w: width }
+    this.isPlayerVisible = true
   }
 }
 

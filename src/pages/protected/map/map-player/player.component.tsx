@@ -118,9 +118,8 @@ const LayersPlayer: React.FC<{
   toBeRemovedLayer: string
   changeLayerOpacity: any
   updateLayerTimestamp: any
-  visibility: boolean
-  setVisibility: any
   onPositionChange: any
+  updateVisibility: any
   getLegend: any
   getMeta: any
 }> = (props) => {
@@ -133,7 +132,7 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { visibility, setVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer } = props
+  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer } = props
 
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -189,10 +188,6 @@ const LayersPlayer: React.FC<{
 
   useEffect(() => {
     if (!selectedLayer) return
-    // if (selectedLayer.toBeRemovedLayer !== '' && map.getLayer(selectedLayer.toBeRemovedLayer)) {
-    //   map.removeLayer(selectedLayer.toBeRemovedLayer)
-    //   map.removeSource(selectedLayer.toBeRemovedLayer)
-    // }
 
     const layerName = selectedLayer.activeLayer
     if (layerName != '' && !map.getLayer(layerName)) {
@@ -343,7 +338,7 @@ const LayersPlayer: React.FC<{
       selectedLayer={selectedLayer}
       position={selectedLayer.position}
       onPositionChange={onPositionUpdate}
-      toggleActiveFilterTab={visibility}
+      toggleActiveFilterTab={selectedLayer.isPlayerVisible}
       dim={{
         width: selectedLayer.dimension.w,
         height: selectedLayer.dimension.h
@@ -391,7 +386,7 @@ const LayersPlayer: React.FC<{
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '10px' }}
             onClick={() => {
-              setVisibility(false)
+              updateVisibility(false, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
             }}
             size="small"
           >
