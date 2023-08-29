@@ -23,11 +23,12 @@ const LayersAccordionDetails: React.FC<{
   updateLayerSelection: any
   map: any
   checkboxDisabled: boolean
+  toBeRemovedLayer: string
 }> = (props) => {
   const classes = useStyles()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
-  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled } = props
+  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
   
   const checkboxClickHandler = (event: any) => {
     //TODO: to be removed after optimization
@@ -56,12 +57,19 @@ const LayersAccordionDetails: React.FC<{
   }
 
   useEffect(() => {
+    if (toBeRemovedLayer !== '' && map.getLayer(toBeRemovedLayer)) {
+      map.removeLayer(toBeRemovedLayer)
+      map.removeSource(toBeRemovedLayer)
+    }
+  }, [toBeRemovedLayer])
+
+  useEffect(() => {
     const selectedLayer = selectedLayers ? selectedLayers[0] : null
     if (!selectedLayer) return
-    if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
-      map.removeLayer(selectedLayer?.toBeRemovedLayer)
-      map.removeSource(selectedLayer?.toBeRemovedLayer)
-    }
+    // if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
+    //   map.removeLayer(selectedLayer?.toBeRemovedLayer)
+    //   map.removeSource(selectedLayer?.toBeRemovedLayer)
+    // }
     const layerName = selectedLayer.activeLayer
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(

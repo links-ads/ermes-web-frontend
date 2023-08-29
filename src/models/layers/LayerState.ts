@@ -5,6 +5,11 @@ interface Position {
   y: number
 }
 
+interface Dimension {
+  h: number, 
+  w: number
+}
+
 export class AssociatedLayer {
   dataTypeId: number
   name: string
@@ -37,6 +42,7 @@ export class LayerSettingsState {
   activeLayer: string
   toBeRemovedLayer: string
   position: Position
+  dimension: Dimension
 
   associatedLayers: AssociatedLayer[]
 
@@ -49,7 +55,8 @@ export class LayerSettingsState {
     frequency: number | string,
     type: string,
     unitOfMeasure: string,
-    yPosition: number
+    yPosition: number,
+    width: number
   ) {
     this.group = group
     this.subGroup = subGroup
@@ -68,9 +75,10 @@ export class LayerSettingsState {
     this.timestampsToFiles = {}
     this.availableTimestamps = []
     this.activeLayer = ''
-    this.toBeRemovedLayer = ''
+    this.toBeRemovedLayer = '' // TODO remove
     this.associatedLayers = []
-    this.position = { x: 470, y: yPosition }
+    this.position = { x: 0, y: yPosition }
+    this.dimension = { h: 136, w: width }
   }
 }
 

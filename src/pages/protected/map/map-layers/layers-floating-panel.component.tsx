@@ -40,6 +40,7 @@ const LayersFloatingPanel: React.FC<{
   selectedLayers: LayerSettingsState[] | undefined
   position: PixelPostion | undefined
   setPosition: any
+  toBeRemovedLayer: string
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
@@ -129,6 +130,7 @@ const LayersFloatingPanel: React.FC<{
                   updateLayerSelection={props.updateLayerSelection}
                   map={props.map}
                   selectedLayers={props.selectedLayers}
+                  toBeRemovedLayer={props.toBeRemovedLayer}
                 />
               ))}
             </FormControl>

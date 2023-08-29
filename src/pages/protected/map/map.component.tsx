@@ -169,8 +169,8 @@ export function Map() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   // const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [ layersState, fetchLayers, changeOpacity, updateTimestamp, updateSelectedLayers, updatePlayerPosition, getMetaData ] = useMapLayers()
-  const { groupedLayers, layersMetadata } = layersState
+  const [ layersState, fetchLayers, changeOpacity, updateTimestamp, updateSelectedLayers, updatePlayerPosition, getMetaData, updateDefaultPosAndDim ] = useMapLayers()
+  const { groupedLayers, layersMetadata, selectedLayers, toBeRemovedLayer, defaultDimension, defaultPosition } = layersState
 
   const [layerSelection, setLayerSelection] = React.useState({
     isMapRequest: NO_LAYER_SELECTED,
@@ -180,7 +180,9 @@ export function Map() {
     layerClicked: null
   })
 
-  const [selectedLayers, setSelectedLayers] = useState<LayerSettingsState[]>([])
+  const { innerHeight, innerWidth } = window
+
+  // const [selectedLayers, setSelectedLayers] = useState<LayerSettingsState[]>([])
   // const [layersSettings, setLayersSettings] = useState<GroupLayerState>({})
   // const updateLayersSetting = (
   //   group: string,
@@ -394,7 +396,8 @@ export function Map() {
                 layer.frequency!,
                 layer.type!,
                 layer.unitOfMeasure!, 
-                layersPlayerDefaultCoord.y
+                layersPlayerDefaultCoord.y,
+                window.innerWidth
               )
               layer.details!.forEach((detail) => {
                 layerSettingState.metadataId = detail.metadata_Id
@@ -535,12 +538,20 @@ export function Map() {
   }, [filtersObj, fetchGeoJson, handleGetLayersCall]) // , layersApiFactory
 
   useEffect(() => {
+    const calcY = Math.max(90, innerHeight - 243)
+    if (defaultPosition.y !== calcY || defaultDimension.w !== innerWidth) {
+      updateDefaultPosAndDim(calcY, innerWidth)
+    }    
+  }, [innerHeight, innerWidth])
+
+  useEffect(() => {
     setDateIndex(0)
     if (layerSelection.multipleLayersAllowed) return
     if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
       setTogglePlayer(true)
     } else {
-      setTogglePlayer(false)
+      if (selectedLayers.length === 0) // TODO check this logic
+        setTogglePlayer(false)
     }
   }, [layerSelection])
 
@@ -559,7 +570,7 @@ export function Map() {
     return { x: 60, y: 60 }
   }, [])
   const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
-    return { x: 60, y: Math.max(90, window.innerHeight - 350) }
+    return { x: 60, y: Math.max(90, window.innerHeight - 243) }
   }, [])
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
     return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) }
@@ -923,12 +934,12 @@ export function Map() {
             key={'layer-player-' + idx}
             visibility={togglePlayer}
             setVisibility={setTogglePlayer}
-            position={layer.position}
             onPositionChange={updatePlayerPosition}
             getLegend={getLegend}
             getMeta={getMeta}
             map={map}
             selectedLayer={layer} // TODO
+            toBeRemovedLayer={toBeRemovedLayer}
             // updateLayersSetting={updateLayersSetting}
             changeLayerOpacity={changeOpacity}
             updateLayerTimestamp={updateTimestamp}
@@ -944,7 +955,7 @@ export function Map() {
           imgSrc={legendSrc}
         />
 
-        {layersMetadata && layersMetadata.map((layerMeta, idx) => {
+        {layersMetadata && layersMetadata.map((layerMeta, idx) =>
           <PlayerMetadata
             key={'layer-metadata-' + idx}
             // visibility={true}
@@ -954,7 +965,7 @@ export function Map() {
             // setVisibility={setToggleMeta}
             layerData={layerMeta}
           />
-        })}        
+        )}        
 
         {dblClickFeatures && dblClickFeatures.showCard && (
           <MapTimeSeries
@@ -979,6 +990,7 @@ export function Map() {
           selectedLayers={selectedLayers} // TODO
           position={layersSelectContainerPosition}
           setPosition={setLayersSelectContainerPosition}
+          toBeRemovedLayer={toBeRemovedLayer}
         />
 
         <MapStateContextProvider<MapFeature>>
