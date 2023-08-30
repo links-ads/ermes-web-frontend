@@ -132,7 +132,7 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer } = props
+  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer, getMeta, getLegend } = props
 
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -270,6 +270,14 @@ const LayersPlayer: React.FC<{
     )
   }
 
+  const getMetadata = () => {
+    getMeta(selectedLayer.metadataId, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+  }
+
+  const getLayerLegend = () => {
+    getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+  }
+
   const createLayerMarks = () => {
     const layerDates = [
       ...new Set(
@@ -394,18 +402,14 @@ const LayersPlayer: React.FC<{
           </IconButton>
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '45px' }}
-            onClick={() => {
-              if (selectedLayer) props.getMeta(selectedLayer.metadataId)
-            }}
+            onClick={getMetadata}
             size="small"
           >
             <MetaIcon />
           </IconButton>
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '85px' }}
-            onClick={() => {
-              props.getLegend(layerName)
-            }}
+            onClick={getLayerLegend}
             size="small"
           >
             <LegendIcon />

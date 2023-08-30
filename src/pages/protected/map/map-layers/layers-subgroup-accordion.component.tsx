@@ -17,7 +17,6 @@ const useStyles = makeStyles((theme) => ({
 const LayersSubgroupAccordion: React.FC<{
   subGroupName: string
   layers: LayerState
-  setLayerSelection: any
   updateLayerSelection: any
   map: any
   selectedLayers: LayerSettingsState[] | undefined
@@ -26,7 +25,7 @@ const LayersSubgroupAccordion: React.FC<{
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { subGroupName, setLayerSelection, updateLayerSelection, layers, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
+  const { subGroupName, updateLayerSelection, layers, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
   const value = Object.keys(layers).forEach((layer) => {
     if (layers[layer].isChecked) return layers[layer].dataTypeId
     else return 0
@@ -50,7 +49,6 @@ const LayersSubgroupAccordion: React.FC<{
             <LayersAccordionDetails
               key={props.subGroupName + key + index}
               layerSettings={props.layers[key]}
-              setLayerSelection={setLayerSelection}
               updateLayerSelection={updateLayerSelection}
               map={map}
               selectedLayers={selectedLayers}

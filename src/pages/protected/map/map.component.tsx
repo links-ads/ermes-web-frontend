@@ -11,13 +11,11 @@ import { AppConfig, AppConfigContext } from '../../../config'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 
-import { GetLayersOutput, LayerDto, LayerSubGroupDto, LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import { GetLayersOutput, LayerDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
 import LayersPlayer from './map-player/player.component'
 import { PlayerLegend } from './map-popup-legend.component'
-import { useTranslation } from 'react-i18next'
 import MapTimeSeries from './map-popup-series.component'
 
-import { getLegendURL } from '../../../utils/map.utils'
 import { PlayerMetadata } from './map-popup-meta.component'
 import { EntityType, TeamsApiFactory } from 'ermes-ts-sdk'
 import MapRequestState, {
@@ -39,31 +37,14 @@ import { PixelPostion } from '../../../models/common/PixelPosition'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
 type MapFeature = CulturalProps
 
-interface Position {
-  x: number, 
-  y: number
-}
-
-type LayersPlayersPosition = Position[]
-
-const NO_LAYER_SELECTED = '-1'
-
 export function Map() {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
-  const [layersSelectVisibility, setLayersSelectVisibility] = useState<boolean>(false)
-  const [togglePlayer, setTogglePlayer] = useState<boolean>(false)
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
-
-  const [toggleLegend, setToggleLegend] = useState<boolean>(false)
-  // const [toggleMeta, setToggleMeta] = useState<boolean>(false)
-  const [dateIndex, setDateIndex] = useState<number>(0)
-  const { i18n } = useTranslation()
-  const [layerName, setLayerName] = useState<string>('')
 
   const [mapRequestsSettings, setMapRequestsSettings] = useState<MapRequestState>({})
 
@@ -167,100 +148,38 @@ export function Map() {
   const [spiderifierRef, setSpiderifierRef] = useState<Spiderifier | null>(null)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  // const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
-  const [ layersState, fetchLayers, changeOpacity, updateTimestamp, updateSelectedLayers, updatePlayerPosition, updateLayerPlayerVisibility, getMetaData, updateDefaultPosAndDim ] = useMapLayers()
-  const { groupedLayers, layersMetadata, selectedLayers, toBeRemovedLayer, defaultDimension, defaultPosition } = layersState
-
-  const [layerSelection, setLayerSelection] = React.useState({
-    isMapRequest: NO_LAYER_SELECTED,
-    mapRequestCode: NO_LAYER_SELECTED,
-    dataTypeId: NO_LAYER_SELECTED,
-    multipleLayersAllowed: false,
-    layerClicked: null
-  })
+  const [
+    layersState,
+    fetchLayers,
+    changeOpacity,
+    updateTimestamp,
+    updateSelectedLayers,
+    updatePlayerPosition,
+    updateLayerPlayerVisibility,
+    getMetaData,
+    updateLayerMetadataPosition,
+    updateLayerMetadataVisibility,
+    getLayerLegend,
+    updateLayerLegendPosition,
+    updateLayerLegendVisibility,
+    updateDefaultPosAndDim
+  ] = useMapLayers()
+  const {
+    rawLayers,
+    groupedLayers,
+    layersMetadata,
+    layersLegend,
+    selectedLayers,
+    toBeRemovedLayer,
+    defaultDimension,
+    defaultPosition,
+    isLoading
+  } = layersState
 
   const { innerHeight, innerWidth } = window
 
-  // const [selectedLayers, setSelectedLayers] = useState<LayerSettingsState[]>([])
-  // const [layersSettings, setLayersSettings] = useState<GroupLayerState>({})
-  // const updateLayersSetting = (
-  //   group: string,
-  //   subGroup: string,
-  //   dataTypeId: number,
-  //   newValue: number,
-  //   actionType: string
-  // ) => {
-  //   if (!layersSettings) return
-  //   const currentLayer = layersSettings[group][subGroup][dataTypeId]
-  //   let updatedSettings: GroupLayerState
-  //   if (currentLayer) {
-  //     let newSettings: LayerSettingsState = { ...currentLayer }
-  //     if (currentLayer) {
-  //       let updatedSelectedLayers = [...selectedLayers]
-  //       switch (actionType) {
-  //         case 'OPACITY':
-  //           newSettings.opacity = newValue
-  //           break
-  //         case 'TIMESTAMP':
-  //           newSettings.dateIndex = newValue
-  //           if (currentLayer.activeLayer !== '')
-  //             newSettings.toBeRemovedLayer = currentLayer.activeLayer
-  //           newSettings.activeLayer =
-  //             currentLayer.timestampsToFiles[
-  //               currentLayer.availableTimestamps[newSettings.dateIndex]
-  //             ]            
-  //           const findSelectedLayerIdx = updatedSelectedLayers.findIndex(e => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId)
-  //           if (findSelectedLayerIdx < 0) {
-  //             updatedSelectedLayers.push(newSettings)
-  //           }
-  //           else {
-  //             updatedSelectedLayers[findSelectedLayerIdx] = newSettings
-  //           }
-  //           setSelectedLayers(updatedSelectedLayers)
-  //           break
-  //         case 'ISCHECKED':
-  //           // Object.keys(layersSettings).forEach((group) => {
-  //           //   Object.keys(layersSettings[group]).forEach((subGroup) => {
-  //           //     Object.keys(layersSettings[group][subGroup]).forEach((dataTypeId) => {
-  //           //       layersSettings[group][subGroup][dataTypeId].isChecked = false
-  //           //     })
-  //           //   })
-  //           // })
-  //           newSettings.isChecked = !!newValue
-  //           //newSettings.toBeRemovedLayer = selectedLayer ? selectedLayer.activeLayer : ''
-  //           newSettings.activeLayer = newSettings.isChecked
-  //             ? currentLayer.timestampsToFiles[
-  //                 currentLayer.availableTimestamps[currentLayer.dateIndex]
-  //               ]
-  //             : ''
-  //           if (newSettings.isChecked) {
-  //             updatedSelectedLayers.push(newSettings)
-  //           }
-  //           else {
-  //             const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(e => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId)
-  //             updatedSelectedLayers = [...updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)] // TODO
-  //           }
-  //           setSelectedLayers(updatedSelectedLayers)
-  //           break
-  //         default:
-  //           break
-  //       }
-        
-  //       updatedSettings = { ...layersSettings }
-  //       updatedSettings[group][subGroup][dataTypeId] = newSettings
-  //       setLayersSettings(updatedSettings)
-  //       // setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
-  //     }
-  //   }
-  // }
-
-  const [getLayersState, handleGetLayersCall] = useAPIHandler(false, true)
   const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
-
-  const [legendSrc, setLegendSrc] = useState<string | undefined>(undefined)
-  const [legendLayer, setLegendLayer] = useState('')
-  // const [metaLayer, setMetaLayer] = useState('')
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -367,17 +286,10 @@ export function Map() {
       setToggleActiveFilterTab(false)
     }
     forceUpdate()
-  }, [fetchGeoJson, handleGetLayersCall]) // , layersApiFactory
+  }, [fetchGeoJson])
 
   useEffect(() => {
-    setLayerSelection({
-      isMapRequest: NO_LAYER_SELECTED,
-      mapRequestCode: NO_LAYER_SELECTED,
-      dataTypeId: NO_LAYER_SELECTED,
-      multipleLayersAllowed: false,
-      layerClicked: null
-    })
-    fetchLayers(filtersObj, i18n, (result) => {
+    fetchLayers(filtersObj, (result) => {
       const layerData: GetLayersOutput = result.data
       let groupLayersState = new GroupLayerState()
       layerData?.layerGroups?.forEach((group) => {
@@ -442,100 +354,10 @@ export function Map() {
           )
         })
       }
-
-      // setLayersSettings(groupLayersState)
       return groupLayersState
     })
-    // handleGetLayersCall(
-    //   () => {
-    //     return layersApiFactory.layersGetLayers(
-    //       undefined,
-    //       undefined,
-    //       filtersObj!.filters!.datestart['selected'],
-    //       filtersObj!.filters!.dateend['selected'],
-    //       undefined, //TODO: add MapRequestCode management
-    //       true,
-    //       {
-    //         headers: {
-    //           'Accept-Language': i18n.language
-    //         }
-    //       }
-    //     )
-    //   },
-    //   null,
-    //   () => {},
-    //   () => {},
-    //   (result) => {
-    //     const layerData: GetLayersOutput = result.data
-    //     let groupLayersState = new GroupLayerState()
-    //     layerData?.layerGroups?.forEach((group) => {
-    //       let subGroupLayerState = new SubGroupLayerState()
-    //       group?.subGroups?.forEach((subGroup: LayerSubGroupDto) => {
-    //         let layerState = new LayerState()
-    //         subGroup?.layers
-    //           ?.filter((a) => a.frequency !== 'OnDemand')
-    //           .forEach((layer: LayerDto) => {
-    //             let layerSettingState = new LayerSettingsState(
-    //               group.group!,
-    //               subGroup.subGroup!,
-    //               layer.dataTypeId!,
-    //               layer.name!,
-    //               layer.format!,
-    //               layer.frequency!,
-    //               layer.type!,
-    //               layer.unitOfMeasure!, 
-    //               layersPlayerDefaultCoord.y
-    //             )
-    //             layer.details!.forEach((detail) => {
-    //               layerSettingState.metadataId = detail.metadata_Id
-    //               let timestamps: string[] = [...layerSettingState.availableTimestamps]
-    //               detail.timestamps!.forEach((timestamp) => {
-    //                 layerSettingState.timestampsToFiles[timestamp] = detail.name!
-    //                 timestamps.push(timestamp)
-    //               })
-    //               //keep availableTimestamp sorted
-    //               //use Set to ensure timestamps are unique inside the final array
-    //               layerSettingState.availableTimestamps = Array.from(
-    //                 new Set(
-    //                   timestamps
-    //                     .map((item) => {
-    //                       return { dateString: item, dateValue: new Date(item) }
-    //                     })
-    //                     .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
-    //                     .map((item) => item.dateString)
-    //                 )
-    //               )
-    //             })
-    //             layerState[layer.dataTypeId!] = layerSettingState
-    //           })
-    //         if (Object.keys(layerState).length > 0)
-    //           subGroupLayerState[subGroup.subGroup!] = layerState
-    //       })
-    //       if (Object.keys(subGroupLayerState).length > 0)
-    //         groupLayersState[group.group!] = subGroupLayerState
-    //     })
-
-    //     if (layerData.associatedLayers) {
-    //       layerData.associatedLayers.forEach((assLayer) => {
-    //         let parent =
-    //           groupLayersState[assLayer.group!][assLayer.subGroup!][assLayer.parentDataTypeId!]
-    //         parent.associatedLayers.push(
-    //           new AssociatedLayer(
-    //             assLayer.dataTypeId,
-    //             assLayer.name,
-    //             parent.dataTypeId,
-    //             parent.name
-    //           )
-    //         )
-    //       })
-    //     }
-
-    //     setLayersSettings(groupLayersState)
-    //     return groupLayersState
-    //   }
-    // )
     updateMapFeatures()
-  }, [filtersObj, fetchGeoJson, handleGetLayersCall]) // , layersApiFactory
+  }, [filtersObj, fetchGeoJson, fetchLayers])
 
   useEffect(() => {
     const calcY = Math.max(90, innerHeight - 243)
@@ -544,25 +366,10 @@ export function Map() {
     }    
   }, [innerHeight, innerWidth])
 
-  useEffect(() => {
-    setDateIndex(0)
-    if (layerSelection.multipleLayersAllowed) return
-    if (layerSelection.isMapRequest !== NO_LAYER_SELECTED) {
-      setTogglePlayer(true)
-    } else {
-      if (selectedLayers.length === 0) // TODO check this logic
-        setTogglePlayer(false)
-    }
-  }, [layerSelection])
-
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<
     PixelPostion | undefined
   >(undefined)
-  const [layersPlayerPosition, setLayersPlayerPosition] = useState<LayersPlayersPosition>([])
   const [floatingFilterContainerPosition, setFloatingFilterContainerPosition] = useState<
-    { x: number; y: number } | undefined
-  >(undefined)
-  const [layersLegendPosition, setLayersLegendPosition] = useState<
     { x: number; y: number } | undefined
   >(undefined)
 
@@ -573,7 +380,7 @@ export function Map() {
     return { x: 60, y: Math.max(90, window.innerHeight - 243) }
   }, [])
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
-    return { x: 60, y: Math.max(120, window.innerHeight - 300 - 450) }
+    return { x: 60, y: 60 }
   }, [])
 
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
@@ -583,21 +390,6 @@ export function Map() {
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<
     { x: number; y: number } | undefined
   >(undefined)
-  const [layersMetaPosition, setLayersMetaPosition] = useState<
-    { x: number; y: number } | undefined
-  >(undefined)
-  const [layerMeta, setLayerMeta] = useState<any[] | undefined>([])
-
-  const [singleLayerOpacityStatus, handleOpacityChange] = useState<[number, string]>([100, ''])
-
-  // const updateLayerPlayerPosition = (x, y, group, subGroup, dataTypeId) => {
-  //   // let toBeUpdated = layersSettings[group][subGroup][dataTypeId]
-  //   // toBeUpdated.position = { x, y }
-  //   // const updatedSettings = { ...layersSettings }
-  //   // updatedSettings[group][subGroup][dataTypeId] = toBeUpdated
-  //   // setLayersSettings(updatedSettings)
-  //   updatePlayerPosition(x, y, group, subGroup, )
-  // }
 
   useEffect(() => {
     if (toggleSideDrawer) {
@@ -612,117 +404,14 @@ export function Map() {
           setLayersSelectContainerPosition(new PixelPostion(470, layersSelectContainerPosition!.y))
       }
 
-      if (togglePlayer) {
-        // if (layersPlayerPosition.length === 0)
-        //   setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
-        // else {
-        //   let toAdjust = false
-        //   const adjustedLayerPlayers = layersPlayerPosition.map((e) => {
-        //     if (e.x < 450) {
-        //       toAdjust = true
-        //       return {
-        //         x: 470,
-        //         y: e.y
-        //       }
-        //     } else {
-        //       return e
-        //     }
-        //   })
-        //   if (toAdjust) {
-        //     setLayersPlayerPosition(adjustedLayerPlayers)
-        //   }
-        // }
-      }
-
       if (toggleActiveFilterTab) {
         if (floatingFilterContainerPosition == undefined)
           setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
         else if (floatingFilterContainerPosition!.x < 450)
           setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
       }
-    } else {
-      //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
     }
-  }, [toggleSideDrawer])
-
-  // useMemo(() => {
-  //   if (toggleSideDrawer) {
-  //     if (layersSelectVisibility) {
-  //       //layers container is visible, move it
-  //       //opening drawer
-  //       if (layersSelectContainerPosition == undefined)
-  //         setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerDefaultCoord.y })
-  //       else if (layersSelectContainerPosition!.x < 450)
-  //         setLayersSelectContainerPosition({ x: 470, y: layersSelectContainerPosition!.y })
-  //     }
-
-  //     if (togglePlayer) {
-  //       if (layersPlayerPosition.length === 0)
-  //         setLayersPlayerPosition([{ x: 470, y: layersPlayerDefaultCoord.y }])
-  //       else {
-  //         let toAdjust = false
-  //         const adjustedLayerPlayers = layersPlayerPosition.map((e) => {
-  //           if (e.x < 450) {
-  //             toAdjust = true
-  //             return {
-  //               x: 470,
-  //               y: e.y
-  //             }
-  //           } else {
-  //             return e
-  //           }
-  //         })
-  //         if (toAdjust) {
-  //           setLayersPlayerPosition(adjustedLayerPlayers)
-  //         }
-  //       }
-  //     }
-
-  //     if (toggleActiveFilterTab) {
-  //       if (floatingFilterContainerPosition == undefined)
-  //         setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerDefaultCoord.y })
-  //       else if (floatingFilterContainerPosition!.x < 450)
-  //         setFloatingFilterContainerPosition({ x: 470, y: floatingFilterContainerPosition!.y })
-  //     }
-  //   } else {
-  //     //setPlayersDefaultCoord({x:90, y:layersPlayerDefaultCoord.y})
-  //   }
-  // }, [toggleSideDrawer])
-
-  /**
-   *
-   * @param value
-   * @param metadataId
-   * @param layerName
-   */
-  function changePlayer(value, metadataId, layerName) {
-    setLayerName(layerName)
-    if (toggleLegend) {
-      setLegendLayer(value)
-    }
-    // if (toggleMeta) {
-    //   setMetaLayer(metadataId)
-    // }
-  }
-
-  /**
-   * close the mappopupseries component when we change layer
-   */
-  useMemo(() => {
-    setDblClickFeatures(null)
-  }, [layerName])
-
-  useMemo(() => {
-    if (legendLayer) {
-      getLegend(legendLayer)
-    }
-  }, [legendLayer])
-
-  // useMemo(() => {
-  //   if (metaLayer) {
-  //     getMeta(metaLayer)
-  //   }
-  // }, [metaLayer])
+  }, [toggleSideDrawer, toggleActiveFilterTab])
 
   function formatMeta(result) {
     let res: [any, any] = ['', '']
@@ -762,34 +451,12 @@ export function Map() {
     return res
   }
 
-  function showImage(responseAsBlob) {
-    const imgUrl = URL.createObjectURL(responseAsBlob)
-    setLegendSrc(imgUrl)
-    setToggleLegend(true)
-  }
-  async function getLegend(layerName: string) {
-    const geoServerConfig = appConfig.geoServer
-    const res = await fetch(getLegendURL(geoServerConfig, '40', '40', layerName))
-    showImage(await res.blob())
+  const manageLayerLegend = (layerName, group, subGroup, dataTypeId) => {
+    getLayerLegend(appConfig.geoServer, layerName, group, subGroup, dataTypeId)
   }
 
-  /**
-   * called when metadata button is clicked
-   * @param metaId the metadataid of the layer to display data of
-   */
-  function getMeta(metaId: string, group: string, subGroup: string, dataTypeId: number) {
-    getMetaData(metaId, group, subGroup, dataTypeId, i18n, formatMeta)
-    // layersApiFactory
-    //   .layersGetMetadata(metaId, {
-    //     headers: {
-    //       'Accept-Language': i18n.language
-    //     }
-    //   })
-    //   .then((result) => {
-    //     const formattedres = formatMeta(result)
-    //     setLayerMeta(formattedres)
-    //     setToggleMeta(true)
-    //   })
+  const getLayerMeta = (metaId: string, group: string, subGroup: string, dataTypeId: number) => {
+    getMetaData(metaId, group, subGroup, dataTypeId, formatMeta)
   }
 
   const [communicationCounter, setCommunicationCounter] = useState(0)
@@ -910,60 +577,58 @@ export function Map() {
         setToggleDrawerTab={setToggleSideDrawer}
         filtersObj={filtersObj}
         rerenderKey={fakeKey}
-        setDateIndex={setDateIndex}
-        dateIndex={dateIndex}
-        getLegend={getLegend}
-        getMeta={getMeta}
+        getLegend={manageLayerLegend}
+        getMeta={getLayerMeta}
         forceUpdate={forceUpdate}
         teamList={teamList}
-        onPlayerChange={changePlayer}
-        handleOpacityChange={handleOpacityChange}
         fetchGeoJson={fetchGeoJson}
         mapRequestsSettings={mapRequestsSettings}
         updateMapRequestsSettings={updateMapRequestsSettings}
         setMapRequestsSettings={setMapRequestsSettings}
-        availableLayers={getLayersState?.result.data}
+        availableLayers={rawLayers}
         communicationCounter={communicationCounter}
         missionCounter={missionCounter}
         mapRequestCounter={mapRequestCounter}
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {selectedLayers && selectedLayers.map((layer, idx) => 
-          <LayersPlayer
-            key={'layer-player-' + idx}
-            updateVisibility={updateLayerPlayerVisibility}
-            onPositionChange={updatePlayerPosition}
-            getLegend={getLegend}
-            getMeta={getMeta}
-            map={map}
-            selectedLayer={layer}
-            toBeRemovedLayer={toBeRemovedLayer}
-            changeLayerOpacity={changeOpacity}
-            updateLayerTimestamp={updateTimestamp}
-          />
-        )}
+        {selectedLayers &&
+          selectedLayers.map((layer, idx) => (
+            <LayersPlayer
+              key={'layer-player-' + idx}
+              updateVisibility={updateLayerPlayerVisibility}
+              onPositionChange={updatePlayerPosition}
+              getLegend={manageLayerLegend}
+              getMeta={getLayerMeta}
+              map={map}
+              selectedLayer={layer}
+              toBeRemovedLayer={toBeRemovedLayer}
+              changeLayerOpacity={changeOpacity}
+              updateLayerTimestamp={updateTimestamp}
+            />
+          ))}
 
-        <PlayerLegend
-          visibility={toggleLegend}
-          defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
-          position={layersLegendPosition}
-          onPositionChange={setLayersLegendPosition}
-          setVisibility={setToggleLegend}
-          imgSrc={legendSrc}
-        />
+        {layersLegend &&
+          layersLegend.map((layerLegend, idx) => (
+            <PlayerLegend
+              key={'layer-legend-' + idx}
+              legendData={layerLegend}
+              defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+              onPositionChange={updateLayerLegendPosition}
+              updateVisibility={updateLayerLegendVisibility}
+            />
+          ))}
 
-        {layersMetadata && layersMetadata.map((layerMeta, idx) =>
-          <PlayerMetadata
-            key={'layer-metadata-' + idx}
-            // visibility={true}
-            defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
-            position={layersMetaPosition}
-            onPositionChange={setLayersMetaPosition}
-            // setVisibility={setToggleMeta}
-            layerData={layerMeta}
-          />
-        )}        
+        {layersMetadata &&
+          layersMetadata.map((layerMeta, idx) => (
+            <PlayerMetadata
+              key={'layer-metadata-' + idx}
+              defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+              onPositionChange={updateLayerMetadataPosition}
+              updateVisibility={updateLayerMetadataVisibility}
+              layerData={layerMeta}
+            />
+          ))}
 
         {dblClickFeatures && dblClickFeatures.showCard && (
           <MapTimeSeries
@@ -973,7 +638,7 @@ export function Map() {
             position={mapTimeSeriesContainerPosition}
             onPositionChange={setMapTimeSeriesContainerPosition}
             selectedFilters={filtersObj?.filters}
-            selectedLayer={selectedLayers} // TODO
+            selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
           />
         )}
 
@@ -981,11 +646,10 @@ export function Map() {
           layerGroups={groupedLayers}
           isVisible={isLayersPanelVisible}
           setIsVisible={setIsLayersPanelVisible}
-          isLoading={getLayersState.loading}
-          setLayerSelection={setLayerSelection}
+          isLoading={isLoading}
           updateLayerSelection={updateSelectedLayers}
           map={map}
-          selectedLayers={selectedLayers} // TODO
+          selectedLayers={selectedLayers}
           position={layersSelectContainerPosition}
           setPosition={setLayersSelectContainerPosition}
           toBeRemovedLayer={toBeRemovedLayer}
@@ -995,10 +659,8 @@ export function Map() {
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
-            layersSelectVisibility={layersSelectVisibility}
+            layersSelectVisibility={isLayersPanelVisible}
             setLayersSelectVisibility={setIsLayersPanelVisible}
-            togglePlayer={togglePlayer}
-            setTogglePlayer={setTogglePlayer}
             toggleDrawerTab={toggleSideDrawer}
             setToggleDrawerTab={setToggleSideDrawer}
             filterList={filterList}
@@ -1017,7 +679,7 @@ export function Map() {
             setDblClickFeatures={setDblClickFeatures}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
-            selectedLayer={selectedLayers} // TODO
+            selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             mapRequestsSettings={mapRequestsSettings}
           />
         </MapStateContextProvider>

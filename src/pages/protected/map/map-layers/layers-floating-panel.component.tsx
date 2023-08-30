@@ -34,7 +34,6 @@ const LayersFloatingPanel: React.FC<{
   isVisible: boolean
   isLoading: boolean
   setIsVisible: any
-  setLayerSelection: any
   updateLayerSelection: any
   map: any
   selectedLayers: LayerSettingsState[] | undefined
@@ -46,7 +45,7 @@ const LayersFloatingPanel: React.FC<{
   const theme = useTheme()
   const { t } = useTranslation(['maps'])
   const defaultPosition = useMemo<PixelPostion>(() => {
-    return { x: 60, y: Math.max(120, window.innerHeight - 250 - 450) }
+    return { x: 60, y: 60 }
   }, [])
   
   const [dim, setDim] = useState({
@@ -126,7 +125,6 @@ const LayersFloatingPanel: React.FC<{
                   key={key}
                   groupName={key}
                   layerSubGroups={props.layerGroups[key]}
-                  setLayerSelection={props.setLayerSelection}
                   updateLayerSelection={props.updateLayerSelection}
                   map={props.map}
                   selectedLayers={props.selectedLayers}

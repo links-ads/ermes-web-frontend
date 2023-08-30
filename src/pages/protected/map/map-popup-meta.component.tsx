@@ -40,7 +40,18 @@ export function PlayerMetadata(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
-  const layerData = props.layerData
+
+  const { layerData, updateVisibility, onPositionChange } = props
+
+  const { metadata: layerMetaData, visibility, group, subGroup, dataTypeId, position } = layerData
+
+  const closeModal = () => {
+    updateVisibility(false, group, subGroup, dataTypeId)
+  }
+
+  const updatePosition = ({ x, y }) => {
+    onPositionChange(x, y, group, subGroup, dataTypeId)
+  }
 
   function makeList(value) {
     const items = value.split('\n')
@@ -60,12 +71,12 @@ export function PlayerMetadata(props) {
       style={{ overflow: 'auto', maxWidth: '730px' }}
       bounds={'parent'}
       defaultPosition={props.defaultPosition}
-      position={props.position}
-      toggleActiveFilterTab={props.visibility}
+      position={position}
+      toggleActiveFilterTab={visibility}
       dim={dim}
       onResize={onResize}
       resizable={true}
-      onPositionChange={props.onPositionChange}
+      onPositionChange={updatePosition}
     >
       <AppBar
         position="static"
@@ -83,7 +94,7 @@ export function PlayerMetadata(props) {
           <Typography
             align="left"
             variant="h4"
-            style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px' }}
+            style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px', marginLeft: 10 }}
           >
             Layer Metadata
           </Typography>
@@ -91,9 +102,7 @@ export function PlayerMetadata(props) {
         <span style={{ width: '20%' }}>
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '0px' }}
-            onClick={() => {
-              props.setVisibility(false)
-            }}
+            onClick={closeModal}
           >
             <CloseIcon />
           </IconButton>
@@ -112,7 +121,7 @@ export function PlayerMetadata(props) {
       >
         <Table style={{ width: 'fit-content', height: 'fit-content' }}>
           <TableBody>
-            {layerData.map((row, i) => (
+            {layerMetaData.map((row, i) => (
               <TableRow key={i}>
                 <TableCell>{row[0]}</TableCell>
                 <TableCell style={{ maxWidth: '350px' }}>{makeList(row[1])}</TableCell>

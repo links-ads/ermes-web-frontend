@@ -19,7 +19,6 @@ const useStyles = makeStyles((theme) => ({
 const LayersAccordionDetails: React.FC<{
   layerSettings: LayerSettingsState
   selectedLayers: LayerSettingsState[] | undefined
-  setLayerSelection: any
   updateLayerSelection: any
   map: any
   checkboxDisabled: boolean
@@ -31,23 +30,6 @@ const LayersAccordionDetails: React.FC<{
   const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
   
   const checkboxClickHandler = (event: any) => {
-    //TODO: to be removed after optimization
-    if (layerSettings && layerSettings.isChecked) {
-      props.setLayerSelection({
-        isMapRequest: '-1',
-        mapRequestCode: '-1',
-        dataTypeId: '-1',
-        multipleLayersAllowed: false
-      })
-    } else {
-      props.setLayerSelection({
-        isMapRequest: 0,
-        mapRequestCode: -1,
-        dataTypeId: layerSettings.dataTypeId + '',
-        multipleLayersAllowed: false
-      })
-    }
-    //////////////////////////////////////////
     updateLayerSelection(
       layerSettings.group,
       layerSettings.subGroup,
@@ -66,10 +48,6 @@ const LayersAccordionDetails: React.FC<{
   useEffect(() => {
     const selectedLayer = selectedLayers ? selectedLayers[0] : null
     if (!selectedLayer) return
-    // if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
-    //   map.removeLayer(selectedLayer?.toBeRemovedLayer)
-    //   map.removeSource(selectedLayer?.toBeRemovedLayer)
-    // }
     const layerName = selectedLayer.activeLayer
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(

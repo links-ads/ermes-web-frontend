@@ -2,12 +2,16 @@ import { useCallback, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
+import { getLegendURL } from '../utils/map.utils'
+import { useTranslation } from 'react-i18next'
 
 const initialState = {
+  rawLayers: {},
   groupedLayers: [],
   selectedLayers: [],
   toBeRemovedLayer: '',
   layersMetadata: [],
+  layersLegend: [],
   defaultPosition: { x: 0, y: 0 },
   defaultDimension: { h: 136, w: 1000 },
   isLoading: true,
@@ -20,7 +24,8 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        groupedLayers: action.value
+        groupedLayers: action.value.groupedLayers, 
+        rawLayers: action.value.rawLayers
       }
     case 'OPACITY':
       return {
@@ -32,7 +37,8 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         groupedLayers: action.value.groupedLayers,
-        selectedLayers: action.value.selectedLayers
+        selectedLayers: action.value.selectedLayers, 
+        toBeRemovedLayer: action.value.toBeRemovedLayer
       }
     case 'UPDATE_SELECTED_LAYERS':
       return {
@@ -62,6 +68,11 @@ const reducer = (currentState, action) => {
         defaultPosition: { ...action.value.defaultPosition },
         defaultDimension: { ...action.value.defaultDimension }
       }
+    case 'UPDATE_LAYERS_LEGEND':
+      return {
+        ...currentState,
+        layersLegend: action.value
+      }
     case 'ERROR':
       return {
         ...currentState,
@@ -74,11 +85,12 @@ const reducer = (currentState, action) => {
 
 const useMapLayers = () => {
   const [dataState, dispatch] = useReducer(reducer, initialState)
+  const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
 
   const fetchLayers = useCallback(
-    (filtersObj, i18n, transformData = () => {}) => {
+    (filtersObj, transformData = () => {}) => {
       layersApiFactory
         .layersGetLayers(
           undefined,
@@ -95,7 +107,7 @@ const useMapLayers = () => {
         )
         .then((result) => {
           const mappedResult = transformData(result)
-          dispatch({ type: 'RESULT', value: mappedResult })
+          dispatch({ type: 'RESULT', value: { groupedLayers: mappedResult, rawLayers: result.data } })
         })
         .catch((err) => {
           dispatch({ type: 'ERROR', value: err })
@@ -142,10 +154,12 @@ const useMapLayers = () => {
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
+      let toBeRemovedLayer = ''
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
         newSettings.dateIndex = newValue
+        toBeRemovedLayer = newSettings.activeLayer
         newSettings.activeLayer =
           currentLayer.timestampsToFiles[currentLayer.availableTimestamps[newSettings.dateIndex]]
         const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
@@ -160,7 +174,7 @@ const useMapLayers = () => {
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         dispatch({
           type: 'TIMESTAMP',
-          value: { groupedLayers: updatedSettings, selectedLayers: updatedSelectedLayers }
+          value: { groupedLayers: updatedSettings, selectedLayers: updatedSelectedLayers, toBeRemovedLayer: toBeRemovedLayer }
         })
       }
     },
@@ -197,6 +211,7 @@ const useMapLayers = () => {
         let midWidth = defaultDim.w / 2 - 2
         let first = players[0]
         first.dimension.w = midWidth
+        first.position = defaultPos
         updatedPlayers[0] = first
         let second = players[1]
         second.dimension.w = midWidth
@@ -205,6 +220,7 @@ const useMapLayers = () => {
         updatedPlayers[1] = second
         let third = players[2]
         third.dimension.w = midWidth
+        third.position.x = defaultPos.x
         third.position.y = defaultPos.y - defaultDim.h - 5
         updatedPlayers[2] = third
       } else if (cnt === 4) {
@@ -213,6 +229,7 @@ const useMapLayers = () => {
         let midWidth = defaultDim.w / 2 - 2
         let first = players[0]
         first.dimension.w = midWidth
+        first.position = defaultPos
         updatedPlayers[0] = first
         let second = players[1]
         second.dimension.w = midWidth
@@ -221,6 +238,7 @@ const useMapLayers = () => {
         updatedPlayers[1] = second
         let third = players[2]
         third.dimension.w = midWidth
+        third.position.x = defaultPos.x
         third.position.y = defaultPos.y - defaultDim.h - 5
         updatedPlayers[2] = third
         let forth = players[3]
@@ -248,6 +266,9 @@ const useMapLayers = () => {
           ? currentLayer.timestampsToFiles[currentLayer.availableTimestamps[currentLayer.dateIndex]]
           : ''
         if (newSettings.isChecked) {
+          newSettings.activeLayer = currentLayer.timestampsToFiles[
+            currentLayer.availableTimestamps[currentLayer.dateIndex]
+          ]
           updatedSelectedLayers.push(newSettings)
         } else {
           const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
@@ -311,36 +332,121 @@ const useMapLayers = () => {
   )
 
   const getMetaData = useCallback(
-    (metaId, group, subGroup, dataTypeId, i18n, transformData = () => {}) => {
-      layersApiFactory
-        .layersGetMetadata(metaId, {
-          headers: {
-            'Accept-Language': i18n.language
-          }
-        })
-        .then((result) => {
-          const metadataLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
-          const formattedres = transformData(result)
-          let updatedMetadata = dataState.layersMetadata
-          const findMetaIdx = updatedMetadata.findIndex(
-            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
-          )
-          if (findMetaIdx > 0) {
-            updatedMetadata[findMetaIdx].metadata = formattedres
-          } else {
-            updatedMetadata.push({
+    (metaId, group, subGroup, dataTypeId, transformData = () => {}) => {
+      let updatedMetadata = dataState.layersMetadata
+      const findMetaIdx = updatedMetadata.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      if (findMetaIdx >= 0) {
+        updatedMetadata[findMetaIdx].visibility = true
+        dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
+      } else {
+        layersApiFactory
+          .layersGetMetadata(metaId, {
+            headers: {
+              'Accept-Language': i18n.language
+            }
+          })
+          .then((result) => {
+            const formattedres = transformData(result)
+            let updatedMetadata = dataState.layersMetadata
+            const findMetaIdx = updatedMetadata.findIndex(
+              (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+            )
+            if (findMetaIdx >= 0) {
+              updatedMetadata[findMetaIdx].metadata = formattedres
+            } else {
+              updatedMetadata.push({
+                group: group,
+                subGroup: subGroup,
+                dataTypeId: dataTypeId,
+                metadata: formattedres,
+                visibility: true,
+                position: { x: 1069, y: 60 }
+              })
+            }
+            dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
+          })
+      }
+    },
+    [layersApiFactory, dataState]
+  )
+
+  const updateLayerMetadataVisibility = useCallback(
+    (visibility, group, subGroup, dataTypeId) => {
+      let updatedMetadata = dataState.layersMetadata
+      const findMetaIdx = updatedMetadata.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      updatedMetadata[findMetaIdx].visibility = visibility
+      dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
+    },
+    [dataState]
+  )
+
+  const updateLayerMetadataPosition = useCallback(
+    (x, y, group, subGroup, dataTypeId) => {
+      let updatedMetadata = dataState.layersMetadata
+      const findMetaIdx = updatedMetadata.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      updatedMetadata[findMetaIdx].position = { x: x, y: y }
+      dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
+    },
+    [dataState]
+  )
+
+  const getLegend = useCallback(
+    (geoServerConfig, layerName, group, subGroup, dataTypeId) => {
+      let updatedLegends = dataState.layersLegend
+      const findLegendIdx = updatedLegends.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      if (findLegendIdx >= 0) {
+        updatedLegends[findLegendIdx].visibility = true
+        dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
+      } else {
+        fetch(getLegendURL(geoServerConfig, '40', '40', layerName)).then((result) => {
+          result.blob().then((blobRes) => {
+            const imgUrl = URL.createObjectURL(blobRes)
+            updatedLegends.push({
               group: group,
               subGroup: subGroup,
               dataTypeId: dataTypeId,
-              metadata: formattedres
+              legend: imgUrl,
+              visibility: true,
+              position: { x: 1069, y: 60 }
             })
-          }
-          dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
-          // setLayerMeta(formattedres)
-          // setToggleMeta(true)
+            dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
+          })
         })
+      }
     },
-    [layersApiFactory]
+    [dataState]
+  )
+
+  const updateLayerLegendPosition = useCallback(
+    (x, y, group, subGroup, dataTypeId) => {
+      let updatedLegends = dataState.layersLegend
+      const findLegendIdx = updatedLegends.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      updatedLegends[findLegendIdx].position = { x: x, y: y }
+      dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
+    },
+    [dataState]
+  )
+
+  const updateLayerLegendVisibility = useCallback(
+    (visibility, group, subGroup, dataTypeId) => {
+      let updatedLegends = dataState.layersLegend
+      const findLegendIdx = updatedLegends.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
+      updatedLegends[findLegendIdx].visibility = visibility
+      dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
+    },
+    [dataState]
   )
 
   return [
@@ -352,6 +458,11 @@ const useMapLayers = () => {
     updateLayerPlayerPosition,
     updateLayerPlayerVisibility,
     getMetaData,
+    updateLayerMetadataPosition,
+    updateLayerMetadataVisibility,
+    getLegend,
+    updateLayerLegendPosition,
+    updateLayerLegendVisibility,
     updateDefaultPosAndDim
   ]
 }

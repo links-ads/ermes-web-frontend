@@ -5,7 +5,6 @@ import React from 'react'
 import Draggable from 'react-draggable'
 import { Card, makeStyles } from '@material-ui/core'
 import { ResizableBox } from 'react-resizable'
-import { position } from 'polished'
 
 const useStyles = makeStyles((theme) => ({
   floatingFilter: {

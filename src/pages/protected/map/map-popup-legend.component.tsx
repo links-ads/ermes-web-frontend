@@ -29,9 +29,13 @@ export function PlayerLegend(props) {
   const classes = useStyles()
   const theme = useTheme()
   const { t } = useTranslation(['labels'])
-  if (props.imgSrc) {
+
+  const { legendData, onPositionChange, updateVisibility } = props
+  const { legend: imgSrc, group, subGroup, dataTypeId, position, visibility } = legendData
+
+  if (imgSrc) {
     const imageEl = document.createElement('img')
-    imageEl.src = props.imgSrc
+    imageEl.src = imgSrc
   }
   const [dim, setDim] = useState({
     width: 'auto',
@@ -41,15 +45,23 @@ export function PlayerLegend(props) {
     setDim({ height: data.size.height, width: data.size.width })
   }
 
+  const changePosition = ({x, y}) => {
+    onPositionChange(x, y, group, subGroup, dataTypeId)
+  }
+
+  const closeModal = () => {
+    updateVisibility(false, group, subGroup, dataTypeId)
+  }
+
   return (
     <FloatingCardContainer
       style={{ minWidth: '150px' }}
       bounds={'parent'}
       defaultPosition={props.defaultPosition}
-      position={props.position}
-      toggleActiveFilterTab={props.visibility}
+      position={position}
+      toggleActiveFilterTab={visibility}
       dim={dim}
-      onPositionChange={props.onPositionChange}
+      onPositionChange={changePosition}
     >
       <AppBar
         position="static"
@@ -76,15 +88,13 @@ export function PlayerLegend(props) {
         <span style={{ width: '20%' }}>
           <IconButton
             style={{ marginTop: '10px', position: 'absolute', right: '0px' }}
-            onClick={() => {
-              props.setVisibility(false)
-            }}
+            onClick={closeModal}
           >
             <CloseIcon />
           </IconButton>
         </span>
       </AppBar>
-      {props.imgSrc && (
+      {imgSrc && (
         <CardContent
           style={{
             backgroundColor: theme.palette.primary.dark,
@@ -98,7 +108,7 @@ export function PlayerLegend(props) {
             height: '100%'
           }}
         >
-          <img src={props.imgSrc}></img>
+          <img src={imgSrc}></img>
         </CardContent>
       )}
     </FloatingCardContainer>
