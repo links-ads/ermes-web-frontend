@@ -45,7 +45,9 @@ const reducer = (currentState, action) => {
         ...currentState,
         groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers,
-        toBeRemovedLayer: action.value.toBeRemovedLayer
+        toBeRemovedLayer: action.value.toBeRemovedLayer,
+        layersLegend: action.value.layersLegend, 
+        layersMetadata: action.value.layersMetadata
       }
     case 'UPDATE_LAYER_PLAYER_POSITION':
       return {
@@ -258,6 +260,8 @@ const useMapLayers = () => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
       let toBeRemovedLayer = ''
+      let updateLegends = [...dataState.layersLegend]
+      let updateMetadata = [...dataState.layersMetadata]
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -266,6 +270,7 @@ const useMapLayers = () => {
           ? currentLayer.timestampsToFiles[currentLayer.availableTimestamps[currentLayer.dateIndex]]
           : ''
         if (newSettings.isChecked) {
+          newSettings.isPlayerVisible = true
           newSettings.activeLayer = currentLayer.timestampsToFiles[
             currentLayer.availableTimestamps[currentLayer.dateIndex]
           ]
@@ -278,6 +283,18 @@ const useMapLayers = () => {
             toBeRemovedLayer = updatedSelectedLayers[findToDeselectedLayerIdx].activeLayer
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
+          const findLegendIdx = updateLegends.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findLegendIdx >= 0){
+            updateLegends.splice(findLegendIdx, 1)
+          }
+          const findMetadataIdx = updateMetadata.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findMetadataIdx >= 0) {
+            updateMetadata.splice(findMetadataIdx, 1)
+          }
         }
         let changedSelectedLayers = changePlayersPositionAndDimension(updatedSelectedLayers)
         updatedSettings = { ...dataState.groupedLayers }
@@ -287,7 +304,9 @@ const useMapLayers = () => {
           value: {
             groupedLayers: updatedSettings,
             selectedLayers: changedSelectedLayers,
-            toBeRemovedLayer: toBeRemovedLayer
+            toBeRemovedLayer: toBeRemovedLayer,
+            layersLegend: updateLegends, 
+            layersMetadata: updateMetadata
           }
         })
       }

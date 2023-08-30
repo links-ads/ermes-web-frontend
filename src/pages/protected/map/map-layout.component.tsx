@@ -91,7 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      bottom: '150px',
+      top: 250,
       right: '10px',
       zIndex: 99,
       backgroundColor: theme.palette.secondary.main,
@@ -108,7 +108,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 150,
+      top: 250,
       right: 10
     },
     legend_row: {

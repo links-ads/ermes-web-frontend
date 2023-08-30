@@ -45,9 +45,7 @@ const LayersAccordionDetails: React.FC<{
     }
   }, [toBeRemovedLayer])
 
-  useEffect(() => {
-    const selectedLayer = selectedLayers ? selectedLayers[0] : null
-    if (!selectedLayer) return
+  const paintMap = (map, selectedLayer) => {
     const layerName = selectedLayer.activeLayer
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(
@@ -73,8 +71,16 @@ const LayersAccordionDetails: React.FC<{
       )
       map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
     }
-  }, [selectedLayers]) //?[0]?.activeLayer?])
+  }
 
+  useEffect(() => {
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i; i < selectedLayers.length; i++) {
+        paintMap(map, selectedLayers[i])
+      }
+    }
+  }, [selectedLayers])
+  
   const layerComponent = (
     <FormControlLabel
       control={<Checkbox onChange={checkboxClickHandler} checked={layerSettings.isChecked} disabled={checkboxDisabled && !layerSettings.isChecked} />}
