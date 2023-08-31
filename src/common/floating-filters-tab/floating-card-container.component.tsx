@@ -21,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
       padding: '0 3px 3px 0',
       'box-sizing': 'border-box',
-      cursor: 'se-resize'
+      cursor: 'se-resize',
+      backgroundColor: theme.palette.primary.main
     }
   }
 }))

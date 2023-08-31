@@ -26,33 +26,6 @@ import { PixelPostion } from '../../../../models/common/PixelPosition'
 import { PauseCircleFilled, PlayCircleFilled, SkipNextOutlined } from '@material-ui/icons'
 
 const useStyles = makeStyles((theme) => ({
-  titleContainer: {
-    width: '60%',
-    display: 'inline-block',
-    paddingLeft: 11,
-    paddingTop: 11,
-    paddingBottom: 11
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(14),
-    fontWeight: theme.typography.fontWeightRegular
-  },
-  accordionDetails: {
-    display: 'block'
-  },
-  sliderContainer: {
-    display: 'flex',
-    width: '75%',
-    height: '50px',
-    verticalAlign: '-moz-middle-with-baseline',
-    alignItems: 'flex-end'
-  },
-  transparencyContainer: {
-    display: 'inline-flex',
-    width: '25%',
-    verticalAlign: '-moz-middle-with-baseline',
-    alignItems: 'flex-end'
-  },
   slider: {
     width: '100%',
     display: 'inline-block',
@@ -64,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
       marginLeft: 0
     },
     '& .MuiSlider-track': {
-      border: 'none',
       height: '8px',
       borderRadius: '4px'
     },
@@ -74,37 +46,12 @@ const useStyles = makeStyles((theme) => ({
       height: '8px',
       borderRadius: '4px'
     },
-    '& .MuiSlider-mark ': {
+    '& .MuiSlider-mark': {
       color: '#fff',
-      display: 'none'
+      height: 8,
+      width: 1,
     }
   },
-  transparencySlider: {
-    width: '45%',
-    marginLeft: 10
-  },
-  buttonsContainer: {
-    width: '10%',
-
-    alignItems: 'center',
-    textAlign: 'end',
-    display: 'flex',
-    '& .MuiButtonBase-root': {
-      display: 'inline-block',
-      padding: 0,
-      marginTop: '12px'
-    }
-  },
-  playerContainer: {
-    paddingTop: '25px',
-    width: '100%'
-  },
-  spanContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%'
-  },
-
   oneDatapoint: {
     width: '100%',
     textAlign: 'center',
@@ -133,11 +80,10 @@ const LayersPlayer: React.FC<{
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
   const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer, getMeta, getLegend } = props
-
+  const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation(['maps', 'labels'])
-  const layerName = selectedLayer?.activeLayer
   const { displayErrorSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
@@ -236,7 +182,12 @@ const LayersPlayer: React.FC<{
   }
 
   function formatDate(date: string) {
-    if (!!date) return formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
+    if (!!date) {
+      const formattedDate = formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
+      const formatComp = formattedDate.split(',')
+      const onlyHour = formatComp[1].trim()
+      return onlyHour
+    }
     else return ''
   }
 
@@ -278,10 +229,12 @@ const LayersPlayer: React.FC<{
     getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
   }
 
-  const createLayerMarks = () => {
+  const createLayerMarks = (timestamps) => {
+    if (!timestamps || timestamps.length === 0) return []
+
     const layerDates = [
       ...new Set(
-        selectedLayer.availableTimestamps.map((e) => {
+        timestamps.map((e) => {
           const dateValue = new Date(e)
           return dateValue.getDate()
         })
@@ -290,7 +243,7 @@ const LayersPlayer: React.FC<{
 
     const layerFullDates = [
       ...new Set(
-        selectedLayer.availableTimestamps.map((e) => {
+        timestamps.map((e) => {
           const dateValue = new Date(e)
           return dateValue.getDate() + '/' + (dateValue.getMonth() + 1)
         })
@@ -306,16 +259,16 @@ const LayersPlayer: React.FC<{
     }
 
     const lastHour = new Date(
-      selectedLayer.availableTimestamps[selectedLayer.availableTimestamps.length - 1]
+      timestamps[selectedLayer.availableTimestamps.length - 1]
     ).getHours()
 
-    const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' ' + lastHour
+    const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' - ' + lastHour
 
     const layerHoursPerDate = layerDates.map(
-      (e) => selectedLayer.availableTimestamps.filter((d) => new Date(d).getDate() === e).length
+      (e) => timestamps.filter((d) => new Date(d).getDate() === e).length
     )
 
-    const layerMarks = [...layerFullDates, additionalLastValue].map((e, idx) => {
+    const layerMarks = [...layerFullDates].map((e, idx) => {
       if (idx === 0) {
         return {
           value: 0,
@@ -323,16 +276,22 @@ const LayersPlayer: React.FC<{
         }
       }
       const hourValue = calcHours(layerHoursPerDate, idx)
+      // if (idx === layerFullDates.length) {
+      //   return {
+      //     value: hourValue - 1,
+      //     label: e as string
+      //   }
+      // }
       return {
         value: hourValue,
         label: e as string
-      }
+      }      
     })
 
     return layerMarks
   }
 
-  const layerMarks = createLayerMarks()
+  const layerMarks = createLayerMarks(availableTimestamps)
 
   const valuetext = (value, index) => {
     const formatted = formatDate(selectedLayer.availableTimestamps[value])
@@ -364,57 +323,87 @@ const LayersPlayer: React.FC<{
         }}
         className="handle handleResize"
       >
-        <span className={classes.titleContainer}>
-          <Typography
-            align="left"
-            variant="h4"
-            style={{ fontSize: '1.2rem', textTransform: 'uppercase' }}
+        <Grid
+          container
+          spacing={1}
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
+        >
+          <Grid item xs={7}>
+            <Typography
+              align="left"
+              variant="h4"
+              style={{ fontSize: '0.875rem', textTransform: 'uppercase' }}
+            >
+              {selectedLayer.group + ' | ' + selectedLayer.name}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={3}
+            container
+            spacing={2}
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
           >
-            {selectedLayer.group + ' | ' + selectedLayer.name}
-          </Typography>
-        </span>
-        <span className={classes.transparencyContainer}>
-          <label htmlFor="opacity-slider">
-            {t('maps:opacity') + ': ' + selectedLayer.opacity + '%'}
-          </label>
-          <Slider
-            id="opacity-slider"
-            className={classes.transparencySlider}
-            defaultValue={100}
-            valueLabelDisplay="off"
-            step={1}
-            value={selectedLayer.opacity}
-            min={0}
-            max={100}
-            color="secondary"
-            onChange={handleOpacityChange}
-          />
-        </span>
-        <span>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '10px' }}
-            onClick={() => {
-              updateVisibility(false, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
-            }}
-            size="small"
+            <Grid item>
+              <label htmlFor="opacity-slider">
+                {t('maps:opacity') + ': ' + selectedLayer.opacity + '%'}
+              </label>
+            </Grid>
+            <Grid item xs>
+              <Slider
+                id="opacity-slider"
+                defaultValue={100}
+                valueLabelDisplay="off"
+                step={1}
+                value={selectedLayer.opacity}
+                min={0}
+                max={100}
+                color="secondary"
+                onChange={handleOpacityChange}
+              />
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            xs={2}
+            container
+            spacing={2}
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
           >
-            <CloseIcon />
-          </IconButton>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '45px' }}
-            onClick={getMetadata}
-            size="small"
-          >
-            <MetaIcon />
-          </IconButton>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '85px' }}
-            onClick={getLayerLegend}
-            size="small"
-          >
-            <LegendIcon />
-          </IconButton>
-        </span>
+            <IconButton
+              onClick={getLayerLegend}
+              size="small"
+            >
+              <LegendIcon />
+            </IconButton>
+            <IconButton
+              onClick={getMetadata}
+              size="small"
+            >
+              <MetaIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                updateVisibility(
+                  false,
+                  selectedLayer.group,
+                  selectedLayer.subGroup,
+                  selectedLayer.dataTypeId
+                )
+              }}
+              size="small"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
       </AppBar>
       <CardContent>
         {selectedLayer.availableTimestamps.length > 1 ? (
@@ -443,6 +432,7 @@ const LayersPlayer: React.FC<{
                 className={classes.slider}
                 defaultValue={0}
                 getAriaValueText={valuetext}
+                valueLabelFormat={valuetext}
                 valueLabelDisplay="on"
                 //step={1}
                 value={selectedLayer.dateIndex}
@@ -455,12 +445,13 @@ const LayersPlayer: React.FC<{
                 marks={layerMarks}
               />
             </Grid>
-            <Grid item xs={1}>
+            <Grid item xs={1} container direction="row"
+            justifyContent="flex-end"
+            alignItems="center">
               {!isLoading ? (
                 <IconButton
                   aria-label="download"
                   onClick={onDownloadHandler}
-                  style={{ marginLeft: 10 }}
                 >
                   <GetAppIcon />
                 </IconButton>

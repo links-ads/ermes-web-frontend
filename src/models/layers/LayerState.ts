@@ -1,9 +1,5 @@
+import { PixelPostion } from "../common/PixelPosition"
 import { TimestampToFile } from "../common/TimestampToFile"
-
-interface Position {
-  x: number, 
-  y: number
-}
 
 interface Dimension {
   h: number, 
@@ -40,7 +36,7 @@ export class LayerSettingsState {
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
   activeLayer: string
-  position: Position
+  position: PixelPostion
   dimension: Dimension
   isPlayerVisible: boolean
 

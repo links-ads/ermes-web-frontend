@@ -24,7 +24,7 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        groupedLayers: action.value.groupedLayers, 
+        groupedLayers: action.value.groupedLayers,
         rawLayers: action.value.rawLayers
       }
     case 'OPACITY':
@@ -37,7 +37,7 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         groupedLayers: action.value.groupedLayers,
-        selectedLayers: action.value.selectedLayers, 
+        selectedLayers: action.value.selectedLayers,
         toBeRemovedLayer: action.value.toBeRemovedLayer
       }
     case 'UPDATE_SELECTED_LAYERS':
@@ -46,13 +46,14 @@ const reducer = (currentState, action) => {
         groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers,
         toBeRemovedLayer: action.value.toBeRemovedLayer,
-        layersLegend: action.value.layersLegend, 
+        layersLegend: action.value.layersLegend,
         layersMetadata: action.value.layersMetadata
       }
     case 'UPDATE_LAYER_PLAYER_POSITION':
       return {
         ...currentState,
-        groupedLayers: action.value
+        groupedLayers: action.value.groupedLayers,
+        selectedLayers: action.value.selectedLayers
       }
     case 'UPDATE_LAYER_PLAYER_VISIBILITY':
       return {
@@ -109,7 +110,10 @@ const useMapLayers = () => {
         )
         .then((result) => {
           const mappedResult = transformData(result)
-          dispatch({ type: 'RESULT', value: { groupedLayers: mappedResult, rawLayers: result.data } })
+          dispatch({
+            type: 'RESULT',
+            value: { groupedLayers: mappedResult, rawLayers: result.data }
+          })
         })
         .catch((err) => {
           dispatch({ type: 'ERROR', value: err })
@@ -119,12 +123,19 @@ const useMapLayers = () => {
   )
 
   const updateDefaultPosAndDim = useCallback(
-    (y, w) => {
+    (windowInnerHeight: number, windowInnerWidth: number) => {
+      let updatedDefaultPosition = { ...dataState.defaultPosition }
+      updatedDefaultPosition = {
+        x: 0,
+        y: Math.max(90, windowInnerHeight - 243)
+      }
+      let updatedDefaultDimension = { ...dataState.defaultDimension }
+      updatedDefaultDimension.w = windowInnerWidth
       dispatch({
         type: 'DEFAULT_POSITION_AND_DIMENSION',
         value: {
-          defaultPosition: { x: dataState.defaultPosition.x, y: y },
-          defaultDimension: { h: dataState.defaultDimension.h, w: w }
+          defaultPosition: updatedDefaultPosition,
+          defaultDimension: updatedDefaultDimension
         }
       })
     },
@@ -176,84 +187,83 @@ const useMapLayers = () => {
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         dispatch({
           type: 'TIMESTAMP',
-          value: { groupedLayers: updatedSettings, selectedLayers: updatedSelectedLayers, toBeRemovedLayer: toBeRemovedLayer }
+          value: {
+            groupedLayers: updatedSettings,
+            selectedLayers: updatedSelectedLayers,
+            toBeRemovedLayer: toBeRemovedLayer
+          }
         })
       }
     },
     [dataState]
   )
 
-  const changePlayersPositionAndDimension = useCallback(
-    (players) => {
-      const cnt = players.length
-      let updatedPlayers = [...players]
-      const defaultDim = { ...dataState.defaultDimension }
-      const defaultPos = { ...dataState.defaultPosition }
-      if (cnt === 1) {
-        // set default position and width
-        let onlyPlayer = { ...updatedPlayers[0] }
-        onlyPlayer.position = defaultPos
-        onlyPlayer.dimension = defaultDim
-        updatedPlayers[0] = onlyPlayer
-      } else if (cnt === 2) {
-        // change y position of second element
-        let first = players[0]
-        first.dimension.w = defaultDim.w
-        first.position = defaultPos
-        updatedPlayers[0] = first
-        let lastPlayer = { ...updatedPlayers[cnt - 1] }
-        lastPlayer.position.x = defaultPos.x
-        lastPlayer.position.y = defaultPos.y - defaultDim.h - 5
-        lastPlayer.dimension.w = defaultDim.w
-        updatedPlayers[cnt - 1] = lastPlayer
-      } else if (cnt === 3) {
-        // change x and y position of second element
-        // change 7 position of third element
-        // change dimension of all three elements
-        let midWidth = defaultDim.w / 2 - 2
-        let first = players[0]
-        first.dimension.w = midWidth
-        first.position = defaultPos
-        updatedPlayers[0] = first
-        let second = players[1]
-        second.dimension.w = midWidth
-        second.position.x = defaultPos.x + midWidth + 4
-        second.position.y = defaultPos.y
-        updatedPlayers[1] = second
-        let third = players[2]
-        third.dimension.w = midWidth
-        third.position.x = defaultPos.x
-        third.position.y = defaultPos.y - defaultDim.h - 5
-        updatedPlayers[2] = third
-      } else if (cnt === 4) {
-        // change x and y position of forth  element
-        // change dimension of forth elements
-        let midWidth = defaultDim.w / 2 - 2
-        let first = players[0]
-        first.dimension.w = midWidth
-        first.position = defaultPos
-        updatedPlayers[0] = first
-        let second = players[1]
-        second.dimension.w = midWidth
-        second.position.x = defaultPos.x + midWidth + 4
-        second.position.y = defaultPos.y
-        updatedPlayers[1] = second
-        let third = players[2]
-        third.dimension.w = midWidth
-        third.position.x = defaultPos.x
-        third.position.y = defaultPos.y - defaultDim.h - 5
-        updatedPlayers[2] = third
-        let forth = players[3]
-        forth.dimension.w = midWidth
-        forth.position.x = defaultPos.x + midWidth + 4
-        forth.position.y = defaultPos.y - defaultDim.h - 5
-        updatedPlayers[3] = forth
-      }
+  const changePlayersPositionAndDimension = useCallback((players, defaultPos, defaultDim) => {
+    const cnt = players.length
+    let updatedPlayers = [...players]
+    if (cnt === 1) {
+      // set default position and width
+      let onlyPlayer = { ...updatedPlayers[0] }
+      onlyPlayer.position = defaultPos
+      onlyPlayer.dimension = defaultDim
+      updatedPlayers[0] = onlyPlayer
+    } else if (cnt === 2) {
+      // change y position of second element
+      let first = players[0]
+      first.dimension.w = defaultDim.w
+      first.position = defaultPos
+      updatedPlayers[0] = first
+      let lastPlayer = { ...updatedPlayers[cnt - 1] }
+      lastPlayer.position.x = defaultPos.x
+      lastPlayer.position.y = defaultPos.y - defaultDim.h - 5
+      lastPlayer.dimension.w = defaultDim.w
+      updatedPlayers[cnt - 1] = lastPlayer
+    } else if (cnt === 3) {
+      // change x and y position of second element
+      // change 7 position of third element
+      // change dimension of all three elements
+      let midWidth = defaultDim.w / 2 - 2
+      let first = players[0]
+      first.dimension.w = midWidth
+      first.position = defaultPos
+      updatedPlayers[0] = first
+      let second = players[1]
+      second.dimension.w = midWidth
+      second.position.x = defaultPos.x + midWidth + 4
+      second.position.y = defaultPos.y
+      updatedPlayers[1] = second
+      let third = players[2]
+      third.dimension.w = midWidth
+      third.position.x = defaultPos.x
+      third.position.y = defaultPos.y - defaultDim.h - 5
+      updatedPlayers[2] = third
+    } else if (cnt === 4) {
+      // change x and y position of forth  element
+      // change dimension of forth elements
+      let midWidth = defaultDim.w / 2 - 2
+      let first = players[0]
+      first.dimension.w = midWidth
+      first.position = defaultPos
+      updatedPlayers[0] = first
+      let second = players[1]
+      second.dimension.w = midWidth
+      second.position.x = defaultPos.x + midWidth + 4
+      second.position.y = defaultPos.y
+      updatedPlayers[1] = second
+      let third = players[2]
+      third.dimension.w = midWidth
+      third.position.x = defaultPos.x
+      third.position.y = defaultPos.y - defaultDim.h - 5
+      updatedPlayers[2] = third
+      let forth = players[3]
+      forth.dimension.w = midWidth
+      forth.position.x = defaultPos.x + midWidth + 4
+      forth.position.y = defaultPos.y - defaultDim.h - 5
+      updatedPlayers[3] = forth
+    }
 
-      return updatedPlayers
-    },
-    [dataState]
-  )
+    return updatedPlayers
+  }, [])
 
   const updateSelectedLayers = useCallback(
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
@@ -271,9 +281,8 @@ const useMapLayers = () => {
           : ''
         if (newSettings.isChecked) {
           newSettings.isPlayerVisible = true
-          newSettings.activeLayer = currentLayer.timestampsToFiles[
-            currentLayer.availableTimestamps[currentLayer.dateIndex]
-          ]
+          newSettings.activeLayer =
+            currentLayer.timestampsToFiles[currentLayer.availableTimestamps[currentLayer.dateIndex]]
           updatedSelectedLayers.push(newSettings)
         } else {
           const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
@@ -286,7 +295,7 @@ const useMapLayers = () => {
           const findLegendIdx = updateLegends.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
-          if (findLegendIdx >= 0){
+          if (findLegendIdx >= 0) {
             updateLegends.splice(findLegendIdx, 1)
           }
           const findMetadataIdx = updateMetadata.findIndex(
@@ -296,7 +305,13 @@ const useMapLayers = () => {
             updateMetadata.splice(findMetadataIdx, 1)
           }
         }
-        let changedSelectedLayers = changePlayersPositionAndDimension(updatedSelectedLayers)
+        const defaultPos = { ...dataState.defaultPosition }
+        const defaultDim = { ...dataState.defaultDimension }
+        let changedSelectedLayers = changePlayersPositionAndDimension(
+          updatedSelectedLayers,
+          defaultPos,
+          defaultDim
+        )
         updatedSettings = { ...dataState.groupedLayers }
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         dispatch({
@@ -305,7 +320,7 @@ const useMapLayers = () => {
             groupedLayers: updatedSettings,
             selectedLayers: changedSelectedLayers,
             toBeRemovedLayer: toBeRemovedLayer,
-            layersLegend: updateLegends, 
+            layersLegend: updateLegends,
             layersMetadata: updateMetadata
           }
         })
@@ -325,9 +340,19 @@ const useMapLayers = () => {
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
       )
       updatedSelectedLayers[findToDeselectedLayerIdx] = toBeUpdated
+      const defaultPos = { ...dataState.defaultPosition }
+      const defaultDim = { ...dataState.defaultDimension }
+      let changedSelectedLayers = changePlayersPositionAndDimension(
+        updatedSelectedLayers,
+        defaultPos,
+        defaultDim
+      )
       dispatch({
         type: 'UPDATE_LAYER_PLAYER_POSITION',
-        value: updatedSettings
+        value: {
+          groupedLayers: updatedSettings,
+          selectedLayers: changedSelectedLayers
+        }
       })
     },
     [dataState]
@@ -351,7 +376,7 @@ const useMapLayers = () => {
   )
 
   const getMetaData = useCallback(
-    (metaId, group, subGroup, dataTypeId, transformData = () => {}) => {
+    (metaId, group, subGroup, dataTypeId, transformData = () => {}, windowInnerWidth) => {
       let updatedMetadata = dataState.layersMetadata
       const findMetaIdx = updatedMetadata.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
@@ -381,7 +406,7 @@ const useMapLayers = () => {
                 dataTypeId: dataTypeId,
                 metadata: formattedres,
                 visibility: true,
-                position: { x: 1069, y: 60 }
+                position: { x: windowInnerWidth - 500 - 230, y: 60 }
               })
             }
             dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
@@ -416,7 +441,7 @@ const useMapLayers = () => {
   )
 
   const getLegend = useCallback(
-    (geoServerConfig, layerName, group, subGroup, dataTypeId) => {
+    (geoServerConfig, layerName, group, subGroup, dataTypeId, windowInnerWidth) => {
       let updatedLegends = dataState.layersLegend
       const findLegendIdx = updatedLegends.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
@@ -434,7 +459,7 @@ const useMapLayers = () => {
               dataTypeId: dataTypeId,
               legend: imgUrl,
               visibility: true,
-              position: { x: 1069, y: 60 }
+              position: { x: windowInnerWidth - 109 - 741, y: 60 }
             })
             dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
           })

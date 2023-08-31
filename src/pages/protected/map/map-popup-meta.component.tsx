@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  makeStyles,
   AppBar,
   Typography,
   IconButton,
@@ -11,26 +10,13 @@ import {
   TableRow,
   TableCell,
   List,
-  ListItem
+  ListItem,
+  Grid
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 
-const useStyles = makeStyles((theme) => ({
-  titleContainer: {
-    width: '90%',
-    paddingTop: 11,
-    paddingBottom: 11
-  },
-  titleTooltip: {
-    width: '10%',
-    paddingTop: 11,
-    paddingBottom: 11
-  }
-}))
-
 export function PlayerMetadata(props) {
-  const classes = useStyles()
   const theme = useTheme()
 
   const [dim, setDim] = useState({
@@ -85,41 +71,36 @@ export function PlayerMetadata(props) {
           backgroundColor: theme.palette.primary.dark,
           boxShadow: 'none',
           display: 'flex',
-          flexDirection: 'row',
-          height: '60px'
+          flexDirection: 'row'
         }}
         className="handle handleResize"
       >
-        <span className={classes.titleContainer} style={{ width: '100%', alignSelf: 'end' }}>
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Typography
             align="left"
             variant="h4"
-            style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px', marginLeft: 10 }}
+            style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
           >
             Layer Metadata
           </Typography>
-        </span>
-        <span style={{ width: '20%' }}>
           <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '0px' }}
             onClick={closeModal}
+            size='small'
           >
             <CloseIcon />
           </IconButton>
-        </span>
+        </Grid>
       </AppBar>
       <CardContent
         style={{
           backgroundColor: theme.palette.primary.dark,
-          paddingRight: '26px',
-          paddingLeft: '34px',
           paddingTop: '0px',
           overflow: 'auto',
           width: '100%',
-          height: 'calc(100% - 60px)'
+          height: 'calc(100% - 30px)'
         }}
       >
-        <Table style={{ width: 'fit-content', height: 'fit-content' }}>
+        <Table style={{ width: 'fit-content', height: 'fit-content' }} padding='none' size='small'>
           <TableBody>
             {layerMetaData.map((row, i) => (
               <TableRow key={i}>

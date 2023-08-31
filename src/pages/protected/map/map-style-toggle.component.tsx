@@ -14,9 +14,9 @@ const MapStyleToggleContainer = styled.div.attrs({
 })`
   position: absolute;
   bottom: 0px;
-  right: 10px;
-  // margin: 10px;
-  // width: 56px;
+  left: 0px;
+  margin: 10px;
+  width: 56px;
   z-index: 10;
 
   .speed-dial-parent {
@@ -33,13 +33,13 @@ const MapStyleToggleContainer = styled.div.attrs({
   }
 
   @media screen and (min-width: 600px){
-    top: 160px;
+    bottom: 380px;
   }
   @media screen and (min-width: 960px){
-    top: 175px;
+    bottom: 270px;
   }
   @media screen and (min-width: 1280px){
-    top: 180px;
+    bottom: 130px;
   }
 `
 
@@ -56,7 +56,7 @@ export function MapStyleToggle({
   onMapStyleChange,
   mapChangeSource,
   hidden = false,
-  direction = 'left'
+  direction = 'right'
 }: Pick<SpeedDialProps, 'hidden' | 'direction'> & RefProps) {
   const title = 'Change Map Style'
   const [open, setOpen] = useState(false)

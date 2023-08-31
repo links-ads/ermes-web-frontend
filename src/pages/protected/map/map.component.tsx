@@ -155,7 +155,7 @@ export function Map() {
     changeOpacity,
     updateTimestamp,
     updateSelectedLayers,
-    updatePlayerPosition,
+    updateLayerPlayerPosition,
     updateLayerPlayerVisibility,
     getMetaData,
     updateLayerMetadataPosition,
@@ -360,9 +360,8 @@ export function Map() {
   }, [filtersObj, fetchGeoJson, fetchLayers])
 
   useEffect(() => {
-    const calcY = Math.max(90, innerHeight - 243)
-    if (defaultPosition.y !== calcY || defaultDimension.w !== innerWidth) {
-      updateDefaultPosAndDim(calcY, innerWidth)
+    if (defaultDimension.w !== innerWidth) {
+      updateDefaultPosAndDim(innerHeight, innerWidth)
     }    
   }, [innerHeight, innerWidth])
 
@@ -452,11 +451,11 @@ export function Map() {
   }
 
   const manageLayerLegend = (layerName, group, subGroup, dataTypeId) => {
-    getLayerLegend(appConfig.geoServer, layerName, group, subGroup, dataTypeId)
+    getLayerLegend(appConfig.geoServer, layerName, group, subGroup, dataTypeId, innerWidth)
   }
 
   const getLayerMeta = (metaId: string, group: string, subGroup: string, dataTypeId: number) => {
-    getMetaData(metaId, group, subGroup, dataTypeId, formatMeta)
+    getMetaData(metaId, group, subGroup, dataTypeId, formatMeta, innerWidth)
   }
 
   const [communicationCounter, setCommunicationCounter] = useState(0)
@@ -597,7 +596,7 @@ export function Map() {
             <LayersPlayer
               key={'layer-player-' + idx}
               updateVisibility={updateLayerPlayerVisibility}
-              onPositionChange={updatePlayerPosition}
+              onPositionChange={updateLayerPlayerPosition}
               getLegend={manageLayerLegend}
               getMeta={getLayerMeta}
               map={map}
