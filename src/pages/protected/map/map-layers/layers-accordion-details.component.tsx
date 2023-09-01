@@ -22,12 +22,12 @@ const LayersAccordionDetails: React.FC<{
   updateLayerSelection: any
   map: any
   checkboxDisabled: boolean
-  toBeRemovedLayer: string
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const classes = useStyles()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
-  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
+  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled, toBeRemovedLayers } = props
   
   const checkboxClickHandler = (event: any) => {
     updateLayerSelection(
@@ -38,12 +38,12 @@ const LayersAccordionDetails: React.FC<{
     )
   }
 
-  useEffect(() => {
-    if (toBeRemovedLayer !== '' && map.getLayer(toBeRemovedLayer)) {
-      map.removeLayer(toBeRemovedLayer)
-      map.removeSource(toBeRemovedLayer)
-    }
-  }, [toBeRemovedLayer])
+  const removeLayerFromMap = (toRemoveLayer) => {
+    if (map.getLayer(toRemoveLayer)) {
+      map.removeLayer(toRemoveLayer)
+      map.removeSource(toRemoveLayer)
+    }    
+  }
 
   const paintMap = (map, selectedLayer) => {
     const layerName = selectedLayer.activeLayer
@@ -75,11 +75,16 @@ const LayersAccordionDetails: React.FC<{
 
   useEffect(() => {
     if (selectedLayers && selectedLayers.length > 0) {
-      for (let i; i < selectedLayers.length; i++) {
+      for (let i = 0; i < selectedLayers.length; i++) {
         paintMap(map, selectedLayers[i])
       }
     }
-  }, [selectedLayers])
+    if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
+      for(let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(toBeRemovedLayers[i])
+      }      
+    }
+  }, [selectedLayers, toBeRemovedLayers])
   
   const layerComponent = (
     <FormControlLabel

@@ -17,11 +17,11 @@ const LayersAccordion: React.FC<{
   updateLayerSelection: any
   map: any
   selectedLayers: LayerSettingsState[] | undefined
-  toBeRemovedLayer: string
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { groupName, updateLayerSelection, layerSubGroups, map, selectedLayers, toBeRemovedLayer } =
+  const { groupName, updateLayerSelection, layerSubGroups, map, selectedLayers, toBeRemovedLayers } =
     props
   const checkboxDisabled = Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length > 3;
   // console.log('Layers checked: ' + Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length)
@@ -44,7 +44,7 @@ const LayersAccordion: React.FC<{
           map={map}
           selectedLayers={selectedLayers}
           checkboxDisabled={checkboxDisabled}
-          toBeRemovedLayer={toBeRemovedLayer}
+          toBeRemovedLayers={toBeRemovedLayers}
         />
       ))}
     </Accordion>

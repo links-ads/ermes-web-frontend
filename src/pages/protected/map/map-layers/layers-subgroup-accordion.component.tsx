@@ -21,11 +21,11 @@ const LayersSubgroupAccordion: React.FC<{
   map: any
   selectedLayers: LayerSettingsState[] | undefined
   checkboxDisabled: boolean
-  toBeRemovedLayer: string
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { subGroupName, updateLayerSelection, layers, map, selectedLayers, checkboxDisabled, toBeRemovedLayer } = props
+  const { subGroupName, updateLayerSelection, layers, map, selectedLayers, checkboxDisabled, toBeRemovedLayers } = props
   const value = Object.keys(layers).forEach((layer) => {
     if (layers[layer].isChecked) return layers[layer].dataTypeId
     else return 0
@@ -42,8 +42,6 @@ const LayersSubgroupAccordion: React.FC<{
       <FormControl>
         <FormGroup
           aria-labelledby="demo-checkbox-buttons-group-label"
-          // name="radio-buttons-group"
-          // value={value}
         >
           {Object.keys(props.layers).map((key, index) => (
             <LayersAccordionDetails
@@ -53,7 +51,7 @@ const LayersSubgroupAccordion: React.FC<{
               map={map}
               selectedLayers={selectedLayers}
               checkboxDisabled={checkboxDisabled}
-              toBeRemovedLayer={toBeRemovedLayer}
+              toBeRemovedLayers={toBeRemovedLayers}
             />
           ))}
         </FormGroup>

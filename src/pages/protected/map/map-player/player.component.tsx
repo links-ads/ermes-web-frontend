@@ -62,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
 const LayersPlayer: React.FC<{
   map: any
   selectedLayer: LayerSettingsState | undefined
-  toBeRemovedLayer: string
+  toBeRemovedLayers: string[]
   changeLayerOpacity: any
   updateLayerTimestamp: any
   onPositionChange: any
@@ -79,7 +79,7 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayer, getMeta, getLegend } = props
+  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayers, getMeta, getLegend } = props
   const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -125,12 +125,20 @@ const LayersPlayer: React.FC<{
     setIsLoading(false)
   }
 
+  const removeLayerFromMap = (toRemoveLayer) => {
+    if (map.getLayer(toRemoveLayer)) {
+      map.removeLayer(toRemoveLayer)
+      map.removeSource(toRemoveLayer)
+    }    
+  }
+
   useEffect(() => {
-    if (toBeRemovedLayer !== '' && map.getLayer(toBeRemovedLayer)) {
-      map.removeLayer(toBeRemovedLayer)
-      map.removeSource(toBeRemovedLayer)
+    if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
+      for(let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(toBeRemovedLayers[i])
+      }      
     }
-  }, [toBeRemovedLayer])
+  }, [toBeRemovedLayers])
 
   useEffect(() => {
     if (!selectedLayer) return

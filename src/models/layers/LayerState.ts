@@ -73,7 +73,7 @@ export class LayerSettingsState {
     this.activeLayer = ''
     this.associatedLayers = []
     this.position = { x: 0, y: yPosition }
-    this.dimension = { h: 136, w: width }
+    this.dimension = { h: 116, w: width }
     this.isPlayerVisible = true
   }
 }

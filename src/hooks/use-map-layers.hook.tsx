@@ -9,11 +9,11 @@ const initialState = {
   rawLayers: {},
   groupedLayers: [],
   selectedLayers: [],
-  toBeRemovedLayer: '',
+  toBeRemovedLayers: [],
   layersMetadata: [],
   layersLegend: [],
   defaultPosition: { x: 0, y: 0 },
-  defaultDimension: { h: 136, w: 1000 },
+  defaultDimension: { h: 116, w: 1000 },
   isLoading: true,
   error: false
 }
@@ -38,14 +38,14 @@ const reducer = (currentState, action) => {
         ...currentState,
         groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers,
-        toBeRemovedLayer: action.value.toBeRemovedLayer
+        toBeRemovedLayers: action.value.toBeRemovedLayers
       }
     case 'UPDATE_SELECTED_LAYERS':
       return {
         ...currentState,
         groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers,
-        toBeRemovedLayer: action.value.toBeRemovedLayer,
+        toBeRemovedLayers: action.value.toBeRemovedLayers,
         layersLegend: action.value.layersLegend,
         layersMetadata: action.value.layersMetadata
       }
@@ -127,7 +127,7 @@ const useMapLayers = () => {
       let updatedDefaultPosition = { ...dataState.defaultPosition }
       updatedDefaultPosition = {
         x: 0,
-        y: Math.max(90, windowInnerHeight - 243)
+        y: Math.max(90, windowInnerHeight - 219)
       }
       let updatedDefaultDimension = { ...dataState.defaultDimension }
       updatedDefaultDimension.w = windowInnerWidth
@@ -163,16 +163,23 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const clearToBeRemovedLayers = (layers, selectedLayers) => {
+    const activeLayers = selectedLayers.map(e => e.activeLayer)
+    const cleanLayers = layers.filter(e => e !== '' && !activeLayers.includes(e))
+    const uniqueLayers = [...new Set(cleanLayers)]
+    return uniqueLayers
+  }
+
   const updateTimestamp = useCallback(
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
-      let toBeRemovedLayer = ''
+      let toBeRemovedLayers = [...dataState.toBeRemovedLayers]
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
         newSettings.dateIndex = newValue
-        toBeRemovedLayer = newSettings.activeLayer
+        toBeRemovedLayers.push(newSettings.activeLayer)
         newSettings.activeLayer =
           currentLayer.timestampsToFiles[currentLayer.availableTimestamps[newSettings.dateIndex]]
         const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
@@ -190,7 +197,7 @@ const useMapLayers = () => {
           value: {
             groupedLayers: updatedSettings,
             selectedLayers: updatedSelectedLayers,
-            toBeRemovedLayer: toBeRemovedLayer
+            toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, updatedSelectedLayers)
           }
         })
       }
@@ -215,7 +222,7 @@ const useMapLayers = () => {
       updatedPlayers[0] = first
       let lastPlayer = { ...updatedPlayers[cnt - 1] }
       lastPlayer.position.x = defaultPos.x
-      lastPlayer.position.y = defaultPos.y - defaultDim.h - 5
+      lastPlayer.position.y = defaultPos.y - defaultDim.h - 2
       lastPlayer.dimension.w = defaultDim.w
       updatedPlayers[cnt - 1] = lastPlayer
     } else if (cnt === 3) {
@@ -235,7 +242,7 @@ const useMapLayers = () => {
       let third = players[2]
       third.dimension.w = midWidth
       third.position.x = defaultPos.x
-      third.position.y = defaultPos.y - defaultDim.h - 5
+      third.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[2] = third
     } else if (cnt === 4) {
       // change x and y position of forth  element
@@ -253,12 +260,12 @@ const useMapLayers = () => {
       let third = players[2]
       third.dimension.w = midWidth
       third.position.x = defaultPos.x
-      third.position.y = defaultPos.y - defaultDim.h - 5
+      third.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[2] = third
       let forth = players[3]
       forth.dimension.w = midWidth
       forth.position.x = defaultPos.x + midWidth + 4
-      forth.position.y = defaultPos.y - defaultDim.h - 5
+      forth.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[3] = forth
     }
 
@@ -269,7 +276,7 @@ const useMapLayers = () => {
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
-      let toBeRemovedLayer = ''
+      let toBeRemovedLayers: string[] = [] 
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
       if (currentLayer) {
@@ -289,7 +296,8 @@ const useMapLayers = () => {
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findToDeselectedLayerIdx >= 0) {
-            toBeRemovedLayer = updatedSelectedLayers[findToDeselectedLayerIdx].activeLayer
+            const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx].activeLayer
+            toBeRemovedLayers.push(activeLayerToRemove)
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
           const findLegendIdx = updateLegends.findIndex(
@@ -315,11 +323,11 @@ const useMapLayers = () => {
         updatedSettings = { ...dataState.groupedLayers }
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         dispatch({
-          type: 'UPDATE_SELECTED_LAYERS',
+          type: 'UPDATE_SELECTED_LAYERS', 
           value: {
             groupedLayers: updatedSettings,
             selectedLayers: changedSelectedLayers,
-            toBeRemovedLayer: toBeRemovedLayer,
+            toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, changedSelectedLayers),
             layersLegend: updateLegends,
             layersMetadata: updateMetadata
           }

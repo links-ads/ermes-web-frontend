@@ -171,7 +171,7 @@ export function Map() {
     layersMetadata,
     layersLegend,
     selectedLayers,
-    toBeRemovedLayer,
+    toBeRemovedLayers,
     defaultDimension,
     defaultPosition,
     isLoading
@@ -376,7 +376,7 @@ export function Map() {
     return { x: 60, y: 60 }
   }, [])
   const layersPlayerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
-    return { x: 60, y: Math.max(90, window.innerHeight - 243) }
+    return { x: 60, y: Math.max(90, window.innerHeight - 219) }
   }, [])
   const layersSelectContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
     return { x: 60, y: 60 }
@@ -601,7 +601,7 @@ export function Map() {
               getMeta={getLayerMeta}
               map={map}
               selectedLayer={layer}
-              toBeRemovedLayer={toBeRemovedLayer}
+              toBeRemovedLayers={toBeRemovedLayers}
               changeLayerOpacity={changeOpacity}
               updateLayerTimestamp={updateTimestamp}
             />
@@ -651,7 +651,7 @@ export function Map() {
           selectedLayers={selectedLayers}
           position={layersSelectContainerPosition}
           setPosition={setLayersSelectContainerPosition}
-          toBeRemovedLayer={toBeRemovedLayer}
+          toBeRemovedLayers={toBeRemovedLayers}
         />
 
         <MapStateContextProvider<MapFeature>>
