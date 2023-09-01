@@ -131,5 +131,5 @@
   "legend_mission": "Missions",
   "legend_alert": "Alerts",
   "legend_station": "Cameras",
-  "legend_lastposition": "Last position"
+  "legend_selectedposition": "Selected position"
 }

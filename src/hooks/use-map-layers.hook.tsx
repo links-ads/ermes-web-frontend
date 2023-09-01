@@ -30,13 +30,11 @@ const reducer = (currentState, action) => {
     case 'OPACITY':
       return {
         ...currentState,
-        groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers
       }
     case 'TIMESTAMP':
       return {
         ...currentState,
-        groupedLayers: action.value.groupedLayers,
         selectedLayers: action.value.selectedLayers,
         toBeRemovedLayers: action.value.toBeRemovedLayers
       }
@@ -49,13 +47,7 @@ const reducer = (currentState, action) => {
         layersLegend: action.value.layersLegend,
         layersMetadata: action.value.layersMetadata
       }
-    case 'UPDATE_LAYER_PLAYER_POSITION':
-      return {
-        ...currentState,
-        groupedLayers: action.value.groupedLayers,
-        selectedLayers: action.value.selectedLayers
-      }
-    case 'UPDATE_LAYER_PLAYER_VISIBILITY':
+    case 'UPDATE_LAYER_PLAYER':
       return {
         ...currentState,
         selectedLayers: action.value
@@ -144,58 +136,45 @@ const useMapLayers = () => {
 
   const changeOpacity = useCallback(
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
-      const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
-      let updatedSettings: GroupLayerState
-      let newSettings: LayerSettingsState = { ...currentLayer }
-      newSettings.opacity = newValue
       let updatedSelectedLayers = [...dataState.selectedLayers]
       const findToChangeSelectedLayerIdx = updatedSelectedLayers.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
       )
-      updatedSelectedLayers[findToChangeSelectedLayerIdx] = newSettings
-      updatedSettings = { ...dataState.groupedLayers }
-      updatedSettings[group][subGroup][dataTypeId] = newSettings
+      updatedSelectedLayers[findToChangeSelectedLayerIdx].opacity = newValue
       dispatch({
         type: 'OPACITY',
-        value: { groupedLayers: updatedSettings, selectedLayers: updatedSelectedLayers }
+        value: { selectedLayers: updatedSelectedLayers }
       })
     },
     [dataState]
   )
 
   const clearToBeRemovedLayers = (layers, selectedLayers) => {
-    const activeLayers = selectedLayers.map(e => e.activeLayer)
-    const cleanLayers = layers.filter(e => e !== '' && !activeLayers.includes(e))
+    const activeLayers = selectedLayers.map((e) => e.activeLayer)
+    const cleanLayers = layers.filter((e) => e !== '' && !activeLayers.includes(e))
     const uniqueLayers = [...new Set(cleanLayers)]
     return uniqueLayers
   }
 
   const updateTimestamp = useCallback(
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
-      const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
-      let updatedSettings: GroupLayerState
+      let updatedSelectedLayers = [...dataState.selectedLayers]
+      const findCurrentSelectedLayerIdx = updatedSelectedLayers.findIndex(
+        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+      )
       let toBeRemovedLayers = [...dataState.toBeRemovedLayers]
-      if (currentLayer) {
-        let newSettings: LayerSettingsState = { ...currentLayer }
-        let updatedSelectedLayers = [...dataState.selectedLayers]
+      if (findCurrentSelectedLayerIdx >= 0) {
+        const newSettings: LayerSettingsState = {
+          ...updatedSelectedLayers[findCurrentSelectedLayerIdx]
+        }
         newSettings.dateIndex = newValue
         toBeRemovedLayers.push(newSettings.activeLayer)
         newSettings.activeLayer =
-          currentLayer.timestampsToFiles[currentLayer.availableTimestamps[newSettings.dateIndex]]
-        const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
-          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
-        )
-        if (findSelectedLayerIdx < 0) {
-          updatedSelectedLayers.push(newSettings)
-        } else {
-          updatedSelectedLayers[findSelectedLayerIdx] = newSettings
-        }
-        updatedSettings = { ...dataState.groupedLayers }
-        updatedSettings[group][subGroup][dataTypeId] = newSettings
+          newSettings.timestampsToFiles[newSettings.availableTimestamps[newSettings.dateIndex]]
+        updatedSelectedLayers[findCurrentSelectedLayerIdx] = newSettings
         dispatch({
           type: 'TIMESTAMP',
           value: {
-            groupedLayers: updatedSettings,
             selectedLayers: updatedSelectedLayers,
             toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, updatedSelectedLayers)
           }
@@ -276,7 +255,7 @@ const useMapLayers = () => {
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
-      let toBeRemovedLayers: string[] = [] 
+      let toBeRemovedLayers: string[] = []
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
       if (currentLayer) {
@@ -323,7 +302,7 @@ const useMapLayers = () => {
         updatedSettings = { ...dataState.groupedLayers }
         updatedSettings[group][subGroup][dataTypeId] = newSettings
         dispatch({
-          type: 'UPDATE_SELECTED_LAYERS', 
+          type: 'UPDATE_SELECTED_LAYERS',
           value: {
             groupedLayers: updatedSettings,
             selectedLayers: changedSelectedLayers,
@@ -339,14 +318,12 @@ const useMapLayers = () => {
 
   const updateLayerPlayerPosition = useCallback(
     (x, y, group, subGroup, dataTypeId) => {
-      let toBeUpdated = dataState.groupedLayers[group][subGroup][dataTypeId]
-      toBeUpdated.position = { x, y }
-      const updatedSettings = { ...dataState.groupedLayers }
-      updatedSettings[group][subGroup][dataTypeId] = toBeUpdated
       let updatedSelectedLayers = [...dataState.selectedLayers]
       const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
       )
+      let toBeUpdated = { ...updatedSelectedLayers[findToDeselectedLayerIdx] }
+      toBeUpdated.position = { x, y }
       updatedSelectedLayers[findToDeselectedLayerIdx] = toBeUpdated
       const defaultPos = { ...dataState.defaultPosition }
       const defaultDim = { ...dataState.defaultDimension }
@@ -356,11 +333,8 @@ const useMapLayers = () => {
         defaultDim
       )
       dispatch({
-        type: 'UPDATE_LAYER_PLAYER_POSITION',
-        value: {
-          groupedLayers: updatedSettings,
-          selectedLayers: changedSelectedLayers
-        }
+        type: 'UPDATE_LAYER_PLAYER',
+        value: changedSelectedLayers
       })
     },
     [dataState]
@@ -376,7 +350,7 @@ const useMapLayers = () => {
       toBeUpdated.isPlayerVisible = visibility
       updatedSelectedLayers[findToDeselectedLayerIdx] = toBeUpdated
       dispatch({
-        type: 'UPDATE_LAYER_PLAYER_VISIBILITY',
+        type: 'UPDATE_LAYER_PLAYER',
         value: updatedSelectedLayers
       })
     },

@@ -132,5 +132,5 @@
   "legend_mission": "Missioni",
   "legend_alert": "Allerte",
   "legend_station": "Telecamere",
-  "legend_lastposition": "Ulima posizione"
+  "legend_selectedposition": "Posizione selezionata"
 }
