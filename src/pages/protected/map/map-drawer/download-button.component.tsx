@@ -11,7 +11,7 @@ const DownloadButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 130px;
+  top: 160px;
   right: 0px;
   margin: 10px;
 `

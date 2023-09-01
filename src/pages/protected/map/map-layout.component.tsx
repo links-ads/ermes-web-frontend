@@ -91,9 +91,12 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      bottom: '150px',
+      top: 225,
       right: '10px',
       zIndex: 99,
+      width: 27, 
+      height: 27,
+      minHeight: 27,
       backgroundColor: theme.palette.secondary.main,
       [theme.breakpoints.up('sm')]: {
         bottom: 390
@@ -108,7 +111,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 150,
+      top: 225,
       right: 10
     },
     legend_row: {

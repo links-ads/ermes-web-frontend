@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import Avatar from '@material-ui/core/Avatar'
-import styled from 'styled-components'
 import Tooltip from '@material-ui/core/Tooltip'
 import { useMapPreferences } from '../../../state/preferences/preferences.hooks'
 import SpeedDial, { SpeedDialProps } from '@material-ui/lab/SpeedDial'
@@ -8,40 +7,67 @@ import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
 import SpeedDialAction from '@material-ui/lab/SpeedDialAction'
 import { Spiderifier } from '../../../utils/map-spiderifier.utils'
 import { InteractiveMap } from 'react-map-gl'
+import { Theme, createStyles, makeStyles, withStyles } from '@material-ui/core'
+import { useTranslation } from 'react-i18next'
 
-const MapStyleToggleContainer = styled.div.attrs({
-  className: 'map-style-toggle-container'
-})`
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  margin: 10px;
-  width: 56px;
-  z-index: 10;
+const MapStyleSpeedDial = (props) => {
+  return <div className={props.classes.root}>{props.children}</div>
+}
 
-  .speed-dial-parent {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    .MuiSpeedDialIcon-root {
-      height: 100%;
-      border: 2px solid ${(props) => props.theme.palette.background.paper};
-      border-radius: 50%;
-      box-sizing: border-box;
+const MapStyleButtonContainer = withStyles(
+  (theme) => ({
+    root: {
+      position: 'absolute',
+      top: 164,
+      right: 0,
+      [theme.breakpoints.down('sm')]: {
+        top: 340
+      },
+      [theme.breakpoints.between('sm', 'md')]: {
+        top: 164
+      }
     }
-  }
+  }),
+  { withTheme: true }
+)(MapStyleSpeedDial)
 
-  @media screen and (min-width: 600px){
-    bottom: 380px;
-  }
-  @media screen and (min-width: 960px){
-    bottom: 270px;
-  }
-  @media screen and (min-width: 1280px){
-    bottom: 130px;
-  }
-`
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    speedDialParent: {
+      position: 'relative',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    speedDial: {
+      position: 'absolute',
+      bottom: 16,
+      right: 10
+    },
+    speedDialAction: {
+      borderRadius: 0,
+      height: 27,
+      width: 27,
+      minHeight: 27
+    },
+    speedDialIconRoot: {
+      border: `2px solid ${theme.palette.background.paper}`,
+      borderRadius: 0,
+      boxSizing: 'border-box',
+      height: 27,
+      width: 27,
+      minHeight: 27,
+      '& .MuiAvatar-root': { height: 23, width: 23, minHeight: 23 },
+      '& .MuiSpeedDialIcon-iconOpen': { transitionDuration: '0s!important', transform: 'none' }
+    },
+    speedDialFab: {
+      borderRadius: 0,
+      border: `2px solid ${theme.palette.background.paper}`,
+      height: 27,
+      width: 27,
+      minHeight: 27
+    }
+  })
+)
 
 interface RefProps {
   mapViewRef: React.RefObject<InteractiveMap>
@@ -56,11 +82,13 @@ export function MapStyleToggle({
   onMapStyleChange,
   mapChangeSource,
   hidden = false,
-  direction = 'right'
+  direction = 'left'
 }: Pick<SpeedDialProps, 'hidden' | 'direction'> & RefProps) {
-  const title = 'Change Map Style'
+  const { t } = useTranslation(['maps'])
+  const title = t('maps:layers')
   const [open, setOpen] = useState(false)
   const { mapTheme, availableMapThemes, changeMapTheme } = useMapPreferences()
+  const classes = useStyles()
 
   const handleClose = (name?: string) => {
     setOpen(false)
@@ -79,19 +107,19 @@ export function MapStyleToggle({
   }
 
   return (
-    <MapStyleToggleContainer>
-      <Tooltip title={title} placement="top">
-        <div className="speed-dial-parent">
+    <MapStyleButtonContainer>
+      <Tooltip title={title} placement="left">
+        <div className={classes.speedDialParent}>
           <SpeedDial
             ariaLabel={title}
-            className="map-style speed-dial"
+            className={"map-style " + classes.speedDial}
             hidden={hidden}
-            icon={<SpeedDialIcon icon={<Avatar src={mapTheme?.preview}></Avatar>} />}
+            icon={<SpeedDialIcon className={classes.speedDialIconRoot} icon={<Avatar variant="square" src={mapTheme?.preview}></Avatar>} />}
             onClose={() => handleClose()}
             onOpen={handleOpen}
             open={open}
             direction={direction}
-            FabProps={{ size: 'small' }}
+            FabProps={{ size: 'small', className: classes.speedDialFab }}
           >
             {availableMapThemes
               .filter((mt) => mt.name !== mapTheme?.name)
@@ -100,14 +128,15 @@ export function MapStyleToggle({
                   tooltipTitle={mt.label}
                   tooltipPlacement="top"
                   //tooltipOpen
+                  className={classes.speedDialAction}
                   key={i}
                   onClick={() => handleClose(mt.name)}
-                  icon={<SpeedDialIcon icon={<Avatar src={mt?.preview}></Avatar>}></SpeedDialIcon>}
+                  icon={<SpeedDialIcon className={classes.speedDialIconRoot} icon={<Avatar variant="square" src={mt?.preview}></Avatar>}></SpeedDialIcon>}
                 ></SpeedDialAction>
               ))}
           </SpeedDial>
         </div>
       </Tooltip>
-    </MapStyleToggleContainer>
+    </MapStyleButtonContainer>
   )
 }

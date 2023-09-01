@@ -98,6 +98,7 @@
   "fireBreakTypeHelp": "Select firebreak type",
   "one_datapoint": "Only one data point available for this date range",
   "layer": "Layer",
+  "layers": "Layers",
   "opacity": "Opacity",
   "creator": "Creator",
   "download_successful": "File downloaded successfully!",

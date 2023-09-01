@@ -99,6 +99,7 @@
   "fireBreakTypeHelp": "Seleziona il tipo di tagliafuoco",
   "one_datapoint": "Solo un timestamp disponibile per questo layer",
   "layer": "Layer",
+  "layers": "Livelli",
   "opacity": "Trasparenza",
   "creator": "Creatore",
   "download_successful": "Il file è stato scaricato con successo!",
