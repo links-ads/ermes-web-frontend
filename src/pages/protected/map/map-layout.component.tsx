@@ -629,7 +629,7 @@ export function MapLayout(props) {
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
         setGoToCoord({ latitude: coord[1], longitude: coord[0] })
-        highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, setClickedPoint)
+        highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, clusterMarkersRef, setClickedPoint)
       }
     } else {
       tonedownClickedPoint(mapViewRef, setClickedPoint)

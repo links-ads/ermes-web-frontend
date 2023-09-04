@@ -666,6 +666,7 @@ export function Map() {
             isGeoJsonPrepared={!prepGeoData.isLoading}
             setMap={setMap}
             mapHoverState={mapHoverState}
+            setMapHoverState={setMapHoverState}
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
             setSpiderifierRef={setSpiderifierRef}

@@ -451,7 +451,7 @@ export class Spiderifier {
     }
   }
 
-  public toggleSpidersByPoint(map: mapboxgl.Map, pointOrBox: mapboxgl.PointLike | [mapboxgl.PointLike, mapboxgl.PointLike]) {
+  public toggleSpidersByPoint(map: mapboxgl.Map, pointOrBox: mapboxgl.PointLike | [mapboxgl.PointLike, mapboxgl.PointLike], clusterMarkersRef, sourceId: string, featureId) {
     const features = map.queryRenderedFeatures(pointOrBox, {
       layers: ['clusters']
     })
@@ -465,16 +465,27 @@ export class Spiderifier {
           if (map.getZoom() < this.spiderMaxZoom) {
             const source = map.getSource(this.sourceName)
             if (!!source && source.type === 'geojson') {
+              let allMarkers = clusterMarkersRef.current || [{}, {}]
+              let [markers, markersOnScreen] = allMarkers
               source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                 if (err) return
                 // This signal that the events was caused by click on cluster
                 const evtData = { fromCluster: true, clusterId: clusterId }
-                map.easeTo(
+                // map.easeTo(
+                //   {
+                //     center: coordinates,
+                //     zoom: zoom
+                //   },
+                //   evtData
+                // )
+                map.setFeatureState(
                   {
-                    center: coordinates,
-                    zoom: zoom
+                    source: sourceId,
+                    id: featureId
                   },
-                  evtData
+                  {
+                    hover: true
+                  }
                 )
               })
             }
@@ -484,7 +495,7 @@ export class Spiderifier {
               this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
             if (alreadyOpen) {
               this.clearSpiders(map)
-              
+              this.highlightHoveredLeaf(map, featureId)
             } else {
               this.spiderifiedCluster = {
                 id: clusterId,
