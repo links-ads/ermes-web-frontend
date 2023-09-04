@@ -24,6 +24,7 @@ import { tileJSONIfy } from '../../../../utils/map.utils'
 import { LayerSettingsState } from '../../../../models/layers/LayerState'
 import { PixelPostion } from '../../../../models/common/PixelPosition'
 import { PauseCircleFilled, PlayCircleFilled, SkipNextOutlined } from '@material-ui/icons'
+import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 
 const useStyles = makeStyles((theme) => ({
   slider: {
@@ -98,9 +99,9 @@ const LayersPlayer: React.FC<{
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
     event.stopPropagation()
     const opacity: number = newValue as number
-    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity: 0, activeLayer: '' }
+    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity: 0, activeLayer: '', dateIndex: 0 }
     updatedLayer.opacity = opacity
-    props.map.setPaintProperty(updatedLayer.activeLayer, 'raster-opacity', opacity / 100)
+    props.map.setPaintProperty(updatedLayer.activeLayer + '-' + updatedLayer.dateIndex, 'raster-opacity', opacity / 100)
     changeLayerOpacity(
       selectedLayer?.group,
       selectedLayer?.subGroup,
@@ -126,28 +127,27 @@ const LayersPlayer: React.FC<{
   }
 
   const removeLayerFromMap = (toRemoveLayer) => {
-    if (map.getLayer(toRemoveLayer)) {
-      map.removeLayer(toRemoveLayer)
-      map.removeSource(toRemoveLayer)
+    const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+    if (map.getLayer(removeLayerName)) {
+      map.removeLayer(removeLayerName)
+      map.removeSource(removeLayerName)
     }    
   }
 
   useEffect(() => {
+    if (!selectedLayer) return
+
     if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
       for(let i = 0; i < toBeRemovedLayers.length; i++) {
         removeLayerFromMap(toBeRemovedLayers[i])
       }      
     }
-  }, [toBeRemovedLayers])
 
-  useEffect(() => {
-    if (!selectedLayer) return
-
-    const layerName = selectedLayer.activeLayer
+    const layerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(
         map,
-        layerName,
+        selectedLayer.activeLayer,
         selectedLayer.availableTimestamps[selectedLayer.dateIndex],
         geoServerConfig,
         map.getBounds()
@@ -166,13 +166,13 @@ const LayersPlayer: React.FC<{
         },
         'clusters'
       )
-      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+      map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
     }
-  }, [selectedLayer?.dateIndex])
+  }, [selectedLayer?.dateIndex, toBeRemovedLayers])
 
   useEffect(() => {
     if (!selectedLayer) return
-    map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+    map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
   }, [selectedLayer?.opacity])
 
   const skipNext = (newValue) => {
@@ -207,15 +207,10 @@ const LayersPlayer: React.FC<{
     event.stopPropagation()
     skipNext(value)
   }
-  useEffect(() => {
-    if (playing) {
-      const timer = setTimeout(
-        () => skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0),
-        3000
-      )
-      return () => clearTimeout(timer)
-    }
-  }, [playing, changeDateHandler])
+
+  useMapLayerPlayer(() => {
+    if (playing) skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
+  }, 3000)
 
   if (!selectedLayer) return <div></div>
 

@@ -39,18 +39,19 @@ const LayersAccordionDetails: React.FC<{
   }
 
   const removeLayerFromMap = (toRemoveLayer) => {
-    if (map.getLayer(toRemoveLayer)) {
-      map.removeLayer(toRemoveLayer)
-      map.removeSource(toRemoveLayer)
+    const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+    if (map.getLayer(removeLayerName)) {
+      map.removeLayer(removeLayerName)
+      map.removeSource(removeLayerName)
     }    
   }
 
   const paintMap = (map, selectedLayer) => {
-    const layerName = selectedLayer.activeLayer
+    const layerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(
         map,
-        layerName,
+        selectedLayer.activeLayer,
         selectedLayer.availableTimestamps[selectedLayer.dateIndex],
         geoServerConfig,
         map.getBounds()
@@ -69,21 +70,21 @@ const LayersAccordionDetails: React.FC<{
         },
         'clusters'
       )
-      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+      map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
     }
   }
 
   useEffect(() => {
-    if (selectedLayers && selectedLayers.length > 0) {
-      for (let i = 0; i < selectedLayers.length; i++) {
-        paintMap(map, selectedLayers[i])
-      }
-    }
     if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
       for(let i = 0; i < toBeRemovedLayers.length; i++) {
         removeLayerFromMap(toBeRemovedLayers[i])
       }      
     }
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i = 0; i < selectedLayers.length; i++) {
+        paintMap(map, selectedLayers[i])
+      }
+    }    
   }, [selectedLayers, toBeRemovedLayers])
   
   const layerComponent = (

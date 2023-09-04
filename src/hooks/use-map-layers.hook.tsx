@@ -167,8 +167,11 @@ const useMapLayers = () => {
         const newSettings: LayerSettingsState = {
           ...updatedSelectedLayers[findCurrentSelectedLayerIdx]
         }
+        toBeRemovedLayers.push({
+          layerName: newSettings.activeLayer,
+          layerDateIndex: newSettings.dateIndex
+        })
         newSettings.dateIndex = newValue
-        toBeRemovedLayers.push(newSettings.activeLayer)
         newSettings.activeLayer =
           newSettings.timestampsToFiles[newSettings.availableTimestamps[newSettings.dateIndex]]
         updatedSelectedLayers[findCurrentSelectedLayerIdx] = newSettings
@@ -255,7 +258,7 @@ const useMapLayers = () => {
     (group: string, subGroup: string, dataTypeId: number, newValue: number) => {
       const currentLayer = dataState.groupedLayers[group][subGroup][dataTypeId]
       let updatedSettings: GroupLayerState
-      let toBeRemovedLayers: string[] = []
+      let toBeRemovedLayers: any[] = []
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
       if (currentLayer) {
@@ -275,8 +278,11 @@ const useMapLayers = () => {
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findToDeselectedLayerIdx >= 0) {
-            const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx].activeLayer
-            toBeRemovedLayers.push(activeLayerToRemove)
+            const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx]
+            toBeRemovedLayers.push({
+              layerName: activeLayerToRemove.activeLayer,
+              layerDateIndex: activeLayerToRemove.dateIndex
+            })
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
           const findLegendIdx = updateLegends.findIndex(
