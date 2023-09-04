@@ -7,6 +7,8 @@ import { LayerSettingsState } from '../../../../models/layers/LayerState';
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 import { getBboxSizeFromZoom } from '../../../../common/map/map-common';
 
+const SOURCE_ID = 'emergency-source'
+
 // add position pin at click or db click of the user 
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
 // remove pin if user clicks on it 
@@ -45,6 +47,7 @@ export const highlightClickedPoint = <T extends object>(
   feature,
   mapViewRef,
   spiderifierRef,
+  clusterMarkersRef,
   setLeftClickedFeature
 ) => {
   const map = mapViewRef.current?.getMap()
@@ -62,24 +65,36 @@ export const highlightClickedPoint = <T extends object>(
     if (layers.includes('clusters')) {
       layer = 'clusters'
     }
+    else if(layers.includes('spider-leaves')){
+      layer = 'spider-leaves'
+    }
   }
 
   const properties = feature.properties
   const [longitude, latitude] = feature.geometry.coordinates
   const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
   setLeftClickedFeature(leftClickedFeature)
-
+  const id = feature.properties['id'] || feature.id
   // Cast is necessary
-  if (layer === 'clusters') {
+  if (layer === 'clusters') {    
     // remove clicked point
     updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
-    // Depending on settings, it will either expand the cluster or open the spider
     if (spiderifierRef.current && mapViewRef.current) {
-      spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+      // Depending on settings, it will either expand the cluster or open the spider
+      spiderifierRef.current.toggleSpidersByPoint(map, bbox, clusterMarkersRef, SOURCE_ID, id)
+      spiderifierRef.current.highlightHoveredLeaf(map, id)
     }
-  } else {
-    // layer === 'unclustered-point' and others    
+  }
+  else if (layer === 'spider-leaves') {
     const id = feature.properties['id'] || feature.id
+    if (spiderifierRef.current && mapViewRef.current) {
+      // Depending on settings, it will either expand the cluster or open the spider
+      spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+      spiderifierRef.current.highlightHoveredLeaf(map, id)
+    }
+  } 
+  else {
+    // layer === 'unclustered-point' and others
     updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', id)
   }
 }
