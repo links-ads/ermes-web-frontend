@@ -346,7 +346,7 @@ const useMapLayers = () => {
   )
 
   const getMetaData = useCallback(
-    (metaId, group, subGroup, dataTypeId, transformData = () => {}, windowInnerWidth) => {
+    (metaId, group, subGroup, dataTypeId, layerName, transformData = () => {}, windowInnerWidth) => {
       let updatedMetadata = dataState.layersMetadata
       const findMetaIdx = updatedMetadata.findIndex(
         (e) =>
@@ -375,7 +375,6 @@ const useMapLayers = () => {
               updatedMetadata[findMetaIdx].metadataId = metaId
               updatedMetadata[findMetaIdx].metadata = formattedres
             } else {
-              const layerName = dataState.groupedLayers[group][subGroup][dataTypeId].name
               updatedMetadata.push({
                 group: group,
                 subGroup: subGroup,
@@ -419,7 +418,7 @@ const useMapLayers = () => {
   )
 
   const getLegend = useCallback(
-    (geoServerConfig, layerName, group, subGroup, dataTypeId, windowInnerWidth) => {
+    (geoServerConfig, activeLayerName, group, subGroup, dataTypeId, layerName, windowInnerWidth) => {
       let updatedLegends = dataState.layersLegend
       const findLegendIdx = updatedLegends.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
@@ -428,15 +427,14 @@ const useMapLayers = () => {
         updatedLegends[findLegendIdx].visibility = true
         dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
       } else {
-        const currentLayerName = dataState.groupedLayers[group][subGroup][dataTypeId].name
-        fetch(getLegendURL(geoServerConfig, '40', '40', layerName)).then((result) => {
+        fetch(getLegendURL(geoServerConfig, '40', '40', activeLayerName)).then((result) => {
           result.blob().then((blobRes) => {
             const imgUrl = URL.createObjectURL(blobRes)
             updatedLegends.push({
               group: group,
               subGroup: subGroup,
               dataTypeId: dataTypeId,
-              layerName: currentLayerName,
+              layerName: layerName,
               legend: imgUrl,
               visibility: true,
               position: { x: windowInnerWidth - 109 - 741, y: 60 }

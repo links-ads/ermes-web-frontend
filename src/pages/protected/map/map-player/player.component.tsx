@@ -226,11 +226,11 @@ const LayersPlayer: React.FC<{
   }
 
   const getMetadata = () => {
-    getMeta(selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]], selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+    getMeta(selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]], selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId, selectedLayer.name)
   }
 
   const getLayerLegend = () => {
-    getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+    getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId, selectedLayer.name)
   }
 
   const createLayerMarks = (timestamps) => {
