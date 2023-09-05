@@ -451,12 +451,12 @@ export function Map() {
     return res
   }
 
-  const manageLayerLegend = (layerName, group, subGroup, dataTypeId) => {
-    getLayerLegend(appConfig.geoServer, layerName, group, subGroup, dataTypeId, innerWidth)
+  const manageLayerLegend = (activeLayerName, group, subGroup, dataTypeId, layerName) => {
+    getLayerLegend(appConfig.geoServer, activeLayerName, group, subGroup, dataTypeId, layerName, innerWidth)
   }
 
-  const getLayerMeta = (metaId: string, group: string, subGroup: string, dataTypeId: number) => {
-    getMetaData(metaId, group, subGroup, dataTypeId, formatMeta, innerWidth)
+  const getLayerMeta = (metaId: string, group: string, subGroup: string, dataTypeId: number, layerName: string) => {
+    getMetaData(metaId, group, subGroup, dataTypeId, layerName, formatMeta, innerWidth)
   }
 
   const [communicationCounter, setCommunicationCounter] = useState(0)

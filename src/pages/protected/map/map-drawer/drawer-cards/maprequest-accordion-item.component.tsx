@@ -210,7 +210,7 @@ const MapRequestAccordionItem: React.FC<{
             onClick={() => {
               if (typeof currentLayer.metadataId == 'object') console.log('TODOOOOOOOOOOOOOOO')
               //getMeta(layerDetails.metadataId[currentLayer.layerSettings.dateIndex])
-              else if (typeof currentLayer.metadataId == 'string') getMeta(currentLayer.metadataId, 'mapRequestLayer', currentLayer.mapRequestCode,currentLayer.dataTypeId)
+              else if (typeof currentLayer.metadataId == 'string') getMeta(currentLayer.metadataId, 'Map Request Layer', currentLayer.mapRequestCode, currentLayer.dataTypeId, currentLayer.name)
               else
                 console.log(
                   'no metadata procedure implemented for type',
@@ -223,7 +223,7 @@ const MapRequestAccordionItem: React.FC<{
           <IconButton
             disabled={!currentLayer.isChecked}
             onClick={() => {
-              getLegend(currentLayer.activeLayer, 'mapRequestLayer', currentLayer.mapRequestCode,currentLayer.dataTypeId)
+              getLegend(currentLayer.activeLayer, 'Map Request Layer', currentLayer.mapRequestCode, currentLayer.dataTypeId, currentLayer.name)
             }}
           >
             <LegendIcon />
