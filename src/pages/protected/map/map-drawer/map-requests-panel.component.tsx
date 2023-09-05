@@ -123,13 +123,14 @@ const MapRequestsPanel: React.FC<{
                             []
                           )
                         settings.name = layer.name!
-                        settings.metadataId = detail.metadata_Id
+                        let metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode
                         settings.dataTypeId = layer.dataTypeId!
                         let timestamps: string[] = [...settings.availableTimestamps]
                         detail.timestamps!.forEach((timestamp) => {
                           settings.timestampsToFiles[timestamp] = detail.name!
                           timestamps.push(timestamp)
+                          settings.metadataIds[timestamp] = metadataId
                         })
                         //keep availableTimestamp sorted
                         //use Set to ensure timestamps are unique inside the final array
