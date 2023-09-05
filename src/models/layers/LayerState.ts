@@ -32,13 +32,12 @@ export class LayerSettingsState {
   dateIndex: number
   opacity: number
   isChecked: boolean
-  metadataId: string | null | undefined
+  metadataIds: any | null | undefined
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
   activeLayer: string
   position: PixelPostion
   dimension: Dimension
-  isPlayerVisible: boolean
 
   associatedLayers: AssociatedLayer[]
 
@@ -67,14 +66,13 @@ export class LayerSettingsState {
     this.dateIndex = 0
     this.opacity = 100
     this.isChecked = false
-    this.metadataId = ''
+    this.metadataIds = {}
     this.timestampsToFiles = {}
     this.availableTimestamps = []
     this.activeLayer = ''
     this.associatedLayers = []
     this.position = { x: 0, y: yPosition }
     this.dimension = { h: 116, w: width }
-    this.isPlayerVisible = true
   }
 }
 

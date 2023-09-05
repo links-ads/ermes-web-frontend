@@ -63,11 +63,11 @@ const useStyles = makeStyles((theme) => ({
 const LayersPlayer: React.FC<{
   map: any
   selectedLayer: LayerSettingsState | undefined
+  updateLayerSelection: any
   toBeRemovedLayers: string[]
   changeLayerOpacity: any
   updateLayerTimestamp: any
   onPositionChange: any
-  updateVisibility: any
   getLegend: any
   getMeta: any
 }> = (props) => {
@@ -80,7 +80,7 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { updateVisibility, selectedLayer, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayers, getMeta, getLegend } = props
+  const { selectedLayer, updateLayerSelection, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayers, getMeta, getLegend } = props
   const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -143,8 +143,8 @@ const LayersPlayer: React.FC<{
       }      
     }
 
-    const layerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
-    if (layerName != '' && !map.getLayer(layerName)) {
+    const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
+    if (currentLayerName != '' && !map.getLayer(currentLayerName)) {
       const source = tileJSONIfy(
         map,
         selectedLayer.activeLayer,
@@ -157,22 +157,23 @@ const LayersPlayer: React.FC<{
         fromTime: undefined,
         toTime: undefined
       }
-      map.addSource(layerName, source as mapboxgl.RasterSource)
+      map.addSource(currentLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
-          id: layerName,
+          id: currentLayerName,
           type: 'raster',
-          source: layerName
+          source: currentLayerName
         },
         'clusters'
       )
-      map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
+      map.setPaintProperty(currentLayerName, 'raster-opacity', selectedLayer.opacity / 100)
     }
   }, [selectedLayer?.dateIndex, toBeRemovedLayers])
 
   useEffect(() => {
     if (!selectedLayer) return
-    map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
+    const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
+    map.setPaintProperty(currentLayerName, 'raster-opacity', selectedLayer.opacity / 100)
   }, [selectedLayer?.opacity])
 
   const skipNext = (newValue) => {
@@ -225,7 +226,7 @@ const LayersPlayer: React.FC<{
   }
 
   const getMetadata = () => {
-    getMeta(selectedLayer.metadataId, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+    getMeta(selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]], selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
   }
 
   const getLayerLegend = () => {
@@ -308,7 +309,7 @@ const LayersPlayer: React.FC<{
       selectedLayer={selectedLayer}
       position={selectedLayer.position}
       onPositionChange={onPositionUpdate}
-      toggleActiveFilterTab={selectedLayer.isPlayerVisible}
+      toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
         width: selectedLayer.dimension.w,
         height: selectedLayer.dimension.h
@@ -394,11 +395,11 @@ const LayersPlayer: React.FC<{
             </IconButton>
             <IconButton
               onClick={() => {
-                updateVisibility(
-                  false,
+                updateLayerSelection(
                   selectedLayer.group,
                   selectedLayer.subGroup,
-                  selectedLayer.dataTypeId
+                  selectedLayer.dataTypeId,
+                  false
                 )
               }}
               size="small"

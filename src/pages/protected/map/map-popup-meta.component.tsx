@@ -29,7 +29,7 @@ export function PlayerMetadata(props) {
 
   const { layerData, updateVisibility, onPositionChange } = props
 
-  const { metadata: layerMetaData, visibility, group, subGroup, dataTypeId, position } = layerData
+  const { metadata: layerMetaData, visibility, group, subGroup, dataTypeId, layerName, position } = layerData
 
   const closeModal = () => {
     updateVisibility(false, group, subGroup, dataTypeId)
@@ -81,7 +81,7 @@ export function PlayerMetadata(props) {
             variant="h4"
             style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
           >
-            Layer Metadata
+            {'Metadata - ' + group + ' | ' + layerName}
           </Typography>
           <IconButton
             onClick={closeModal}

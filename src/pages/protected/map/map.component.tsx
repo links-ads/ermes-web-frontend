@@ -156,7 +156,6 @@ export function Map() {
     updateTimestamp,
     updateSelectedLayers,
     updateLayerPlayerPosition,
-    updateLayerPlayerVisibility,
     getMetaData,
     updateLayerMetadataPosition,
     updateLayerMetadataVisibility,
@@ -312,11 +311,12 @@ export function Map() {
                 window.innerWidth
               )
               layer.details!.forEach((detail) => {
-                layerSettingState.metadataId = detail.metadata_Id
+                let metadataId = detail.metadata_Id
                 let timestamps: string[] = [...layerSettingState.availableTimestamps]
                 detail.timestamps!.forEach((timestamp) => {
                   layerSettingState.timestampsToFiles[timestamp] = detail.name!
                   timestamps.push(timestamp)
+                  layerSettingState.metadataIds[timestamp] = metadataId
                 })
                 //keep availableTimestamp sorted
                 //use Set to ensure timestamps are unique inside the final array
@@ -591,11 +591,11 @@ export function Map() {
         resetListCounter={resetListCounter}
       />
       <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {selectedLayers &&
+        {selectedLayers && selectedLayers.length > 0 &&
           selectedLayers.map((layer, idx) => (
             <LayersPlayer
               key={'layer-player-' + idx}
-              updateVisibility={updateLayerPlayerVisibility}
+              updateLayerSelection={updateSelectedLayers}
               onPositionChange={updateLayerPlayerPosition}
               getLegend={manageLayerLegend}
               getMeta={getLayerMeta}
@@ -607,7 +607,7 @@ export function Map() {
             />
           ))}
 
-        {layersLegend &&
+        {layersLegend && layersLegend.length > 0 &&
           layersLegend.map((layerLegend, idx) => (
             <PlayerLegend
               key={'layer-legend-' + idx}
@@ -618,7 +618,7 @@ export function Map() {
             />
           ))}
 
-        {layersMetadata &&
+        {layersMetadata && layersMetadata.length > 0 &&
           layersMetadata.map((layerMeta, idx) => (
             <PlayerMetadata
               key={'layer-metadata-' + idx}

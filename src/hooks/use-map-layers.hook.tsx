@@ -269,7 +269,6 @@ const useMapLayers = () => {
           ? currentLayer.timestampsToFiles[currentLayer.availableTimestamps[currentLayer.dateIndex]]
           : ''
         if (newSettings.isChecked) {
-          newSettings.isPlayerVisible = true
           newSettings.activeLayer =
             currentLayer.timestampsToFiles[currentLayer.availableTimestamps[currentLayer.dateIndex]]
           updatedSelectedLayers.push(newSettings)
@@ -346,28 +345,15 @@ const useMapLayers = () => {
     [dataState]
   )
 
-  const updateLayerPlayerVisibility = useCallback(
-    (visibility, group, subGroup, dataTypeId) => {
-      let updatedSelectedLayers = [...dataState.selectedLayers]
-      const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
-        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
-      )
-      let toBeUpdated = updatedSelectedLayers[findToDeselectedLayerIdx]
-      toBeUpdated.isPlayerVisible = visibility
-      updatedSelectedLayers[findToDeselectedLayerIdx] = toBeUpdated
-      dispatch({
-        type: 'UPDATE_LAYER_PLAYER',
-        value: updatedSelectedLayers
-      })
-    },
-    [dataState]
-  )
-
   const getMetaData = useCallback(
     (metaId, group, subGroup, dataTypeId, transformData = () => {}, windowInnerWidth) => {
       let updatedMetadata = dataState.layersMetadata
       const findMetaIdx = updatedMetadata.findIndex(
-        (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        (e) =>
+          e.group === group &&
+          e.subGroup === subGroup &&
+          e.dataTypeId === dataTypeId &&
+          e.metadataId === metaId
       )
       if (findMetaIdx >= 0) {
         updatedMetadata[findMetaIdx].visibility = true
@@ -386,12 +372,16 @@ const useMapLayers = () => {
               (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
             )
             if (findMetaIdx >= 0) {
+              updatedMetadata[findMetaIdx].metadataId = metaId
               updatedMetadata[findMetaIdx].metadata = formattedres
             } else {
+              const layerName = dataState.groupedLayers[group][subGroup][dataTypeId].name
               updatedMetadata.push({
                 group: group,
                 subGroup: subGroup,
                 dataTypeId: dataTypeId,
+                layerName: layerName,
+                metadataId: metaId,
                 metadata: formattedres,
                 visibility: true,
                 position: { x: windowInnerWidth - 500 - 230, y: 60 }
@@ -438,6 +428,7 @@ const useMapLayers = () => {
         updatedLegends[findLegendIdx].visibility = true
         dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
       } else {
+        const currentLayerName = dataState.groupedLayers[group][subGroup][dataTypeId].name
         fetch(getLegendURL(geoServerConfig, '40', '40', layerName)).then((result) => {
           result.blob().then((blobRes) => {
             const imgUrl = URL.createObjectURL(blobRes)
@@ -445,6 +436,7 @@ const useMapLayers = () => {
               group: group,
               subGroup: subGroup,
               dataTypeId: dataTypeId,
+              layerName: currentLayerName,
               legend: imgUrl,
               visibility: true,
               position: { x: windowInnerWidth - 109 - 741, y: 60 }
@@ -488,7 +480,6 @@ const useMapLayers = () => {
     updateTimestamp,
     updateSelectedLayers,
     updateLayerPlayerPosition,
-    updateLayerPlayerVisibility,
     getMetaData,
     updateLayerMetadataPosition,
     updateLayerMetadataVisibility,
