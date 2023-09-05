@@ -1011,7 +1011,7 @@ export type EmergencyType =
   | 'Mission'
   | 'Report'
   | 'Person'
-  | 'LastPosition'
+  | 'SelectedPosition'
   | 'Alert'
   | 'Station'
 
@@ -1028,7 +1028,7 @@ export const EmergencyColorMap: ColorMapType = {
   MapRequest: '#fe558f', //orange[800],
   Alert: green[800],
   Station: '#f9aaf9',
-  LastPosition: yellow[800]
+  SelectedPosition: yellow[800]
 }
 
 interface IEmergencyProps {

@@ -44,17 +44,18 @@ const reducer = (
   }
 }
 
-const useAPIHandler = (withSnackbars: boolean = true) => {
+const useAPIHandler = (withSnackbars: boolean = true, withDataTransform: boolean = false) => {
   const [withSnack] = useState(withSnackbars)
   const [apiHandlerState, dispatch] = useReducer(reducer, initialState)
   const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
 
   const handleAPICall = useCallback(
-    (callable, successMessage = '', successCallback = () => {}, errorCallback = () => {}) => {
+    (callable, successMessage = '', successCallback = () => {}, errorCallback = () => {}, transformData = () => {}) => {
       dispatch({ type: 'CALL' })
       callable()
         .then((result) => {
-          dispatch({ type: 'RESULT', value: result })
+          const mappedResult = withDataTransform ? transformData(result) : result
+          dispatch({ type: 'RESULT', value: mappedResult })
           if (withSnack) displaySuccessSnackbar(successMessage)
           successCallback(result)
         })

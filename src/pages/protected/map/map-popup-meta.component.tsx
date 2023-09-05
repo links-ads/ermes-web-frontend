@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import {
-  makeStyles,
   AppBar,
   Typography,
   IconButton,
@@ -11,26 +10,13 @@ import {
   TableRow,
   TableCell,
   List,
-  ListItem
+  ListItem,
+  Grid
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 
-const useStyles = makeStyles((theme) => ({
-  titleContainer: {
-    width: '90%',
-    paddingTop: 11,
-    paddingBottom: 11
-  },
-  titleTooltip: {
-    width: '10%',
-    paddingTop: 11,
-    paddingBottom: 11
-  }
-}))
-
 export function PlayerMetadata(props) {
-  const classes = useStyles()
   const theme = useTheme()
 
   const [dim, setDim] = useState({
@@ -40,7 +26,18 @@ export function PlayerMetadata(props) {
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
-  const layerData = props.layerData
+
+  const { layerData, updateVisibility, onPositionChange } = props
+
+  const { metadata: layerMetaData, visibility, group, subGroup, dataTypeId, layerName, position } = layerData
+
+  const closeModal = () => {
+    updateVisibility(false, group, subGroup, dataTypeId)
+  }
+
+  const updatePosition = ({ x, y }) => {
+    onPositionChange(x, y, group, subGroup, dataTypeId)
+  }
 
   function makeList(value) {
     const items = value.split('\n')
@@ -60,12 +57,12 @@ export function PlayerMetadata(props) {
       style={{ overflow: 'auto', maxWidth: '730px' }}
       bounds={'parent'}
       defaultPosition={props.defaultPosition}
-      position={props.position}
-      toggleActiveFilterTab={props.visibility}
+      position={position}
+      toggleActiveFilterTab={visibility}
       dim={dim}
       onResize={onResize}
       resizable={true}
-      onPositionChange={props.onPositionChange}
+      onPositionChange={updatePosition}
     >
       <AppBar
         position="static"
@@ -74,45 +71,38 @@ export function PlayerMetadata(props) {
           backgroundColor: theme.palette.primary.dark,
           boxShadow: 'none',
           display: 'flex',
-          flexDirection: 'row',
-          height: '60px'
+          flexDirection: 'row'
         }}
         className="handle handleResize"
       >
-        <span className={classes.titleContainer} style={{ width: '100%', alignSelf: 'end' }}>
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Typography
             align="left"
             variant="h4"
-            style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px' }}
+            style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
           >
-            Layer Metadata
+            {'Metadata - ' + group + ' | ' + layerName}
           </Typography>
-        </span>
-        <span style={{ width: '20%' }}>
           <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '0px' }}
-            onClick={() => {
-              props.setVisibility(false)
-            }}
+            onClick={closeModal}
+            size='small'
           >
             <CloseIcon />
           </IconButton>
-        </span>
+        </Grid>
       </AppBar>
       <CardContent
         style={{
           backgroundColor: theme.palette.primary.dark,
-          paddingRight: '26px',
-          paddingLeft: '34px',
           paddingTop: '0px',
           overflow: 'auto',
           width: '100%',
-          height: 'calc(100% - 60px)'
+          height: 'calc(100% - 30px)'
         }}
       >
-        <Table style={{ width: 'fit-content', height: 'fit-content' }}>
+        <Table style={{ width: 'fit-content', height: 'fit-content' }} padding='none' size='small'>
           <TableBody>
-            {layerData.map((row, i) => (
+            {layerMetaData.map((row, i) => (
               <TableRow key={i}>
                 <TableCell>{row[0]}</TableCell>
                 <TableCell style={{ maxWidth: '350px' }}>{makeList(row[1])}</TableCell>

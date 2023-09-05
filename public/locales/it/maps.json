@@ -99,6 +99,7 @@
   "fireBreakTypeHelp": "Seleziona il tipo di tagliafuoco",
   "one_datapoint": "Solo un timestamp disponibile per questo layer",
   "layer": "Layer",
+  "layers": "Livelli",
   "opacity": "Trasparenza",
   "creator": "Creatore",
   "download_successful": "Il file è stato scaricato con successo!",
@@ -131,5 +132,5 @@
   "legend_mission": "Missioni",
   "legend_alert": "Allerte",
   "legend_station": "Telecamere",
-  "legend_lastposition": "Ulima posizione"
+  "legend_selectedposition": "Posizione selezionata"
 }

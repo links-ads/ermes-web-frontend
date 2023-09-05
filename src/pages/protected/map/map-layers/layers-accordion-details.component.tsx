@@ -1,10 +1,10 @@
 import React, { useContext, useEffect } from "react"
 import { LayerSettingsState } from "../../../../models/layers/LayerState"
 import {
-  Radio,
   AccordionDetails,
   FormControlLabel,
   makeStyles,
+  Checkbox,
 } from '@material-ui/core'
 import { tileJSONIfy } from "../../../../utils/map.utils"
 import { AppConfig, AppConfigContext } from "../../../../config"
@@ -18,54 +18,40 @@ const useStyles = makeStyles((theme) => ({
 
 const LayersAccordionDetails: React.FC<{
   layerSettings: LayerSettingsState
-  selectedLayer: LayerSettingsState | undefined
-  setLayerSelection: any
-  updateLayersSetting: any
+  selectedLayers: LayerSettingsState[] | undefined
+  updateLayerSelection: any
   map: any
+  checkboxDisabled: boolean
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const classes = useStyles()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
-  const { updateLayersSetting, layerSettings, map, selectedLayer } = props
+  const { updateLayerSelection, layerSettings, map, selectedLayers, checkboxDisabled, toBeRemovedLayers } = props
   
-  const radioClickHandler = (event: any) => {
-    //TODO: to be removed after optimization
-    if (layerSettings && layerSettings.isChecked) {
-      props.setLayerSelection({
-        isMapRequest: '-1',
-        mapRequestCode: '-1',
-        dataTypeId: '-1',
-        multipleLayersAllowed: false
-      })
-    } else {
-      props.setLayerSelection({
-        isMapRequest: 0,
-        mapRequestCode: -1,
-        dataTypeId: layerSettings.dataTypeId + '',
-        multipleLayersAllowed: false
-      })
-    }
-    //////////////////////////////////////////
-    updateLayersSetting(
+  const checkboxClickHandler = (event: any) => {
+    updateLayerSelection(
       layerSettings.group,
       layerSettings.subGroup,
       layerSettings.dataTypeId,
-      !layerSettings.isChecked,
-      'ISCHECKED'
+      !layerSettings.isChecked
     )
   }
 
-  useEffect(() => {
-    if (!selectedLayer) return
-    if (selectedLayer?.toBeRemovedLayer !== '' && map.getLayer(selectedLayer?.toBeRemovedLayer)) {
-      map.removeLayer(selectedLayer?.toBeRemovedLayer)
-      map.removeSource(selectedLayer?.toBeRemovedLayer)
-    }
-    const layerName = selectedLayer.activeLayer
+  const removeLayerFromMap = (toRemoveLayer) => {
+    const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+    if (map.getLayer(removeLayerName)) {
+      map.removeLayer(removeLayerName)
+      map.removeSource(removeLayerName)
+    }    
+  }
+
+  const paintMap = (map, selectedLayer) => {
+    const layerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
     if (layerName != '' && !map.getLayer(layerName)) {
       const source = tileJSONIfy(
         map,
-        layerName,
+        selectedLayer.activeLayer,
         selectedLayer.availableTimestamps[selectedLayer.dateIndex],
         geoServerConfig,
         map.getBounds()
@@ -84,13 +70,26 @@ const LayersAccordionDetails: React.FC<{
         },
         'clusters'
       )
-      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+      map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
     }
-  }, [selectedLayer?.activeLayer])
+  }
 
+  useEffect(() => {
+    if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
+      for(let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(toBeRemovedLayers[i])
+      }      
+    }
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i = 0; i < selectedLayers.length; i++) {
+        paintMap(map, selectedLayers[i])
+      }
+    }    
+  }, [selectedLayers, toBeRemovedLayers])
+  
   const layerComponent = (
     <FormControlLabel
-      control={<Radio onClick={radioClickHandler} checked={layerSettings.isChecked} />}
+      control={<Checkbox onChange={checkboxClickHandler} checked={layerSettings.isChecked} disabled={checkboxDisabled && !layerSettings.isChecked} />}
       label={layerSettings.name}
     />
   )

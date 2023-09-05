@@ -7,15 +7,13 @@ import {
   IconButton,
   CardContent,
   Slider,
-  CircularProgress
+  CircularProgress,
+  Grid
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 import LegendIcon from '@material-ui/icons/FilterNone'
 import MetaIcon from '@material-ui/icons/InfoOutlined'
-import PlayArrowIcon from '@material-ui/icons/PlayArrow'
-import PauseIcon from '@material-ui/icons/Pause'
-import SkipNextIcon from '@material-ui/icons/SkipNext'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
@@ -25,93 +23,50 @@ import GetAppIcon from '@material-ui/icons/GetApp'
 import { tileJSONIfy } from '../../../../utils/map.utils'
 import { LayerSettingsState } from '../../../../models/layers/LayerState'
 import { PixelPostion } from '../../../../models/common/PixelPosition'
+import { PauseCircleFilled, PlayCircleFilled, SkipNextOutlined } from '@material-ui/icons'
+import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 
 const useStyles = makeStyles((theme) => ({
-  titleContainer: {
-    width: '75%',
-    display: 'inline-block',
-    paddingLeft: 32,
-    paddingTop: 11,
-    paddingBottom: 11
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(14),
-    fontWeight: theme.typography.fontWeightRegular
-  },
-  accordionDetails: {
-    display: 'block'
-  },
-  sliderContainer: {
-    display: 'flex',
-    width: '75%',
-    height: '50px',
-    verticalAlign: '-moz-middle-with-baseline',
-  
-    alignItems:'flex-end'
-  },
   slider: {
     width: '100%',
     display: 'inline-block',
     '& .MuiSlider-thumb': {
       backgroundColor: '#fff',
-      width: '16px',
-      height: '16px'
+      width: '8px',
+      height: '8px',
+      marginTop: 0,
+      marginLeft: 0
     },
     '& .MuiSlider-track': {
-      border: 'none',
-      height: '6px',
-      borderRadius: '3px'
+      height: '8px',
+      borderRadius: '4px'
     },
     '& .MuiSlider-rail': {
       opacity: 0.5,
       backgroundColor: '#fff',
-      height: '6px',
-      borderRadius: '3px'
+      height: '8px',
+      borderRadius: '4px'
     },
-    '& .MuiSlider-mark ': {
+    '& .MuiSlider-mark': {
       color: '#fff',
-      display: 'none'
+      height: 8,
+      width: 1,
     }
   },
-  buttonsContainer: {
-    width: '25%',
-    
-    alignItems:'center',
-    textAlign: 'end',
-    display: 'flex',
-    '& .MuiButtonBase-root': {
-      display: 'inline-block',
-      padding: 0,
-      marginTop: '12px'
-    }
-  },
-  playerContainer: {
-    paddingTop: '25px',
-    width: '90%',
-  },
-  spanContainer:{
-    display: 'flex',
-    flexDirection: 'row',
-    width: '100%'
-    
-  },
-
   oneDatapoint: {
- 
     width: '100%',
     textAlign: 'center',
     color: theme.palette.text.disabled
   }
 }))
 
-
 const LayersPlayer: React.FC<{
   map: any
   selectedLayer: LayerSettingsState | undefined
-  updateLayersSetting: any
-  visibility: boolean
-  setVisibility: any
-  position: any
+  updateLayerSelection: any
+  toBeRemovedLayers: string[]
+  changeLayerOpacity: any
+  updateLayerTimestamp: any
   onPositionChange: any
   getLegend: any
   getMeta: any
@@ -125,12 +80,11 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { visibility, setVisibility, selectedLayer, updateLayersSetting, map } = props
-
+  const { selectedLayer, updateLayerSelection, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayers, getMeta, getLegend } = props
+  const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const { t } = useTranslation(['maps', 'labels'])
-  const layerName = selectedLayer?.activeLayer
   const { displayErrorSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
@@ -145,15 +99,14 @@ const LayersPlayer: React.FC<{
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
     event.stopPropagation()
     const opacity: number = newValue as number
-    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity : 0, activeLayer: ''}
+    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity: 0, activeLayer: '', dateIndex: 0 }
     updatedLayer.opacity = opacity
-    props.map.setPaintProperty(updatedLayer.activeLayer, 'raster-opacity', opacity / 100)
-    updateLayersSetting(
+    props.map.setPaintProperty(updatedLayer.activeLayer + '-' + updatedLayer.dateIndex, 'raster-opacity', opacity / 100)
+    changeLayerOpacity(
       selectedLayer?.group,
       selectedLayer?.subGroup,
       selectedLayer?.dataTypeId,
-      opacity,
-      'OPACITY'
+      opacity
     )
   }
 
@@ -173,18 +126,28 @@ const LayersPlayer: React.FC<{
     setIsLoading(false)
   }
 
+  const removeLayerFromMap = (toRemoveLayer) => {
+    const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+    if (map.getLayer(removeLayerName)) {
+      map.removeLayer(removeLayerName)
+      map.removeSource(removeLayerName)
+    }    
+  }
+
   useEffect(() => {
     if (!selectedLayer) return
-    if (selectedLayer.toBeRemovedLayer !== '' && map.getLayer(selectedLayer.toBeRemovedLayer)) {
-      map.removeLayer(selectedLayer.toBeRemovedLayer)
-      map.removeSource(selectedLayer.toBeRemovedLayer)
+
+    if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
+      for(let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(toBeRemovedLayers[i])
+      }      
     }
 
-    const layerName = selectedLayer.activeLayer
-    if (layerName != '' && !map.getLayer(layerName)) {
+    const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
+    if (currentLayerName != '' && !map.getLayer(currentLayerName)) {
       const source = tileJSONIfy(
         map,
-        layerName,
+        selectedLayer.activeLayer,
         selectedLayer.availableTimestamps[selectedLayer.dateIndex],
         geoServerConfig,
         map.getBounds()
@@ -194,32 +157,32 @@ const LayersPlayer: React.FC<{
         fromTime: undefined,
         toTime: undefined
       }
-      map.addSource(layerName, source as mapboxgl.RasterSource)
+      map.addSource(currentLayerName, source as mapboxgl.RasterSource)
       map.addLayer(
         {
-          id: layerName,
+          id: currentLayerName,
           type: 'raster',
-          source: layerName
+          source: currentLayerName
         },
         'clusters'
       )
-      map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+      map.setPaintProperty(currentLayerName, 'raster-opacity', selectedLayer.opacity / 100)
     }
-  }, [selectedLayer?.dateIndex])
+  }, [selectedLayer?.dateIndex, toBeRemovedLayers])
 
   useEffect(() => {
     if (!selectedLayer) return
-    map.setPaintProperty(selectedLayer.activeLayer, 'raster-opacity', selectedLayer.opacity / 100)
+    const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
+    map.setPaintProperty(currentLayerName, 'raster-opacity', selectedLayer.opacity / 100)
   }, [selectedLayer?.opacity])
 
   const skipNext = (newValue) => {
     const timestampsLength = selectedLayer?.availableTimestamps.length
-    updateLayersSetting(
+    updateLayerTimestamp(
       selectedLayer?.group,
       selectedLayer?.subGroup,
       selectedLayer?.dataTypeId,
-      newValue <= timestampsLength - 1 ? newValue : 0,
-      'TIMESTAMP'
+      newValue <= timestampsLength - 1 ? newValue : 0
     )
   }
 
@@ -228,37 +191,128 @@ const LayersPlayer: React.FC<{
   }
 
   function formatDate(date: string) {
-    if (!!date) return formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
-    else return undefined
+    if (!!date) {
+      const formattedDate = formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
+      const formatComp = formattedDate.split(',')
+      const onlyHour = formatComp[1].trim()
+      return onlyHour
+    }
+    else return ''
   }
 
   const onClickDateHandler = (event) => {
     event.stopPropagation()
-    skipNext(selectedLayer? selectedLayer.dateIndex + 1 : 0)
+    skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
   }
   const changeDateHandler = (event, value) => {
     event.stopPropagation()
     skipNext(value)
   }
-  useEffect(() => {
-    if (playing) {
-      const timer = setTimeout(() => skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0), 3000)
-      return () => clearTimeout(timer)
-    }
-  }, [playing, changeDateHandler])
+
+  useMapLayerPlayer(() => {
+    if (playing) skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
+  }, 3000)
 
   if (!selectedLayer) return <div></div>
+
+  const onPositionUpdate = (updatedPosition) => {
+    props.onPositionChange(
+      updatedPosition.x,
+      updatedPosition.y,
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId
+    )
+  }
+
+  const getMetadata = () => {
+    getMeta(selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]], selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+  }
+
+  const getLayerLegend = () => {
+    getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId)
+  }
+
+  const createLayerMarks = (timestamps) => {
+    if (!timestamps || timestamps.length === 0) return []
+
+    const layerDates = [
+      ...new Set(
+        timestamps.map((e) => {
+          const dateValue = new Date(e)
+          return dateValue.getDate()
+        })
+      )
+    ]
+
+    const layerFullDates = [
+      ...new Set(
+        timestamps.map((e) => {
+          const dateValue = new Date(e)
+          return dateValue.getDate() + '/' + (dateValue.getMonth() + 1)
+        })
+      )
+    ]
+
+    const calcHours = (hourValues, upTo) => {
+      let totHours = 0
+      for (let i = 0; i < upTo; i++) {
+        totHours += hourValues[i]
+      }
+      return totHours
+    }
+
+    const lastHour = new Date(
+      timestamps[selectedLayer.availableTimestamps.length - 1]
+    ).getHours()
+
+    const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' - ' + lastHour
+
+    const layerHoursPerDate = layerDates.map(
+      (e) => timestamps.filter((d) => new Date(d).getDate() === e).length
+    )
+
+    const layerMarks = [...layerFullDates].map((e, idx) => {
+      if (idx === 0) {
+        return {
+          value: 0,
+          label: e as string
+        }
+      }
+      const hourValue = calcHours(layerHoursPerDate, idx)
+      // if (idx === layerFullDates.length) {
+      //   return {
+      //     value: hourValue - 1,
+      //     label: e as string
+      //   }
+      // }
+      return {
+        value: hourValue,
+        label: e as string
+      }      
+    })
+
+    return layerMarks
+  }
+
+  const layerMarks = createLayerMarks(availableTimestamps)
+
+  const valuetext = (value, index) => {
+    const formatted = formatDate(selectedLayer.availableTimestamps[value])
+    return formatted
+  }
 
   return (
     <FloatingCardContainer
       bounds={'parent'}
       defaultPosition={defaultPosition}
-      position={props.position}
-      onPositionChange={props.onPositionChange}
-      toggleActiveFilterTab={visibility}
+      selectedLayer={selectedLayer}
+      position={selectedLayer.position}
+      onPositionChange={onPositionUpdate}
+      toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
-        width: 500,
-        height: 275
+        width: selectedLayer.dimension.w,
+        height: selectedLayer.dimension.h
       }}
       onResize={null}
       resizable={true}
@@ -273,120 +327,149 @@ const LayersPlayer: React.FC<{
         }}
         className="handle handleResize"
       >
-        <span className={classes.titleContainer}>
-          <Typography align="left" variant="h4" style={{ fontSize: '2rem' }}>
-            {selectedLayer.name}
-          </Typography>
-        </span>
-        <span>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '10px' }}
-            onClick={() => {
-              setVisibility(false)
-            }}
+        <Grid
+          container
+          spacing={1}
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
+        >
+          <Grid item xs={7}>
+            <Typography
+              align="left"
+              variant="h4"
+              style={{ fontSize: '0.875rem', textTransform: 'uppercase' }}
+            >
+              {selectedLayer.group + ' | ' + selectedLayer.name}
+            </Typography>
+          </Grid>
+          <Grid
+            item
+            xs={3}
+            container
+            spacing={2}
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
           >
-            <CloseIcon />
-          </IconButton>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '60px' }}
-            onClick={() => {
-              props.getLegend(layerName)
-            }}
+            <Grid item>
+              <label htmlFor="opacity-slider">
+                {t('maps:opacity') + ': ' + selectedLayer.opacity + '%'}
+              </label>
+            </Grid>
+            <Grid item xs>
+              <Slider
+                id="opacity-slider"
+                defaultValue={100}
+                valueLabelDisplay="off"
+                step={1}
+                value={selectedLayer.opacity}
+                min={0}
+                max={100}
+                color="secondary"
+                onChange={handleOpacityChange}
+              />
+            </Grid>
+          </Grid>
+          <Grid
+            item
+            xs={2}
+            container
+            spacing={2}
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
           >
-            <LegendIcon />
-          </IconButton>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '110px' }}
-            onClick={() => {
-              if (selectedLayer)
-                props.getMeta(selectedLayer.metadataId)
-            }}
-          >
-            <MetaIcon />
-          </IconButton>
-        </span>
+            <IconButton
+              onClick={getLayerLegend}
+              size="small"
+            >
+              <LegendIcon />
+            </IconButton>
+            <IconButton
+              onClick={getMetadata}
+              size="small"
+            >
+              <MetaIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                updateLayerSelection(
+                  selectedLayer.group,
+                  selectedLayer.subGroup,
+                  selectedLayer.dataTypeId,
+                  false
+                )
+              }}
+              size="small"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Grid>
+        </Grid>
       </AppBar>
-      <CardContent
-        style={{
-          backgroundColor: theme.palette.primary.dark,
-          paddingRight: '26px',
-          paddingLeft: '34px',
-          paddingTop: '0px',
-          overflowY: 'hidden',
-          overflowX: 'hidden',
-          height: '100%'
-        }}
-      >
-        <Typography align="left" variant="h5">
-          {formatDate(selectedLayer.availableTimestamps[selectedLayer.dateIndex])}
-        </Typography>
-        <div className={classes.playerContainer}>
-          {selectedLayer.availableTimestamps.length > 1 ? (
-            <span className={classes.spanContainer}>
-              <div className={classes.sliderContainer}>
-                <Slider
-                  aria-label="Temperature"
-                  defaultValue={0}
-                  //getAriaValueText={valuetext}
-                  valueLabelDisplay="on"
-                  step={1}
-                  value={selectedLayer.dateIndex}
-                  // marks
-                  min={0}
-                  max={selectedLayer.availableTimestamps.length - 1}
-                  color="secondary"
-                  onChange={(event, value) => {
-                    changeDateHandler(event, value)
-                  }}
-                />
-              </div>
-              <div className={classes.buttonsContainer}>
-                <IconButton aria-label="play/pause" onClick={playPause}>
-                  {playing ? (
-                    <PauseIcon style={{ height: 45, width: 45 }} />
-                  ) : (
-                    <PlayArrowIcon style={{ height: 45, width: 45 }} />
-                  )}
-                </IconButton>
-                <IconButton aria-label="next" onClick={onClickDateHandler}>
-                  <SkipNextIcon />
-                </IconButton>
-                {!isLoading ? (
-                  <IconButton
-                    aria-label="download"
-                    onClick={onDownloadHandler}
-                    style={{ marginLeft: 10 }}
-                  >
-                    <GetAppIcon />
-                  </IconButton>
+      <CardContent>
+        {selectedLayer.availableTimestamps.length > 1 ? (
+          <Grid
+            container
+            spacing={1}
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Grid item xs={2}>
+              <IconButton aria-label="play/pause" onClick={playPause}>
+                {playing ? (
+                  <PauseCircleFilled fontSize="large" />
                 ) : (
-                  <CircularProgress color="secondary" size={20} />
+                  <PlayCircleFilled fontSize="large" />
                 )}
-              </div>
-            </span>
-          ) : (
-            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
-          )}
-        </div>
-        <div className={classes.sliderContainer}>
-          <label htmlFor="opacity-slider">
-            {t('maps:opacity')} {selectedLayer.opacity}%
-          </label>
-          <Slider
-            id="layer-slider"
-            defaultValue={100}
-            valueLabelDisplay="off"
-            step={1}
-            value={selectedLayer.opacity}
-            min={0}
-            max={100}
-            color="secondary"
-            onChange={handleOpacityChange}
-          />
-        </div>
+              </IconButton>
+              <IconButton aria-label="next" onClick={onClickDateHandler}>
+                <SkipNextOutlined />
+              </IconButton>
+            </Grid>
+            <Grid item xs={9}>
+              <Slider
+                aria-labelledby="discrete-slider-custom"
+                className={classes.slider}
+                defaultValue={0}
+                getAriaValueText={valuetext}
+                valueLabelFormat={valuetext}
+                valueLabelDisplay="on"
+                //step={1}
+                value={selectedLayer.dateIndex}
+                min={0}
+                max={selectedLayer.availableTimestamps.length}
+                color="secondary"
+                onChange={(event, value) => {
+                  changeDateHandler(event, value)
+                }}
+                marks={layerMarks}
+              />
+            </Grid>
+            <Grid item xs={1} container direction="row"
+            justifyContent="flex-end"
+            alignItems="center">
+              {!isLoading ? (
+                <IconButton
+                  aria-label="download"
+                  onClick={onDownloadHandler}
+                >
+                  <GetAppIcon />
+                </IconButton>
+              ) : (
+                <CircularProgress color="secondary" size={20} />
+              )}
+            </Grid>
+          </Grid>
+        ) : (
+          <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
+        )}
       </CardContent>
     </FloatingCardContainer>
   )
 }
 
-export default LayersPlayer;
+export default LayersPlayer

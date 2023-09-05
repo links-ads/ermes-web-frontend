@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Sync map drawer behaviour (#129)
+- Feature - Multi layer selection (#133)
 - Bugfix - Wrong logout behaviour (#134)
 
 Ver. 2.11.3 - 2023-08-07

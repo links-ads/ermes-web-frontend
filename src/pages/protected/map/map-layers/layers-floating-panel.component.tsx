@@ -34,18 +34,18 @@ const LayersFloatingPanel: React.FC<{
   isVisible: boolean
   isLoading: boolean
   setIsVisible: any
-  setLayerSelection: any
-  updateLayersSetting: any
+  updateLayerSelection: any
   map: any
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayers: LayerSettingsState[] | undefined
   position: PixelPostion | undefined
   setPosition: any
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
   const { t } = useTranslation(['maps'])
   const defaultPosition = useMemo<PixelPostion>(() => {
-    return { x: 60, y: Math.max(120, window.innerHeight - 250 - 450) }
+    return { x: 60, y: 60 }
   }, [])
   
   const [dim, setDim] = useState({
@@ -125,10 +125,10 @@ const LayersFloatingPanel: React.FC<{
                   key={key}
                   groupName={key}
                   layerSubGroups={props.layerGroups[key]}
-                  setLayerSelection={props.setLayerSelection}
-                  updateLayersSetting={props.updateLayersSetting}
+                  updateLayerSelection={props.updateLayerSelection}
                   map={props.map}
-                  selectedLayer={props.selectedLayer}
+                  selectedLayers={props.selectedLayers}
+                  toBeRemovedLayers={props.toBeRemovedLayers}
                 />
               ))}
             </FormControl>
