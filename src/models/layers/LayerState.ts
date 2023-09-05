@@ -32,7 +32,7 @@ export class LayerSettingsState {
   dateIndex: number
   opacity: number
   isChecked: boolean
-  metadataIds: any | null | undefined
+  metadataIds: any
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
   activeLayer: string
