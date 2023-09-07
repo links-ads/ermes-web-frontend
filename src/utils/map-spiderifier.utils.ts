@@ -443,20 +443,30 @@ export class Spiderifier {
         const coordinates = feature.geometry.coordinates as [number, number]
         if (clusterId) {
           // Zoom on cluster or spiderify it
-          if (map.getZoom() < this.spiderMaxZoom) {
+          const currentZoom = map.getZoom()
+          if (currentZoom < this.spiderMaxZoom) {
             const source = map.getSource(this.sourceName)
             if (!!source && source.type === 'geojson') {
               source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                 if (err) return
-                // This signal that the events was caused by click on cluster
-                const evtData = { fromCluster: true, clusterId: clusterId }
-                map.easeTo(
-                  {
-                    center: coordinates,
-                    zoom: zoom
-                  },
-                  evtData
-                )
+                if (zoom < this.spiderMaxZoom) {
+                  // This signal that the events was caused by click on cluster
+                  const evtData = { fromCluster: true, clusterId: clusterId }
+                  map.easeTo(
+                    {
+                      center: coordinates,
+                      zoom: zoom
+                    },
+                    evtData
+                  )
+                }
+                else {
+                  this.spiderifiedCluster = {
+                    id: clusterId,
+                    coordinates
+                  }
+                  this.spiderifyCluster(map, this.spiderifiedCluster)
+                }                
               })
             }
           } else {
