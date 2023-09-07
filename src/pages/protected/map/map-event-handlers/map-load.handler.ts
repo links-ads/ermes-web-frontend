@@ -72,6 +72,7 @@ export async function onMapLoadHandler<T extends object>(
           leavesLayerType: 'symbol',
           leavesLayerPaintOptions: unclusteredPointsPaint,
           highlightLeavesOnHover: highlightLeavesOnHoverPaint,
+          highlightLeavesOnClick: highlightLeavesOnHoverPaint,
           onLeavesLayerUpdate: setSpiderLayerNames
         })
 

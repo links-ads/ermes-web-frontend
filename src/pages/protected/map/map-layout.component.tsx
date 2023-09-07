@@ -200,7 +200,8 @@ export function MapLayout(props) {
       editingFeatureArea,
       editingFeatureType,
       editingFeatureId,
-      goToCoord
+      goToCoord,
+      clickedCluster
     },
     {
       setMapMode,
@@ -210,7 +211,8 @@ export function MapLayout(props) {
       setRightClickedPoint,
       startFeatureEdit,
       clearFeatureEdit,
-      setGoToCoord
+      setGoToCoord,
+      setClickedCluster
     }
   ] = useMapStateContext<EmergencyProps>()
 
@@ -298,7 +300,7 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     if (!map) return
     updateMarkers(map)
-  }, [props.mapHoverState])
+  }, [props.mapHoverState, clickedCluster])
 
   /**
    * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to
@@ -619,16 +621,46 @@ export function MapLayout(props) {
     }
   }, [goToCoord, setGoToCoord])
 
+  const ensureHighlightSelectedCard = () => {
+    if (selectedFeatureId !== '') {
+      const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
+      if (selectedFeature) {
+        highlightClickedPoint(
+          selectedFeature,
+          mapViewRef,
+          spiderifierRef,
+          props.spiderLayerIds,
+          clickedCluster,
+          setClickedCluster,
+          setClickedPoint
+        )
+      }
+    } else {
+      tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
+    }
+  }
+
   useEffect(() => {
+    const map = mapViewRef.current?.getMap()
     if (selectedFeatureId !== '') {
       const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
         setGoToCoord({ latitude: coord[1], longitude: coord[0] })
-        highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, clusterMarkersRef, setClickedPoint)
+        highlightClickedPoint(
+          selectedFeature,
+          mapViewRef,
+          spiderifierRef,
+          props.spiderLayerIds,
+          clickedCluster,
+          setClickedCluster,
+          setClickedPoint
+        )
+        updateMarkers(map)
       }
     } else {
-      tonedownClickedPoint(mapViewRef, setClickedPoint)
+      tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
+      updateMarkers(map)
     }
   }, [selectedFeatureId])
 
@@ -702,6 +734,9 @@ export function MapLayout(props) {
     setViewport(nextViewport)
     if (viewport.latitude !== nextViewport.latitude || viewport.longitude !== nextViewport.longitude || viewport.zoom !== nextViewport.zoom){
       setSearchHereActive(true)
+    }
+    if (viewport.zoom !== nextViewport.zoom) {
+      ensureHighlightSelectedCard()
     }
   }
 

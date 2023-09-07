@@ -166,7 +166,7 @@ export function updateMarkers<P extends string>(
         source: sourceName,
         id: id
       })
-      isHover = state.hover ? state.hover : false
+      isHover = state.hover ? state.hover : state.highlight ? state.highlight : false
     }
     let marker = markers[id]
     if (!marker || checkFeatureState) {

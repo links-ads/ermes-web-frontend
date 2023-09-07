@@ -88,7 +88,7 @@ export default function CardWithPopup(props) {
   }
 
   const unhoverFeatureOnMap = () => {
-    if (!map || selectedCard !== '') return
+    if (!map) return
     switch (featureToHover.type) {
       case 'leaf':
         props.spiderifierRef.current?.highlightHoveredLeaf(map, 'null')
@@ -112,27 +112,8 @@ export default function CardWithPopup(props) {
     setFeatureHover({ type: null, id: null })
   }
 
-  const unhoverAll = () => {
-    if (!map) return
-    props.spiderifierRef.current?.highlightHoveredLeaf(map, 'null')
-    // map.setFeatureState(
-    //   {
-    //     source: SOURCE_ID,
-    //     id: featureToHover.id
-    //   },
-    //   {
-    //     hover: false
-    //   }
-    // )
-    // props.setMapHoverState({ set: false })
-    updatePointFeatureLayerIdFilter(map, 'unclustered-point-hovered', 'null')
-    setFeatureHover({ type: null, id: null })
-  }
-
   const onCardClick = () => {
     props.setSelectedCard(keyID)
-    // unhoverAll()
-    hoverFeatureOnMap()
   }
 
   return (
