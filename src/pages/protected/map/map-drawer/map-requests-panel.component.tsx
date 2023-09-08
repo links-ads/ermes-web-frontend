@@ -22,6 +22,7 @@ import MapRequestState, {
 } from '../../../../models/mapRequest/MapRequestState'
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
 import LayerDefinition from '../../../../models/layers/LayerDefinition'
+import { wktToGeoJSON } from "@terraformer/wkt"
 
 const MapRequestsPanel: React.FC<{
   filters
@@ -220,15 +221,20 @@ const MapRequestsPanel: React.FC<{
           !!mr.feature.properties.mapRequestType &&
           mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
             ? mr.feature.properties.boundaryConditions.map((e) => {
+                const mappedFirebreak = e.fireBreak
+                ? {
+                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
+                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                      : (Object.values(e.fireBreak)[0] as string).startsWith('L')
+                      ? wktToGeoJSON(Object.values(e.fireBreak)[0])
+                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
+                  }
+                : null
                 return {
                   ...e,
                   timeOffset: e.time,
                   fuelMoistureContent: e.moisture,
-                  fireBreakType: {
-                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
-                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
-                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
-                  }
+                  fireBreakType: mappedFirebreak
                 }
               })
             : [],

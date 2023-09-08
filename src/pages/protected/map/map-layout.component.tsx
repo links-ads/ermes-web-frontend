@@ -63,6 +63,7 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
+import { wktToGeoJSON } from "@terraformer/wkt"
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -626,8 +627,23 @@ export function MapLayout(props) {
         const polyToDraw =
           geometry.type === 'Polygon'
             ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point' ?
-            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)))))
+            : geometry.type === 'Point'
+            ? geometryCollection(
+                [geometry].concat(
+                  polyToMap.feature.properties.boundaryConditions.map((e) => {
+                    if (e.fireBreak) {
+                      const lineString = Object.values(e.fireBreak)[0] as string
+                      let geojsonLine = null
+                      if (lineString.startsWith('L')) {
+                        geojsonLine = wktToGeoJSON(lineString)
+                      } else {
+                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
+                      }
+                      return geojsonLine
+                    }
+                  })
+                )
+              )
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
         drawPolyToMap(
