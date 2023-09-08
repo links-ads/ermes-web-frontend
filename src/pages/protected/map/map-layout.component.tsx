@@ -66,6 +66,7 @@ import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import { findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
+import { wktToGeoJSON } from "@terraformer/wkt"
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -203,7 +204,8 @@ export function MapLayout(props) {
       editingFeatureArea,
       editingFeatureType,
       editingFeatureId,
-      goToCoord
+      goToCoord,
+      clickedCluster
     },
     {
       setMapMode,
@@ -213,7 +215,8 @@ export function MapLayout(props) {
       setRightClickedPoint,
       startFeatureEdit,
       clearFeatureEdit,
-      setGoToCoord
+      setGoToCoord,
+      setClickedCluster
     }
   ] = useMapStateContext<EmergencyProps>()
 
@@ -301,7 +304,7 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     if (!map) return
     updateMarkers(map)
-  }, [props.mapHoverState])
+  }, [props.mapHoverState, clickedCluster])
 
   /**
    * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to
@@ -622,18 +625,31 @@ export function MapLayout(props) {
     }
   }, [goToCoord, setGoToCoord])
 
+  const { zoom: viewportZoom } = viewport
+
   useEffect(() => {
+    const map = mapViewRef.current?.getMap()
     if (selectedFeatureId !== '') {
       const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
       if (selectedFeature) {
         const coord = (selectedFeature as any).geometry.coordinates
         setGoToCoord({ latitude: coord[1], longitude: coord[0] })
-        highlightClickedPoint(selectedFeature, mapViewRef, spiderifierRef, setClickedPoint)
+        highlightClickedPoint(
+          selectedFeature,
+          mapViewRef,
+          spiderifierRef,
+          props.spiderLayerIds,
+          clickedCluster,
+          setClickedCluster,
+          setClickedPoint
+        )
+        updateMarkers(map)
       }
     } else {
-      tonedownClickedPoint(mapViewRef, setClickedPoint)
+      tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
+      updateMarkers(map)
     }
-  }, [selectedFeatureId])
+  }, [selectedFeatureId, viewportZoom])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -645,8 +661,23 @@ export function MapLayout(props) {
         const polyToDraw =
           geometry.type === 'Polygon'
             ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point' ?
-            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)))))
+            : geometry.type === 'Point'
+            ? geometryCollection(
+                [geometry].concat(
+                  polyToMap.feature.properties.boundaryConditions.map((e) => {
+                    if (e.fireBreak) {
+                      const lineString = Object.values(e.fireBreak)[0] as string
+                      let geojsonLine = null
+                      if (lineString.startsWith('L')) {
+                        geojsonLine = wktToGeoJSON(lineString)
+                      } else {
+                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
+                      }
+                      return geojsonLine
+                    }
+                  })
+                )
+              )
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
         drawPolyToMap(

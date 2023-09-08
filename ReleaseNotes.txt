@@ -1,6 +1,13 @@
 Ver.
 -----------------------
 - Feature - Sync map drawer behaviour (#129)
+
+Ver. 2.12.1 - 2023-09-08
+-----------------------
+- Bugfix - Fix wildfire simulation map request
+
+Ver. 2.12.0 - 2023-09-05
+-----------------------
 - Feature - Multi layer selection (#133)
 - Bugfix - Wrong logout behaviour (#134)
 

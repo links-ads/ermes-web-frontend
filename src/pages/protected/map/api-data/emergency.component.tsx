@@ -208,7 +208,7 @@ const mapRequestCard = (
           </>
         ) : undefined}
         {mapRequestDetails.mapRequestType === MapRequestType.WILDFIRE_SIMULATION ? (
-          <>            
+          <>
             <Typography component={'span'} variant="body1">
               {t('maps:wildfireSimulation')}
             </Typography>
@@ -222,7 +222,7 @@ const mapRequestCard = (
               {t('maps:probabilityRangeLabel')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
-              {mapRequestDetails.probabilityRange * 100 +'%'}
+              {mapRequestDetails.probabilityRange * 100 + '%'}
             </Typography>
             <br />
             <Typography
@@ -246,33 +246,48 @@ const mapRequestCard = (
               {t('maps:boundaryConditionsLabel')}:&nbsp;
             </Typography>
             <Table className={classes.table} aria-label="simple table">
-              <TableHead>
-              </TableHead>
+              <TableHead></TableHead>
               <TableBody>
                 <TableRow>
                   <TableCell>{t('maps:timeOffsetLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell key={'time-'+idx} align="right">{row.time}</TableCell>))}
+                    <TableCell key={'time-' + idx} align="left">
+                      {row.time}
+                    </TableCell>
+                  ))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:windDirectionLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell key={'wind-direction-'+idx} align="right">{row.windDirection}</TableCell>))}
+                    <TableCell key={'wind-direction-' + idx} align="left">
+                      {row.windDirection}
+                    </TableCell>
+                  ))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:windSpeedLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell key={'wind-speed-'+idx} align="right">{row.windSpeed}</TableCell>))}
+                    <TableCell key={'wind-speed-' + idx} align="left">
+                      {row.windSpeed}
+                    </TableCell>
+                  ))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:fuelMoistureContentLabel')}</TableCell>
                   {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell key={'moisture-'+idx} align="right">{row.moisture}</TableCell>))}
+                    <TableCell key={'moisture-' + idx} align="left">
+                      {row.moisture}
+                    </TableCell>
+                  ))}
                 </TableRow>
                 <TableRow>
                   <TableCell>{t('maps:fireBreakLabel')}</TableCell>
-                  {mapRequestDetails.boundaryConditions.map((row, idx) => (
-                      <TableCell key={'firebreak-'+idx} align="right">{Object.keys(row.fireBreak)[0]}</TableCell>))}
+                  {mapRequestDetails.boundaryConditions.map((row, idx) =>  (
+                        <TableCell key={'firebreak-' + idx} align="left">
+                          {row.fireBreak ? Object.keys(row.fireBreak)[0] : ''}
+                        </TableCell>
+                      )
+                  )}
                 </TableRow>
               </TableBody>
             </Table>

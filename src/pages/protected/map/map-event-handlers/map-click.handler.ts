@@ -2,10 +2,14 @@ import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.context'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
-import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID } from '../../../../common/map/map-common';
+import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID, queryHoveredFeature } from '../../../../common/map/map-common';
 import { LayerSettingsState } from '../../../../models/layers/LayerState';
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
 import { getBboxSizeFromZoom } from '../../../../common/map/map-common';
+
+const CLUSTER_LAYER_ID = 'clusters'
+const GEOJSON_LAYER_IDS = 'unclustered-point'
+const SOURCE_ID = 'emergency-source'
 
 // add position pin at click or db click of the user 
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
@@ -33,8 +37,30 @@ const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftCl
   }
 }
 
-export const tonedownClickedPoint = (mapViewRef, setLeftClickedFeature) => {
+export const tonedownClickedPoint = (
+  mapViewRef,
+  spiderifierRef,
+  previouslyClickedCluster,
+  setClickedCluster,
+  setLeftClickedFeature
+) => {
   const map = mapViewRef.current?.getMap()
+  if (previouslyClickedCluster && previouslyClickedCluster.cluster) {
+    map.setFeatureState(
+      {
+        source: SOURCE_ID,
+        id: previouslyClickedCluster.cluster_id
+      },
+      {
+        highlight: false
+      }
+    )
+    setClickedCluster(null)
+  }
+  // remove clicked spider leaf
+  if (spiderifierRef && spiderifierRef.current) {
+    spiderifierRef.current.highlightClickedLeaf(map, 'null')
+  }
   // remove clicked point
   updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
   // closed open feature
@@ -45,42 +71,65 @@ export const highlightClickedPoint = <T extends object>(
   feature,
   mapViewRef,
   spiderifierRef,
+  spiderLayerIds,
+  previouslyClickedCluster, 
+  setClickedCluster, 
   setLeftClickedFeature
 ) => {
   const map = mapViewRef.current?.getMap()
-  let layer = 'unclustered-point'
   const point = map.project(feature.geometry.coordinates)
   const bboxSize = getBboxSizeFromZoom(map.getZoom())
   var bbox = [
     [point.x - bboxSize / 2, point.y - bboxSize / 2],
     [point.x + bboxSize / 2, point.y + bboxSize / 2]
   ]
-  const renderedFeature = map.queryRenderedFeatures(bbox)
-
-  if (renderedFeature && renderedFeature.length > 0) {
-    const layers = renderedFeature.map((e) => e.layer.id)
-    if (layers.includes('clusters')) {
-      layer = 'clusters'
-    }
-  }
-
-  const properties = feature.properties
   const [longitude, latitude] = feature.geometry.coordinates
-  const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
-  setLeftClickedFeature(leftClickedFeature)
+  const id = feature.properties['id'] || feature.id
+  const featureType = feature.properties['type'] 
+  const renderedFeature = queryHoveredFeature(
+    map,
+    [longitude, latitude],
+    [GEOJSON_LAYER_IDS, CLUSTER_LAYER_ID, ...spiderLayerIds],
+    GEOJSON_LAYER_IDS,
+    CLUSTER_LAYER_ID,
+    id,
+    featureType
+  )
 
-  // Cast is necessary
-  if (layer === 'clusters') {
-    // remove clicked point
+  if (renderedFeature.type) {
     updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
-    // Depending on settings, it will either expand the cluster or open the spider
-    if (spiderifierRef.current && mapViewRef.current) {
-      spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+    const properties = feature.properties
+    const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
+    setLeftClickedFeature(leftClickedFeature)
+    switch(renderedFeature.type) {      
+      case 'cluster':        
+        if (spiderifierRef.current && mapViewRef.current) {
+          // removed previously highlighted leaf
+          spiderifierRef.current.highlightClickedLeaf(map, 'null')
+          // Depending on settings, it will either expand the cluster or open the spider
+          spiderifierRef.current.toggleSpidersByPoint(
+            map,
+            bbox,
+            SOURCE_ID,
+            renderedFeature.id,
+            previouslyClickedCluster,
+            setClickedCluster
+          )
+        }
+        break
+      case 'leaf':  
+        if (spiderifierRef.current && mapViewRef.current) {
+          // Depending on settings, it will either expand the cluster or open the spider
+          spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+          spiderifierRef.current.highlightClickedLeaf(map, renderedFeature.id)
+        }
+        break
+      case 'point':
+        updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', id)
+        break
+      default:
+        return
     }
-  } else {
-    // layer === 'unclustered-point' and others    
-    const id = feature.properties['id'] || feature.id
-    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', id)
   }
 }
 

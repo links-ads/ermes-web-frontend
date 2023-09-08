@@ -42,10 +42,13 @@ const MapRequestDrawFeature = (props) => {
     lineIdx,
     areaSelectedAlertHandler,
     mapSelectionCompletedHandler,
+    mapSelectionNotCompletedHandler,
     setMapAreaHandler,
     setBoundaryLineHandler,
     toRemoveLineIdx,
     setToRemoveLineIdx,
+    toRemoveBoundaryConditionIdx,
+    setToRemoveBoundaryConditionIdx,
     boundaryLinesTot,
     mapSelectedFeatures
   } = props
@@ -111,15 +114,15 @@ const MapRequestDrawFeature = (props) => {
     }
   }
 
-  useEffect(() => {
-    if (toRemoveLineIdx > -1) {
-      const removeIdx = featureCollection.features.findIndex(
-        (e) => e.properties && e.properties.boundaryConditionIdx === toRemoveLineIdx
-      )
-      let updatedFeatureCollection = featureCollection
-      // update other indeces
+  const removeLine = (lineIdx: number, updateIndeces: boolean = false) => {
+    const removeIdx = featureCollection.features.findIndex(
+      (e) => e.properties && e.properties.boundaryConditionIdx === lineIdx
+    )
+    let updatedFeatureCollection = featureCollection
+    if (updateIndeces) {
+      // update other indeces - only if a boundary condition has been removed
       updatedFeatureCollection.features = updatedFeatureCollection.features.map((e) => {
-        if (e.properties && e.properties.boundaryConditionIdx > toRemoveLineIdx) {
+        if (e.properties && e.properties.boundaryConditionIdx > lineIdx) {
           const updatedIdx = e.properties.boundaryConditionIdx - 1
           const colorIdx = updatedIdx > 5 ? updatedIdx % 6 : updatedIdx
           return {
@@ -132,16 +135,44 @@ const MapRequestDrawFeature = (props) => {
         }
         return e
       })
+    }
+    if (removeIdx > -1) {      
       // remove deleted element
       updatedFeatureCollection.features.splice(removeIdx, 1)
-      setFeatureCollection(updatedFeatureCollection)
-      setMapFeatures(updatedFeatureCollection.features)
-      setMapMode('browse')
+    }
+    setFeatureCollection(updatedFeatureCollection)
+    setMapFeatures(updatedFeatureCollection.features)
+    setMapMode('browse')
+    // update map
+    updateMap(updatedFeatureCollection)
+  }
+
+  useEffect(() => {
+    if (toRemoveLineIdx > -1) {
+      removeLine(toRemoveLineIdx)
       setToRemoveLineIdx(-1)
-      // update map
-      updateMap(updatedFeatureCollection)
     }
   }, [toRemoveLineIdx])
+
+  useEffect(() => {
+    if (toRemoveBoundaryConditionIdx > -1) {
+      removeLine(toRemoveBoundaryConditionIdx, true)
+      setToRemoveBoundaryConditionIdx(-1)
+    }
+  }, [toRemoveBoundaryConditionIdx])
+
+  useEffect(() => {
+    if (mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length !== boundaryLinesTot) {
+      areaSelectedAlertHandler('info')
+      mapSelectionNotCompletedHandler()
+    } else if (
+      mapFeatures.find((e) => e.geometry.type === 'Point') &&
+      mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length === boundaryLinesTot
+    ) {
+      areaSelectedAlertHandler('success')
+      mapSelectionCompletedHandler()
+    }
+  }, [boundaryLinesTot, mapFeatures])
 
   const getLineColor = (lineIdx) => {
     return lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
@@ -178,7 +209,8 @@ const MapRequestDrawFeature = (props) => {
               if (mapDrawRef.current && mapViewRef.current && data.length > 0) {
                 const editingFeatureType = 'MapRequest'
                 const editingFeatureId = 0
-                if (mapMode === 'edit') { // draw polygon
+                if (mapMode === 'edit') {
+                  // draw polygon
                   setEditingFeature({
                     type: editingFeatureType,
                     id: editingFeatureId,
@@ -189,7 +221,8 @@ const MapRequestDrawFeature = (props) => {
                     type: 'FeatureCollection',
                     features: []
                   }
-                  if (data.length > 1) { // keep only one polygon at a time
+                  if (data.length > 1) {
+                    // keep only one polygon at a time
                     data.shift()
                   }
                   const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
@@ -218,7 +251,8 @@ const MapRequestDrawFeature = (props) => {
                       (e) => e.geometry.type === 'Point'
                     ) as GeoJSON.Feature<GeoJSON.Point>[]
                     let pointIdx = 0
-                    if (points.length > 1) { // keep one point at a time
+                    if (points.length > 1) {
+                      // keep one point at a time
                       const prevPointIdx = data.findIndex((e) => e.geometry.type === 'Point')
                       data.splice(prevPointIdx, 1)
                     }
@@ -293,7 +327,7 @@ const MapRequestDrawFeature = (props) => {
                         prevLines[prevLinesLength - 1] = lineToMark
                         // update data
                         const toUdpdateIdx = data.findIndex(
-                          (e) => e.geometry.type === 'LineString' && !e.properties
+                          (e) => e.geometry.type === 'LineString' && (!e.properties || e.properties.boundaryConditionIdx === lineIdx)
                         )
                         data[toUdpdateIdx] = lineToMark
                       }
@@ -319,8 +353,9 @@ const MapRequestDrawFeature = (props) => {
 
                   if (
                     pointLinesFeatureCollection.features.find((e) => e.geometry.type === 'Point') &&
-                    pointLinesFeatureCollection.features.filter((e) => e.geometry.type === 'LineString')
-                      .length === boundaryLinesTot
+                    pointLinesFeatureCollection.features.filter(
+                      (e) => e.geometry.type === 'LineString'
+                    ).length === boundaryLinesTot
                   ) {
                     areaSelectedAlertHandler('success')
                     mapSelectionCompletedHandler()

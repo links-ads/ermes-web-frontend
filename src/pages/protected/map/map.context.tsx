@@ -81,6 +81,8 @@ interface MapStateVariables<T extends object = object> {
   selectedFeatures: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon | GeoJSON.Point, T>[]
   // Go to coordinates
   goToCoord: MapCoordinates | undefined
+  // clicked cluster
+  clickedCluster: PointOnMap<T>
 }
 
 interface MapStateSelectors<T extends object = object> {
@@ -103,6 +105,8 @@ interface MapStateSelectors<T extends object = object> {
   setSelectedFeatures: FeatureSelectionUpdater<T>
   // Go to coordinates
   setGoToCoord: MapGoToCoordUpdater
+  // clicked cluster
+  setClickedCluster: PointUpdater<T>
 }
 
 export type MapState<T extends object = object> = MapStateVariables<T> & MapStateSelectors<T>
@@ -156,6 +160,7 @@ export function MapStateContextProvider<T extends object = object>({
   const [goToCoord, setGoToCoord] = useState<MapCoordinates | undefined>(
     undefined
   )
+  const [clickedCluster, setClickedCluster] = useState<PointOnMap<T>>(null)
 
   const mapState: MapState<T> = {
     viewport,
@@ -180,7 +185,10 @@ export function MapStateContextProvider<T extends object = object>({
     setSelectedFeatures,
     // Go to coordinates
     goToCoord, 
-    setGoToCoord
+    setGoToCoord,
+    // clicked cluster
+    clickedCluster,
+    setClickedCluster
   }
 
   return <MapStateContext.Provider value={mapState}>{children}</MapStateContext.Provider>
@@ -223,7 +231,10 @@ export function useMapStateContext<T extends object = object>() {
     setSelectedFeatures,
     // Go to coordinates
     goToCoord, 
-    setGoToCoord
+    setGoToCoord,
+    // clicked cluster
+    clickedCluster,
+    setClickedCluster,
   } = mapStateCtx
 
   const variables: MapStateVariables<T> = {
@@ -236,7 +247,8 @@ export function useMapStateContext<T extends object = object>() {
     hoveredPoint,
     rightClickedPoint,
     selectedFeatures, 
-    goToCoord
+    goToCoord, 
+    clickedCluster
   }
 
   // id null = create
@@ -266,6 +278,7 @@ export function useMapStateContext<T extends object = object>() {
     setHoveredPoint,
     setRightClickedPoint,
     setSelectedFeatures,
+    setClickedCluster,
     // non-raw methods
     startFeatureEdit,
     clearFeatureEdit,
