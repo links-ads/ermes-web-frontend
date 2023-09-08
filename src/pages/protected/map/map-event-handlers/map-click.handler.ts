@@ -97,12 +97,12 @@ export const highlightClickedPoint = <T extends object>(
   )
 
   if (renderedFeature.type) {
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
     const properties = feature.properties
     const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
     setLeftClickedFeature(leftClickedFeature)
     switch(renderedFeature.type) {      
-      case 'cluster':
-        updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+      case 'cluster':        
         if (spiderifierRef.current && mapViewRef.current) {
           // removed previously highlighted leaf
           spiderifierRef.current.highlightClickedLeaf(map, 'null')

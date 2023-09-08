@@ -625,24 +625,7 @@ export function MapLayout(props) {
     }
   }, [goToCoord, setGoToCoord])
 
-  const ensureHighlightSelectedCard = () => {
-    if (selectedFeatureId !== '') {
-      const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
-      if (selectedFeature) {
-        highlightClickedPoint(
-          selectedFeature,
-          mapViewRef,
-          spiderifierRef,
-          props.spiderLayerIds,
-          clickedCluster,
-          setClickedCluster,
-          setClickedPoint
-        )
-      }
-    } else {
-      tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
-    }
-  }
+  const { zoom: viewportZoom } = viewport
 
   useEffect(() => {
     const map = mapViewRef.current?.getMap()
@@ -666,7 +649,7 @@ export function MapLayout(props) {
       tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
       updateMarkers(map)
     }
-  }, [selectedFeatureId])
+  }, [selectedFeatureId, viewportZoom])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -753,9 +736,6 @@ export function MapLayout(props) {
     setViewport(nextViewport)
     if (viewport.latitude !== nextViewport.latitude || viewport.longitude !== nextViewport.longitude || viewport.zoom !== nextViewport.zoom){
       setSearchHereActive(true)
-    }
-    if (viewport.zoom !== nextViewport.zoom) {
-      ensureHighlightSelectedCard()
     }
   }
 
