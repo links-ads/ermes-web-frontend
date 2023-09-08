@@ -98,6 +98,7 @@
   "fireBreakTypeHelp": "Select firebreak type",
   "one_datapoint": "Only one data point available for this date range",
   "layer": "Layer",
+  "layers": "Layers",
   "opacity": "Opacity",
   "creator": "Creator",
   "download_successful": "File downloaded successfully!",
@@ -130,5 +131,5 @@
   "legend_mission": "Missions",
   "legend_alert": "Alerts",
   "legend_station": "Cameras",
-  "legend_lastposition": "Last position"
+  "legend_selectedposition": "Selected position"
 }

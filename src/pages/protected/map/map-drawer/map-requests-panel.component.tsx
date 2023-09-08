@@ -22,6 +22,7 @@ import MapRequestState, {
 } from '../../../../models/mapRequest/MapRequestState'
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
 import LayerDefinition from '../../../../models/layers/LayerDefinition'
+import { wktToGeoJSON } from "@terraformer/wkt"
 
 const MapRequestsPanel: React.FC<{
   filters
@@ -123,13 +124,14 @@ const MapRequestsPanel: React.FC<{
                             []
                           )
                         settings.name = layer.name!
-                        settings.metadataId = detail.metadata_Id
+                        let metadataId = detail.metadata_Id
                         settings.mapRequestCode = detail.mapRequestCode
                         settings.dataTypeId = layer.dataTypeId!
                         let timestamps: string[] = [...settings.availableTimestamps]
                         detail.timestamps!.forEach((timestamp) => {
                           settings.timestampsToFiles[timestamp] = detail.name!
                           timestamps.push(timestamp)
+                          settings.metadataIds[timestamp] = metadataId
                         })
                         //keep availableTimestamp sorted
                         //use Set to ensure timestamps are unique inside the final array
@@ -222,15 +224,20 @@ const MapRequestsPanel: React.FC<{
           !!mr.feature.properties.mapRequestType &&
           mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
             ? mr.feature.properties.boundaryConditions.map((e) => {
+                const mappedFirebreak = e.fireBreak
+                ? {
+                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
+                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                      : (Object.values(e.fireBreak)[0] as string).startsWith('L')
+                      ? wktToGeoJSON(Object.values(e.fireBreak)[0])
+                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
+                  }
+                : null
                 return {
                   ...e,
                   timeOffset: e.time,
                   fuelMoistureContent: e.moisture,
-                  fireBreakType: {
-                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
-                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
-                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
-                  }
+                  fireBreakType: mappedFirebreak
                 }
               })
             : [],

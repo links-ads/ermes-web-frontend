@@ -14,15 +14,17 @@ const useStyles = makeStyles((theme) => ({
 const LayersAccordion: React.FC<{
   groupName: string
   layerSubGroups: SubGroupLayerState
-  setLayerSelection: any
-  updateLayersSetting: any
+  updateLayerSelection: any
   map: any
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayers: LayerSettingsState[] | undefined
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { groupName, updateLayersSetting, setLayerSelection, layerSubGroups, map, selectedLayer } =
+  const { groupName, updateLayerSelection, layerSubGroups, map, selectedLayers, toBeRemovedLayers } =
     props
+  const checkboxDisabled = Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length > 3;
+  // console.log('Layers checked: ' + Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length)
   return (
     <Accordion
       key={props.groupName}
@@ -38,10 +40,11 @@ const LayersAccordion: React.FC<{
           key={props.groupName + key + index}
           subGroupName={key}
           layers={layerSubGroups[key]}
-          setLayerSelection={setLayerSelection}
-          updateLayersSetting={updateLayersSetting}
+          updateLayerSelection={updateLayerSelection}
           map={map}
-          selectedLayer={selectedLayer}
+          selectedLayers={selectedLayers}
+          checkboxDisabled={checkboxDisabled}
+          toBeRemovedLayers={toBeRemovedLayers}
         />
       ))}
     </Accordion>

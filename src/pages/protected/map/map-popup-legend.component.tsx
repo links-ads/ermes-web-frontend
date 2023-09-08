@@ -1,37 +1,26 @@
 import React, { useState } from 'react'
 import {
-  Card,
-  makeStyles,
   AppBar,
   Typography,
   IconButton,
   CardContent,
-  useTheme
+  useTheme,
+  Grid
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 import { useTranslation } from 'react-i18next'
 
-const useStyles = makeStyles((theme) => ({
-  titleContainer: {
-    width: '90%',
-    paddingTop: 11,
-    paddingBottom: 11
-  },
-  titleTooltip: {
-    width: '10%',
-    paddingTop: 11,
-    paddingBottom: 11
-  }
-}))
-
 export function PlayerLegend(props) {
-  const classes = useStyles()
   const theme = useTheme()
   const { t } = useTranslation(['labels'])
-  if (props.imgSrc) {
+
+  const { legendData, onPositionChange, updateVisibility } = props
+  const { legend: imgSrc, group, subGroup, dataTypeId, position, visibility } = legendData
+
+  if (imgSrc) {
     const imageEl = document.createElement('img')
-    imageEl.src = props.imgSrc
+    imageEl.src = imgSrc
   }
   const [dim, setDim] = useState({
     width: 'auto',
@@ -41,15 +30,23 @@ export function PlayerLegend(props) {
     setDim({ height: data.size.height, width: data.size.width })
   }
 
+  const changePosition = ({x, y}) => {
+    onPositionChange(x, y, group, subGroup, dataTypeId)
+  }
+
+  const closeModal = () => {
+    updateVisibility(false, group, subGroup, dataTypeId)
+  }
+
   return (
     <FloatingCardContainer
       style={{ minWidth: '150px' }}
       bounds={'parent'}
       defaultPosition={props.defaultPosition}
-      position={props.position}
-      toggleActiveFilterTab={props.visibility}
+      position={position}
+      toggleActiveFilterTab={visibility}
       dim={dim}
-      onPositionChange={props.onPositionChange}
+      onPositionChange={changePosition}
     >
       <AppBar
         position="static"
@@ -58,39 +55,29 @@ export function PlayerLegend(props) {
           backgroundColor: theme.palette.primary.dark,
           boxShadow: 'none',
           display: 'flex',
-          flexDirection: 'row',
-          height: '60px',
-          minWidth: '150px'
+          flexDirection: 'row'
         }}
         className="handle handleResize"
       >
-        <span className={classes.titleContainer} style={{ width: '100%', alignSelf: 'end' }}>
+        <Grid container direction="row" justifyContent="space-between" alignItems="center">
           <Typography
             align="left"
             variant="h4"
-            style={{ fontSize: '1.6rem', paddingLeft: '10px', marginRight: '10px' }}
+            style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
           >
             {t('legend')}
           </Typography>
-        </span>
-        <span style={{ width: '20%' }}>
-          <IconButton
-            style={{ marginTop: '10px', position: 'absolute', right: '0px' }}
-            onClick={() => {
-              props.setVisibility(false)
-            }}
-          >
+          <IconButton onClick={closeModal} size="small">
             <CloseIcon />
           </IconButton>
-        </span>
+        </Grid>
       </AppBar>
-      {props.imgSrc && (
+      {imgSrc && (
         <CardContent
           style={{
             backgroundColor: theme.palette.primary.dark,
-            paddingRight: '26px',
-            paddingLeft: '34px',
-            paddingTop: '0px',
+            paddingTop: 4,
+            paddingBottom: 16,
             maxHeight: '500px',
             overflow: 'auto',
             maxWidth: '500px',
@@ -98,7 +85,7 @@ export function PlayerLegend(props) {
             height: '100%'
           }}
         >
-          <img src={props.imgSrc}></img>
+          <img src={imgSrc}></img>
         </CardContent>
       )}
     </FloatingCardContainer>

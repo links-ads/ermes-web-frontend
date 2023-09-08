@@ -57,10 +57,11 @@ export function WildFireSimulationDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted, mapArea } = editState
+  const { mapSelectionCompleted, mapArea, boundaryConditions } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
+  const [boundaryLinesTot, setBoundaryLinesTot] = useState<number>(0)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -71,6 +72,10 @@ export function WildFireSimulationDialog({
 
   const setMapSelectionCompleted = () => {
     dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
+  }
+
+  const unsetMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: false })
   }
 
   useEffect(() => {
@@ -96,6 +101,7 @@ export function WildFireSimulationDialog({
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
   const [toRemoveLineIdx, setToRemoveLineIdx] = useState<number>(-1)
+  const [toRemoveBoundaryConditionIdx, setToRemoveBoundaryConditionIdx] = useState<number>(-1)
 
   const setBoundaryLine = (idx, line) => {
     dispatchEditAction({
@@ -120,6 +126,13 @@ export function WildFireSimulationDialog({
     const endDateTime = getEndDateTime(startDate, hoursOfProjection)
     dispatchEditAction({ type: 'END_DATE', value: endDateTime as Date })
   }, [startDate, hoursOfProjection])
+
+  useEffect(() => {
+    const tot = boundaryConditions
+      .map((e) => e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null)
+      .filter((e) => e).length
+    setBoundaryLinesTot(tot)
+  }, [boundaryConditions])
 
   /**
    * object that represents the list elements in the createmaprequest layers dropdown;
@@ -386,6 +399,7 @@ export function WildFireSimulationDialog({
               setFireBreakType={setFireBreakType}
               otherTimeOffsets={editState.boundaryConditions.map((e) => e.timeOffset)}
               setToRemoveLineIdx={setToRemoveLineIdx}
+              setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             />
           ))}
           <Grid item>
@@ -413,15 +427,22 @@ export function WildFireSimulationDialog({
             lineIdx={boundaryConditionIdx}
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             setBoundaryLineHandler={setBoundaryLine}
             toRemoveLineIdx={toRemoveLineIdx}
             setToRemoveLineIdx={setToRemoveLineIdx}
-            boundaryLinesTot={editState.boundaryConditions.length}
+            toRemoveBoundaryConditionIdx={toRemoveBoundaryConditionIdx}
+            setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
+            boundaryLinesTot={boundaryLinesTot}
             mapSelectedFeatures={
-              editState.mapSelectionCompleted && editState.mapArea && editState.mapArea.geometry.type === 'Point'
+              editState.mapSelectionCompleted &&
+              editState.mapArea &&
+              editState.mapArea.geometry.type === 'Point'
                 ? [editState.mapArea].concat(
-                    editState.boundaryConditions.map((e) => Object.values(e.fireBreakType)[0])
+                    editState.boundaryConditions
+                      .filter((e) => e.fireBreakType)
+                      .map((e) => Object.values(e.fireBreakType)[0])
                   )
                 : []
             }
@@ -444,13 +465,22 @@ const WildfireSimulationBoundaryCondition = (props) => {
     setBoundaryConditionIdx,
     setFireBreakType,
     otherTimeOffsets,
-    setToRemoveLineIdx
+    setToRemoveLineIdx,
+    setToRemoveBoundaryConditionIdx
   } = props
+
+  const { fireBreakType } = editState
 
   const removeBoundaryCondition = () => {
     dispatchEditAction({ type: 'BOUNDARY_CONDITION_REMOVE', value: { index: index } })
-    setToRemoveLineIdx(index)
+    setToRemoveBoundaryConditionIdx(index)
   }
+
+  useEffect(() => {
+    if (fireBreakType && !Object.keys(fireBreakType)[0]) {
+      setToRemoveLineIdx(index)
+    }
+  }, [fireBreakType])
 
   return (
     <Grid item xs={4}>
@@ -572,21 +602,18 @@ const WildfireSimulationBoundaryCondition = (props) => {
               })
             }
           >
+            <MenuItem value={''}>&nbsp;</MenuItem>
             <MenuItem value={FireBreakType.CANADAIR}>Canadair</MenuItem>
             <MenuItem value={FireBreakType.HELICOPTER}>Helicopter</MenuItem>
             <MenuItem value={FireBreakType.WATERLINE}>Water Line</MenuItem>
             <MenuItem value={FireBreakType.VEHICLE}>Vehicle</MenuItem>
           </Select>
-          {editError &&
-          (!Object.keys(editState.fireBreakType)[0] ||
-            Object.keys(editState.fireBreakType)[0] === '' ||
-            Object.keys(editState.fireBreakType)[0] === undefined) ? (
-            <FormHelperText error>{t('maps:fireBreakTypeHelp')}</FormHelperText>
-          ) : undefined}
         </FormControl>
       </Grid>
       <Grid item style={{ marginBottom: 16 }}>
-        {editState.fireBreakType && Object.keys(editState.fireBreakType).length > 0 ? (
+        {editState.fireBreakType &&
+        Object.keys(editState.fireBreakType).length > 0 &&
+        Object.keys(editState.fireBreakType)[0] ? (
           <Tooltip title={t('maps:drawLine')}>
             <span>
               <IconButton

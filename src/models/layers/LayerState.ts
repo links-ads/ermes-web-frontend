@@ -1,5 +1,10 @@
+import { PixelPostion } from "../common/PixelPosition"
 import { TimestampToFile } from "../common/TimestampToFile"
 
+interface Dimension {
+  h: number, 
+  w: number
+}
 
 export class AssociatedLayer {
   dataTypeId: number
@@ -19,7 +24,7 @@ export class LayerSettingsState {
   subGroup: string
   dataTypeId: number
   format: string
-  frequency: number
+  frequency: number | string
   name: string
   order: number
   type: string
@@ -27,11 +32,12 @@ export class LayerSettingsState {
   dateIndex: number
   opacity: number
   isChecked: boolean
-  metadataId: string | null | undefined
+  metadataIds: any
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
   activeLayer: string
-  toBeRemovedLayer: string
+  position: PixelPostion
+  dimension: Dimension
 
   associatedLayers: AssociatedLayer[]
 
@@ -41,9 +47,11 @@ export class LayerSettingsState {
     dataTypeId: number,
     name: string,
     format: string,
-    frequency: number,
+    frequency: number | string,
     type: string,
-    unitOfMeasure: string
+    unitOfMeasure: string,
+    yPosition: number,
+    width: number
   ) {
     this.group = group
     this.subGroup = subGroup
@@ -58,12 +66,13 @@ export class LayerSettingsState {
     this.dateIndex = 0
     this.opacity = 100
     this.isChecked = false
-    this.metadataId = ''
+    this.metadataIds = {}
     this.timestampsToFiles = {}
     this.availableTimestamps = []
     this.activeLayer = ''
-    this.toBeRemovedLayer = ''
     this.associatedLayers = []
+    this.position = { x: 0, y: yPosition }
+    this.dimension = { h: 116, w: width }
   }
 }
 

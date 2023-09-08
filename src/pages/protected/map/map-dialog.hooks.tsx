@@ -11,6 +11,7 @@ import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationSc
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.context'
 import { DialogEdit } from './map-dialog-edit.component'
+import { geojsonToWKT } from "@terraformer/wkt"
 
 // Find a more suitable solution, especially for large screens
 const Container = styled.div`
@@ -478,9 +479,19 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         isNaN(editState.probabilityRange) ||
         editState.simulationFireSpotting === undefined ||
         editState.boundaryConditions.length < 1 ||
-        editState.boundaryConditions.map(e => e.timeOffset).filter((e, idx) => editState.boundaryConditions.map(e => e.timeOffset).indexOf(e) !== idx).length > 0 ||
-        Object.keys(editState.boundaryConditions[0].fireBreakType).length < 1 ||
-        Object.values(editState.boundaryConditions[0].fireBreakType).length < 1
+        editState.boundaryConditions
+          .map((e) => e.timeOffset)
+          .filter(
+            (e, idx) => editState.boundaryConditions.map((e) => e.timeOffset).indexOf(e) !== idx
+          ).length > 0 ||
+        editState.boundaryConditions
+          .filter((e) => e.fireBreakType)
+          .map((e) => Object.keys(e.fireBreakType)[0])
+          .filter((e) => e).length !==
+          editState.boundaryConditions
+            .filter((e) => e.fireBreakType)
+            .map((e) => Object.values(e.fireBreakType)[0])
+            .filter((e) => e).length
       )
         return false
     }
@@ -635,15 +646,33 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         newMapRequest.feature.properties.boundaryConditions = editState.boundaryConditions.map(e => {
           return {
             time: e.timeOffset,
-            windDirection: e.windDirection, 
+            windDirection: e.windDirection,
             windSpeed: e.windSpeed,
             moisture: e.fuelMoistureContent,
-            fireBreak: {
-              [Object.keys(e.fireBreakType)[0]] : JSON.stringify((Object.values(e.fireBreakType)[0] as GeoJSON.Feature).geometry)
-            },
-            fireBreakFullFeature: {
-              [Object.keys(e.fireBreakType)[0]] : JSON.stringify(Object.values(e.fireBreakType)[0])
-            },
+            fireBreak:
+              e.fireBreakType &&
+              Object.keys(e.fireBreakType).length > 0 &&
+              Object.keys(e.fireBreakType)[0] !== '' &&
+              Object.values(e.fireBreakType).length > 0 &&
+              Object.values(e.fireBreakType)[0]
+                ? {
+                    [Object.keys(e.fireBreakType)[0]]: geojsonToWKT(
+                      (Object.values(e.fireBreakType)[0] as GeoJSON.Feature).geometry
+                    )
+                  }
+                : null,
+            fireBreakFullFeature:
+              e.fireBreakType &&
+              Object.keys(e.fireBreakType).length > 0 &&
+              Object.keys(e.fireBreakType)[0] !== '' &&
+              Object.values(e.fireBreakType).length > 0 &&
+              Object.values(e.fireBreakType)[0]
+                ? {
+                    [Object.keys(e.fireBreakType)[0]]: JSON.stringify(
+                      Object.values(e.fireBreakType)[0]
+                    )
+                  }
+                : null
           }
         })
         break

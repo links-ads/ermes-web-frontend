@@ -66,6 +66,7 @@ import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import { findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
+import { wktToGeoJSON } from "@terraformer/wkt"
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -94,9 +95,12 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      bottom: '150px',
+      top: 225,
       right: '10px',
       zIndex: 99,
+      width: 27, 
+      height: 27,
+      minHeight: 27,
       backgroundColor: theme.palette.secondary.main,
       [theme.breakpoints.up('sm')]: {
         bottom: 390
@@ -111,7 +115,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      bottom: 150,
+      top: 225,
       right: 10
     },
     legend_row: {
@@ -657,8 +661,23 @@ export function MapLayout(props) {
         const polyToDraw =
           geometry.type === 'Polygon'
             ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point' ?
-            geometryCollection([geometry].concat(polyToMap.feature.properties.boundaryConditions.map(e => (JSON.parse(Object.values(e.fireBreak)[0] as string)))))
+            : geometry.type === 'Point'
+            ? geometryCollection(
+                [geometry].concat(
+                  polyToMap.feature.properties.boundaryConditions.map((e) => {
+                    if (e.fireBreak) {
+                      const lineString = Object.values(e.fireBreak)[0] as string
+                      let geojsonLine = null
+                      if (lineString.startsWith('L')) {
+                        geojsonLine = wktToGeoJSON(lineString)
+                      } else {
+                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
+                      }
+                      return geojsonLine
+                    }
+                  })
+                )
+              )
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
 
         drawPolyToMap(

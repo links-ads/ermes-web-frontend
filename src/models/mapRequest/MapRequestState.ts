@@ -6,7 +6,7 @@ export class MapRequestLayerSettingsState {
   isChecked: boolean
   errorMessages: MapRequestLayerErrorDto[]
   status: LayerImportStatusType
-  metadataId: string | null | undefined
+  metadataIds: any
   name: string
   availableTimestamps: any
   timestampsToFiles: TimestampToFile
@@ -20,7 +20,7 @@ export class MapRequestLayerSettingsState {
     this.isChecked = false
     this.errorMessages = errorMessages
     this.status = status
-    this.metadataId = ''
+    this.metadataIds = {}
     this.name = ''
     this.timestampsToFiles = {}
     this.availableTimestamps = []

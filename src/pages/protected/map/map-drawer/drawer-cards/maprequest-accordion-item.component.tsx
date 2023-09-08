@@ -208,14 +208,13 @@ const MapRequestAccordionItem: React.FC<{
           <IconButton
             disabled={!currentLayer.isChecked}
             onClick={() => {
-              if (typeof currentLayer.metadataId == 'object') console.log('TODOOOOOOOOOOOOOOO')
-              //getMeta(layerDetails.metadataId[currentLayer.layerSettings.dateIndex])
-              else if (typeof currentLayer.metadataId == 'string') getMeta(currentLayer.metadataId)
-              else
-                console.log(
-                  'no metadata procedure implemented for type',
-                  typeof currentLayer.metadataId
-                )
+              getMeta(
+                currentLayer.metadataIds[currentLayer.availableTimestamps[currentLayer.dateIndex]],
+                'Map Request Layer',
+                currentLayer.mapRequestCode,
+                currentLayer.dataTypeId,
+                currentLayer.name
+              )
             }}
           >
             <MetaIcon />
@@ -223,7 +222,13 @@ const MapRequestAccordionItem: React.FC<{
           <IconButton
             disabled={!currentLayer.isChecked}
             onClick={() => {
-              getLegend(currentLayer.activeLayer)
+              getLegend(
+                currentLayer.activeLayer,
+                'Map Request Layer',
+                currentLayer.mapRequestCode,
+                currentLayer.dataTypeId,
+                currentLayer.name
+              )
             }}
           >
             <LegendIcon />
@@ -293,7 +298,7 @@ const MapRequestAccordionItem: React.FC<{
                   </span>
                 </div>
               ) : (
-                <div style={{display: 'flex', alignItems: 'center'}}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Typography>
                     {'Timestamp: ' + FormatDate(currentLayer.availableTimestamps[0])}
                   </Typography>

@@ -1,6 +1,6 @@
 import React from "react"
 import { LayerSettingsState, LayerState } from "../../../../models/layers/LayerState"
-import { Accordion, AccordionSummary, FormControl, RadioGroup, Typography, makeStyles, useTheme } from "@material-ui/core"
+import { Accordion, AccordionSummary, FormControl, FormGroup, Typography, makeStyles, useTheme } from "@material-ui/core"
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import LayersAccordionDetails from "./layers-accordion-details.component"
 
@@ -17,14 +17,15 @@ const useStyles = makeStyles((theme) => ({
 const LayersSubgroupAccordion: React.FC<{
   subGroupName: string
   layers: LayerState
-  setLayerSelection: any
-  updateLayersSetting: any
+  updateLayerSelection: any
   map: any
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayers: LayerSettingsState[] | undefined
+  checkboxDisabled: boolean
+  toBeRemovedLayers: string[]
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { subGroupName, setLayerSelection, updateLayersSetting, layers, map, selectedLayer } = props
+  const { subGroupName, updateLayerSelection, layers, map, selectedLayers, checkboxDisabled, toBeRemovedLayers } = props
   const value = Object.keys(layers).forEach((layer) => {
     if (layers[layer].isChecked) return layers[layer].dataTypeId
     else return 0
@@ -39,22 +40,21 @@ const LayersSubgroupAccordion: React.FC<{
         <Typography className={classes.heading}>{subGroupName}</Typography>
       </AccordionSummary>
       <FormControl>
-        <RadioGroup
-          aria-labelledby="demo-radio-buttons-group-label"
-          name="radio-buttons-group"
-          value={value}
+        <FormGroup
+          aria-labelledby="demo-checkbox-buttons-group-label"
         >
           {Object.keys(props.layers).map((key, index) => (
             <LayersAccordionDetails
               key={props.subGroupName + key + index}
               layerSettings={props.layers[key]}
-              setLayerSelection={setLayerSelection}
-              updateLayersSetting={updateLayersSetting}
+              updateLayerSelection={updateLayerSelection}
               map={map}
-              selectedLayer={selectedLayer}
+              selectedLayers={selectedLayers}
+              checkboxDisabled={checkboxDisabled}
+              toBeRemovedLayers={toBeRemovedLayers}
             />
           ))}
-        </RadioGroup>
+        </FormGroup>
       </FormControl>
     </Accordion>
   )
