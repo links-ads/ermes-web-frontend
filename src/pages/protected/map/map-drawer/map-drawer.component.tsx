@@ -29,6 +29,7 @@ import { CameraDetails } from './camera-details.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import { EmergencyProps } from '../api-data/emergency.component'
 import { useMapStateContext } from '../map.context'
+import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -224,11 +225,12 @@ export default function MapDrawer(props) {
   }
 
   useEffect(() => {
-    if (clickedPoint && clickedPoint !== null && clickedPoint.item && props.toggleSideDrawer) {
-      const clickedItem = clickedPoint.item as EmergencyProps
-      selectTabCard(clickedItem)
-    }
-    else {
+    if (clickedPoint && clickedPoint !== null && clickedPoint.item) {
+      if (!areClickedPointAndSelectedCardEqual(clickedPoint, selectedFeatureId)) {
+        const clickedItem = clickedPoint.item as EmergencyProps
+        selectTabCard(clickedItem)
+      }
+    } else {
       updateCardId('')
     }
   }, [clickedPoint])

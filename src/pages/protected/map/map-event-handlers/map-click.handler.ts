@@ -72,9 +72,10 @@ export const highlightClickedPoint = <T extends object>(
   mapViewRef,
   spiderifierRef,
   spiderLayerIds,
-  previouslyClickedCluster, 
-  setClickedCluster, 
-  setLeftClickedFeature
+  previouslyClickedCluster,
+  setClickedCluster,
+  setLeftClickedFeature,
+  updateClickedPoint
 ) => {
   const map = mapViewRef.current?.getMap()
   const point = map.project(feature.geometry.coordinates)
@@ -85,7 +86,7 @@ export const highlightClickedPoint = <T extends object>(
   ]
   const [longitude, latitude] = feature.geometry.coordinates
   const id = feature.properties['id'] || feature.id
-  const featureType = feature.properties['type'] 
+  const featureType = feature.properties['type']
   const renderedFeature = queryHoveredFeature(
     map,
     [longitude, latitude],
@@ -96,13 +97,16 @@ export const highlightClickedPoint = <T extends object>(
     featureType
   )
 
-  if (renderedFeature.type) {
-    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
-    const properties = feature.properties
+  updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+  const properties = feature.properties
+  if (updateClickedPoint) {
     const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
     setLeftClickedFeature(leftClickedFeature)
-    switch(renderedFeature.type) {      
-      case 'cluster':        
+  }
+
+  if (renderedFeature.type) {
+    switch (renderedFeature.type) {
+      case 'cluster':
         if (spiderifierRef.current && mapViewRef.current) {
           // removed previously highlighted leaf
           spiderifierRef.current.highlightClickedLeaf(map, 'null')
@@ -110,17 +114,22 @@ export const highlightClickedPoint = <T extends object>(
           spiderifierRef.current.toggleSpidersByPoint(
             map,
             bbox,
-            SOURCE_ID,
             renderedFeature.id,
             previouslyClickedCluster,
             setClickedCluster
           )
         }
         break
-      case 'leaf':  
+      case 'leaf':
         if (spiderifierRef.current && mapViewRef.current) {
           // Depending on settings, it will either expand the cluster or open the spider
-          spiderifierRef.current.toggleSpidersByPoint(map, bbox)
+          spiderifierRef.current.toggleSpidersByPoint(
+            map,
+            bbox,
+            renderedFeature.id,
+            previouslyClickedCluster,
+            setClickedCluster
+          )
           spiderifierRef.current.highlightClickedLeaf(map, renderedFeature.id)
         }
         break
