@@ -153,24 +153,49 @@ export default function MapTimeSeries(props) {
               style={{
                 backgroundColor: theme.palette.primary.dark,
                 boxShadow: 'none',
-                display: 'block'
+                display: 'block'                
               }}
               className="handle handleResize"
             >
-              <Toolbar>
-                <Box sx={{ flexGrow: 9 }}>
-                  <Typography variant="h4">{selectedLayer.name}</Typography>
+              <Grid
+                container
+                spacing={1}
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
+              >
+                <Grid item xs={9}>
+                <Typography variant="h4" style={{ fontSize: 16 }}>{selectedLayer.name}</Typography>
+                </Grid>
+                <Grid item xs={3}>
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setDblClickFeatures(null)
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                </Grid>
+              </Grid>
+{/* 
+              {/* <Toolbar>
+                {/* <Box sx={{ flexGrow: 9 }}> 
+                <Typography variant="h4">{selectedLayer.name}</Typography>
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
-                  <IconButton
-                    onClick={() => {
-                      setDblClickFeatures(null)
-                    }}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </Box>
-              </Toolbar>
+                  
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    setDblClickFeatures(null)
+                  }}
+                >
+                  <CloseIcon />
+                </IconButton>
+                 </Box>
+              </Toolbar> */}
             </AppBar>
             <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
               {!isLoading ? (
