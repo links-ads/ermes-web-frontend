@@ -413,7 +413,7 @@ export class Spiderifier {
               this.spiderLeavesCollection,
               this.leavesLayerPaintOptions.paint,
               this.leavesLayerPaintOptions.layout,
-              this.highlightLeavesOnHover, 
+              this.highlightLeavesOnHover,
               this.highlightLeavesOnClick
             )
           }
@@ -459,14 +459,13 @@ export class Spiderifier {
                     },
                     evtData
                   )
-                }
-                else {
+                } else {
                   this.spiderifiedCluster = {
                     id: clusterId,
                     coordinates
                   }
                   this.spiderifyCluster(map, this.spiderifiedCluster)
-                }                
+                }
               })
             }
           } else {
@@ -501,7 +500,6 @@ export class Spiderifier {
   public toggleSpidersByPoint(
     map: mapboxgl.Map,
     pointOrBox: mapboxgl.PointLike | [mapboxgl.PointLike, mapboxgl.PointLike],
-    sourceId: string,
     featureId: string,
     previousClickedCluster: any,
     setClickedCluster: any
@@ -519,7 +517,7 @@ export class Spiderifier {
           if (map.getZoom() < this.spiderMaxZoom) {
             const source = map.getSource(this.sourceName)
             if (!!source && source.type === 'geojson') {
-              source.getClusterExpansionZoom(clusterId, (err, zoom) => {                
+              source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                 if (err) return
                 // close spiders
                 this.clearSpiders(map)
@@ -531,7 +529,7 @@ export class Spiderifier {
                 ) {
                   map.setFeatureState(
                     {
-                      source: sourceId,
+                      source: (source as any).id,
                       id: previousClickedCluster.cluster_id
                     },
                     {
@@ -548,20 +546,20 @@ export class Spiderifier {
                 if (setClickedCluster) setClickedCluster(cluster)
                 map.setFeatureState(
                   {
-                    source: sourceId,
+                    source: (source as any).id,
                     id: clusterId
                   },
                   {
                     highlight: true
                   }
-                )         
+                )
               })
             }
           } else {
             // Check if already open
             const alreadyOpen =
               this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
-            if (alreadyOpen) {              
+            if (alreadyOpen) {
               this.highlightClickedLeaf(map, featureId)
             } else {
               this.clearSpiders(map)

@@ -65,8 +65,8 @@ import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from "@terraformer/wkt"
-import { findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -625,31 +625,58 @@ export function MapLayout(props) {
     }
   }, [goToCoord, setGoToCoord])
 
-  const { zoom: viewportZoom } = viewport
+  const { zoom: viewportZoom, latitude: viewportLatitude, longitude: viewportLongitude } = viewport
+
+  const ensureSelectedCardPinHighlight = useCallback(
+    (
+      centerOnMap: boolean = false,
+      updateClickedPoint: boolean = false,
+      firstSetup: boolean = true
+    ) => {
+      const map = mapViewRef.current?.getMap()
+      if (selectedFeatureId !== '') {
+        const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
+        if (selectedFeature) {
+          const [longitude, latitude] = (selectedFeature as any).geometry.coordinates
+          if (centerOnMap) {
+            setGoToCoord({ latitude: latitude, longitude: longitude })
+          }
+          highlightClickedPoint(
+            selectedFeature,
+            mapViewRef,
+            spiderifierRef,
+            props.spiderLayerIds,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint,
+            updateClickedPoint
+          )
+          updateMarkers(map)
+        }
+      } else {
+        if (firstSetup) {
+          tonedownClickedPoint(
+            mapViewRef,
+            spiderifierRef,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint
+          )
+          updateMarkers(map)
+        }
+      }
+    },
+    [findFeatureByTypeAndId, highlightClickedPoint, tonedownClickedPoint, updateMarkers]
+  )
 
   useEffect(() => {
-    const map = mapViewRef.current?.getMap()
-    if (selectedFeatureId !== '') {
-      const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
-      if (selectedFeature) {
-        const coord = (selectedFeature as any).geometry.coordinates
-        setGoToCoord({ latitude: coord[1], longitude: coord[0] })
-        highlightClickedPoint(
-          selectedFeature,
-          mapViewRef,
-          spiderifierRef,
-          props.spiderLayerIds,
-          clickedCluster,
-          setClickedCluster,
-          setClickedPoint
-        )
-        updateMarkers(map)
-      }
-    } else {
-      tonedownClickedPoint(mapViewRef, spiderifierRef, clickedCluster, setClickedCluster, setClickedPoint)
-      updateMarkers(map)
-    }
-  }, [selectedFeatureId, viewportZoom])
+    ensureSelectedCardPinHighlight(false, false, false)
+  }, [viewportZoom, viewportLatitude, viewportLongitude])
+
+  useEffect(() => {
+    const updateClickedPoint = !areClickedPointAndSelectedCardEqual(clickedPoint, selectedFeatureId)
+    ensureSelectedCardPinHighlight(true, updateClickedPoint, true)
+  }, [selectedFeatureId])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -687,7 +714,7 @@ export function MapLayout(props) {
           EmergencyColorMap[polyToMap?.feature.properties.type]
         )
       }
-      else if (!['Communication', 'MapRequest', 'Mission'].includes((clickedPoint.item as EmergencyProps).type)) {
+      else if (!['Communication', 'MapRequest', 'Mission', 'Alert'].includes((clickedPoint.item as EmergencyProps).type)) {
         removePolyToMap(map)
       }
     } else {
