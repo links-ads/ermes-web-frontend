@@ -698,8 +698,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
       return 'audio'
     }
   }
-  console.log('REP DATA DATUM', data)
-  console.log('REP DATA DATUM DETA', catDetails)
+  console.debug('REP DATA DATUM', data)
+  console.debug('REP DATA DATUM DETA', catDetails)
   if (!data.isLoading) {
     return (
       <>

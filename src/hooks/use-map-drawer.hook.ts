@@ -57,6 +57,21 @@ export const findFeatureByTypeAndId = (featureList, cardId) => {
   }
 }
 
+export const areClickedPointAndSelectedCardEqual = (clickedPoint, selectedCardId) => {
+  if (selectedCardId === '' || !clickedPoint || clickedPoint === null) return false
+  let areEqual = false
+  const [type, id] = getFeatureTypeAndIdFromCardId(selectedCardId)
+  const pointType = clickedPoint.item?.type
+  let pointId = clickedPoint.item?.id
+  if (type === EntityType.STATION) {
+    pointId = clickedPoint.item?.details
+  }
+  if (pointId === id && pointType === type) {
+    areEqual = true
+  }
+  return areEqual
+}
+
 const reducer = (currentState, action) => {
   switch (action.type) {
     case 'SELECT_CARD':
