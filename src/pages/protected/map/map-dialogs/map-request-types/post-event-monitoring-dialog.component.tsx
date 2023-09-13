@@ -60,6 +60,10 @@ export function PostEventMonitoringDialog({
     dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
   }
 
+  const unsetMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: false })
+  }
+
   useEffect(() => {
     if (mapSelectionCompleted) {
       setAreaSelectionStatus('success')
@@ -217,6 +221,7 @@ export function PostEventMonitoringDialog({
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
               mapSelectionCompleted && mapArea

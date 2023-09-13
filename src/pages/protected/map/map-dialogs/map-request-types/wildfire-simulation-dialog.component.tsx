@@ -31,7 +31,7 @@ import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
 import { AddCircle, Delete, ScatterPlot, Timeline } from '@material-ui/icons'
-import { MapStateContextProvider } from '../../map.contest'
+import { MapMode, MapStateContextProvider } from '../../map.contest'
 import MapRequestDrawFeature, {
   lineColors
 } from './map-request-draw-feature/map-request-draw-feature.component'
@@ -97,7 +97,7 @@ export function WildFireSimulationDialog({
 
   const { startDate, hoursOfProjection } = editState
 
-  const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
+  const [wildfireMapMode, setWildfireMapMode] = useState<MapMode>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
   const [toRemoveLineIdx, setToRemoveLineIdx] = useState<number>(-1)
