@@ -619,7 +619,7 @@ export function MapLayout(props) {
             longitude: goToCoord.longitude,
             latitude: goToCoord.latitude
           }
-        )
+        )        
       }
       setGoToCoord(undefined)
     }
@@ -706,15 +706,31 @@ export function MapLayout(props) {
                 )
               )
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
-
-        drawPolyToMap(
-          map,
-          polyToMap?.feature.properties.centroid,
-          polyToDraw,
-          EmergencyColorMap[polyToMap?.feature.properties.type]
+        const mapIsMoving = map?.isMoving()
+        if (mapIsMoving) {
+          map?.once('moveend', function (e) {
+            removePolyToMap(map)
+            drawPolyToMap(
+              map,
+              polyToMap?.feature.properties.centroid,
+              polyToDraw,
+              EmergencyColorMap[polyToMap?.feature.properties.type]
+            )
+          })
+        } else {
+          removePolyToMap(map)
+          drawPolyToMap(
+            map,
+            polyToMap?.feature.properties.centroid,
+            polyToDraw,
+            EmergencyColorMap[polyToMap?.feature.properties.type]
+          )
+        }
+      } else if (
+        !['Communication', 'MapRequest', 'Mission', 'Alert'].includes(
+          (clickedPoint.item as EmergencyProps).type
         )
-      }
-      else if (!['Communication', 'MapRequest', 'Mission', 'Alert'].includes((clickedPoint.item as EmergencyProps).type)) {
+      ) {
         removePolyToMap(map)
       }
     } else {
