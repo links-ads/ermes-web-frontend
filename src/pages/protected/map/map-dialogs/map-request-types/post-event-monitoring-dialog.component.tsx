@@ -224,8 +224,8 @@ export function PostEventMonitoringDialog({
             mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
-              mapSelectionCompleted && mapArea
-                ? [{...mapArea}]
+              mapSelectionCompleted && mapArea && mapArea.geometry.type !== 'Point'
+                ? [{ ...mapArea }]
                 : []
             }
           />

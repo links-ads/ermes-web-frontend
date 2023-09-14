@@ -161,6 +161,10 @@ const SocialMap = (props) => {
                     </Source>
                     <div className="controls-contaniner" style={{ top: '0%' }}>
                         <NavigationControl />
+                        {
+                            (props.mapRef.current?.getMap()) &&
+                            (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} onMapStyleChange={null} mapChangeSource={1} direction='left'></MapStyleToggle>)
+                        }
                     </div>
                     <Slide
                         direction='left'
@@ -189,12 +193,8 @@ const SocialMap = (props) => {
                 <FilterButton
                     setToggleActiveFilterTab={setToggleActiveFilterTab}
                     toggleActiveFilterTab={toggleActiveFilterTab}
-                ></FilterButton>
-            </MapContainer>
-            {
-                (props.mapRef.current?.getMap()) &&
-                (<MapStyleToggle mapViewRef={props.mapRef} spiderifierRef={spiderifierRef} onMapStyleChange={null} mapChangeSource={1} direction="right"></MapStyleToggle>)
-            }
+                ></FilterButton>                
+            </MapContainer>            
         </div>
     );
 }

@@ -129,7 +129,7 @@ export function WildFireSimulationDialog({
 
   useEffect(() => {
     const tot = boundaryConditions
-      .map((e) => e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null)
+      .map((e) => (e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null))
       .filter((e) => e).length
     setBoundaryLinesTot(tot)
   }, [boundaryConditions])
@@ -436,11 +436,9 @@ export function WildFireSimulationDialog({
             setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             boundaryLinesTot={boundaryLinesTot}
             mapSelectedFeatures={
-              editState.mapSelectionCompleted &&
-              editState.mapArea &&
-              editState.mapArea.geometry.type === 'Point'
-                ? [editState.mapArea].concat(
-                    editState.boundaryConditions
+              mapSelectionCompleted && mapArea && mapArea.geometry.type === 'Point'
+                ? [{ ...mapArea }].concat(
+                    boundaryConditions
                       .filter((e) => e.fireBreakType)
                       .map((e) => Object.values(e.fireBreakType)[0])
                   )
