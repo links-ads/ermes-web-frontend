@@ -34,8 +34,8 @@ import {
 } from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
-import useMapLayers from '../../../hooks/use-map-layers.hook'
 import useMapDrawer from '../../../hooks/use-map-drawer.hook'
+import useMapLayers from '../../../hooks/use-map-layers.hook'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -44,7 +44,7 @@ export function Map() {
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
-  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList ] = useMapDrawer()
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId ] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -590,69 +590,74 @@ export function Map() {
         dataState={dataState}
         updateTabIndex={updateTabIndex}
         selectTabCard={selectTabCard}
+        updateCardId={updateCardId}
       />
-      <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {selectedLayers && selectedLayers.length > 0 &&
-          selectedLayers.map((layer, idx) => (
-            <LayersPlayer
-              key={'layer-player-' + idx}
-              updateLayerSelection={updateSelectedLayers}
-              onPositionChange={updateLayerPlayerPosition}
-              getLegend={manageLayerLegend}
-              getMeta={getLayerMeta}
-              map={map}
-              selectedLayer={layer}
-              toBeRemovedLayers={toBeRemovedLayers}
-              changeLayerOpacity={changeOpacity}
-              updateLayerTimestamp={updateTimestamp}
+        <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
+          {selectedLayers &&
+            selectedLayers.length > 0 &&
+            selectedLayers.map((layer, idx) => (
+              <LayersPlayer
+                key={'layer-player-' + idx}
+                updateLayerSelection={updateSelectedLayers}
+                onPositionChange={updateLayerPlayerPosition}
+                getLegend={manageLayerLegend}
+                getMeta={getLayerMeta}
+                map={map}
+                selectedLayer={layer}
+                toBeRemovedLayers={toBeRemovedLayers}
+                changeLayerOpacity={changeOpacity}
+                updateLayerTimestamp={updateTimestamp}
+              />
+            ))}
+
+          {layersLegend &&
+            layersLegend.length > 0 &&
+            layersLegend.map((layerLegend, idx) => (
+              <PlayerLegend
+                key={'layer-legend-' + idx}
+                legendData={layerLegend}
+                defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+                onPositionChange={updateLayerLegendPosition}
+                updateVisibility={updateLayerLegendVisibility}
+              />
+            ))}
+
+          {layersMetadata &&
+            layersMetadata.length > 0 &&
+            layersMetadata.map((layerMeta, idx) => (
+              <PlayerMetadata
+                key={'layer-metadata-' + idx}
+                defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+                onPositionChange={updateLayerMetadataPosition}
+                updateVisibility={updateLayerMetadataVisibility}
+                layerData={layerMeta}
+              />
+            ))}
+
+          {dblClickFeatures && dblClickFeatures.showCard && (
+            <MapTimeSeries
+              dblClickFeatures={dblClickFeatures}
+              setDblClickFeatures={setDblClickFeatures}
+              defaultPosition={mapTimeSeriesContainerDefaultCoord}
+              position={mapTimeSeriesContainerPosition}
+              onPositionChange={setMapTimeSeriesContainerPosition}
+              selectedFilters={filtersObj?.filters}
+              selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             />
-          ))}
+          )}
 
-        {layersLegend && layersLegend.length > 0 &&
-          layersLegend.map((layerLegend, idx) => (
-            <PlayerLegend
-              key={'layer-legend-' + idx}
-              legendData={layerLegend}
-              defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
-              onPositionChange={updateLayerLegendPosition}
-              updateVisibility={updateLayerLegendVisibility}
-            />
-          ))}
-
-        {layersMetadata && layersMetadata.length > 0 &&
-          layersMetadata.map((layerMeta, idx) => (
-            <PlayerMetadata
-              key={'layer-metadata-' + idx}
-              defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
-              onPositionChange={updateLayerMetadataPosition}
-              updateVisibility={updateLayerMetadataVisibility}
-              layerData={layerMeta}
-            />
-          ))}
-
-        {dblClickFeatures && dblClickFeatures.showCard && (
-          <MapTimeSeries
-            dblClickFeatures={dblClickFeatures}
-            setDblClickFeatures={setDblClickFeatures}
-            defaultPosition={mapTimeSeriesContainerDefaultCoord}
-            position={mapTimeSeriesContainerPosition}
-            onPositionChange={setMapTimeSeriesContainerPosition}
-            selectedFilters={filtersObj?.filters}
-            selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
-        />)}
-
-        <LayersFloatingPanel
-          layerGroups={groupedLayers}
-          isVisible={isLayersPanelVisible}
-          setIsVisible={setIsLayersPanelVisible}
-          isLoading={isLoading}
-          updateLayerSelection={updateSelectedLayers}
-          map={map}
-          selectedLayers={selectedLayers}
-          position={layersSelectContainerPosition}
-          setPosition={setLayersSelectContainerPosition}
-          toBeRemovedLayers={toBeRemovedLayers}
-        />
+          <LayersFloatingPanel
+            layerGroups={groupedLayers}
+            isVisible={isLayersPanelVisible}
+            setIsVisible={setIsLayersPanelVisible}
+            isLoading={isLoading}
+            updateLayerSelection={updateSelectedLayers}
+            map={map}
+            selectedLayers={selectedLayers}
+            position={layersSelectContainerPosition}
+            setPosition={setLayersSelectContainerPosition}
+            toBeRemovedLayers={toBeRemovedLayers}
+          />
 
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
