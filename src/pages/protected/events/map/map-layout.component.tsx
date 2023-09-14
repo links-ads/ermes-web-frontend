@@ -183,6 +183,15 @@ const EventMap = (props) => {
           </Source>
           <div className="controls-contaniner" style={{ top: '0%' }}>
             <NavigationControl />
+            {mapRef.current?.getMap() && (
+              <MapStyleToggle
+                mapViewRef={mapRef}
+                spiderifierRef={props.spiderifierRef}
+                onMapStyleChange={null}
+                mapChangeSource={2}
+                direction="left"
+              ></MapStyleToggle>
+            )}
           </div>
           <Slide
             direction="left"
@@ -207,16 +216,7 @@ const EventMap = (props) => {
           setToggleActiveFilterTab={setToggleActiveFilterTab}
           toggleActiveFilterTab={toggleActiveFilterTab}
         ></FilterButton>
-      </MapContainer>
-      {mapRef.current?.getMap() && (
-        <MapStyleToggle
-          mapViewRef={mapRef}
-          spiderifierRef={props.spiderifierRef}
-          onMapStyleChange={null}
-          mapChangeSource={2}
-          direction="right"
-        ></MapStyleToggle>
-      )}
+      </MapContainer>      
     </div>
   )
 }

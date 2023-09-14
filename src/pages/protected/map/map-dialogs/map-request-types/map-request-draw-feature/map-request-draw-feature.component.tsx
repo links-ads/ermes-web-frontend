@@ -14,8 +14,9 @@ import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
 import { GeoJsonProperties } from 'geojson'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMapStateContext } from '../../../map.context'
+import { MapMode, useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
+import { Color } from '@material-ui/lab'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -36,7 +37,21 @@ export const lineColors = {
   5: purple[600]
 }
 
-const MapRequestDrawFeature = (props) => {
+const MapRequestDrawFeature : React.FC<{
+  customMapMode?: MapMode
+  lineIdx?: number
+  areaSelectedAlertHandler: React.Dispatch<React.SetStateAction<Color>>
+  mapSelectionCompletedHandler: () => void
+  mapSelectionNotCompletedHandler: () => void
+  setMapAreaHandler: (area: any) => void
+  setBoundaryLineHandler?: (idx: any, line: any) => void
+  toRemoveLineIdx?: number
+  setToRemoveLineIdx?: React.Dispatch<React.SetStateAction<number>>
+  toRemoveBoundaryConditionIdx?: number
+  setToRemoveBoundaryConditionIdx?: React.Dispatch<React.SetStateAction<number>>
+  boundaryLinesTot?: number
+  mapSelectedFeatures: any[]
+}> = (props) => {
   const {
     customMapMode,
     lineIdx,
@@ -148,14 +163,14 @@ const MapRequestDrawFeature = (props) => {
   }
 
   useEffect(() => {
-    if (toRemoveLineIdx > -1) {
+    if (toRemoveLineIdx && toRemoveLineIdx > -1 && setToRemoveLineIdx) {
       removeLine(toRemoveLineIdx)
       setToRemoveLineIdx(-1)
     }
   }, [toRemoveLineIdx])
 
   useEffect(() => {
-    if (toRemoveBoundaryConditionIdx > -1) {
+    if (toRemoveBoundaryConditionIdx && toRemoveBoundaryConditionIdx > -1 && setToRemoveBoundaryConditionIdx) {
       removeLine(toRemoveBoundaryConditionIdx, true)
       setToRemoveBoundaryConditionIdx(-1)
     }
@@ -283,7 +298,7 @@ const MapRequestDrawFeature = (props) => {
                         boundaryConditionIdx: lineIdx,
                         color: getLineColor(lineIdx)
                       }
-                      setBoundaryLineHandler(lineIdx, lineToMark)
+                      if(setBoundaryLineHandler) setBoundaryLineHandler(lineIdx, lineToMark)
                       prevLines[0] = lineToMark
                       // update data
                       const toUdpdateIdx = data.findIndex((e) => e.geometry.type === 'LineString')
@@ -312,7 +327,7 @@ const MapRequestDrawFeature = (props) => {
                           boundaryConditionIdx: lineIdx,
                           color: getLineColor(lineIdx)
                         }
-                        setBoundaryLineHandler(lineIdx, data[toUdpdateIdx])
+                        if(setBoundaryLineHandler) setBoundaryLineHandler(lineIdx, data[toUdpdateIdx])
                         data.pop()
                       } else {
                         // no element found - add properties to last one (meaning new line added)
@@ -323,7 +338,7 @@ const MapRequestDrawFeature = (props) => {
                           boundaryConditionIdx: lineIdx,
                           color: getLineColor(lineIdx)
                         }
-                        setBoundaryLineHandler(lineIdx, lineToMark)
+                        if(setBoundaryLineHandler) setBoundaryLineHandler(lineIdx, lineToMark)
                         prevLines[prevLinesLength - 1] = lineToMark
                         // update data
                         const toUdpdateIdx = data.findIndex(

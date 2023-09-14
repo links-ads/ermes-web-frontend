@@ -60,6 +60,10 @@ export function FiredAndBurnedAreasDialog({
     dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
   }
 
+  const unsetMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: false })
+  }
+
   useEffect(() => {
     if (mapSelectionCompleted) {
       setAreaSelectionStatus('success')
@@ -258,10 +262,11 @@ export function FiredAndBurnedAreasDialog({
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
-              mapSelectionCompleted && mapArea
-                ? [{...mapArea}]
+              mapSelectionCompleted && mapArea && mapArea.geometry.type !== 'Point'
+                ? [{ ...mapArea }]
                 : []
             }
           />

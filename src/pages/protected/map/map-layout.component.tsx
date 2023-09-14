@@ -864,6 +864,12 @@ export function MapLayout(props) {
         />
         <div className="controls-contaniner" style={{ top: 0 }}>
           <NavigationControl />
+          <MapStyleToggle
+            mapViewRef={mapViewRef}
+            spiderifierRef={spiderifierRef}
+            onMapStyleChange={onMapStyleChange}
+            mapChangeSource={0}
+          ></MapStyleToggle>
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>
           <ScaleControl />
@@ -902,13 +908,7 @@ export function MapLayout(props) {
           />
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
-      )}
-      <MapStyleToggle
-        mapViewRef={mapViewRef}
-        spiderifierRef={spiderifierRef}
-        onMapStyleChange={onMapStyleChange}
-        mapChangeSource={0}
-      ></MapStyleToggle>
+      )}      
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>

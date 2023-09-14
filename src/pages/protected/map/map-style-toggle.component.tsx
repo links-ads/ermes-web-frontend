@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) =>
     speedDial: {
       position: 'absolute',
       bottom: 16,
-      right: 10
+      right: 0
     },
     speedDialAction: {
       borderRadius: 0,

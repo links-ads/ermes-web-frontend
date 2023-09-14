@@ -31,7 +31,7 @@ import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
 import { AddCircle, Delete, ScatterPlot, Timeline } from '@material-ui/icons'
-import { MapStateContextProvider } from '../../map.context'
+import { MapMode, MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature, {
   lineColors
 } from './map-request-draw-feature/map-request-draw-feature.component'
@@ -97,7 +97,7 @@ export function WildFireSimulationDialog({
 
   const { startDate, hoursOfProjection } = editState
 
-  const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
+  const [wildfireMapMode, setWildfireMapMode] = useState<MapMode>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
   const [toRemoveLineIdx, setToRemoveLineIdx] = useState<number>(-1)
@@ -129,7 +129,7 @@ export function WildFireSimulationDialog({
 
   useEffect(() => {
     const tot = boundaryConditions
-      .map((e) => e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null)
+      .map((e) => (e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null))
       .filter((e) => e).length
     setBoundaryLinesTot(tot)
   }, [boundaryConditions])
@@ -436,11 +436,9 @@ export function WildFireSimulationDialog({
             setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             boundaryLinesTot={boundaryLinesTot}
             mapSelectedFeatures={
-              editState.mapSelectionCompleted &&
-              editState.mapArea &&
-              editState.mapArea.geometry.type === 'Point'
-                ? [editState.mapArea].concat(
-                    editState.boundaryConditions
+              mapSelectionCompleted && mapArea && mapArea.geometry.type === 'Point'
+                ? [{ ...mapArea }].concat(
+                    boundaryConditions
                       .filter((e) => e.fireBreakType)
                       .map((e) => Object.values(e.fireBreakType)[0])
                   )
