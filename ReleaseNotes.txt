@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Bugfix - Bugs after dashboard tutorial fixed (#137)
 - Feature - Sync map drawer behaviour (#129)
 
 Ver. 2.12.1 - 2023-09-08
