@@ -12,6 +12,7 @@ const initialState = {
   toBeRemovedLayers: [],
   layersMetadata: [],
   layersLegend: [],
+  layerTimeseries: null,
   defaultPosition: { x: 0, y: 0 },
   defaultDimension: { h: 116, w: 1000 },
   isLoading: true,
@@ -45,7 +46,8 @@ const reducer = (currentState, action) => {
         selectedLayers: action.value.selectedLayers,
         toBeRemovedLayers: action.value.toBeRemovedLayers,
         layersLegend: action.value.layersLegend,
-        layersMetadata: action.value.layersMetadata
+        layersMetadata: action.value.layersMetadata,
+        layerTimeseries: action.value.layerTimeseries
       }
     case 'UPDATE_LAYER_PLAYER':
       return {
@@ -67,6 +69,11 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         layersLegend: action.value
+      }
+    case 'UPDATE_LAYER_TIMESERIES':
+      return {
+        ...currentState,
+        layerTimeseries: action.value
       }
     case 'ERROR':
       return {
@@ -261,6 +268,7 @@ const useMapLayers = () => {
       let toBeRemovedLayers: any[] = []
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
+      let updateTimeseries = { ...dataState.layerTimeseries }
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -282,6 +290,10 @@ const useMapLayers = () => {
               layerName: activeLayerToRemove.activeLayer,
               layerDateIndex: activeLayerToRemove.dateIndex
             })
+            if (findToDeselectedLayerIdx === updatedSelectedLayers.length - 1) {
+              // if layer removed is last one, make sure to remove timeseries as well
+              updateTimeseries = null
+            }
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
           const findLegendIdx = updateLegends.findIndex(
@@ -313,7 +325,8 @@ const useMapLayers = () => {
             selectedLayers: changedSelectedLayers,
             toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, changedSelectedLayers),
             layersLegend: updateLegends,
-            layersMetadata: updateMetadata
+            layersMetadata: updateMetadata,
+            layerTimeseries: updateTimeseries
           }
         })
       }
@@ -346,7 +359,15 @@ const useMapLayers = () => {
   )
 
   const getMetaData = useCallback(
-    (metaId, group, subGroup, dataTypeId, layerName, transformData = () => {}, windowInnerWidth) => {
+    (
+      metaId,
+      group,
+      subGroup,
+      dataTypeId,
+      layerName,
+      transformData = () => {},
+      windowInnerWidth
+    ) => {
       let updatedMetadata = dataState.layersMetadata
       const findMetaIdx = updatedMetadata.findIndex(
         (e) =>
@@ -418,7 +439,15 @@ const useMapLayers = () => {
   )
 
   const getLegend = useCallback(
-    (geoServerConfig, activeLayerName, group, subGroup, dataTypeId, layerName, windowInnerWidth) => {
+    (
+      geoServerConfig,
+      activeLayerName,
+      group,
+      subGroup,
+      dataTypeId,
+      layerName,
+      windowInnerWidth
+    ) => {
       let updatedLegends = dataState.layersLegend
       const findLegendIdx = updatedLegends.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
@@ -471,6 +500,27 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const addLayerTimeseries = useCallback(
+    (coordinates: [number, number], clickedLayer) => {
+      dispatch({
+        type: 'UPDATE_LAYER_TIMESERIES',
+        value: {
+          showCard: true,
+          coord: coordinates,
+          selectedLayer: clickedLayer
+        }
+      })
+    },
+    [dataState]
+  )
+
+  const closeLayerTimeseries = useCallback(() => {
+    dispatch({
+      type: 'UPDATE_LAYER_TIMESERIES',
+      value: null
+    })
+  }, [dataState])
+
   return [
     dataState,
     fetchLayers,
@@ -484,7 +534,9 @@ const useMapLayers = () => {
     getLegend,
     updateLayerLegendPosition,
     updateLayerLegendVisibility,
-    updateDefaultPosAndDim
+    updateDefaultPosAndDim,
+    addLayerTimeseries,
+    closeLayerTimeseries
   ]
 }
 

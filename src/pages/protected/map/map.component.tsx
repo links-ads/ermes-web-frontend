@@ -163,7 +163,9 @@ export function Map() {
     getLayerLegend,
     updateLayerLegendPosition,
     updateLayerLegendVisibility,
-    updateDefaultPosAndDim
+    updateDefaultPosAndDim,
+    addLayerTimeseries, 
+    closeLayerTimeseries
   ] = useMapLayers()
   const {
     rawLayers,
@@ -174,12 +176,11 @@ export function Map() {
     toBeRemovedLayers,
     defaultDimension,
     defaultPosition,
+    layerTimeseries,
     isLoading
   } = layersState
 
   const { innerHeight, innerWidth } = window
-
-  const [dblClickFeatures, setDblClickFeatures] = useState<any | null>(null)
 
   const { data: activitiesList } = useActivitiesList()
   // Retrieve json data, and the function to make the call to filter by date
@@ -637,15 +638,14 @@ export function Map() {
               />
             ))}
 
-          {dblClickFeatures && dblClickFeatures.showCard && (
+          {layerTimeseries && layerTimeseries.showCard && (
             <MapTimeSeries
-              dblClickFeatures={dblClickFeatures}
-              setDblClickFeatures={setDblClickFeatures}
+              layerTimeseries={layerTimeseries}
+              closeLayerTimeseries={closeLayerTimeseries}
               defaultPosition={mapTimeSeriesContainerDefaultCoord}
               position={mapTimeSeriesContainerPosition}
               onPositionChange={setMapTimeSeriesContainerPosition}
               selectedFilters={filtersObj?.filters}
-              selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             />
           )}
 
@@ -659,7 +659,7 @@ export function Map() {
             selectedLayers={selectedLayers}
             position={layersSelectContainerPosition}
             setPosition={setLayersSelectContainerPosition}
-            toBeRemovedLayers={toBeRemovedLayers}
+            toBeRemovedLayers={toBeRemovedLayers}        
           />
 
           <MapLayout
@@ -681,7 +681,7 @@ export function Map() {
             updateMapBounds={updateMapBounds}
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
-            setDblClickFeatures={setDblClickFeatures}
+            addLayerTimeseries={addLayerTimeseries}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
             selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
