@@ -1,5 +1,5 @@
 import { InteractiveMap, PointerEvent } from 'react-map-gl'
-import { PointUpdater, ItemWithLatLng, MapMode } from '../map.contest'
+import { PointUpdater, ItemWithLatLng, MapMode } from '../map.context'
 import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 

@@ -10,7 +10,7 @@ import blueGrey from '@material-ui/core/colors/blueGrey'
 import pink from '@material-ui/core/colors/pink'
 import purple from '@material-ui/core/colors/purple'
 import orange from '@material-ui/core/colors/orange'
-import { ItemWithLatLng } from '../map.contest'
+import { ItemWithLatLng } from '../map.context'
 
 /**
  * Works with Open Data

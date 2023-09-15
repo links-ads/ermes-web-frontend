@@ -39,10 +39,14 @@ interface SpiderifierOptions {
   highlightLeavesOnHover:
     | false
     | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
+  highlightLeavesOnClick:
+    | false
+    | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
   onLeavesLayerUpdate?: (layerIds: string[]) => void
 }
 
 const HOVERED_LEAVES_SUFFIX = '-leaves-hovered'
+const CLICKED_LEAVES_SUFFIX = '-leaves-clicked'
 
 const DEFAULT_LEAVES_PAINT: mapboxgl.CirclePaint = {
   'circle-color': 'orange',
@@ -71,7 +75,8 @@ const DEFAULT_OPTIONS: Omit<SpiderifierOptions, 'sourceName'> = {
   leavesLayerPaintOptions: { paint: DEFAULT_LEAVES_PAINT },
   legsLayerPaintOptions: { paint: DEFAULT_LEGS_PAINT },
   // new
-  highlightLeavesOnHover: false
+  highlightLeavesOnHover: false,
+  highlightLeavesOnClick: false
 }
 
 export class Spiderifier {
@@ -107,6 +112,10 @@ export class Spiderifier {
     | false
     | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
 
+  public readonly highlightLeavesOnClick:
+    | false
+    | { paint: mapboxgl.CirclePaint | mapboxgl.SymbolPaint; layout?: mapboxgl.AnyLayout }
+
   public readonly onLeavesLayerUpdate?: (layerIds: string[]) => void
 
   constructor(options: Partial<SpiderifierOptions>) {
@@ -130,6 +139,7 @@ export class Spiderifier {
       leavesLayerPaintOptions,
       legsLayerPaintOptions,
       highlightLeavesOnHover,
+      highlightLeavesOnClick,
       onLeavesLayerUpdate
     } = opts
     this.sourceName = sourceName
@@ -154,6 +164,7 @@ export class Spiderifier {
     this.spiderLeavesLayerName = `${sourceName}-spider-leaves-${randomId}`
 
     this.highlightLeavesOnHover = highlightLeavesOnHover
+    this.highlightLeavesOnClick = highlightLeavesOnClick
     this.onLeavesLayerUpdate = onLeavesLayerUpdate
   }
 
@@ -197,6 +208,9 @@ export class Spiderifier {
     layoutProperties: mapboxgl.AnyLayout = {},
     highlightLeavesOnHover:
       | false
+      | { paint: mapboxgl.AnyPaint; layout?: mapboxgl.AnyLayout } = false,
+    highlightLeavesOnClick:
+      | false
       | { paint: mapboxgl.AnyPaint; layout?: mapboxgl.AnyLayout } = false
   ) {
     const layerExists = !!map.getLayer(id)
@@ -238,6 +252,18 @@ export class Spiderifier {
           filter: ['all', ['!has', 'point_count'], ['==', 'id', 'null']]
         } as mapboxgl.AnyLayer)
       }
+
+      // Add leaves highlight on click
+      if (highlightLeavesOnClick && id === this.spiderLeavesLayerName) {
+        map.addLayer({
+          id: id + CLICKED_LEAVES_SUFFIX,
+          type,
+          source: id,
+          layout: highlightLeavesOnClick.layout,
+          paint: highlightLeavesOnClick.paint,
+          filter: ['all', ['!has', 'point_count'], ['==', 'id', 'null']]
+        } as mapboxgl.AnyLayer)
+      }
     }
   }
 
@@ -248,7 +274,8 @@ export class Spiderifier {
     this.removeSourceAndLayer(
       map,
       this.spiderLeavesLayerName,
-      this.spiderLeavesLayerName + HOVERED_LEAVES_SUFFIX
+      this.spiderLeavesLayerName + HOVERED_LEAVES_SUFFIX,
+      this.spiderLeavesLayerName + CLICKED_LEAVES_SUFFIX
     )
 
     switch (this.spiderType) {
@@ -339,7 +366,7 @@ export class Spiderifier {
               this.spiderLeavesCollection.push({
                 type: 'Feature',
                 properties: element.properties,
-                id:element.id,
+                id: element.id,
                 geometry: {
                   type: 'Point',
                   coordinates: [spiderLeafLatLng.lng, spiderLeafLatLng.lat]
@@ -386,7 +413,8 @@ export class Spiderifier {
               this.spiderLeavesCollection,
               this.leavesLayerPaintOptions.paint,
               this.leavesLayerPaintOptions.layout,
-              this.highlightLeavesOnHover
+              this.highlightLeavesOnHover,
+              this.highlightLeavesOnClick
             )
           }
         }
@@ -415,20 +443,29 @@ export class Spiderifier {
         const coordinates = feature.geometry.coordinates as [number, number]
         if (clusterId) {
           // Zoom on cluster or spiderify it
-          if (map.getZoom() < this.spiderMaxZoom) {
+          const currentZoom = map.getZoom()
+          if (currentZoom < this.spiderMaxZoom) {
             const source = map.getSource(this.sourceName)
             if (!!source && source.type === 'geojson') {
               source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                 if (err) return
-                // This signal that the events was caused by click on cluster
-                const evtData = { fromCluster: true, clusterId: clusterId }
-                map.easeTo(
-                  {
-                    center: coordinates,
-                    zoom: zoom
-                  },
-                  evtData
-                )
+                if (zoom < this.spiderMaxZoom) {
+                  // This signal that the events was caused by click on cluster
+                  const evtData = { fromCluster: true, clusterId: clusterId }
+                  map.easeTo(
+                    {
+                      center: coordinates,
+                      zoom: zoom
+                    },
+                    evtData
+                  )
+                } else {
+                  this.spiderifiedCluster = {
+                    id: clusterId,
+                    coordinates
+                  }
+                  this.spiderifyCluster(map, this.spiderifiedCluster)
+                }
               })
             }
           } else {
@@ -437,8 +474,95 @@ export class Spiderifier {
               this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
             if (alreadyOpen) {
               this.clearSpiders(map)
-              
             } else {
+              this.spiderifiedCluster = {
+                id: clusterId,
+                coordinates
+              }
+              this.spiderifyCluster(map, this.spiderifiedCluster)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  public highlightClickedLeaf(map: mapboxgl.Map, featureId?: string) {
+    if (this.highlightLeavesOnClick) {
+      updatePointFeatureLayerIdFilter(
+        map,
+        this.spiderLeavesLayerName + CLICKED_LEAVES_SUFFIX,
+        featureId
+      )
+    }
+  }
+
+  public toggleSpidersByPoint(
+    map: mapboxgl.Map,
+    pointOrBox: mapboxgl.PointLike | [mapboxgl.PointLike, mapboxgl.PointLike],
+    featureId: string,
+    previousClickedCluster: any,
+    setClickedCluster: any
+  ) {
+    const features = map.queryRenderedFeatures(pointOrBox, {
+      layers: ['clusters']
+    })
+    if (Array.isArray(features) && features.length > 0) {
+      const feature = features[0]
+      if (feature.geometry.type === 'Point') {
+        const clusterId = feature?.properties?.cluster_id
+        const coordinates = feature.geometry.coordinates as [number, number]
+        if (clusterId) {
+          // Zoom on cluster or spiderify it
+          if (map.getZoom() < this.spiderMaxZoom) {
+            const source = map.getSource(this.sourceName)
+            if (!!source && source.type === 'geojson') {
+              source.getClusterExpansionZoom(clusterId, (err, zoom) => {
+                if (err) return
+                // close spiders
+                this.clearSpiders(map)
+                // remove previously highlighted cluster
+                if (
+                  previousClickedCluster &&
+                  previousClickedCluster.cluster &&
+                  previousClickedCluster.cluster_id !== clusterId
+                ) {
+                  map.setFeatureState(
+                    {
+                      source: (source as any).id,
+                      id: previousClickedCluster.cluster_id
+                    },
+                    {
+                      highlight: false
+                    }
+                  )
+                }
+                // highlight cluster
+                const cluster = {
+                  cluster: true,
+                  cluster_id: clusterId,
+                  point_count: 1
+                }
+                if (setClickedCluster) setClickedCluster(cluster)
+                map.setFeatureState(
+                  {
+                    source: (source as any).id,
+                    id: clusterId
+                  },
+                  {
+                    highlight: true
+                  }
+                )
+              })
+            }
+          } else {
+            // Check if already open
+            const alreadyOpen =
+              this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
+            if (alreadyOpen) {
+              this.highlightClickedLeaf(map, featureId)
+            } else {
+              this.clearSpiders(map)
               this.spiderifiedCluster = {
                 id: clusterId,
                 coordinates
@@ -455,7 +579,6 @@ export class Spiderifier {
     const alreadyOpen = this.spiderifiedCluster !== null && this.spiderifiedCluster.id === clusterId
     if (alreadyOpen) {
       this.clearSpiders(map)
-      
     } else {
       this.spiderifiedCluster = {
         id: clusterId,
@@ -471,7 +594,7 @@ export class Spiderifier {
   //     // Click on cluster
   //     .on('click', clustersLayerName, (e) => {
   //       this.toggleSpiders(map, e)
-        
+
   //     })
   //     // Click on map
   //     .on('click', (e) => {

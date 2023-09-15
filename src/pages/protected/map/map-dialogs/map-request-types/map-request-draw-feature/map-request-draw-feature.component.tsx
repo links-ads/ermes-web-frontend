@@ -14,7 +14,7 @@ import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
 import { GeoJsonProperties } from 'geojson'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { MapMode, useMapStateContext } from '../../../map.contest'
+import { MapMode, useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
 import { Color } from '@material-ui/lab'
 

@@ -698,8 +698,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
       return 'audio'
     }
   }
-  console.log('REP DATA DATUM', data)
-  console.log('REP DATA DATUM DETA', catDetails)
+  console.debug('REP DATA DATUM', data)
+  console.debug('REP DATA DATUM DETA', catDetails)
   if (!data.isLoading) {
     return (
       <>
@@ -912,8 +912,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 }
 
 const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) => {
-  const lowerBoundDate = FormatDate(alertInfo.startDate)
-  const upperBoundDate = FormatDate(alertInfo.endDate)
+  const lowerBoundDate = formatter.format(new Date(alertInfo.startDate)) //FormatDate(alertInfo.startDate)
+  const upperBoundDate = formatter.format(new Date(alertInfo.endDate)) //FormatDate(alertInfo.endDate)
   if (!data.isLoading) {
     return (
       <>

@@ -1,14 +1,20 @@
 import { InteractiveMap, PointerEvent } from 'react-map-gl'
-import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.contest'
+import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.context'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
-import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID } from '../../../../common/map/map-common';
+import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID, queryHoveredFeature } from '../../../../common/map/map-common';
 import { LayerSettingsState } from '../../../../models/layers/LayerState';
+import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
+import { getBboxSizeFromZoom } from '../../../../common/map/map-common';
+
+const CLUSTER_LAYER_ID = 'clusters'
+const GEOJSON_LAYER_IDS = 'unclustered-point'
+const SOURCE_ID = 'emergency-source'
 
 // add position pin at click or db click of the user 
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
 // remove pin if user clicks on it 
-const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates) => {
+const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature) => {
   // check if users is clicking on the position point - if so, remove it
   const features = map.queryRenderedFeatures(evt.point);
   if (features && features.length > 0){
@@ -24,9 +30,117 @@ const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates) => {
     addUserClickedPoint(map, longitude, latitude)
     // show coordinates of the point
     setMapHeadDrawerCoordinates(evt.lngLat)
+    // remove clicked point
+    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+    // closed open feature
+    setLeftClickedFeature(null)
   }
 }
 
+export const tonedownClickedPoint = (
+  mapViewRef,
+  spiderifierRef,
+  previouslyClickedCluster,
+  setClickedCluster,
+  setLeftClickedFeature
+) => {
+  const map = mapViewRef.current?.getMap()
+  if (previouslyClickedCluster && previouslyClickedCluster.cluster) {
+    map.setFeatureState(
+      {
+        source: SOURCE_ID,
+        id: previouslyClickedCluster.cluster_id
+      },
+      {
+        highlight: false
+      }
+    )
+    setClickedCluster(null)
+  }
+  // remove clicked spider leaf
+  if (spiderifierRef && spiderifierRef.current) {
+    spiderifierRef.current.highlightClickedLeaf(map, 'null')
+  }
+  // remove clicked point
+  updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+  // closed open feature
+  setLeftClickedFeature(null)
+}
+
+export const highlightClickedPoint = <T extends object>(
+  feature,
+  mapViewRef,
+  spiderifierRef,
+  spiderLayerIds,
+  previouslyClickedCluster,
+  setClickedCluster,
+  setLeftClickedFeature,
+  updateClickedPoint
+) => {
+  const map = mapViewRef.current?.getMap()
+  const point = map.project(feature.geometry.coordinates)
+  const bboxSize = getBboxSizeFromZoom(map.getZoom())
+  var bbox = [
+    [point.x - bboxSize / 2, point.y - bboxSize / 2],
+    [point.x + bboxSize / 2, point.y + bboxSize / 2]
+  ]
+  const [longitude, latitude] = feature.geometry.coordinates
+  const id = feature.properties['id'] || feature.id
+  const featureType = feature.properties['type']
+  const renderedFeature = queryHoveredFeature(
+    map,
+    [longitude, latitude],
+    [GEOJSON_LAYER_IDS, CLUSTER_LAYER_ID, ...spiderLayerIds],
+    GEOJSON_LAYER_IDS,
+    CLUSTER_LAYER_ID,
+    id,
+    featureType
+  )
+
+  updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+  const properties = feature.properties
+  if (updateClickedPoint) {
+    const leftClickedFeature: ItemWithLatLng<T> = { item: properties, latitude, longitude }
+    setLeftClickedFeature(leftClickedFeature)
+  }
+
+  if (renderedFeature.type) {
+    switch (renderedFeature.type) {
+      case 'cluster':
+        if (spiderifierRef.current && mapViewRef.current) {
+          // removed previously highlighted leaf
+          spiderifierRef.current.highlightClickedLeaf(map, 'null')
+          // Depending on settings, it will either expand the cluster or open the spider
+          spiderifierRef.current.toggleSpidersByPoint(
+            map,
+            bbox,
+            renderedFeature.id,
+            previouslyClickedCluster,
+            setClickedCluster
+          )
+        }
+        break
+      case 'leaf':
+        if (spiderifierRef.current && mapViewRef.current) {
+          // Depending on settings, it will either expand the cluster or open the spider
+          spiderifierRef.current.toggleSpidersByPoint(
+            map,
+            bbox,
+            renderedFeature.id,
+            previouslyClickedCluster,
+            setClickedCluster
+          )
+          spiderifierRef.current.highlightClickedLeaf(map, renderedFeature.id)
+        }
+        break
+      case 'point':
+        updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', id)
+        break
+      default:
+        return
+    }
+  }
+}
 
 /**
  * handler for left click on the map
@@ -71,7 +185,7 @@ export function onMapLeftClickHandler<T extends object>(
 
   // add position point at user's click on the map - do not add in case the user is clicking on feature
   if (map && features && features.length === 0) {
-    manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates)
+    manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
   } 
 
   if (map && Array.isArray(features) && features.length > 0) {
@@ -124,6 +238,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   selectedLayer: LayerSettingsState,
   addLayerTimeseries,
   setMapHeadDrawerCoordinates: React.Dispatch<React.SetStateAction<any[]>>,
+  setLeftClickedFeature,
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
@@ -132,7 +247,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   }
 
   // manage user clicked point
-  manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates)
+  manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
 
   if (
     selectedLayer &&

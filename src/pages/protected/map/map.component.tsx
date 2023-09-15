@@ -2,7 +2,7 @@ import React, { useState, useEffect, useReducer, useContext, useMemo, useCallbac
 import { MapContainer } from './common.components'
 import { MapLayout } from './map-layout.component'
 import { CulturalProps } from './provisional-data/cultural.component'
-import { MapStateContextProvider } from './map.contest'
+import { MapStateContextProvider } from './map.context'
 import GetApiGeoJson from '../../../hooks/get-apigeojson.hook'
 import useActivitiesList from '../../../hooks/use-activities.hook'
 import MapDrawer from './map-drawer/map-drawer.component'
@@ -34,6 +34,7 @@ import {
 } from '../../../models/layers/LayerState'
 import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
+import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
 type MapFeature = CulturalProps
 
@@ -43,6 +44,7 @@ export function Map() {
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
+  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId ] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -137,10 +139,6 @@ export function Map() {
 
   // Toggle for the side drawer
   const [toggleSideDrawer, setToggleSideDrawer] = useState<boolean>(false)
-
-  const [goToCoord, setGoToCoord] = useState<{ latitude: number; longitude: number } | undefined>(
-    undefined
-  )
 
   const [map, setMap] = useState(undefined)
   const [mapHoverState, setMapHoverState] = useState({ set: false })
@@ -567,9 +565,9 @@ export function Map() {
   ///////
   return (
     <>
+    <MapStateContextProvider<MapFeature>>
       <MapDrawer
         toggleSideDrawer={toggleSideDrawer}
-        setGoToCoord={setGoToCoord}
         map={map}
         setMapHoverState={setMapHoverState}
         spiderLayerIds={spiderLayerIds}
@@ -590,71 +588,76 @@ export function Map() {
         missionCounter={missionCounter}
         mapRequestCounter={mapRequestCounter}
         resetListCounter={resetListCounter}
+        dataState={dataState}
+        updateTabIndex={updateTabIndex}
+        selectTabCard={selectTabCard}
+        updateCardId={updateCardId}
       />
-      <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
-        {selectedLayers && selectedLayers.length > 0 &&
-          selectedLayers.map((layer, idx) => (
-            <LayersPlayer
-              key={'layer-player-' + idx}
-              updateLayerSelection={updateSelectedLayers}
-              onPositionChange={updateLayerPlayerPosition}
-              getLegend={manageLayerLegend}
-              getMeta={getLayerMeta}
-              map={map}
-              selectedLayer={layer}
-              toBeRemovedLayers={toBeRemovedLayers}
-              changeLayerOpacity={changeOpacity}
-              updateLayerTimestamp={updateTimestamp}
-            />
-          ))}
+        <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
+          {selectedLayers &&
+            selectedLayers.length > 0 &&
+            selectedLayers.map((layer, idx) => (
+              <LayersPlayer
+                key={'layer-player-' + idx}
+                updateLayerSelection={updateSelectedLayers}
+                onPositionChange={updateLayerPlayerPosition}
+                getLegend={manageLayerLegend}
+                getMeta={getLayerMeta}
+                map={map}
+                selectedLayer={layer}
+                toBeRemovedLayers={toBeRemovedLayers}
+                changeLayerOpacity={changeOpacity}
+                updateLayerTimestamp={updateTimestamp}
+              />
+            ))}
 
-        {layersLegend && layersLegend.length > 0 &&
-          layersLegend.map((layerLegend, idx) => (
-            <PlayerLegend
-              key={'layer-legend-' + idx}
-              legendData={layerLegend}
-              defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
-              onPositionChange={updateLayerLegendPosition}
-              updateVisibility={updateLayerLegendVisibility}
-            />
-          ))}
+          {layersLegend &&
+            layersLegend.length > 0 &&
+            layersLegend.map((layerLegend, idx) => (
+              <PlayerLegend
+                key={'layer-legend-' + idx}
+                legendData={layerLegend}
+                defaultPosition={{ x: window.innerWidth - 200, y: 60 }}
+                onPositionChange={updateLayerLegendPosition}
+                updateVisibility={updateLayerLegendVisibility}
+              />
+            ))}
 
-        {layersMetadata && layersMetadata.length > 0 &&
-          layersMetadata.map((layerMeta, idx) => (
-            <PlayerMetadata
-              key={'layer-metadata-' + idx}
-              defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
-              onPositionChange={updateLayerMetadataPosition}
-              updateVisibility={updateLayerMetadataVisibility}
-              layerData={layerMeta}
-            />
-          ))}
+          {layersMetadata &&
+            layersMetadata.length > 0 &&
+            layersMetadata.map((layerMeta, idx) => (
+              <PlayerMetadata
+                key={'layer-metadata-' + idx}
+                defaultPosition={{ x: window.innerWidth - 850, y: 60 }}
+                onPositionChange={updateLayerMetadataPosition}
+                updateVisibility={updateLayerMetadataVisibility}
+                layerData={layerMeta}
+              />
+            ))}
 
-        {layerTimeseries && layerTimeseries.showCard && (
-          <MapTimeSeries
-            layerTimeseries={layerTimeseries}
-            closeLayerTimeseries={closeLayerTimeseries}
-            defaultPosition={mapTimeSeriesContainerDefaultCoord}
-            position={mapTimeSeriesContainerPosition}
-            onPositionChange={setMapTimeSeriesContainerPosition}
-            selectedFilters={filtersObj?.filters}
+          {layerTimeseries && layerTimeseries.showCard && (
+            <MapTimeSeries
+              layerTimeseries={layerTimeseries}
+              closeLayerTimeseries={closeLayerTimeseries}
+              defaultPosition={mapTimeSeriesContainerDefaultCoord}
+              position={mapTimeSeriesContainerPosition}
+              onPositionChange={setMapTimeSeriesContainerPosition}
+              selectedFilters={filtersObj?.filters}/>
+            )}
+
+          <LayersFloatingPanel
+            layerGroups={groupedLayers}
+            isVisible={isLayersPanelVisible}
+            setIsVisible={setIsLayersPanelVisible}
+            isLoading={isLoading}
+            updateLayerSelection={updateSelectedLayers}
+            map={map}
+            selectedLayers={selectedLayers}
+            position={layersSelectContainerPosition}
+            setPosition={setLayersSelectContainerPosition}
+            toBeRemovedLayers={toBeRemovedLayers}
           />
-        )}
 
-        <LayersFloatingPanel
-          layerGroups={groupedLayers}
-          isVisible={isLayersPanelVisible}
-          setIsVisible={setIsLayersPanelVisible}
-          isLoading={isLoading}
-          updateLayerSelection={updateSelectedLayers}
-          map={map}
-          selectedLayers={selectedLayers}
-          position={layersSelectContainerPosition}
-          setPosition={setLayersSelectContainerPosition}
-          toBeRemovedLayers={toBeRemovedLayers}
-        />
-
-        <MapStateContextProvider<MapFeature>>
           <MapLayout
             toggleActiveFilterTab={toggleActiveFilterTab}
             setToggleActiveFilterTab={setToggleActiveFilterTab}
@@ -665,10 +668,9 @@ export function Map() {
             filterList={filterList}
             prepGeoJson={prepGeoData.data}
             isGeoJsonPrepared={!prepGeoData.isLoading}
-            setGoToCoord={setGoToCoord}
-            goToCoord={goToCoord}
             setMap={setMap}
             mapHoverState={mapHoverState}
+            setMapHoverState={setMapHoverState}
             spiderLayerIds={spiderLayerIds}
             setSpiderLayerIds={setSpiderLayerIds}
             setSpiderifierRef={setSpiderifierRef}
@@ -680,11 +682,12 @@ export function Map() {
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
             selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
             mapRequestsSettings={mapRequestsSettings}
+            mapDrawerDataState={dataState}
           />
-        </MapStateContextProvider>
 
-        {isGeoDataloading ? loader : undefined}
-      </MapContainer>
+          {isGeoDataloading ? loader : undefined}
+        </MapContainer>
+      </MapStateContextProvider>
       {/* <MapSearchHere /> */}
     </>
   )

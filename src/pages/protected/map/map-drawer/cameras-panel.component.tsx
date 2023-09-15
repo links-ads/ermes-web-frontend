@@ -23,6 +23,7 @@ const CamerasPanel: React.FC<{
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
   const [camerasData, getCameras, applyFilterByText, getCameraById] = useCameras()
+  const { selectedCard } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -86,7 +87,7 @@ const CamerasPanel: React.FC<{
             <InfiniteScroll
               next={() => {
                 getCameras(
-                  camerasData.data.length,
+                  camerasData.data.length - camerasData.selectedItems.length,
                   (data) => {
                     return data
                   },

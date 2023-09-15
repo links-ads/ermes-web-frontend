@@ -12,7 +12,8 @@ import { EntityType } from 'ermes-ts-sdk'
 export default function CommunicationPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [commsData, getCommsData, applyFilterByText] = useCommList()
+  const [commsData, getCommsData, applyFilterByText, appendSelectedItems] = useCommList()
+  const { selectedItemsList } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -70,6 +71,12 @@ export default function CommunicationPanel(props) {
     }
   }, [props.communicationCounter]) 
 
+  useEffect(() => {
+    if(selectedItemsList.length > 0){
+      appendSelectedItems(selectedItemsList)
+    }
+  }, [selectedItemsList])
+
   // Fix height of the list when the window is resized
   useEffect(() => {
     window.addEventListener('resize', resizeHeight)
@@ -94,7 +101,7 @@ export default function CommunicationPanel(props) {
             <InfiniteScroll
               next={() => {
                 getCommsData(
-                  commsData.data.length,
+                  commsData.data.length - commsData.selectedItems.length,
                   (data) => {
                     return data
                   },

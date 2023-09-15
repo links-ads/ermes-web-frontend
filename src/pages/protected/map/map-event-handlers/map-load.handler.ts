@@ -1,5 +1,5 @@
 import { InteractiveMap } from 'react-map-gl'
-import { ViewportStateUpdater, MapViewportState } from '../map.contest'
+import { ViewportStateUpdater, MapViewportState } from '../map.context'
 import { ContainerSize } from '../../../../common/size-aware-container.component'
 import { SVGPinPointStyle, getPinImages, ColorMap } from '../pin-svg-factories'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
@@ -72,6 +72,7 @@ export async function onMapLoadHandler<T extends object>(
           leavesLayerType: 'symbol',
           leavesLayerPaintOptions: unclusteredPointsPaint,
           highlightLeavesOnHover: highlightLeavesOnHoverPaint,
+          highlightLeavesOnClick: highlightLeavesOnHoverPaint,
           onLeavesLayerUpdate: setSpiderLayerNames
         })
 

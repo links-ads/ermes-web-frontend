@@ -67,7 +67,7 @@ const CameraCard: React.FC<{
   return (
     <>
       <CardWithPopup
-        keyID={'alert' + String(elem.id)}
+        keyID={EntityType.STATION + '-' + String(elem.id)}
         latitude={elem!.location!.latitude as number}
         longitude={elem!.location!.longitude as number}
         className={classes.card}
@@ -76,7 +76,7 @@ const CameraCard: React.FC<{
         spiderLayerIds={spiderLayerIds}
         id={elem.id}
         spiderifierRef={spiderifierRef}
-        type={EntityType.ALERT}
+        type={EntityType.STATION}
         selectedCard={props.selectedCard}
         setSelectedCard={props.setSelectedCard}
       >

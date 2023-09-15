@@ -46,7 +46,7 @@ const AlertCard: React.FC<{
 
   return (
     <CardWithPopup
-      keyID={'alert' + String(elem.id)}
+      keyID={EntityType.ALERT + '-' + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}
       className={classes.card}

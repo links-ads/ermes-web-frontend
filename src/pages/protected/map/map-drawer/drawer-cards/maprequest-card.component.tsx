@@ -49,7 +49,7 @@ const MapRequestCard: React.FC<{
 
   return (
     <CardWithPopup
-      keyID={'map-request' + String(mapRequestInfo.id)}
+      keyID={EntityType.MAP_REQUEST + '-' + String(mapRequestInfo.id)}
       latitude={mapRequestInfo!.centroid!.latitude as number}
       longitude={mapRequestInfo!.centroid!.longitude as number}
       className={classes.card}
