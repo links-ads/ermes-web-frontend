@@ -9,10 +9,11 @@ import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import { EntityType } from 'ermes-ts-sdk'
 
-export default function CommunicationPanel(props) {
+export default function MissionsPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
-  const [missionsData, getMissionsData, applyFilterByText] = useMissionsList()
+  const [missionsData, getMissionsData, applyFilterByText, appendSelectedItems] = useMissionsList()
+  const { selectedItemsList } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -52,6 +53,12 @@ export default function CommunicationPanel(props) {
       }
     )
   }, [])
+
+  useEffect(() => {
+    if(selectedItemsList.length > 0){
+      appendSelectedItems(selectedItemsList)
+    }
+  }, [selectedItemsList])
 
   //reload data when a new communication is created from the map
   useEffect(() => {
@@ -95,7 +102,7 @@ export default function CommunicationPanel(props) {
             <InfiniteScroll
               next={() => {
                 getMissionsData(
-                  missionsData.data.length,
+                  missionsData.data.length - missionsData.selectedItems.length,
                   (data) => {
                     return data
                   },

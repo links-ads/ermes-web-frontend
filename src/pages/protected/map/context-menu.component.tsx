@@ -11,7 +11,7 @@ import Add from '@material-ui/icons/Add' // provisional: add item-type specific 
 import Edit from '@material-ui/icons/Edit'
 import Delete from '@material-ui/icons/Delete'
 import CloseOutlined from '@material-ui/icons/CloseOutlined'
-import { ProvisionalFeatureType, ProvisionalOperationType } from './map.contest'
+import { ProvisionalFeatureType, ProvisionalOperationType } from './map.context'
 import { useTranslation } from 'react-i18next'
 import { Info } from '@material-ui/icons'
 

@@ -19,7 +19,7 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
   const upperBoundDate = FormatDate(elem.duration?.upperBound)
   return (
     <CardWithPopup
-      keyID={ENTITY_TYPE + String(elem.id)}
+      keyID={ENTITY_TYPE + '-' + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}
       className={classes.card}

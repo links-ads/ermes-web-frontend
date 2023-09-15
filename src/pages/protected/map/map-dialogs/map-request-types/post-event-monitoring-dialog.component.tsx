@@ -22,7 +22,7 @@ import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
-import { MapStateContextProvider } from '../../map.contest'
+import { MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import { Alert, Color } from '@material-ui/lab'
@@ -58,6 +58,10 @@ export function PostEventMonitoringDialog({
 
   const setMapSelectionCompleted = () => {
     dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
+  }
+
+  const unsetMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: false })
   }
 
   useEffect(() => {
@@ -217,10 +221,11 @@ export function PostEventMonitoringDialog({
           <MapRequestDrawFeature
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
             mapSelectedFeatures={
-              mapSelectionCompleted && mapArea
-                ? [{...mapArea}]
+              mapSelectionCompleted && mapArea && mapArea.geometry.type !== 'Point'
+                ? [{ ...mapArea }]
                 : []
             }
           />

@@ -2,7 +2,7 @@ import React from 'react'
 import IconButton from '@material-ui/core/IconButton'
 import TabUnselected from '@material-ui/icons/TabUnselected'
 import Tooltip from '@material-ui/core/Tooltip'
-import { useMapStateContext } from './map.contest'
+import { useMapStateContext } from './map.context'
 import { CulturalProps } from './provisional-data/cultural.component'
 import styled from 'styled-components'
 

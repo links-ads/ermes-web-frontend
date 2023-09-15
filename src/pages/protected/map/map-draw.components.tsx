@@ -10,7 +10,7 @@ import {
   DrawLineStringMode
 } from 'react-map-gl-draw'
 import { Feature } from '@nebula.gl/edit-modes'
-import { useMapStateContext, ProvisionalFeatureType } from './map.contest'
+import { useMapStateContext, ProvisionalFeatureType } from './map.context'
 import yellow from '@material-ui/core/colors/yellow'
 import { alpha } from '@material-ui/core/styles'
 import blueGrey from '@material-ui/core/colors/blueGrey'

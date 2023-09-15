@@ -21,6 +21,7 @@ import {
   clusterLayer,
   unclusteredPointPinsPaint,
   unclusteredPointLayerPins,
+  clickedPointPin,
   updateEmergencyMarkers,
   hoveredPointPin
 } from './api-data/emergency.layers'
@@ -35,7 +36,7 @@ import {
   ItemWithLatLng,
   ProvisionalFeatureType,
   ProvisionalOperationType
-} from './map.contest'
+} from './map.context'
 import {
   onMapLoadHandler,
   onMouseEnterHandler,
@@ -63,6 +64,8 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
+import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from "@terraformer/wkt"
 
 // Style for the geolocation controls
@@ -182,13 +185,12 @@ export function MapLayout(props) {
 
   // Parse props
   const {
-    goToCoord,
-    setGoToCoord,
     setMap,
     setSpiderifierRef,
-    setDblClickFeatures,
+    addLayerTimeseries,
     selectedLayer,
-    mapRequestsSettings
+    mapRequestsSettings,
+    mapDrawerDataState
   } = props
 
   // Map state
@@ -201,7 +203,9 @@ export function MapLayout(props) {
       rightClickedPoint,
       editingFeatureArea,
       editingFeatureType,
-      editingFeatureId
+      editingFeatureId,
+      goToCoord,
+      clickedCluster
     },
     {
       setMapMode,
@@ -210,11 +214,14 @@ export function MapLayout(props) {
       setHoveredPoint,
       setRightClickedPoint,
       startFeatureEdit,
-      clearFeatureEdit
+      clearFeatureEdit,
+      setGoToCoord,
+      setClickedCluster
     }
   ] = useMapStateContext<EmergencyProps>()
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
+  const { selectedFeatureId } = mapDrawerDataState
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -297,7 +304,7 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     if (!map) return
     updateMarkers(map)
-  }, [props.mapHoverState])
+  }, [props.mapHoverState, clickedCluster])
 
   /**
    * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to
@@ -516,8 +523,9 @@ export function MapLayout(props) {
         mapViewRef,
         mapMode,
         props.selectedLayer,
-        setDblClickFeatures,
+        addLayerTimeseries,
         setMapHeadDrawerCoordinates,
+        setClickedPoint,
         evt
       )
     },
@@ -611,11 +619,64 @@ export function MapLayout(props) {
             longitude: goToCoord.longitude,
             latitude: goToCoord.latitude
           }
-        )
+        )        
       }
       setGoToCoord(undefined)
     }
   }, [goToCoord, setGoToCoord])
+
+  const { zoom: viewportZoom, latitude: viewportLatitude, longitude: viewportLongitude } = viewport
+
+  const ensureSelectedCardPinHighlight = useCallback(
+    (
+      centerOnMap: boolean = false,
+      updateClickedPoint: boolean = false,
+      firstSetup: boolean = true
+    ) => {
+      const map = mapViewRef.current?.getMap()
+      if (selectedFeatureId !== '') {
+        const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
+        if (selectedFeature) {
+          const [longitude, latitude] = (selectedFeature as any).geometry.coordinates
+          if (centerOnMap) {
+            setGoToCoord({ latitude: latitude, longitude: longitude })
+          }
+          highlightClickedPoint(
+            selectedFeature,
+            mapViewRef,
+            spiderifierRef,
+            props.spiderLayerIds,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint,
+            updateClickedPoint
+          )
+          updateMarkers(map)
+        }
+      } else {
+        if (firstSetup) {
+          tonedownClickedPoint(
+            mapViewRef,
+            spiderifierRef,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint
+          )
+          updateMarkers(map)
+        }
+      }
+    },
+    [findFeatureByTypeAndId, highlightClickedPoint, tonedownClickedPoint, updateMarkers]
+  )
+
+  useEffect(() => {
+    ensureSelectedCardPinHighlight(false, false, false)
+  }, [viewportZoom, viewportLatitude, viewportLongitude])
+
+  useEffect(() => {
+    const updateClickedPoint = !areClickedPointAndSelectedCardEqual(clickedPoint, selectedFeatureId)
+    ensureSelectedCardPinHighlight(true, updateClickedPoint, true)
+  }, [selectedFeatureId])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -645,13 +706,32 @@ export function MapLayout(props) {
                 )
               )
             : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
-
-        drawPolyToMap(
-          map,
-          polyToMap?.feature.properties.centroid,
-          polyToDraw,
-          EmergencyColorMap[polyToMap?.feature.properties.type]
+        const mapIsMoving = map?.isMoving()
+        if (mapIsMoving) {
+          map?.once('moveend', function (e) {
+            removePolyToMap(map)
+            drawPolyToMap(
+              map,
+              polyToMap?.feature.properties.centroid,
+              polyToDraw,
+              EmergencyColorMap[polyToMap?.feature.properties.type]
+            )
+          })
+        } else {
+          removePolyToMap(map)
+          drawPolyToMap(
+            map,
+            polyToMap?.feature.properties.centroid,
+            polyToDraw,
+            EmergencyColorMap[polyToMap?.feature.properties.type]
+          )
+        }
+      } else if (
+        !['Communication', 'MapRequest', 'Mission', 'Alert'].includes(
+          (clickedPoint.item as EmergencyProps).type
         )
+      ) {
+        removePolyToMap(map)
       }
     } else {
       removePolyToMap(map)
@@ -788,6 +868,7 @@ export function MapLayout(props) {
           <Layer {...clusterLayer} />
           <Layer {...unclusteredPointLayerPins} />
           <Layer {...hoveredPointPin} />
+          <Layer {...clickedPointPin} />
         </Source>
         {/* Map controls */}
         <GeolocateControl
@@ -799,6 +880,12 @@ export function MapLayout(props) {
         />
         <div className="controls-contaniner" style={{ top: 0 }}>
           <NavigationControl />
+          <MapStyleToggle
+            mapViewRef={mapViewRef}
+            spiderifierRef={spiderifierRef}
+            onMapStyleChange={onMapStyleChange}
+            mapChangeSource={0}
+          ></MapStyleToggle>
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>
           <ScaleControl />
@@ -837,13 +924,7 @@ export function MapLayout(props) {
           />
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
-      )}
-      <MapStyleToggle
-        mapViewRef={mapViewRef}
-        spiderifierRef={spiderifierRef}
-        onMapStyleChange={onMapStyleChange}
-        mapChangeSource={0}
-      ></MapStyleToggle>
+      )}      
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
@@ -892,7 +973,7 @@ export function MapLayout(props) {
           <EmergencyDetailsCard
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
-            setGoToCoord={props.setGoToCoord}
+            setGoToCoord={setGoToCoord}
             setPersonTeam={setPersonTeam}
             teamName={teamName}
           />
