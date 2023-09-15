@@ -186,7 +186,7 @@ export function MapLayout(props) {
     setGoToCoord,
     setMap,
     setSpiderifierRef,
-    setDblClickFeatures,
+    addLayerTimeseries,
     selectedLayer,
     mapRequestsSettings
   } = props
@@ -516,7 +516,7 @@ export function MapLayout(props) {
         mapViewRef,
         mapMode,
         props.selectedLayer,
-        setDblClickFeatures,
+        addLayerTimeseries,
         setMapHeadDrawerCoordinates,
         evt
       )

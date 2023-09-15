@@ -20,8 +20,8 @@ export default function MapTimeSeries(props) {
     const onResize = (event, data) => {
         setDim({ height: data.size.height, width: data.size.width })
     }
-    const { dblClickFeatures, setDblClickFeatures, selectedFilters, selectedLayer } = props
-    const { showCard, coord } = dblClickFeatures
+    const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
+    const { showCard, coord, selectedLayer } = layerTimeseries
 
     const [ lineChartData, setLineChartData] = useState(new LineChartProps([]))
     const [ isLoading, setIsLoading ] = useState<boolean>(true)
@@ -163,9 +163,7 @@ export default function MapTimeSeries(props) {
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
                   <IconButton
-                    onClick={() => {
-                      setDblClickFeatures(null)
-                    }}
+                    onClick={closeLayerTimeseries}
                   >
                     <CloseIcon />
                   </IconButton>

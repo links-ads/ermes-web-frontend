@@ -114,7 +114,7 @@ export function onMapLeftClickHandler<T extends object>(
  * @param mapViewRef
  * @param mapMode
  * @param geoLayerState
- * @param setDblClickFeatures
+ * @param addLayerTimeseries
  * @param setMapHeadDrawerCoordinates
  * @param evt
  */
@@ -122,7 +122,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   mapViewRef: React.RefObject<InteractiveMap>,
   mapMode: MapMode,
   selectedLayer: LayerSettingsState,
-  setDblClickFeatures,
+  addLayerTimeseries,
   setMapHeadDrawerCoordinates: React.Dispatch<React.SetStateAction<any[]>>,
   evt: PointerEvent
 ) {
@@ -141,10 +141,7 @@ export async function onMapDoubleClickHandler<T extends object>(
   ) {
     evt.preventDefault()
     evt.stopImmediatePropagation()
-    setDblClickFeatures({
-      showCard: true,
-      coord: evt.lngLat
-    })
+    addLayerTimeseries(evt.lngLat, selectedLayer)
   }
 }
 
