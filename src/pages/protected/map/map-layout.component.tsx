@@ -432,7 +432,7 @@ export function MapLayout(props) {
       operation?: ProvisionalOperationType,
       type?: ProvisionalFeatureType,
       itemId?: string,
-      data?: string
+      data?: string | [number, number]
     ) => {
       // Open modal with creation/update/delete wizards
       if (operation && type) {
@@ -444,9 +444,22 @@ export function MapLayout(props) {
         showFeaturesDialog(operation, type, itemId)
       } else if (operation == 'copy' && data) {
         navigator.clipboard
-          .writeText(data)
+          .writeText(data as string)
           .then((a) => alert(t('common:coordinates_copied_to_clipboard')))
-      } else {
+      } else if (operation === 'get') {
+        if (type) {
+          if (type === 'Timeseries') {
+            if (selectedLayer && selectedLayer.activeLayer && selectedLayer.format === 'NetCDF' && data) {
+              addLayerTimeseries(data, selectedLayer)
+            }
+            else {
+              displayWarningSnackbar('Cannot get timeseries of invalid layer') // TODO localization
+            }
+          } else if (type === 'FeatureInfo') {
+          }
+        }
+      } 
+      else {
         if (
           type &&
           ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
@@ -461,7 +474,7 @@ export function MapLayout(props) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [addLayerTimeseries, displayWarningSnackbar, selectedLayer, setRightClickedPoint, startFeatureEdit]
   )
 
   // Used when entering on an iteractive layer with the mouse

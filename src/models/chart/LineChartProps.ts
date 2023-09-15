@@ -17,9 +17,11 @@ export class LineChartData {
 }
 
 class LineChartProps {
+  name: string
   chartData: LineChartData[]
   xValues: any[]
-  constructor(chartData: LineChartData[]) {
+  constructor(chartData: LineChartData[], name?: string) {
+    this.name = name ? name : ''
     this.chartData = chartData
     let xValues: any[] = []
     chartData.forEach((chart) => {

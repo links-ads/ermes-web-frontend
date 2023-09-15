@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { Card, AppBar, Typography, IconButton, CardContent, useTheme, Box, Toolbar, CircularProgress, Grid } from '@material-ui/core'
+import { Card, AppBar, Typography, IconButton, CardContent, useTheme, Box, Toolbar, CircularProgress, Grid, Tabs, Tab, makeStyles, Theme } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
 import { LineChartWidget } from '../dashboard/line-chart-widge.component'
@@ -9,9 +9,55 @@ import LineChartProps, { LineChartData, PointChartData } from '../../../models/c
 import { geojsonToWKT } from "@terraformer/wkt"
 import { AppConfig, AppConfigContext } from '../../../config'
 import { useTranslation } from 'react-i18next'
+import SwipeableViews from 'react-swipeable-views'
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  dir?: string;
+  index: any;
+  value: any;
+}
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`full-width-tabpanel-${index}`}
+      aria-labelledby={`full-width-tab-${index}`}
+      {...other}
+      style={{ minHeight: '600px', paddingBottom: '0px' }}
+    >
+      {value === index && (
+        <CardContent
+          style={{ overflowX: 'scroll', paddingBottom: '0px', minHeight: 600 }}
+        >
+          {children}
+        </CardContent>
+      )}
+    </div>
+  );
+}
+
+function a11yProps(index: any) {
+  return {
+    id: `full-width-tab-${index}`,
+    'aria-controls': `full-width-tabpanel-${index}`,
+  };
+}
+
+const useStyles = makeStyles((theme: Theme) => ({
+  root: {
+    backgroundColor: theme.palette.background.paper,
+    width: 500,
+  },
+}));
 
 export default function MapTimeSeries(props) {
     const theme = useTheme()
+    const classes = useStyles()
 
     const [dim, setDim] = useState({
         width: 500,
@@ -23,8 +69,10 @@ export default function MapTimeSeries(props) {
     const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
     const { showCard, coord, selectedLayer } = layerTimeseries
 
-    const [ lineChartData, setLineChartData] = useState(new LineChartProps([]))
+    const [ lineChartData, setLineChartData] = useState<LineChartProps[]>([])
     const [ isLoading, setIsLoading ] = useState<boolean>(true)
+
+    const [value, setValue] = React.useState(0)
 
     const { t } = useTranslation(['social'])
 
@@ -32,7 +80,15 @@ export default function MapTimeSeries(props) {
 
     // layer API
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+    const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])    
+
+    const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+      setValue(newValue);
+    };
+
+    const handleChangeIndex = (index: number) => {
+      setValue(index);
+    };
 
     // map to LineChartData
     const mapToLineChartData = useCallback((timeseries, layerName) => {
@@ -96,6 +152,7 @@ export default function MapTimeSeries(props) {
         }
 
         const promisesResult = await Promise.all(layerPromises)
+        let variableName = ''
 
         for (let i = 0; i < promisesResult.length; i++) {
           const result = promisesResult[i]
@@ -106,7 +163,9 @@ export default function MapTimeSeries(props) {
                 ? result.data.variables[0].values
                 : []
               : []
-
+            variableName = result.data.variables && result.data.variables.length > 0
+              ? result.data.variables[0].var_name
+              : ''
             if (timeseries && timeseries.length > 0) {
               let layerTimeseries = mapToLineChartData(timeseries, layerName)
               chartData.push(layerTimeseries)
@@ -115,7 +174,7 @@ export default function MapTimeSeries(props) {
         }
         
 
-        const lineChart = new LineChartProps(chartData)
+        const lineChart = new LineChartProps(chartData, variableName)
         setIsLoading(false)
         return lineChart
       } catch (error) {
@@ -126,7 +185,7 @@ export default function MapTimeSeries(props) {
     useEffect(() => {
       const timeRange = [selectedFilters.datestart.selected, selectedFilters.dateend.selected]
       getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1]).then((lineChart) => {
-        setLineChartData(lineChart as LineChartProps)
+        setLineChartData([lineChart as LineChartProps])
       })
     }, [coord, selectedLayer])
 
@@ -162,9 +221,7 @@ export default function MapTimeSeries(props) {
                   <Typography variant="h4">{selectedLayer.name}</Typography>
                 </Box>
                 <Box sx={{ flexGrow: 1 }}>
-                  <IconButton
-                    onClick={closeLayerTimeseries}
-                  >
+                  <IconButton onClick={closeLayerTimeseries}>
                     <CloseIcon />
                   </IconButton>
                 </Box>
@@ -172,12 +229,55 @@ export default function MapTimeSeries(props) {
             </AppBar>
             <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
               {!isLoading ? (
-                lineChartData && lineChartData.chartData && lineChartData.chartData.length > 0 ? (
-                  <LineChartWidget data={lineChartData} />
-                ) : (
-                  noData
-                )
+                <div className={classes.root}>
+                  <AppBar position="static" color="default">
+                    <Tabs
+                      value={value}
+                      onChange={handleChange}
+                      indicatorColor="primary"                      
+                      color="white"
+                      variant="fullWidth"
+                      aria-label="full width tabs example"
+                    >
+                      {lineChartData &&
+                        lineChartData.map((datum, index) => (
+                          <Tab
+                            key={'tab-timeseries-' + index}
+                            label={datum.name}
+                            {...a11yProps(index)}
+                          />
+                        ))}
+                    </Tabs>
+                  </AppBar>
+                  <SwipeableViews
+                    axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                    index={value}
+                    onChangeIndex={handleChangeIndex}
+                    component={'div'}
+                  >
+                    {lineChartData &&
+                      lineChartData.map((datum, index) => (
+                        <TabPanel
+                          key={'timeseries-tabpanel-' + index}
+                          value={value}
+                          index={index}
+                          dir={theme.direction}                          
+                        >
+                          {datum.chartData && datum.chartData.length > 0 ? (
+                              <LineChartWidget data={datum} />                           
+                          ) : (
+                            noData
+                          )}
+                        </TabPanel>
+                      ))}
+                  </SwipeableViews>
+                </div>
               ) : (
+                // lineChartData && lineChartData.chartData && lineChartData.chartData.length > 0 ? (
+                //   <LineChartWidget data={lineChartData} />
+                // ) : (
+                //   noData
+                // )
                 loader
               )}
             </CardContent>

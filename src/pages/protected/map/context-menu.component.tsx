@@ -22,7 +22,7 @@ export type ContextMenuItemClickListener = (
   operation?: ProvisionalOperationType,
   type?: ProvisionalFeatureType,
   itemId?: string,
-  data?: string
+  data?: string | [number, number]
 ) => void
 
 interface ContextMenuProps {
@@ -121,8 +121,8 @@ export const ContextMenu = memo(
                     />
                   </ListItem>,
                   <ListItem
-                    key="cmp"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                    key="gts"
+                    onClick={(evt) => onListItemClick(evt, 'get', 'Timeseries', undefined, [longitude, latitude])}
                   >
                     <ListItemIcon>
                       <Add fontSize="small" />
@@ -132,8 +132,8 @@ export const ContextMenu = memo(
                     />
                   </ListItem>,
                   <ListItem
-                    key="cmp"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                    key="gfi"
+                    onClick={(evt) => onListItemClick(evt, 'get', 'FeatureInfo')}
                   >
                     <ListItemIcon>
                       <Add fontSize="small" />
