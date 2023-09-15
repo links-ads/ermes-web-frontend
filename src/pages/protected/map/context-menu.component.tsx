@@ -87,7 +87,7 @@ export const ContextMenu = memo(
                       onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)
                     }
                   >
-                    <ListItemIcon>
+                    <ListItemIcon style={{ minWidth: 32 }}>
                       <Info fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={coordInfo} />
@@ -128,7 +128,7 @@ export const ContextMenu = memo(
                       <Add fontSize="small" />
                     </ListItemIcon>
                     <ListItemText
-                      primary={t('maps:operation_get') + ' ' + t('maps:MapRequest')}
+                      primary={t('maps:operation_get') + ' ' + t('maps:timeseries')}
                     />
                   </ListItem>,
                   <ListItem
@@ -139,7 +139,7 @@ export const ContextMenu = memo(
                       <Add fontSize="small" />
                     </ListItemIcon>
                     <ListItemText
-                      primary={t('maps:operation_get') + ' ' + t('maps:MapRequest')}
+                      primary={t('maps:operation_get') + ' ' + t('maps:featureInfo')}
                     />
                   </ListItem>,
                   <Divider key="div" />,

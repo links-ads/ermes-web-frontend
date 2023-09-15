@@ -70,7 +70,7 @@
   "MapRequest": "Richieste mappatura",
   "mapRequestLayerFilter": "Livello",
   "timeseries": "Serie temporali", 
-  "featureInfo": "",
+  "featureInfo": "Informazioni",
   "details": "Codice",
   "no_layers": "Non ci sono layers che soddisfano i criteri di ricerca",
   "category": "Categoria",
