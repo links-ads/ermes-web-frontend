@@ -47,7 +47,7 @@ export const ContextMenu = memo(
         closeOnClick={true}
       >
         <Paper>
-          <List id="map-menu-list">
+          <List id="map-menu-list" dense>
             {item
               ? [
                   <ListItem
@@ -83,10 +83,12 @@ export const ContextMenu = memo(
               : [
                   <ListItem
                     key="coords"
-                    onClick={(evt) => onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)}
+                    onClick={(evt) =>
+                      onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)
+                    }
                   >
                     <ListItemIcon>
-                      <Info />
+                      <Info fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={coordInfo} />
                   </ListItem>,
@@ -95,7 +97,7 @@ export const ContextMenu = memo(
                     onClick={(evt) => onListItemClick(evt, 'create', 'Communication')}
                   >
                     <ListItemIcon>
-                      <Add />
+                      <Add fontSize="small" />
                     </ListItemIcon>
                     <ListItemText
                       primary={t('maps:operation_create') + ' ' + t('maps:Communication')}
@@ -103,7 +105,7 @@ export const ContextMenu = memo(
                   </ListItem>,
                   <ListItem key="cm" onClick={(evt) => onListItemClick(evt, 'create', 'Mission')}>
                     <ListItemIcon>
-                      <Add />
+                      <Add fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={t('maps:operation_create') + ' ' + t('maps:Mission')} />
                   </ListItem>,
@@ -112,16 +114,38 @@ export const ContextMenu = memo(
                     onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
                   >
                     <ListItemIcon>
-                      <Add />
+                      <Add fontSize="small" />
                     </ListItemIcon>
                     <ListItemText
                       primary={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
                     />
                   </ListItem>,
+                  <ListItem
+                    key="cmp"
+                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                  >
+                    <ListItemIcon>
+                      <Add fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t('maps:operation_get') + ' ' + t('maps:MapRequest')}
+                    />
+                  </ListItem>,
+                  <ListItem
+                    key="cmp"
+                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                  >
+                    <ListItemIcon>
+                      <Add fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={t('maps:operation_get') + ' ' + t('maps:MapRequest')}
+                    />
+                  </ListItem>,
                   <Divider key="div" />,
                   <ListItem key="cls" onClick={(evt) => onListItemClick(evt)}>
                     <ListItemIcon>
-                      <CloseOutlined />
+                      <CloseOutlined fontSize="small" />
                     </ListItemIcon>
                     <ListItemText primary={t('maps:operation_close') + ' Menu'} />
                   </ListItem>
