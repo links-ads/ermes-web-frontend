@@ -71,6 +71,8 @@
   "mapRequestLayerFilter": "Livello",
   "timeseries": "Serie temporali", 
   "featureInfo": "Informazioni",
+  "timeseriesNoLayer": "Impossibile ottenere serie temporali di layer non valido",
+  "featureInfoNoLayer": "Impossibile ottenere informazioni di layer non valido", 
   "details": "Codice",
   "no_layers": "Non ci sono layers che soddisfano i criteri di ricerca",
   "category": "Categoria",

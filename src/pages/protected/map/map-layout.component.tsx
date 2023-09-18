@@ -51,7 +51,7 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
+import { drawPolyToMap, getBboxSizeFromZoom, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -188,9 +188,10 @@ export function MapLayout(props) {
     setMap,
     setSpiderifierRef,
     addLayerTimeseries,
-    selectedLayer,
+    selectedLayers,
     mapRequestsSettings,
-    mapDrawerDataState
+    mapDrawerDataState,
+    addLayerFeatureInfo
   } = props
 
   // Map state
@@ -222,6 +223,7 @@ export function MapLayout(props) {
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
   const { selectedFeatureId } = mapDrawerDataState
+  const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -432,7 +434,7 @@ export function MapLayout(props) {
       operation?: ProvisionalOperationType,
       type?: ProvisionalFeatureType,
       itemId?: string,
-      data?: string | [number, number]
+      data?: string | mapboxgl.LngLatLike
     ) => {
       // Open modal with creation/update/delete wizards
       if (operation && type) {
@@ -449,13 +451,26 @@ export function MapLayout(props) {
       } else if (operation === 'get') {
         if (type) {
           if (type === 'Timeseries') {
-            if (selectedLayer && selectedLayer.activeLayer && selectedLayer.format === 'NetCDF' && data) {
+            if (
+              selectedLayer &&
+              selectedLayer.activeLayer &&
+              selectedLayer.format === 'NetCDF' &&
+              data
+            ) {
               addLayerTimeseries(data, selectedLayer)
+            } else {
+              displayWarningSnackbar(t('maps:timeseriesNoLayer'))
             }
-            else {
-              displayWarningSnackbar('Cannot get timeseries of invalid layer') // TODO localization
+          } else if (type === 'FeatureInfo' && data) {
+            if (selectedLayers && selectedLayers.length > 0) {
+              const map = mapViewRef.current?.getMap()!
+              const bboxSize = getBboxSizeFromZoom(map.getZoom())
+              const ll = mapboxgl.LngLat.convert(data as mapboxgl.LngLatLike)
+              const bounds = ll.toBounds(bboxSize / 2)
+              addLayerFeatureInfo(geoServerConfig, 1, 1, selectedLayers, bounds, window.innerWidth)
+            } else {
+              displayWarningSnackbar(t('maps:featureInfoNoLayer'))
             }
-          } else if (type === 'FeatureInfo') {
           }
         }
       } 

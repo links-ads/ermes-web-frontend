@@ -2,8 +2,9 @@ import { useCallback, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
-import { getLegendURL } from '../utils/map.utils'
+import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
+import { LayerFeatureInfo } from '../models/layers/LayerFeatureInfo'
 
 const initialState = {
   rawLayers: {},
@@ -13,6 +14,7 @@ const initialState = {
   layersMetadata: [],
   layersLegend: [],
   layerTimeseries: null,
+  layerFeatureInfo: null,
   defaultPosition: { x: 0, y: 0 },
   defaultDimension: { h: 116, w: 1000 },
   isLoading: true,
@@ -74,6 +76,11 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         layerTimeseries: action.value
+      }
+    case 'UPDATE_LAYER_FEATURE_INFO':
+      return {
+        ...currentState,
+        layerFeatureInfo: action.value
       }
     case 'ERROR':
       return {
@@ -521,6 +528,51 @@ const useMapLayers = () => {
     })
   }, [dataState])
 
+  const addLayerFeatureInfo = useCallback(
+    (geoServerConfig, w, h, selectedLayers, mapBounds, windowInnerWidth) => {
+      const layers = selectedLayers.map((e) => e.activeLayer).join(',')
+      fetch(getFeatureInfoUrl(geoServerConfig, w, h, layers, mapBounds))
+        .then((response) => response.json())
+        .then((result) => {
+          const featInfo = new LayerFeatureInfo(
+            result.features,
+            result.totalFeatures,
+            result.numberReturned,
+            result.timestatmp,
+            result.crs
+          )
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: featInfo,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 }
+            }
+          })
+        })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoPosition = useCallback(
+    (x, y) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.position = { x: x, y: y }
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoVisibility = useCallback(
+    (visibility) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.visibility = visibility
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
   return [
     dataState,
     fetchLayers,
@@ -536,7 +588,10 @@ const useMapLayers = () => {
     updateLayerLegendVisibility,
     updateDefaultPosAndDim,
     addLayerTimeseries,
-    closeLayerTimeseries
+    closeLayerTimeseries,
+    addLayerFeatureInfo,
+    updateLayerFeatureInfoPosition,
+    updateLayerFeatureInfoVisibility
   ]
 }
 

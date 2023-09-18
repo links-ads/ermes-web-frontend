@@ -32,6 +32,21 @@ interface ContextMenuProps {
   onListItemClick: ContextMenuItemClickListener
 }
 
+const ContenxtMenuOption = (props) => {
+  const { keyName, onClickHandler, itemIcon, itemText } = props
+  return (
+    <ListItem
+      key={keyName}
+      onClick={onClickHandler}
+    >
+      <ListItemIcon style={{ minWidth: 32 }}>
+        {itemIcon}
+      </ListItemIcon>
+      <ListItemText primary={itemText} />
+    </ListItem>
+  )
+}
+
 export const ContextMenu = memo(
   function ContextMenu({ item, latitude, longitude, onListItemClick }: ContextMenuProps) {
     
@@ -81,74 +96,58 @@ export const ContextMenu = memo(
                   </ListItem>
                 ]
               : [
-                  <ListItem
-                    key="coords"
-                    onClick={(evt) =>
+                  <ContenxtMenuOption
+                    key={'coords'}
+                    onClickHandler={(evt) =>
                       onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)
                     }
-                  >
-                    <ListItemIcon style={{ minWidth: 32 }}>
-                      <Info fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={coordInfo} />
-                  </ListItem>,
-                  <ListItem
-                    key="cc"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'Communication')}
-                  >
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_create') + ' ' + t('maps:Communication')}
-                    />
-                  </ListItem>,
-                  <ListItem key="cm" onClick={(evt) => onListItemClick(evt, 'create', 'Mission')}>
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={t('maps:operation_create') + ' ' + t('maps:Mission')} />
-                  </ListItem>,
-                  <ListItem
-                    key="cmp"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
-                  >
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
-                    />
-                  </ListItem>,
-                  <ListItem
-                    key="gts"
-                    onClick={(evt) => onListItemClick(evt, 'get', 'Timeseries', undefined, [longitude, latitude])}
-                  >
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_get') + ' ' + t('maps:timeseries')}
-                    />
-                  </ListItem>,
-                  <ListItem
-                    key="gfi"
-                    onClick={(evt) => onListItemClick(evt, 'get', 'FeatureInfo')}
-                  >
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_get') + ' ' + t('maps:featureInfo')}
-                    />
-                  </ListItem>,
+                    itemIcon={<Info fontSize="small" />}
+                    itemText={coordInfo}
+                  />,
+
+                  <ContenxtMenuOption
+                    key={'cc'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Communication')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Communication')}
+                  />,
+
+                  <ContenxtMenuOption
+                    key={'cm'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Mission')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Mission')}
+                  />,
+
+                  <ContenxtMenuOption
+                    key={'cmp'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'gts'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'get', 'Timeseries', undefined, [longitude, latitude])
+                    }
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_get') + ' ' + t('maps:timeseries')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'gfi'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'get', 'FeatureInfo', undefined, [longitude, latitude])
+                    }
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_get') + ' ' + t('maps:featureInfo')}
+                  />,
                   <Divider key="div" />,
-                  <ListItem key="cls" onClick={(evt) => onListItemClick(evt)}>
-                    <ListItemIcon>
-                      <CloseOutlined fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary={t('maps:operation_close') + ' Menu'} />
-                  </ListItem>
+                  <ContenxtMenuOption
+                    key={'cls'}
+                    onClickHandler={(evt) => onListItemClick(evt)}
+                    itemIcon={<CloseOutlined fontSize="small" />}
+                    itemText={t('maps:operation_close') + ' Menu'}
+                  />
                 ]}
           </List>
         </Paper>
