@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Set european bbox for layers' loading (#139)
 
 Ver. 2.13.0 - 2023-09-08
 -----------------------
