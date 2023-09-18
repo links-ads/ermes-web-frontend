@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Access allow also to first responders (#138)
 
 Ver. 2.13.0 - 2023-09-08
 -----------------------
