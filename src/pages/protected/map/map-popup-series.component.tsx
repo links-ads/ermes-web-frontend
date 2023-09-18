@@ -19,7 +19,7 @@ interface TabPanelProps {
 }
 
 function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
+  const { children, value, index, ...other } = props
 
   return (
     <div
@@ -28,17 +28,15 @@ function TabPanel(props: TabPanelProps) {
       id={`full-width-tabpanel-${index}`}
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
-      style={{ minHeight: '600px', paddingBottom: '0px' }}
+      style={{ height: 605 }}
     >
-      {value === index && (
-        <CardContent
-          style={{ overflowX: 'scroll', paddingBottom: '0px', minHeight: 600 }}
-        >
+      {(
+        <div style={{ padding: 0, minHeight: 600 }}>
           {children}
-        </CardContent>
+        </div>
       )}
     </div>
-  );
+  )
 }
 
 function a11yProps(index: any) {
@@ -51,7 +49,7 @@ function a11yProps(index: any) {
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     backgroundColor: theme.palette.background.paper,
-    width: 500,
+    flexGrow: 1,
   },
 }));
 
@@ -61,7 +59,7 @@ export default function MapTimeSeries(props) {
 
     const [dim, setDim] = useState({
         width: 500,
-        height: 620
+        height: 736
     })
     const onResize = (event, data) => {
         setDim({ height: data.size.height, width: data.size.width })
@@ -190,7 +188,7 @@ export default function MapTimeSeries(props) {
     }, [coord, selectedLayer])
 
     const loader = <Grid container justifyContent="center"><CircularProgress color="secondary" disableShrink /></Grid>
-    const noData = <Grid container justifyContent="center"><Typography style={{ margin: 4 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid>
+    const noData = <Grid container justifyContent="center"><Typography style={{ margin: 15 }} align="center" variant="caption">{t("social:no_results")}</Typography></Grid>
 
     return (
       <>
@@ -203,7 +201,7 @@ export default function MapTimeSeries(props) {
           dim={dim}
           onResize={onResize}
           resizable={true}
-          style={{ minHeight: '600px', paddingBottom: '0px' }}
+          style={{ minHeight: '736px', paddingBottom: '0px' }}
         >
           <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: '0px' }}>
             <AppBar
@@ -227,57 +225,58 @@ export default function MapTimeSeries(props) {
                 </Box>
               </Toolbar>
             </AppBar>
-            <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
+            <CardContent style={{ height: '100%', overflowX: 'scroll', padding: '0px' }}>
               {!isLoading ? (
-                <div className={classes.root}>
-                  <AppBar position="static" color="default">
-                    <Tabs
-                      value={value}
-                      onChange={handleChange}
-                      indicatorColor="primary"                      
-                      color="white"
-                      variant="fullWidth"
-                      aria-label="full width tabs example"
+                lineChartData && lineChartData.length > 0 && lineChartData.filter(e => e.chartData.length > 0).length > 0 ? (
+                  <div className={classes.root}>
+                    <AppBar position="static" color="default">
+                      <Tabs
+                        value={value}
+                        onChange={handleChange}
+                        indicatorColor="primary"
+                        color="white"
+                        variant="fullWidth"
+                        aria-label="full width tabs example"
+                      >
+                        {lineChartData &&
+                          lineChartData.length > 0 &&
+                          lineChartData.map((datum, index) => (
+                            <Tab
+                              key={'tab-timeseries-' + index}
+                              label={datum.name}
+                              {...a11yProps(index)}
+                            />
+                          ))}
+                      </Tabs>
+                    </AppBar>
+                    <SwipeableViews
+                      axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+                      index={value}
+                      onChangeIndex={handleChangeIndex}
+                      component={'div'}
                     >
                       {lineChartData &&
+                        lineChartData.length > 0 &&
                         lineChartData.map((datum, index) => (
-                          <Tab
-                            key={'tab-timeseries-' + index}
-                            label={datum.name}
-                            {...a11yProps(index)}
-                          />
+                          <TabPanel
+                            key={'timeseries-tabpanel-' + index}
+                            value={value}
+                            index={index}
+                            dir={theme.direction}
+                          >
+                            {datum.chartData && datum.chartData.length > 0 ? (
+                              <LineChartWidget data={datum} />
+                            ) : (
+                              noData
+                            )}
+                          </TabPanel>
                         ))}
-                    </Tabs>
-                  </AppBar>
-                  <SwipeableViews
-                    axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
-                    index={value}
-                    onChangeIndex={handleChangeIndex}
-                    component={'div'}
-                  >
-                    {lineChartData &&
-                      lineChartData.map((datum, index) => (
-                        <TabPanel
-                          key={'timeseries-tabpanel-' + index}
-                          value={value}
-                          index={index}
-                          dir={theme.direction}                          
-                        >
-                          {datum.chartData && datum.chartData.length > 0 ? (
-                              <LineChartWidget data={datum} />                           
-                          ) : (
-                            noData
-                          )}
-                        </TabPanel>
-                      ))}
-                  </SwipeableViews>
-                </div>
+                    </SwipeableViews>
+                  </div>
+                ) : (
+                  noData
+                )
               ) : (
-                // lineChartData && lineChartData.chartData && lineChartData.chartData.length > 0 ? (
-                //   <LineChartWidget data={lineChartData} />
-                // ) : (
-                //   noData
-                // )
                 loader
               )}
             </CardContent>
