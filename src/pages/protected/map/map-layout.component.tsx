@@ -225,6 +225,15 @@ export function MapLayout(props) {
   const { selectedFeatureId } = mapDrawerDataState
   const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
 
+  useEffect(() => {
+    if(selectedLayers && selectedLayers.length > 0) {
+      setSelectedLayer(selectedLayers[selectedLayers.length - 1])
+    }
+    else {
+      setSelectedLayer(null)
+    }
+  }, [selectedLayers])
+
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
     (status: DialogResponseType, entityType: EntityType = EntityType.OTHER) => {
@@ -550,7 +559,7 @@ export function MapLayout(props) {
       onMapDoubleClickHandler(
         mapViewRef,
         mapMode,
-        props.selectedLayer,
+        selectedLayer,
         addLayerTimeseries,
         setMapHeadDrawerCoordinates,
         setClickedPoint,
@@ -558,7 +567,7 @@ export function MapLayout(props) {
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapMode, props.selectedLayer] // TODO check if needed
+    [mapMode, selectedLayer] // TODO check if needed
   )
 
   // Called on right click
@@ -929,6 +938,7 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
+            selectedLayer={selectedLayer}
           ></ContextMenu>
         )}
       </InteractiveMap>

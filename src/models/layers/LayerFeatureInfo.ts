@@ -19,3 +19,21 @@ export class LayerFeatureInfo implements GeoJSON.FeatureCollection {
     this.crs = crs
   }
 }
+
+export class FeatureInfo {
+  name: string
+  value: number | string 
+  constructor(name, value) {
+    this.name = name
+    this.value = value
+  }
+}
+
+export class LayerFeatureInfoState {
+  layerName: string
+  featuresInfo: FeatureInfo[]
+  constructor(layerName, featuresInfo){
+    this.layerName = layerName
+    this.featuresInfo = featuresInfo
+  }
+}

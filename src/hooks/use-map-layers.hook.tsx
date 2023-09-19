@@ -4,7 +4,7 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
 import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
-import { LayerFeatureInfo } from '../models/layers/LayerFeatureInfo'
+import { FeatureInfo, LayerFeatureInfo, LayerFeatureInfoState } from '../models/layers/LayerFeatureInfo'
 
 const initialState = {
   rawLayers: {},
@@ -541,10 +541,40 @@ const useMapLayers = () => {
             result.timestatmp,
             result.crs
           )
+          const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
+          const mappedFeatureInfo: LayerFeatureInfoState[] = []
+          let i = 0,
+            j = 0
+          while (j < featInfo.features.length) {
+            const feature = featInfo.features[j]
+            if ((feature.id as string).length === 0) {
+              if (j !== 0){
+                i++
+              }
+            }
+            const layerName = layerNames[i]
+            const property = feature.properties
+            const featureInfo = Object.keys(property!!).map(
+              (e) => new FeatureInfo(e, property!![e])
+            )
+
+            const prevIdx = mappedFeatureInfo.findIndex(e => e.layerName === layerName)
+            if (prevIdx > -1) {
+              const prevFeat = mappedFeatureInfo[prevIdx].featuresInfo
+              const allFeat = prevFeat.concat(featureInfo)
+              const updatedFeatureInfo = new LayerFeatureInfoState(layerName, allFeat)
+              mappedFeatureInfo[prevIdx] = updatedFeatureInfo
+            }
+            else {
+              const layerFeatureInfo = new LayerFeatureInfoState(layerName, featureInfo)
+              mappedFeatureInfo.push(layerFeatureInfo)
+            }           
+            j++
+          }
           dispatch({
             type: 'UPDATE_LAYER_FEATURE_INFO',
             value: {
-              featureInfo: featInfo,
+              featureInfo: mappedFeatureInfo,
               layers: selectedLayers,
               visibility: true,
               position: { x: windowInnerWidth - 109 - 741, y: 60 }

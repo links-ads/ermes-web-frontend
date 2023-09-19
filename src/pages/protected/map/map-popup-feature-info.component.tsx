@@ -18,7 +18,7 @@ export const MapFeatureInfo = (props) => {
   const theme = useTheme()
 
   const [dim, setDim] = useState({
-    width: 203,
+    width: 420,
     height: 300
   })
   const onResize = (event, data) => {
@@ -82,24 +82,41 @@ export const MapFeatureInfo = (props) => {
           height: 'calc(100% - 30px)'
         }}
       >
-        <Table style={{ width: 'fit-content', height: 'fit-content' }} padding="none" size="small">
-          <TableBody>
-            {featureInfo.features.map(
-              (feature, i) =>
-                feature.properties &&
-                Object.keys(feature.properties).map((e, idx) => (
-                  <TableRow key={'feature-info-' + i}>
-                    <TableCell key={'feature-property-' + idx} component="th" scope="row">
-                      {e as string}
+        {featureInfo.map((feature, i) => (
+          <div key={'feat-info-div-' + i}>
+            <Typography key={'feat-info-title-' + i} component={'h5'}>
+              {feature.layerName}
+            </Typography>
+            <Table
+              key={'feat-info-table-' + i}
+              style={{ width: 'fit-content', height: 'fit-content' }}
+              padding="none"
+              size="medium"
+            >
+              <TableBody key={'feat-info-table-body-' + i}>
+                {feature.featuresInfo.map((feature, j) => (
+                  <TableRow key={'feature-info-' + i + '-' + j}>
+                    <TableCell
+                      key={'feature-property-' + i + '-' + j}
+                      component="th"
+                      scope="row"
+                      style={{ minWidth: 100 }}
+                    >
+                      {feature.name}
                     </TableCell>
-                    <TableCell key={'feature-value-' + idx} align="right">
-                      {feature.properties[e] as string}
+                    <TableCell
+                      key={'feature-value-' + i + '-' + j}
+                      align="right"
+                      style={{ minWidth: 100 }}
+                    >
+                      {feature.value}
                     </TableCell>
                   </TableRow>
-                ))
-            )}
-          </TableBody>
-        </Table>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        ))}
       </CardContent>
     </FloatingCardContainer>
   )

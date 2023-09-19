@@ -1,5 +1,6 @@
 Ver.
 -----------------------
+- Feature - Get feature info (#135)
 - Bugfix - Bugs after dashboard tutorial fixed (#137)
 - Feature - Sync map drawer behaviour (#129)
 
