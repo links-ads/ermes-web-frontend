@@ -16,7 +16,9 @@ import {
   Switch,
   FormGroup,
   FormControlLabel,
-  IconButton
+  IconButton,
+  MenuItem,
+  Menu
 } from '@material-ui/core'
 import { KeyboardArrowLeft, KeyboardArrowRight, ArrowLeft, ArrowRight } from '@material-ui/icons'
 import { MeasureDto, SensorDto, StationDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
@@ -129,6 +131,20 @@ export function CameraDetails({}: CameraDetailsProps) {
         setLoading(false)
       })
   }, [elem, selectedSensorId])
+
+  const selectedSensorMeasurement = useMemo(() => {
+    return sensorData?.find((s) => s.id === selectedSensorMeasurementId)
+  }, [selectedSensorMeasurementId])
+
+  const [anchorEl, setAnchorEl] = React.useState(null)
+
+  const handleOpenValidationMenu = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleCloseValidationMenu = () => {
+    setAnchorEl(null)
+  }
 
   return (
     <Dialog open={!!elem} onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth="lg">
@@ -244,17 +260,55 @@ export function CameraDetails({}: CameraDetailsProps) {
         )}
 
         {selectedSensorMeasurementId && (
-          <img
-            style={{
-              width: '100%',
-              height: 500,
-              objectFit: 'contain',
-              marginTop: 16,
-              marginBottom: 16
-            }}
-            src={sensorData?.find((s) => s.id === selectedSensorMeasurementId)?.measure}
-            alt={sensorData?.find((s) => s.id === selectedSensorMeasurementId)?.measure}
-          />
+          <div className={classes.cameraModalImageContainer}>
+            <div className={classes.actionButtonContainer}>
+              <Button
+                aria-controls="validation-menu"
+                aria-haspopup={true}
+                onClick={handleOpenValidationMenu}
+              >
+                {t('maps:validate')}
+              </Button>
+              <Menu
+                id="validation-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleCloseValidationMenu}
+              >
+                {!selectedSensorMeasurement?.metadata?.detection?.fire && (
+                  <MenuItem onClick={handleClose}>Add fire</MenuItem>
+                )}
+                {selectedSensorMeasurement?.metadata?.detection?.fire && (
+                  <MenuItem onClick={handleClose}>Validate fire</MenuItem>
+                )}
+                {selectedSensorMeasurement?.metadata?.detection?.fire && (
+                  <MenuItem onClick={handleClose}>Discard fire</MenuItem>
+                )}
+                <MenuItem divider disabled />
+                {!selectedSensorMeasurement?.metadata?.detection?.smoke && (
+                  <MenuItem onClick={handleClose}>Add smoke</MenuItem>
+                )}
+                {selectedSensorMeasurement?.metadata?.detection?.smoke && (
+                  <MenuItem onClick={handleClose}>Validate smoke</MenuItem>
+                )}
+                {selectedSensorMeasurement?.metadata?.detection?.smoke && (
+                  <MenuItem onClick={handleClose}>Discard smoke</MenuItem>
+                )}
+              </Menu>
+            </div>
+            <img
+              style={{
+                width: '100%',
+                height: 500,
+                objectFit: 'contain',
+                marginTop: 16,
+                marginBottom: 16
+              }}
+              src={selectedSensorMeasurement?.measure}
+              alt={selectedSensorMeasurement?.measure}
+            />
+          </div>
         )}
         {sensorData && filteredMeasurements?.length > 0 && (
           <div style={localStyles.thumbnailContainer}>
