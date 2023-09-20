@@ -156,6 +156,11 @@ export function CameraDetails({}: CameraDetailsProps) {
         </div>
       </DialogTitle>
       <DialogTitle>
+        {hasMeasurements && !sensorData && !loading && (
+          <Typography variant="body2" component="h2" gutterBottom>
+            {t('maps:pleaseSelectSensor')}
+          </Typography>
+        )}
         {hasMeasurements && (
           <Tabs
             variant="scrollable"
@@ -237,11 +242,7 @@ export function CameraDetails({}: CameraDetailsProps) {
             {t('maps:noMeasurements')}
           </Typography>
         )}
-        {hasMeasurements && !sensorData && !loading && (
-          <Typography variant="body2" component="h2" gutterBottom>
-            {t('maps:pleaseSelectSensor')}
-          </Typography>
-        )}
+
         {selectedSensorMeasurementId && (
           <img
             style={{

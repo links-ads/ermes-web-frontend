@@ -6,6 +6,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Grid,
   IconButton,
   makeStyles,
   Typography,
@@ -80,7 +81,40 @@ const CameraCard: React.FC<{
         selectedCard={props.selectedCard}
         setSelectedCard={props.setSelectedCard}
       >
-        <CardActions>
+        <CardContent>
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              <Typography variant="body2" component="h2" gutterBottom>
+                {elem.name}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body2" component="h2" gutterBottom>
+                {elem.sensors?.length ?? 0} {t('maps:orientations')}
+              </Typography>
+            </Grid>
+          </Grid>
+        </CardContent>
+        <CardActions className={classes.cardAction}>
+          <Typography color="textSecondary">
+            {(elem!.location!.latitude as number).toFixed(4) +
+              ' , ' +
+              (elem!.location!.longitude as number).toFixed(4)}
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={() =>
+              props.flyToCoords(
+                elem?.location?.latitude as number,
+                elem?.location?.longitude as number
+              )
+            }
+            className={classes.viewInMap}
+          >
+            <LocationOnIcon htmlColor={EmergencyColorMap.Station} />
+          </IconButton>
+        </CardActions>
+        <CardActions className={classes.cardAction}>
           <div className={classes.chipContainer}>
             {hasFire && (
               <Chip
@@ -112,35 +146,6 @@ const CameraCard: React.FC<{
               <Chip className={classes.chipStyle} label={t('maps:not_available')} />
             )}
           </div>
-        </CardActions>
-        <CardContent>
-          <Typography variant="body2" component="h2" gutterBottom>
-            {elem.name}
-          </Typography>
-          <Typography variant="body2" component="h2" gutterBottom>
-            {elem.sensors?.length ?? 0} {t('maps:orientations')}
-          </Typography>
-        </CardContent>
-        <CardActions className={classes.cardAction}>
-          <Typography color="textSecondary">
-            {(elem!.location!.latitude as number).toFixed(4) +
-              ' , ' +
-              (elem!.location!.longitude as number).toFixed(4)}
-          </Typography>
-          <IconButton
-            size="small"
-            onClick={() =>
-              props.flyToCoords(
-                elem?.location?.latitude as number,
-                elem?.location?.longitude as number
-              )
-            }
-            className={classes.viewInMap}
-          >
-            <LocationOnIcon htmlColor={EmergencyColorMap.Station} />
-          </IconButton>
-        </CardActions>
-        <CardActions className={classes.cardAction}>
           <Button
             variant="contained"
             color="primary"
