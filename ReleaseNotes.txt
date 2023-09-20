@@ -1,6 +1,9 @@
 Ver.
 -----------------------
 - Feature - Get feature info (#135)
+
+Ver. 2.13.0 - 2023-09-08
+-----------------------
 - Bugfix - Bugs after dashboard tutorial fixed (#137)
 - Feature - Sync map drawer behaviour (#129)
 
