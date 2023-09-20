@@ -4,11 +4,11 @@
 .chipContainer {
 }
 .cardAction {
-  justify-content: space-around;
+  justify-content: space-between;
   padding-left: 16px;
   padding-top: 4px;
   padding-bottom: 8px;
-  padding-right: 0px;
+  padding-right: 16px;
 }
 .cardList {
   overflow-y: scroll;

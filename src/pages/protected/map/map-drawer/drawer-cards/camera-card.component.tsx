@@ -21,7 +21,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from '../../../../../utils/date.utils'
 import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
-import { StationDto } from 'ermes-backoffice-ts-sdk'
+import { SensorDto, StationDto } from 'ermes-backoffice-ts-sdk'
 import { CameraDetails } from '../camera-details.component'
 import { useDispatch } from 'react-redux'
 import { setSelectedCamera } from '../../../../../state/selected-camera.state'
@@ -37,6 +37,22 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText
   }
 }))
+
+function getLastUpdate(sensors: SensorDto[]) {
+  let lastUpdate = 0
+
+  sensors.forEach((sensor) => {
+    sensor.measurements?.forEach((measurement) => {
+      const currentTimestamp = new Date(measurement.timestamp!).getTime()
+
+      if (!isNaN(currentTimestamp) && currentTimestamp > lastUpdate) {
+        lastUpdate = currentTimestamp
+      }
+    })
+  })
+
+  return lastUpdate
+}
 
 const CameraCard: React.FC<{
   key: number
@@ -55,6 +71,8 @@ const CameraCard: React.FC<{
 
   const theme = useTheme()
 
+  const lastUpdate = getLastUpdate(elem?.sensors ?? [])
+
   const hasFire = elem?.sensors?.some((sensor) =>
     sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
   )
@@ -64,6 +82,12 @@ const CameraCard: React.FC<{
   const hasNotAvailable = elem?.sensors?.some((sensor) =>
     sensor.measurements?.some((measurement) => measurement.metadata?.detection?.not_available)
   )
+
+  function handleShowDetails(event, elem) {
+    event.stopPropagation()
+
+    dispatch(setSelectedCamera(elem))
+  }
 
   return (
     <>
@@ -84,8 +108,15 @@ const CameraCard: React.FC<{
         <CardContent>
           <Grid container justifyContent="space-between">
             <Grid item>
-              <Typography variant="body2" component="h2" gutterBottom>
+              <Typography variant="body2" component="span" gutterBottom style={{ marginRight: 5 }}>
                 {elem.name}
+              </Typography>
+              <Typography variant="caption" component="span" gutterBottom>
+                (
+                {(elem!.location!.latitude as number).toFixed(4) +
+                  ' , ' +
+                  (elem!.location!.longitude as number).toFixed(4)}
+                )
               </Typography>
             </Grid>
             <Grid item>
@@ -96,19 +127,19 @@ const CameraCard: React.FC<{
           </Grid>
         </CardContent>
         <CardActions className={classes.cardAction}>
-          <Typography color="textSecondary">
-            {(elem!.location!.latitude as number).toFixed(4) +
-              ' , ' +
-              (elem!.location!.longitude as number).toFixed(4)}
+          <Typography color="textSecondary" variant="caption">
+            Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
           </Typography>
           <IconButton
             size="small"
-            onClick={() =>
+            onClick={(e) => {
+              e.stopPropagation()
+
               props.flyToCoords(
                 elem?.location?.latitude as number,
                 elem?.location?.longitude as number
               )
-            }
+            }}
             className={classes.viewInMap}
           >
             <LocationOnIcon htmlColor={EmergencyColorMap.Station} />
@@ -150,7 +181,7 @@ const CameraCard: React.FC<{
             variant="contained"
             color="primary"
             size="small"
-            onClick={() => dispatch(setSelectedCamera(elem))}
+            onClick={(e) => handleShowDetails(e, elem)}
           >
             {t('common:details')}
           </Button>
