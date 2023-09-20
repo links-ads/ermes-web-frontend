@@ -13,10 +13,11 @@ import {
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
+import { useTranslation } from 'react-i18next'
 
 export const MapFeatureInfo = (props) => {
   const theme = useTheme()
-
+  const { t } = useTranslation(['maps', 'labels'])
   const [dim, setDim] = useState({
     width: 420,
     height: 300
@@ -66,7 +67,7 @@ export const MapFeatureInfo = (props) => {
             variant="h4"
             style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
           >
-            Feature Info
+            {t('maps:featureInfo')}
           </Typography>
           <IconButton onClick={closeModal} size="small">
             <CloseIcon />
@@ -77,7 +78,7 @@ export const MapFeatureInfo = (props) => {
         style={{
           backgroundColor: theme.palette.primary.dark,
           paddingTop: '0px',
-          overflow: 'auto',
+          overflow: 'scroll',
           width: '100%',
           height: 'calc(100% - 30px)'
         }}
@@ -100,14 +101,14 @@ export const MapFeatureInfo = (props) => {
                       key={'feature-property-' + i + '-' + j}
                       component="th"
                       scope="row"
-                      style={{ minWidth: 100 }}
+                      style={{ minWidth: 120 }}
                     >
                       {feature.name}
                     </TableCell>
                     <TableCell
                       key={'feature-value-' + i + '-' + j}
                       align="right"
-                      style={{ minWidth: 100 }}
+                      style={{ minWidth: 120 }}
                     >
                       {feature.value}
                     </TableCell>
