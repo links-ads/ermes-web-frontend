@@ -175,6 +175,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                 <Tab
                   key={sensor.id as any}
                   value={sensor.id}
+                  className={classes.cameraDetailsTab}
                   label={
                     <div>
                       <div style={localStyles.badgeContainer}>
@@ -206,7 +207,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                         )}
                       </div>
                       <img
-                        style={{ width: 300, height: 150, objectFit: 'cover' }}
+                        style={{ width: 200, height: 100, objectFit: 'cover' }}
                         src={thumbnail!}
                         alt={firstMeasurement.measure!}
                       />
