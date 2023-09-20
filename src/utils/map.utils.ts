@@ -43,6 +43,29 @@ export function getLegendURL(geoServerConfig, w, h, layerName) {
   return `${baseUrl}/${suffix}?${composeParams(params)}`
 }
 
+export const getFeatureInfoUrl = (geoServerConfig, w, h, layerNames, mapBounds) => {
+  const baseUrl = geoServerConfig?.baseUrl
+  const suffix = geoServerConfig?.suffix
+  const params = {
+    service: 'WMS',
+    request: 'GetFeatureInfo',
+    version: '1.1.0',
+    srs: 'EPSG:4326',
+    format: 'application/json',
+    info_format: 'application/json',
+    width: w,
+    height: h,
+    layers: layerNames,
+    query_layers: layerNames,
+    x: 1,
+    y: 1,
+    bbox: toBBoxString(mapBounds),
+    feature_count: 50
+  }
+  const url = `${baseUrl}/${suffix}?${composeParams(params)}`
+  return url
+}
+
 function composeParams(params) {
   return Object.keys(params)
     .reduce<string[]>((par: string[], key: string) => {

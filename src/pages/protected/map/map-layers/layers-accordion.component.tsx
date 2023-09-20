@@ -1,8 +1,8 @@
-import React from "react"
-import { LayerSettingsState, SubGroupLayerState } from "../../../../models/layers/LayerState"
-import { Accordion, AccordionSummary, Typography, makeStyles, useTheme } from "@material-ui/core"
+import React from 'react'
+import { LayerSettingsState, SubGroupLayerState } from '../../../../models/layers/LayerState'
+import { Accordion, AccordionSummary, Typography, makeStyles, useTheme } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import LayersSubgroupAccordion from "./layers-subgroup-accordion.component"
+import LayersSubgroupAccordion from './layers-subgroup-accordion.component'
 
 const useStyles = makeStyles((theme) => ({
   heading: {
@@ -17,14 +17,20 @@ const LayersAccordion: React.FC<{
   updateLayerSelection: any
   map: any
   selectedLayers: LayerSettingsState[] | undefined
+  checkboxDisabled: boolean
   toBeRemovedLayers: string[]
 }> = (props) => {
   const theme = useTheme()
   const classes = useStyles()
-  const { groupName, updateLayerSelection, layerSubGroups, map, selectedLayers, toBeRemovedLayers } =
-    props
-  const checkboxDisabled = Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length > 3;
-  // console.log('Layers checked: ' + Object.values(layerSubGroups).map(e => Object.values(e).map(d => d.isChecked)).flat().filter((v) => v).length)
+  const {
+    groupName,
+    updateLayerSelection,
+    layerSubGroups,
+    map,
+    selectedLayers,
+    checkboxDisabled,
+    toBeRemovedLayers
+  } = props
   return (
     <Accordion
       key={props.groupName}

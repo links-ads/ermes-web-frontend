@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { GroupLayerState, LayerSettingsState } from "../../../../models/layers/LayerState";
+import React, { useEffect, useMemo, useState } from 'react'
+import { GroupLayerState, LayerSettingsState } from '../../../../models/layers/LayerState'
 import {
   Card,
   Typography,
@@ -12,11 +12,11 @@ import {
   useTheme,
   makeStyles
 } from '@material-ui/core'
-import FloatingCardContainer from "../../../../common/floating-filters-tab/floating-card-container.component";
+import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
-import { useTranslation } from "react-i18next";
-import LayersAccordion from "./layers-accordion.component";
-import { PixelPostion } from "../../../../models/common/PixelPosition";
+import { useTranslation } from 'react-i18next'
+import LayersAccordion from './layers-accordion.component'
+import { PixelPostion } from '../../../../models/common/PixelPosition'
 
 const useStyles = makeStyles((theme) => ({
   titleContainer: {
@@ -47,11 +47,13 @@ const LayersFloatingPanel: React.FC<{
   const defaultPosition = useMemo<PixelPostion>(() => {
     return { x: 60, y: 60 }
   }, [])
-  
+
   const [dim, setDim] = useState({
     width: 500,
     height: 400
   })
+
+  const [checkboxDisabled, setCheckboxDisabled] = useState<boolean>(false)
   const onResize = (event, data) => {
     setDim({ height: data.size.height, width: data.size.width })
   }
@@ -59,6 +61,20 @@ const LayersFloatingPanel: React.FC<{
   const onPositionChangeHandler = (event) => {
     props.setPosition(new PixelPostion(event.x, event.y))
   }
+
+  useEffect(() => {
+    if (props.layerGroups && Object.values(props.layerGroups).length > 0) {
+      const toDisable =
+        Object.values(props.layerGroups)
+          .map((e) => Object.values(e))
+          .flat()
+          .map((e) => Object.values(e))
+          .flat()
+          .map((e) => e.isChecked)
+          .filter((v) => v).length > 3
+      setCheckboxDisabled(toDisable)
+    }
+  }, [props.layerGroups])
 
   return (
     <FloatingCardContainer
@@ -128,6 +144,7 @@ const LayersFloatingPanel: React.FC<{
                   updateLayerSelection={props.updateLayerSelection}
                   map={props.map}
                   selectedLayers={props.selectedLayers}
+                  checkboxDisabled={checkboxDisabled}
                   toBeRemovedLayers={props.toBeRemovedLayers}
                 />
               ))}
