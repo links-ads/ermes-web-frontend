@@ -22,7 +22,7 @@ export const LineChartWidget: React.FC<{data: LineChartProps}> = (
 
     return (
         <div
-            style={{ height: '95%', marginBottom:'0', width:"1200px" }}
+            style={{ height: 600, marginBottom:'0', width:"1200px" }}
         >
             <ResponsiveLine
                 data={chartData}
