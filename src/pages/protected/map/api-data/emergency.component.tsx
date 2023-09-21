@@ -1041,8 +1041,8 @@ export const EmergencyColorMap: ColorMapType = {
   Mission: '#ff8e1f', //green[400],
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
-  Alert: green[800],
-  Station: '#f9aaf9',
+  Alert: '#4072f1', //'green[800]',
+  Station: '#f56c5c',
   SelectedPosition: yellow[800]
 }
 
