@@ -23,7 +23,12 @@ import GetAppIcon from '@material-ui/icons/GetApp'
 import { tileJSONIfy } from '../../../../utils/map.utils'
 import { LayerSettingsState } from '../../../../models/layers/LayerState'
 import { PixelPostion } from '../../../../models/common/PixelPosition'
-import { PauseCircleFilled, PlayCircleFilled, SkipNextOutlined } from '@material-ui/icons'
+import {
+  PauseCircleFilled,
+  PlayCircleFilled,
+  SkipNextOutlined,
+  SkipPreviousOutlined
+} from '@material-ui/icons'
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 
 const useStyles = makeStyles((theme) => ({
@@ -50,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
     '& .MuiSlider-mark': {
       color: '#fff',
       height: 8,
-      width: 1,
+      width: 1
     }
   },
   oneDatapoint: {
@@ -80,7 +85,16 @@ const LayersPlayer: React.FC<{
   } as Intl.DateTimeFormatOptions
   const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-  const { selectedLayer, updateLayerSelection, changeLayerOpacity, updateLayerTimestamp, map, toBeRemovedLayers, getMeta, getLegend } = props
+  const {
+    selectedLayer,
+    updateLayerSelection,
+    changeLayerOpacity,
+    updateLayerTimestamp,
+    map,
+    toBeRemovedLayers,
+    getMeta,
+    getLegend
+  } = props
   const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -99,9 +113,15 @@ const LayersPlayer: React.FC<{
   const handleOpacityChange = (event: ChangeEvent<{}>, newValue: number | number[]) => {
     event.stopPropagation()
     const opacity: number = newValue as number
-    const updatedLayer = selectedLayer ? { ...selectedLayer } : { opacity: 0, activeLayer: '', dateIndex: 0 }
+    const updatedLayer = selectedLayer
+      ? { ...selectedLayer }
+      : { opacity: 0, activeLayer: '', dateIndex: 0 }
     updatedLayer.opacity = opacity
-    props.map.setPaintProperty(updatedLayer.activeLayer + '-' + updatedLayer.dateIndex, 'raster-opacity', opacity / 100)
+    props.map.setPaintProperty(
+      updatedLayer.activeLayer + '-' + updatedLayer.dateIndex,
+      'raster-opacity',
+      opacity / 100
+    )
     changeLayerOpacity(
       selectedLayer?.group,
       selectedLayer?.subGroup,
@@ -127,20 +147,20 @@ const LayersPlayer: React.FC<{
   }
 
   const removeLayerFromMap = (toRemoveLayer) => {
-    const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+    const removeLayerName = toRemoveLayer.layerName + '-' + toRemoveLayer.layerDateIndex
     if (map.getLayer(removeLayerName)) {
       map.removeLayer(removeLayerName)
       map.removeSource(removeLayerName)
-    }    
+    }
   }
 
   useEffect(() => {
     if (!selectedLayer) return
 
     if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
-      for(let i = 0; i < toBeRemovedLayers.length; i++) {
+      for (let i = 0; i < toBeRemovedLayers.length; i++) {
         removeLayerFromMap(toBeRemovedLayers[i])
-      }      
+      }
     }
 
     const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
@@ -196,14 +216,21 @@ const LayersPlayer: React.FC<{
       const formatComp = formattedDate.split(',')
       const onlyHour = formatComp[1].trim()
       return onlyHour
-    }
-    else return ''
+    } else return ''
   }
 
-  const onClickDateHandler = (event) => {
+  const onClickNextDateHandler = (event) => {
     event.stopPropagation()
     skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
   }
+
+  const onClickPrevDateHandler = (event) => {
+    event.stopPropagation()
+    const dateIndex = selectedLayer ? selectedLayer.dateIndex : 0
+    const previousStep = dateIndex - 1
+    skipNext(previousStep > -1 ? previousStep : 0)
+  }
+
   const changeDateHandler = (event, value) => {
     event.stopPropagation()
     skipNext(value)
@@ -226,11 +253,23 @@ const LayersPlayer: React.FC<{
   }
 
   const getMetadata = () => {
-    getMeta(selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]], selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId, selectedLayer.name)
+    getMeta(
+      selectedLayer.metadataIds[selectedLayer.availableTimestamps[selectedLayer.dateIndex]],
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId,
+      selectedLayer.name
+    )
   }
 
   const getLayerLegend = () => {
-    getLegend(selectedLayer.activeLayer, selectedLayer.group, selectedLayer.subGroup, selectedLayer.dataTypeId, selectedLayer.name)
+    getLegend(
+      selectedLayer.activeLayer,
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId,
+      selectedLayer.name
+    )
   }
 
   const createLayerMarks = (timestamps) => {
@@ -262,9 +301,7 @@ const LayersPlayer: React.FC<{
       return totHours
     }
 
-    const lastHour = new Date(
-      timestamps[selectedLayer.availableTimestamps.length - 1]
-    ).getHours()
+    const lastHour = new Date(timestamps[selectedLayer.availableTimestamps.length - 1]).getHours()
 
     const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' - ' + lastHour
 
@@ -289,7 +326,7 @@ const LayersPlayer: React.FC<{
       return {
         value: hourValue,
         label: e as string
-      }      
+      }
     })
 
     return layerMarks
@@ -381,16 +418,10 @@ const LayersPlayer: React.FC<{
             justifyContent="flex-end"
             alignItems="center"
           >
-            <IconButton
-              onClick={getLayerLegend}
-              size="small"
-            >
+            <IconButton onClick={getLayerLegend} size="small">
               <LegendIcon />
             </IconButton>
-            <IconButton
-              onClick={getMetadata}
-              size="small"
-            >
+            <IconButton onClick={getMetadata} size="small">
               <MetaIcon />
             </IconButton>
             <IconButton
@@ -418,7 +449,10 @@ const LayersPlayer: React.FC<{
             justifyContent="space-between"
             alignItems="center"
           >
-            <Grid item xs={2}>
+            <Grid item xs={3}>
+              <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>
+                <SkipPreviousOutlined />
+              </IconButton>
               <IconButton aria-label="play/pause" onClick={playPause}>
                 {playing ? (
                   <PauseCircleFilled fontSize="large" />
@@ -426,11 +460,11 @@ const LayersPlayer: React.FC<{
                   <PlayCircleFilled fontSize="large" />
                 )}
               </IconButton>
-              <IconButton aria-label="next" onClick={onClickDateHandler}>
+              <IconButton aria-label="next" onClick={onClickNextDateHandler}>
                 <SkipNextOutlined />
               </IconButton>
             </Grid>
-            <Grid item xs={9}>
+            <Grid item xs={8}>
               <Slider
                 aria-labelledby="discrete-slider-custom"
                 className={classes.slider}
@@ -449,14 +483,16 @@ const LayersPlayer: React.FC<{
                 marks={layerMarks}
               />
             </Grid>
-            <Grid item xs={1} container direction="row"
-            justifyContent="flex-end"
-            alignItems="center">
+            <Grid
+              item
+              xs={1}
+              container
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="center"
+            >
               {!isLoading ? (
-                <IconButton
-                  aria-label="download"
-                  onClick={onDownloadHandler}
-                >
+                <IconButton aria-label="download" onClick={onDownloadHandler}>
                   <GetAppIcon />
                 </IconButton>
               ) : (
