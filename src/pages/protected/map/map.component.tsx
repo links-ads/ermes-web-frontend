@@ -370,6 +370,7 @@ export function Map() {
       clearSelectedLayers()
     }
     if (groupedLayers && Object.keys(groupedLayers).length > 0 && selectedLayers.length > 0) {
+      let clearAll = false
       for (let i = 0; i < selectedLayers.length; i++) {
         const selectedLayer = selectedLayers[i]
         if (
@@ -377,8 +378,12 @@ export function Map() {
           !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
           !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
         ) {
-          clearSelectedLayers()
+          clearAll = true
+          break
         }
+      }
+      if (clearAll) {
+        clearSelectedLayers()
       }
     }
   }, [groupedLayers])
