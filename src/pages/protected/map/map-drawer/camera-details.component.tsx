@@ -20,7 +20,18 @@ import {
   MenuItem,
   Menu
 } from '@material-ui/core'
-import { KeyboardArrowLeft, KeyboardArrowRight, ArrowLeft, ArrowRight } from '@material-ui/icons'
+import {
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Cancel,
+  CheckCircle,
+  AddCircle,
+  RemoveCircle,
+  Close
+} from '@material-ui/icons'
 import { MeasureDto, SensorDto, StationDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import useCameras from '../../../../hooks/use-cameras.hook'
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
@@ -30,6 +41,9 @@ import { AppState } from '../../../../state/app.state'
 import { clearSelectedCamera } from '../../../../state/selected-camera.state'
 import classes from './drawer-cards/communication-card.module.scss'
 import moment from 'moment'
+import { StationsApi } from 'ermes-backoffice-ts-sdk'
+import { useAPIConfiguration } from '../../../../hooks/api-hooks'
+import { useSnackbar } from 'notistack'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -39,6 +53,67 @@ function getCardinalDirection(angle) {
 type CameraDetailsProps = {}
 
 const PAGE_SIZE = 6
+
+function ValidationButton({ show, baseColor, onClick, metadata, type, value = false }) {
+  const theme = useTheme()
+  const isDetectionPresent = metadata?.detection?.[type]
+  const isValidationPresent = typeof metadata?.validation?.[type] === 'boolean'
+  const validationValue = metadata?.validation?.[type]
+
+  if (!show) {
+    return null
+  }
+
+  return (
+    <Button
+      variant="contained"
+      style={{
+        backgroundColor: baseColor,
+        color: theme.palette.primary.contrastText
+      }}
+      onClick={() => onClick(type, isDetectionPresent ? value : !validationValue)}
+    >
+      {isDetectionPresent && value && (
+        <>
+          {isValidationPresent && validationValue && (
+            <>
+              <CheckCircle /> {type}
+            </>
+          )}
+          {!isValidationPresent && (
+            <>
+              <Check /> Confirm {type}
+            </>
+          )}
+        </>
+      )}
+      {isDetectionPresent && !value && (
+        <>
+          {isValidationPresent && !validationValue && (
+            <>
+              <Cancel /> {type}
+            </>
+          )}
+          {!isValidationPresent && (
+            <>
+              <Close /> Discard {type}
+            </>
+          )}
+        </>
+      )}
+      {!isDetectionPresent && !validationValue && (
+        <>
+          <AddCircle /> Add {type}
+        </>
+      )}
+      {!isDetectionPresent && validationValue && (
+        <>
+          <RemoveCircle /> Remove {type}
+        </>
+      )}
+    </Button>
+  )
+}
 
 export function CameraDetails({}: CameraDetailsProps) {
   const { t } = useTranslation(['common', 'maps'])
@@ -54,6 +129,8 @@ export function CameraDetails({}: CameraDetailsProps) {
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
   const [hideMeasurementsWithoutDetections, setHideMeasurementsWithoutDetections] = useState(true)
   const [page, setPage] = useState(0)
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const { enqueueSnackbar } = useSnackbar()
 
   function handleClose() {
     setSelectedSensorId(undefined)
@@ -132,18 +209,47 @@ export function CameraDetails({}: CameraDetailsProps) {
       })
   }, [elem, selectedSensorId])
 
-  const selectedSensorMeasurement = useMemo(() => {
-    return sensorData?.find((s) => s.id === selectedSensorMeasurementId)
-  }, [selectedSensorMeasurementId])
+  const selectedSensorMeasurement = sensorData?.find((s) => s.id === selectedSensorMeasurementId)
 
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  async function handlePerformValidation(type, value) {
+    const currentMetadata = selectedSensorMeasurement?.metadata
+    if (!currentMetadata) {
+      return false
+    }
 
-  const handleOpenValidationMenu = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    const { validation, ...rest } = currentMetadata
 
-  const handleCloseValidationMenu = () => {
-    setAnchorEl(null)
+    try {
+      const response = await StationsApiFactory(backendAPIConfig).stationsValidateMeasure({
+        measureId: selectedSensorMeasurementId,
+        smoke: type === 'smoke' ? value : validation?.smoke ?? false,
+        fire: type === 'fire' ? value : validation?.fire ?? false,
+        metadata: rest
+      })
+
+      // replace the measure in sensorData
+      setSensorData((prev) => {
+        if (!prev) {
+          return prev
+        }
+
+        return prev.map((m) => {
+          if (m.id === selectedSensorMeasurementId) {
+            return response.data.measure
+          }
+
+          return m
+        })
+      })
+
+      enqueueSnackbar(t('common:validationSuccess'), {
+        variant: 'success'
+      })
+    } catch (error) {
+      enqueueSnackbar(t('common:validationError'), {
+        variant: 'error'
+      })
+    }
   }
 
   return (
@@ -262,40 +368,55 @@ export function CameraDetails({}: CameraDetailsProps) {
         {selectedSensorMeasurementId && (
           <div className={classes.cameraModalImageContainer}>
             <div className={classes.actionButtonContainer}>
-              <Button
-                aria-controls="validation-menu"
-                aria-haspopup={true}
-                onClick={handleOpenValidationMenu}
-              >
-                {t('maps:validate')}
-              </Button>
-              <Menu
-                id="validation-menu"
-                anchorEl={anchorEl}
-                keepMounted
-                open={Boolean(anchorEl)}
-                onClose={handleCloseValidationMenu}
-              >
-                {!selectedSensorMeasurement?.metadata?.detection?.fire && (
-                  <MenuItem onClick={handleClose}>Add fire</MenuItem>
-                )}
-                {selectedSensorMeasurement?.metadata?.detection?.fire && (
-                  <MenuItem onClick={handleClose}>Validate fire</MenuItem>
-                )}
-                {selectedSensorMeasurement?.metadata?.detection?.fire && (
-                  <MenuItem onClick={handleClose}>Discard fire</MenuItem>
-                )}
-                <MenuItem divider disabled />
-                {!selectedSensorMeasurement?.metadata?.detection?.smoke && (
-                  <MenuItem onClick={handleClose}>Add smoke</MenuItem>
-                )}
-                {selectedSensorMeasurement?.metadata?.detection?.smoke && (
-                  <MenuItem onClick={handleClose}>Validate smoke</MenuItem>
-                )}
-                {selectedSensorMeasurement?.metadata?.detection?.smoke && (
-                  <MenuItem onClick={handleClose}>Discard smoke</MenuItem>
-                )}
-              </Menu>
+              <ValidationButton
+                show={!selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.secondary.dark}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+              />
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.secondary.dark}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+                value={true}
+              />
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.secondary.dark}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+                value={false}
+              />
+
+              <ValidationButton
+                show={!selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+              />
+
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+                value={true}
+              />
+
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+                value={false}
+              />
             </div>
             <img
               style={{

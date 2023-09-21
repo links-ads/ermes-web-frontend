@@ -38,5 +38,15 @@
     position: absolute;
     top: 5px;
     left: 5px;
+    display: flex;
+    flex-direction: column;
+
+    button {
+      margin-bottom: 10px;
+
+      svg {
+        margin-right: 4px;
+      }
+    }
   }
 }
