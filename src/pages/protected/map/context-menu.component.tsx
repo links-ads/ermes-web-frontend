@@ -22,7 +22,7 @@ export type ContextMenuItemClickListener = (
   operation?: ProvisionalOperationType,
   type?: ProvisionalFeatureType,
   itemId?: string,
-  data?: string
+  data?: string | [number, number]
 ) => void
 
 interface ContextMenuProps {
@@ -30,13 +30,29 @@ interface ContextMenuProps {
   latitude?: number
   longitude?: number
   onListItemClick: ContextMenuItemClickListener
+  selectedLayer?: any | null
+}
+
+const ContenxtMenuOption = (props) => {
+  const { keyName, onClickHandler, itemIcon, itemText } = props
+  return (
+    <ListItem key={keyName} onClick={onClickHandler}>
+      <ListItemIcon style={{ minWidth: 32 }}>{itemIcon}</ListItemIcon>
+      <ListItemText primary={itemText} />
+    </ListItem>
+  )
 }
 
 export const ContextMenu = memo(
-  function ContextMenu({ item, latitude, longitude, onListItemClick }: ContextMenuProps) {
-    
+  function ContextMenu({
+    item,
+    latitude,
+    longitude,
+    onListItemClick,
+    selectedLayer
+  }: ContextMenuProps) {
     const { t } = useTranslation(['maps'])
-    const coordInfo = latitude+ ', ' + longitude;
+    const coordInfo = latitude + ', ' + longitude
     return typeof latitude === 'number' && typeof longitude === 'number' ? (
       <Popup
         tipSize={5}
@@ -47,7 +63,7 @@ export const ContextMenu = memo(
         closeOnClick={true}
       >
         <Paper>
-          <List id="map-menu-list">
+          <List id="map-menu-list" dense>
             {item
               ? [
                   <ListItem
@@ -80,51 +96,95 @@ export const ContextMenu = memo(
                     <ListItemText primary={t('maps:operation_close') + ' Menu'} />
                   </ListItem>
                 ]
+              : selectedLayer
+              ? [
+                  <ContenxtMenuOption
+                    key={'coords'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)
+                    }
+                    itemIcon={<Info fontSize="small" />}
+                    itemText={coordInfo}
+                  />,
+                  <Divider key="div-0" />,
+                  <ContenxtMenuOption
+                    key={'cc'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Communication')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Communication')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'cm'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Mission')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Mission')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'cmp'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
+                  />,
+                  <Divider key="div-1" />,
+                  <ContenxtMenuOption
+                    key={'gts'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'get', 'Timeseries', undefined, [longitude, latitude])
+                    }
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_get') + ' ' + t('maps:timeseries')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'gfi'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'get', 'FeatureInfo', undefined, [longitude, latitude])
+                    }
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_get') + ' ' + t('maps:featureInfo')}
+                  />,
+                  <Divider key="div-2" />,
+                  <ContenxtMenuOption
+                    key={'cls'}
+                    onClickHandler={(evt) => onListItemClick(evt)}
+                    itemIcon={<CloseOutlined fontSize="small" />}
+                    itemText={t('maps:operation_close') + ' Menu'}
+                  />
+                ]
               : [
-                  <ListItem
-                    key="coords"
-                    onClick={(evt) => onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)}
-                  >
-                    <ListItemIcon>
-                      <Info />
-                    </ListItemIcon>
-                    <ListItemText primary={coordInfo} />
-                  </ListItem>,
-                  <ListItem
-                    key="cc"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'Communication')}
-                  >
-                    <ListItemIcon>
-                      <Add />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_create') + ' ' + t('maps:Communication')}
-                    />
-                  </ListItem>,
-                  <ListItem key="cm" onClick={(evt) => onListItemClick(evt, 'create', 'Mission')}>
-                    <ListItemIcon>
-                      <Add />
-                    </ListItemIcon>
-                    <ListItemText primary={t('maps:operation_create') + ' ' + t('maps:Mission')} />
-                  </ListItem>,
-                  <ListItem
-                    key="cmp"
-                    onClick={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
-                  >
-                    <ListItemIcon>
-                      <Add />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
-                    />
-                  </ListItem>,
-                  <Divider key="div" />,
-                  <ListItem key="cls" onClick={(evt) => onListItemClick(evt)}>
-                    <ListItemIcon>
-                      <CloseOutlined />
-                    </ListItemIcon>
-                    <ListItemText primary={t('maps:operation_close') + ' Menu'} />
-                  </ListItem>
+                  <ContenxtMenuOption
+                    key={'coords'}
+                    onClickHandler={(evt) =>
+                      onListItemClick(evt, 'copy', 'Coordinates', undefined, coordInfo)
+                    }
+                    itemIcon={<Info fontSize="small" />}
+                    itemText={coordInfo}
+                  />,
+                  <Divider key="div-0" />,
+                  <ContenxtMenuOption
+                    key={'cc'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Communication')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Communication')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'cm'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'Mission')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:Mission')}
+                  />,
+                  <ContenxtMenuOption
+                    key={'cmp'}
+                    onClickHandler={(evt) => onListItemClick(evt, 'create', 'MapRequest')}
+                    itemIcon={<Add fontSize="small" />}
+                    itemText={t('maps:operation_create') + ' ' + t('maps:MapRequest')}
+                  />,
+                  <Divider key="div-2" />,
+                  <ContenxtMenuOption
+                    key={'cls'}
+                    onClickHandler={(evt) => onListItemClick(evt)}
+                    itemIcon={<CloseOutlined fontSize="small" />}
+                    itemText={t('maps:operation_close') + ' Menu'}
+                  />
                 ]}
           </List>
         </Paper>

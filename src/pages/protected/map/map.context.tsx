@@ -61,7 +61,9 @@ export type ProvisionalFeatureType =
   | 'Coordinates'
   | 'Alert'
   | 'Station'
-export type ProvisionalOperationType = 'create' | 'update' | 'delete' | 'copy'
+  | 'Timeseries'
+  | 'FeatureInfo'
+export type ProvisionalOperationType = 'create' | 'update' | 'delete' | 'copy' | 'get'
 // The Map State
 interface MapStateVariables<T extends object = object> {
   // Mapview stuff
