@@ -70,7 +70,7 @@
   "MapRequest": "Richieste mappatura",
   "mapRequestLayerFilter": "Livello",
   "timeseries": "Serie temporali", 
-  "featureInfo": "Informazioni",
+  "featureInfo": "Informazioni sul punto",
   "timeseriesNoLayer": "Impossibile ottenere serie temporali di layer non valido",
   "featureInfoNoLayer": "Impossibile ottenere informazioni di layer non valido", 
   "details": "Codice",

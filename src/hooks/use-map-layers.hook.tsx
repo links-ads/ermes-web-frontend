@@ -4,7 +4,11 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
 import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
-import { FeatureInfo, LayerFeatureInfo, LayerFeatureInfoState } from '../models/layers/LayerFeatureInfo'
+import {
+  FeatureInfo,
+  LayerFeatureInfo,
+  LayerFeatureInfoState
+} from '../models/layers/LayerFeatureInfo'
 
 const initialState = {
   rawLayers: {},
@@ -49,7 +53,8 @@ const reducer = (currentState, action) => {
         toBeRemovedLayers: action.value.toBeRemovedLayers,
         layersLegend: action.value.layersLegend,
         layersMetadata: action.value.layersMetadata,
-        layerTimeseries: action.value.layerTimeseries
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
       }
     case 'UPDATE_LAYER_PLAYER':
       return {
@@ -276,6 +281,7 @@ const useMapLayers = () => {
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
       let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -303,17 +309,23 @@ const useMapLayers = () => {
             }
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
+          // remove legend
           const findLegendIdx = updateLegends.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findLegendIdx >= 0) {
             updateLegends.splice(findLegendIdx, 1)
           }
+          // remove metadata
           const findMetadataIdx = updateMetadata.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findMetadataIdx >= 0) {
             updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
           }
         }
         const defaultPos = { ...dataState.defaultPosition }
@@ -333,7 +345,8 @@ const useMapLayers = () => {
             toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, changedSelectedLayers),
             layersLegend: updateLegends,
             layersMetadata: updateMetadata,
-            layerTimeseries: updateTimeseries
+            layerTimeseries: updateTimeseries,
+            layerFeatureInfo: updateFeatureInfo
           }
         })
       }
@@ -529,7 +542,8 @@ const useMapLayers = () => {
   }, [dataState])
 
   const addLayerFeatureInfo = useCallback(
-    (geoServerConfig, w, h, selectedLayers, mapBounds, windowInnerWidth) => {
+    (geoServerConfig, w, h, mapBounds, windowInnerWidth) => {
+      const selectedLayers = [...dataState.selectedLayers]
       const layers = selectedLayers.map((e) => e.activeLayer).join(',')
       fetch(getFeatureInfoUrl(geoServerConfig, w, h, layers, mapBounds))
         .then((response) => response.json())
@@ -548,7 +562,7 @@ const useMapLayers = () => {
           while (j < featInfo.features.length) {
             const feature = featInfo.features[j]
             if ((feature.id as string).length === 0) {
-              if (j !== 0){
+              if (j !== 0) {
                 i++
               }
             }
@@ -558,17 +572,16 @@ const useMapLayers = () => {
               (e) => new FeatureInfo(e, property!![e])
             )
 
-            const prevIdx = mappedFeatureInfo.findIndex(e => e.layerName === layerName)
+            const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
             if (prevIdx > -1) {
               const prevFeat = mappedFeatureInfo[prevIdx].featuresInfo
               const allFeat = prevFeat.concat(featureInfo)
               const updatedFeatureInfo = new LayerFeatureInfoState(layerName, allFeat)
               mappedFeatureInfo[prevIdx] = updatedFeatureInfo
-            }
-            else {
+            } else {
               const layerFeatureInfo = new LayerFeatureInfoState(layerName, featureInfo)
               mappedFeatureInfo.push(layerFeatureInfo)
-            }           
+            }
             j++
           }
           dispatch({
