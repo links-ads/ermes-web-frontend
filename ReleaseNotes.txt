@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.14.0 - 2023-09-21
+-----------------------
 - Feature - Access allow also to first responders (#138)
 - Bugfix - Set european bbox for layers' loading (#139)
 - Feature - Get feature info (#135)

@@ -83,41 +83,42 @@ export const MapFeatureInfo = (props) => {
           height: 'calc(100% - 30px)'
         }}
       >
-        {featureInfo.map((feature, i) => (
-          <div key={'feat-info-div-' + i}>
-            <Typography key={'feat-info-title-' + i} component={'h5'}>
-              {feature.layerName}
-            </Typography>
-            <Table
-              key={'feat-info-table-' + i}
-              style={{ width: 'fit-content', height: 'fit-content' }}
-              padding="none"
-              size="medium"
-            >
-              <TableBody key={'feat-info-table-body-' + i}>
-                {feature.featuresInfo.map((feature, j) => (
-                  <TableRow key={'feature-info-' + i + '-' + j}>
-                    <TableCell
-                      key={'feature-property-' + i + '-' + j}
-                      component="th"
-                      scope="row"
-                      style={{ minWidth: 120 }}
-                    >
-                      {feature.name}
-                    </TableCell>
-                    <TableCell
-                      key={'feature-value-' + i + '-' + j}
-                      align="right"
-                      style={{ minWidth: 120 }}
-                    >
-                      {feature.value}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ))}
+        {featureInfo &&
+          featureInfo.map((feature, i) => (
+            <div key={'feat-info-div-' + i}>
+              <Typography key={'feat-info-title-' + i} component={'h5'}>
+                {feature.layerName}
+              </Typography>
+              <Table
+                key={'feat-info-table-' + i}
+                style={{ width: 'fit-content', height: 'fit-content' }}
+                padding="none"
+                size="medium"
+              >
+                <TableBody key={'feat-info-table-body-' + i}>
+                  {feature.featuresInfo.map((feature, j) => (
+                    <TableRow key={'feature-info-' + i + '-' + j}>
+                      <TableCell
+                        key={'feature-property-' + i + '-' + j}
+                        component="th"
+                        scope="row"
+                        style={{ minWidth: 120 }}
+                      >
+                        {feature.name}
+                      </TableCell>
+                      <TableCell
+                        key={'feature-value-' + i + '-' + j}
+                        align="right"
+                        style={{ minWidth: 120 }}
+                      >
+                        {feature.value}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ))}
       </CardContent>
     </FloatingCardContainer>
   )

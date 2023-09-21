@@ -476,7 +476,7 @@ export function MapLayout(props) {
               const bboxSize = getBboxSizeFromZoom(map.getZoom())
               const ll = mapboxgl.LngLat.convert(data as mapboxgl.LngLatLike)
               const bounds = ll.toBounds(bboxSize / 2)
-              addLayerFeatureInfo(geoServerConfig, 1, 1, selectedLayers, bounds, window.innerWidth)
+              addLayerFeatureInfo(geoServerConfig, 1, 1, bounds, window.innerWidth)
             } else {
               displayWarningSnackbar(t('maps:featureInfoNoLayer'))
             }
