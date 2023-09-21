@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.14.1 - 2023-09-21
+-----------------------
 - Feature - Back button in layer player (#140)
 - Bugfix - New entity colors for alert and camera features (#141)
 
