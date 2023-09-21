@@ -87,6 +87,16 @@ const reducer = (currentState, action) => {
         ...currentState,
         layerFeatureInfo: action.value
       }
+    case 'CLEAR_SELECTED_LAYERS':
+      return {
+        ...currentState,
+        selectedLayers: [],
+        toBeRemovedLayers: action.value,
+        layersMetadata: [],
+        layersLegend: [],
+        layerTimeseries: null,
+        layerFeatureInfo: null
+      }
     case 'ERROR':
       return {
         ...currentState,
@@ -616,6 +626,14 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const clearSelectedLayers = useCallback(() => {
+    const selectedLayers = [...dataState.selectedLayers]
+    const activeLayers = selectedLayers.map((l) => {
+      return { layerName: l.activeLayer, layerDateIndex: l.dateIndex }
+    })
+    dispatch({ type: 'CLEAR_SELECTED_LAYERS', value: activeLayers })
+  }, [dataState])
+
   return [
     dataState,
     fetchLayers,
@@ -634,7 +652,8 @@ const useMapLayers = () => {
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
-    updateLayerFeatureInfoVisibility
+    updateLayerFeatureInfoVisibility,
+    clearSelectedLayers
   ]
 }
 

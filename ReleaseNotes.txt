@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Layer selection update after refresh (#143)
 
 Ver. 2.14.1 - 2023-09-21
 -----------------------
