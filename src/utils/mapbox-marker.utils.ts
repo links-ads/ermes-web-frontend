@@ -64,20 +64,24 @@ export function donutChartHTML<P extends { [k: string]: number }>(
   const fontSize = (total >= 1000 ? 22 : total >= 100 ? 20 : total >= 10 ? 18 : 16) + (isHover ? 2 : 0)
   const r = (total >= 1000 ? 50 : total >= 100 ? 32 : total >= 10 ? 24 : 18) + (isHover ? 10 : 0)
   const r0 = Math.round(r * 0.6)
-  const w = r * 2
+  const stroke_width = 3
+  const stroke_r = r + stroke_width
+  const w = stroke_r * 2 
+  
 
   let html =
     '<div><svg width="' +
     w +
     '" height="' +
     w +
-    '" viewbox="0 0 ' +
+    `" viewbox="${-stroke_width} ${-stroke_width} ` +
     w +
     ' ' +
     w +
     '" text-anchor="middle" style="font: ' +
     fontSize +
     'px sans-serif">'
+  html += ` <circle cx=${r} cy=${r} r=${stroke_r} fill="white" />`
   html += counts.map((c, i) =>
     donutSegmentSVG(offsets[i] / total, (offsets[i] + counts[i]) / total, r, r0, colors[i])
   )
