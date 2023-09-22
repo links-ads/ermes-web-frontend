@@ -110,7 +110,7 @@ const mapRequestCard = (
   else {
   const mapRequestDetails = data.feature.properties
   return (
-    <Card elevation={0}>
+    <Card elevation={0} style={{ overflowX: 'auto'}}>
       <CardContent style={{ paddingTop: '10px' }}>
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
