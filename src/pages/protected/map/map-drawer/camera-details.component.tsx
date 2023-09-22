@@ -54,61 +54,147 @@ type CameraDetailsProps = {}
 
 const PAGE_SIZE = 6
 
-function ValidationButton({ show, baseColor, onClick, metadata, type, value = false }) {
-  const theme = useTheme()
-  const isDetectionPresent = metadata?.detection?.[type]
-  const isValidationPresent = typeof metadata?.validation?.[type] === 'boolean'
+enum ValidationStatus {
+  Unknown,
+  Detected,
+  DetectedAndValidated,
+  DetectedAndDiscarded,
+  Undetected,
+  UndetectedAndAdded
+}
+
+function getValidationStatus(type, metadata) {
   const validationValue = metadata?.validation?.[type]
+  const isValidationPresent = typeof metadata?.validation?.[type] === 'boolean'
+
+  const detectionValue = metadata?.detection?.[type]
+  const isDetectionPresent = typeof metadata?.detection?.[type] === 'boolean'
+
+  console.log({
+    validationValue,
+    isValidationPresent,
+
+    detectionValue,
+    isDetectionPresent
+  })
+
+  if (isDetectionPresent) {
+    if (isValidationPresent) {
+      if (detectionValue === true && validationValue === true) {
+        return ValidationStatus.DetectedAndValidated
+      }
+
+      if (detectionValue === true && validationValue === false) {
+        return ValidationStatus.DetectedAndDiscarded
+      }
+
+      if (detectionValue === false && validationValue === true) {
+        return ValidationStatus.UndetectedAndAdded
+      }
+
+      if (detectionValue === false && validationValue === false) {
+        return ValidationStatus.Undetected
+      }
+    } else {
+      if (detectionValue === true) {
+        return ValidationStatus.Detected
+      }
+
+      if (detectionValue === false) {
+        return ValidationStatus.Undetected
+      }
+    }
+  } else {
+    if (isValidationPresent) {
+      if (validationValue === true) {
+        return ValidationStatus.UndetectedAndAdded
+      }
+
+      if (validationValue === false || validationValue === null) {
+        return ValidationStatus.Undetected
+      }
+    }
+  }
+
+  return ValidationStatus.Unknown
+}
+
+function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
+  const theme = useTheme()
 
   if (!show) {
     return null
   }
 
+  const validationStatus = getValidationStatus(type, metadata)
+  const _value =
+    validationStatus === ValidationStatus.Undetected
+      ? true
+      : validationStatus === ValidationStatus.UndetectedAndAdded
+      ? null
+      : value
+
+  console.log(type, validationStatus)
+
   return (
     <Button
       variant="contained"
       style={{
-        backgroundColor: baseColor,
+        backgroundColor:
+          (validationStatus === ValidationStatus.DetectedAndValidated && value) ||
+          (validationStatus === ValidationStatus.DetectedAndDiscarded && !value) ||
+          validationStatus === ValidationStatus.UndetectedAndAdded
+            ? '#005500'
+            : baseColor,
         color: theme.palette.primary.contrastText
       }}
-      onClick={() => onClick(type, isDetectionPresent ? value : !validationValue)}
+      onClick={() => onClick(type, _value)}
     >
-      {isDetectionPresent && value && (
+      {validationStatus === ValidationStatus.DetectedAndValidated && value && (
         <>
-          {isValidationPresent && validationValue && (
-            <>
-              <CheckCircle /> {type}
-            </>
-          )}
-          {!isValidationPresent && (
-            <>
-              <Check /> Confirm {type}
-            </>
-          )}
+          <CheckCircle /> {type}
         </>
       )}
-      {isDetectionPresent && !value && (
+
+      {validationStatus === ValidationStatus.DetectedAndDiscarded && value === false && (
         <>
-          {isValidationPresent && !validationValue && (
-            <>
-              <Cancel /> {type}
-            </>
-          )}
-          {!isValidationPresent && (
-            <>
-              <Close /> Discard {type}
-            </>
-          )}
+          <Cancel /> {type}
         </>
       )}
-      {!isDetectionPresent && !validationValue && (
+
+      {validationStatus === ValidationStatus.UndetectedAndAdded && (
         <>
-          <AddCircle /> Add {type}
+          <RemoveCircle /> {type}
         </>
       )}
-      {!isDetectionPresent && validationValue && (
+
+      {validationStatus === ValidationStatus.Undetected && (
         <>
-          <RemoveCircle /> Remove {type}
+          <AddCircle /> {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.Detected && value && (
+        <>
+          <Check /> Confirm {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.DetectedAndDiscarded && value && (
+        <>
+          <Check /> Confirm {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.Detected && value === false && (
+        <>
+          <Close /> Discard {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.DetectedAndValidated && value === false && (
+        <>
+          <Close /> Discard {type}
         </>
       )}
     </Button>
@@ -210,6 +296,7 @@ export function CameraDetails({}: CameraDetailsProps) {
   }, [elem, selectedSensorId])
 
   const selectedSensorMeasurement = sensorData?.find((s) => s.id === selectedSensorMeasurementId)
+  console.log(selectedSensorMeasurement)
 
   async function handlePerformValidation(type, value) {
     const currentMetadata = selectedSensorMeasurement?.metadata
@@ -222,8 +309,8 @@ export function CameraDetails({}: CameraDetailsProps) {
     try {
       const response = await StationsApiFactory(backendAPIConfig).stationsValidateMeasure({
         measureId: selectedSensorMeasurementId,
-        smoke: type === 'smoke' ? value : validation?.smoke ?? false,
-        fire: type === 'fire' ? value : validation?.fire ?? false,
+        smoke: type === 'smoke' ? value : validation?.smoke ?? null,
+        fire: type === 'fire' ? value : validation?.fire ?? null,
         metadata: rest
       })
 
@@ -370,14 +457,14 @@ export function CameraDetails({}: CameraDetailsProps) {
             <div className={classes.actionButtonContainer}>
               <ValidationButton
                 show={!selectedSensorMeasurement?.metadata?.detection?.fire}
-                baseColor={theme.palette.secondary.dark}
+                baseColor={theme.palette.primary.main}
                 onClick={handlePerformValidation}
                 metadata={selectedSensorMeasurement?.metadata}
                 type="fire"
               />
               <ValidationButton
                 show={selectedSensorMeasurement?.metadata?.detection?.fire}
-                baseColor={theme.palette.secondary.dark}
+                baseColor={theme.palette.primary.main}
                 onClick={handlePerformValidation}
                 metadata={selectedSensorMeasurement?.metadata}
                 type="fire"
@@ -385,7 +472,7 @@ export function CameraDetails({}: CameraDetailsProps) {
               />
               <ValidationButton
                 show={selectedSensorMeasurement?.metadata?.detection?.fire}
-                baseColor={theme.palette.secondary.dark}
+                baseColor={theme.palette.primary.main}
                 onClick={handlePerformValidation}
                 metadata={selectedSensorMeasurement?.metadata}
                 type="fire"
