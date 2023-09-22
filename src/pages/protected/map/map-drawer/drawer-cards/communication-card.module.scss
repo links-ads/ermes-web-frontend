@@ -2,16 +2,51 @@
   margin-bottom: 15px;
 }
 .chipContainer {
-  width: 100%;
 }
 .cardAction {
   justify-content: space-between;
   padding-left: 16px;
   padding-top: 4px;
   padding-bottom: 8px;
-  padding-right: 0px;
+  padding-right: 16px;
 }
 .cardList {
   overflow-y: scroll;
   height: 90%;
+}
+
+.cameraDetailsTab {
+  padding: 0;
+  min-width: auto;
+  opacity: 0.7;
+
+  transition: opacity 0.3s ease-in-out;
+
+  &.selected {
+    opacity: 1;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.cameraModalImageContainer {
+  position: relative;
+
+  .actionButtonContainer {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    flex-direction: column;
+
+    button {
+      margin-bottom: 10px;
+
+      svg {
+        margin-right: 4px;
+      }
+    }
+  }
 }

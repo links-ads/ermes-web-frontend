@@ -112,7 +112,7 @@
   "downloadButton": "Download",
   "alerts": "Alerts",
   "location": "Location",
-  "noMeasurements": "No measurements available",
+  "noMeasurements": "No images available",
   "smoke": "Smoke",
   "pleaseSelectSensor": "Please select a sensor",
   "Hide measures without detections": "Hide measures without detections",

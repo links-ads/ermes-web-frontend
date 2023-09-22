@@ -16,9 +16,22 @@ import {
   Switch,
   FormGroup,
   FormControlLabel,
-  IconButton
+  IconButton,
+  MenuItem,
+  Menu
 } from '@material-ui/core'
-import { KeyboardArrowLeft, KeyboardArrowRight, ArrowLeft, ArrowRight } from '@material-ui/icons'
+import {
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Cancel,
+  CheckCircle,
+  AddCircle,
+  RemoveCircle,
+  Close
+} from '@material-ui/icons'
 import { MeasureDto, SensorDto, StationDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import useCameras from '../../../../hooks/use-cameras.hook'
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
@@ -28,6 +41,9 @@ import { AppState } from '../../../../state/app.state'
 import { clearSelectedCamera } from '../../../../state/selected-camera.state'
 import classes from './drawer-cards/communication-card.module.scss'
 import moment from 'moment'
+import { StationsApi } from 'ermes-backoffice-ts-sdk'
+import { useAPIConfiguration } from '../../../../hooks/api-hooks'
+import { useSnackbar } from 'notistack'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -37,6 +53,153 @@ function getCardinalDirection(angle) {
 type CameraDetailsProps = {}
 
 const PAGE_SIZE = 6
+
+enum ValidationStatus {
+  Unknown,
+  Detected,
+  DetectedAndValidated,
+  DetectedAndDiscarded,
+  Undetected,
+  UndetectedAndAdded
+}
+
+function getValidationStatus(type, metadata) {
+  const validationValue = metadata?.validation?.[type]
+  const isValidationPresent = typeof metadata?.validation?.[type] === 'boolean'
+
+  const detectionValue = metadata?.detection?.[type]
+  const isDetectionPresent = typeof metadata?.detection?.[type] === 'boolean'
+
+  console.log({
+    validationValue,
+    isValidationPresent,
+
+    detectionValue,
+    isDetectionPresent
+  })
+
+  if (isDetectionPresent) {
+    if (isValidationPresent) {
+      if (detectionValue === true && validationValue === true) {
+        return ValidationStatus.DetectedAndValidated
+      }
+
+      if (detectionValue === true && validationValue === false) {
+        return ValidationStatus.DetectedAndDiscarded
+      }
+
+      if (detectionValue === false && validationValue === true) {
+        return ValidationStatus.UndetectedAndAdded
+      }
+
+      if (detectionValue === false && validationValue === false) {
+        return ValidationStatus.Undetected
+      }
+    } else {
+      if (detectionValue === true) {
+        return ValidationStatus.Detected
+      }
+
+      if (detectionValue === false) {
+        return ValidationStatus.Undetected
+      }
+    }
+  } else {
+    if (isValidationPresent) {
+      if (validationValue === true) {
+        return ValidationStatus.UndetectedAndAdded
+      }
+
+      if (validationValue === false || validationValue === null) {
+        return ValidationStatus.Undetected
+      }
+    }
+  }
+
+  return ValidationStatus.Unknown
+}
+
+function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
+  const theme = useTheme()
+
+  if (!show) {
+    return null
+  }
+
+  const validationStatus = getValidationStatus(type, metadata)
+  const _value =
+    validationStatus === ValidationStatus.Undetected
+      ? true
+      : validationStatus === ValidationStatus.UndetectedAndAdded
+      ? null
+      : value
+
+  console.log(type, validationStatus)
+
+  return (
+    <Button
+      variant="contained"
+      style={{
+        backgroundColor:
+          (validationStatus === ValidationStatus.DetectedAndValidated && value) ||
+          (validationStatus === ValidationStatus.DetectedAndDiscarded && !value) ||
+          validationStatus === ValidationStatus.UndetectedAndAdded
+            ? '#005500'
+            : baseColor,
+        color: theme.palette.primary.contrastText
+      }}
+      onClick={() => onClick(type, _value)}
+    >
+      {validationStatus === ValidationStatus.DetectedAndValidated && value && (
+        <>
+          <CheckCircle /> {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.DetectedAndDiscarded && value === false && (
+        <>
+          <Cancel /> {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.UndetectedAndAdded && (
+        <>
+          <RemoveCircle /> Remove {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.Undetected && (
+        <>
+          <AddCircle /> Add {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.Detected && value && (
+        <>
+          <Check /> Confirm {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.DetectedAndDiscarded && value && (
+        <>
+          <Check /> Confirm {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.Detected && value === false && (
+        <>
+          <Close /> Discard {type}
+        </>
+      )}
+
+      {validationStatus === ValidationStatus.DetectedAndValidated && value === false && (
+        <>
+          <Close /> Discard {type}
+        </>
+      )}
+    </Button>
+  )
+}
 
 export function CameraDetails({}: CameraDetailsProps) {
   const { t } = useTranslation(['common', 'maps'])
@@ -52,6 +215,8 @@ export function CameraDetails({}: CameraDetailsProps) {
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'))
   const [hideMeasurementsWithoutDetections, setHideMeasurementsWithoutDetections] = useState(true)
   const [page, setPage] = useState(0)
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const { enqueueSnackbar } = useSnackbar()
 
   function handleClose() {
     setSelectedSensorId(undefined)
@@ -130,6 +295,50 @@ export function CameraDetails({}: CameraDetailsProps) {
       })
   }, [elem, selectedSensorId])
 
+  const selectedSensorMeasurement = sensorData?.find((s) => s.id === selectedSensorMeasurementId)
+  console.log(selectedSensorMeasurement)
+
+  async function handlePerformValidation(type, value) {
+    const currentMetadata = selectedSensorMeasurement?.metadata
+    if (!currentMetadata) {
+      return false
+    }
+
+    const { validation, ...rest } = currentMetadata
+
+    try {
+      const response = await StationsApiFactory(backendAPIConfig).stationsValidateMeasure({
+        measureId: selectedSensorMeasurementId,
+        smoke: type === 'smoke' ? value : validation?.smoke ?? null,
+        fire: type === 'fire' ? value : validation?.fire ?? null,
+        metadata: rest
+      })
+
+      // replace the measure in sensorData
+      setSensorData((prev) => {
+        if (!prev) {
+          return prev
+        }
+
+        return prev.map((m) => {
+          if (m.id === selectedSensorMeasurementId) {
+            return response.data.measure
+          }
+
+          return m
+        })
+      })
+
+      enqueueSnackbar(t('common:validationSuccess'), {
+        variant: 'success'
+      })
+    } catch (error) {
+      enqueueSnackbar(t('common:validationError'), {
+        variant: 'error'
+      })
+    }
+  }
+
   return (
     <Dialog open={!!elem} onClose={handleClose} fullScreen={fullScreen} fullWidth maxWidth="lg">
       <DialogTitle>
@@ -156,6 +365,11 @@ export function CameraDetails({}: CameraDetailsProps) {
         </div>
       </DialogTitle>
       <DialogTitle>
+        {hasMeasurements && !sensorData && !loading && (
+          <Typography variant="body2" component="h2" gutterBottom>
+            {t('maps:pleaseSelectSensor')}
+          </Typography>
+        )}
         {hasMeasurements && (
           <Tabs
             variant="scrollable"
@@ -175,6 +389,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                 <Tab
                   key={sensor.id as any}
                   value={sensor.id}
+                  className={classes.cameraDetailsTab}
                   label={
                     <div>
                       <div style={localStyles.badgeContainer}>
@@ -206,7 +421,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                         )}
                       </div>
                       <img
-                        style={{ width: 300, height: 150, objectFit: 'cover' }}
+                        style={{ width: 200, height: 100, objectFit: 'cover' }}
                         src={thumbnail!}
                         alt={firstMeasurement.measure!}
                       />
@@ -236,23 +451,72 @@ export function CameraDetails({}: CameraDetailsProps) {
             {t('maps:noMeasurements')}
           </Typography>
         )}
-        {hasMeasurements && !sensorData && !loading && (
-          <Typography variant="body2" component="h2" gutterBottom>
-            {t('maps:pleaseSelectSensor')}
-          </Typography>
-        )}
+
         {selectedSensorMeasurementId && (
-          <img
-            style={{
-              width: '100%',
-              height: 500,
-              objectFit: 'contain',
-              marginTop: 16,
-              marginBottom: 16
-            }}
-            src={sensorData?.find((s) => s.id === selectedSensorMeasurementId)?.measure}
-            alt={sensorData?.find((s) => s.id === selectedSensorMeasurementId)?.measure}
-          />
+          <div className={classes.cameraModalImageContainer}>
+            <div className={classes.actionButtonContainer}>
+              <ValidationButton
+                show={!selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+              />
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+                value={true}
+              />
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.fire}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="fire"
+                value={false}
+              />
+
+              <ValidationButton
+                show={!selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+              />
+
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+                value={true}
+              />
+
+              <ValidationButton
+                show={selectedSensorMeasurement?.metadata?.detection?.smoke}
+                baseColor={theme.palette.primary.main}
+                onClick={handlePerformValidation}
+                metadata={selectedSensorMeasurement?.metadata}
+                type="smoke"
+                value={false}
+              />
+            </div>
+            <img
+              style={{
+                width: '100%',
+                height: 500,
+                objectFit: 'contain',
+                marginTop: 16,
+                marginBottom: 16
+              }}
+              src={selectedSensorMeasurement?.measure}
+              alt={selectedSensorMeasurement?.measure}
+            />
+          </div>
         )}
         {sensorData && filteredMeasurements?.length > 0 && (
           <div style={localStyles.thumbnailContainer}>
