@@ -170,8 +170,7 @@ export function Map() {
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
-    updateLayerFeatureInfoVisibility,
-    clearSelectedLayers
+    updateLayerFeatureInfoVisibility
   ] = useMapLayers()
   const {
     rawLayers,
@@ -367,29 +366,6 @@ export function Map() {
     })
     updateMapFeatures()
   }, [filtersObj, fetchGeoJson, fetchLayers])
-
-  useEffect(() => {
-    if (groupedLayers && Object.keys(groupedLayers).length < 1) {
-      clearSelectedLayers()
-    }
-    if (groupedLayers && Object.keys(groupedLayers).length > 0 && selectedLayers.length > 0) {
-      let clearAll = false
-      for (let i = 0; i < selectedLayers.length; i++) {
-        const selectedLayer = selectedLayers[i]
-        if (
-          !groupedLayers[selectedLayer.group] ||
-          !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
-          !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
-        ) {
-          clearAll = true
-          break
-        }
-      }
-      if (clearAll) {
-        clearSelectedLayers()
-      }
-    }
-  }, [groupedLayers])
 
   useEffect(() => {
     if (toBeRemovedLayers.length > 0) {

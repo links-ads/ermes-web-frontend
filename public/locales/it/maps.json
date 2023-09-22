@@ -73,6 +73,8 @@
   "featureInfo": "Informazioni sul punto",
   "timeseriesNoLayer": "Impossibile ottenere serie temporali di layer non valido",
   "featureInfoNoLayer": "Impossibile ottenere informazioni di layer non valido", 
+  "noFeautureInfo": "Impossibile ottenere informazioni sul punto",
+  "zeroFeatureInfo": "0 informazioni sul punto trovate",
   "details": "Codice",
   "no_layers": "Non ci sono layers che soddisfano i criteri di ricerca",
   "category": "Categoria",
