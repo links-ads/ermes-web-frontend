@@ -164,13 +164,13 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
 
       {validationStatus === ValidationStatus.UndetectedAndAdded && (
         <>
-          <RemoveCircle /> {type}
+          <RemoveCircle /> Remove {type}
         </>
       )}
 
       {validationStatus === ValidationStatus.Undetected && (
         <>
-          <AddCircle /> {type}
+          <AddCircle /> Add {type}
         </>
       )}
 
