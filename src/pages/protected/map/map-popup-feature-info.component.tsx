@@ -28,7 +28,7 @@ export const MapFeatureInfo = (props) => {
 
   const { layerFeatureInfo, updateVisibility, onPositionChange } = props
 
-  const { visibility, position, featureInfo, layers } = layerFeatureInfo
+  const { visibility, position, featureInfo, layers, error } = layerFeatureInfo
 
   const closeModal = () => {
     updateVisibility(false)
@@ -83,6 +83,8 @@ export const MapFeatureInfo = (props) => {
           height: 'calc(100% - 30px)'
         }}
       >
+        {error && <p>{t('maps:noFeautureInfo')}</p>}
+        {featureInfo && featureInfo.length === 0 && <p>{t('maps:zeroFeatureInfo')}</p>}
         {featureInfo &&
           featureInfo.map((feature, i) => (
             <div key={'feat-info-div-' + i}>
