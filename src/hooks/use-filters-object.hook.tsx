@@ -58,7 +58,7 @@ const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
       : new Date(new Date().valueOf() - _MS_PER_DAY * 3),
     dateend: defaultEndDate
       ? new Date(Date.parse(defaultEndDate))
-      : new Date(new Date().valueOf() + _MS_PER_DAY * 7)
+      : new Date(new Date().valueOf() + _MS_PER_DAY * 45)
   }
   return filtersArgs
 }
