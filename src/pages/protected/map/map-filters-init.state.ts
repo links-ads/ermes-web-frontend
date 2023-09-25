@@ -12,7 +12,7 @@ export const initObjectState = {
       clear: true
     },
     dateend: {
-      selected: new Date(new Date().valueOf() + _MS_PER_DAY * 7).toISOString(),
+      selected: new Date(new Date().valueOf() + _MS_PER_DAY * 45).toISOString(),
       type: 'date',
       tab: 1,
       clear: true
