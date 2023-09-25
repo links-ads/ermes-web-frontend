@@ -56,6 +56,16 @@ const reducer = (currentState, action) => {
         layerTimeseries: action.value.layerTimeseries,
         layerFeatureInfo: action.value.layerFeatureInfo
       }
+    case 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST':
+      return {
+        ...currentState,
+        selectedLayers: action.value.selectedLayers,
+        toBeRemovedLayers: action.value.toBeRemovedLayers,
+        layersLegend: action.value.layersLegend,
+        layersMetadata: action.value.layersMetadata,
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
+      }
     case 'UPDATE_LAYER_PLAYER':
       return {
         ...currentState,
@@ -354,6 +364,74 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const updateSelectedLayersFromMapRequest = useCallback(
+    (newMRSettings) => {
+      let updatedSelectedLayers = [...dataState.selectedLayers]
+      let updateLegends = [...dataState.layersLegend]
+      let updateMetadata = [...dataState.layersMetadata]
+      let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
+      let toBeRemovedLayers: any[] = [...dataState.toBeRemovedLayers]
+      let newSettings: LayerSettingsState = { ...newMRSettings }
+      newSettings.group = 'Map Request Layer'
+      newSettings.subGroup = newMRSettings.mapRequestCode
+      newSettings.dimension = { ...dataState.defaultDimension }
+      const group = newSettings.group
+      const subGroup = newSettings.subGroup
+      const dataTypeId = newSettings.dataTypeId
+      if (newSettings.isChecked) {
+        updatedSelectedLayers.push(newSettings)
+      }
+      else {
+        const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findToDeselectedLayerIdx >= 0) {
+          const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx]
+          toBeRemovedLayers.push({
+            layerName: activeLayerToRemove.activeLayer,
+            layerDateIndex: activeLayerToRemove.dateIndex
+          })
+          if (findToDeselectedLayerIdx === updatedSelectedLayers.length - 1) {
+            // if layer removed is last one, make sure to remove timeseries as well
+            updateTimeseries = null
+          }
+          updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
+          // remove legend
+          const findLegendIdx = updateLegends.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findLegendIdx >= 0) {
+            updateLegends.splice(findLegendIdx, 1)
+          }
+          // remove metadata
+          const findMetadataIdx = updateMetadata.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findMetadataIdx >= 0) {
+            updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
+          }
+        }
+      }
+      dispatch({
+        type: 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST',
+        value: {
+          selectedLayers: updatedSelectedLayers,
+          toBeRemovedLayers: toBeRemovedLayers,
+          layersLegend: updateLegends,
+          layersMetadata: updateMetadata,
+          layerTimeseries: updateTimeseries,
+          layerFeatureInfo: updateFeatureInfo
+        }
+      })
+    },
+    [dataState]
+  )
+
   const updateLayerPlayerPosition = useCallback(
     (x, y, group, subGroup, dataTypeId) => {
       let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -634,7 +712,8 @@ const useMapLayers = () => {
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
-    updateLayerFeatureInfoVisibility
+    updateLayerFeatureInfoVisibility,
+    updateSelectedLayersFromMapRequest
   ]
 }
 

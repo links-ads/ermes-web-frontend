@@ -85,6 +85,7 @@ export function Map() {
                   currentLayer.availableTimestamps[currentLayer.dateIndex]
                 ]
               : ''
+            updateSelectedLayersFromMapRequest(newSettings)            
             break
           default:
             break
@@ -166,7 +167,8 @@ export function Map() {
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
-    updateLayerFeatureInfoVisibility
+    updateLayerFeatureInfoVisibility,
+    updateSelectedLayersFromMapRequest
   ] = useMapLayers()
   const {
     rawLayers,
@@ -601,7 +603,7 @@ export function Map() {
         <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
           {selectedLayers &&
             selectedLayers.length > 0 &&
-            selectedLayers.map((layer, idx) => (
+            selectedLayers.filter(e => e.group !== 'Map Request Layer').map((layer, idx) => (
               <LayersPlayer
                 key={'layer-player-' + idx}
                 updateLayerSelection={updateSelectedLayers}
