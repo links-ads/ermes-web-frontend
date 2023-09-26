@@ -1,6 +1,8 @@
 Ver.
 -----------------------
 - Bugfix - Map request detail popup (#142)
+- Feature - Default time window (#148)
+- Bugfix - Label update (#147)
 
 Ver. 2.14.1 - 2023-09-21
 -----------------------
