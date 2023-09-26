@@ -51,7 +51,7 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
+import { drawPolyToMap, getBboxSizeFromZoom, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -188,9 +188,10 @@ export function MapLayout(props) {
     setMap,
     setSpiderifierRef,
     addLayerTimeseries,
-    selectedLayer,
+    selectedLayers,
     mapRequestsSettings,
-    mapDrawerDataState
+    mapDrawerDataState,
+    addLayerFeatureInfo
   } = props
 
   // Map state
@@ -222,6 +223,16 @@ export function MapLayout(props) {
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
   const { selectedFeatureId } = mapDrawerDataState
+  const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
+
+  useEffect(() => {
+    if(selectedLayers && selectedLayers.length > 0) {
+      setSelectedLayer(selectedLayers[selectedLayers.length - 1])
+    }
+    else {
+      setSelectedLayer(null)
+    }
+  }, [selectedLayers])
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -432,7 +443,7 @@ export function MapLayout(props) {
       operation?: ProvisionalOperationType,
       type?: ProvisionalFeatureType,
       itemId?: string,
-      data?: string
+      data?: string | mapboxgl.LngLatLike
     ) => {
       // Open modal with creation/update/delete wizards
       if (operation && type) {
@@ -444,9 +455,34 @@ export function MapLayout(props) {
         showFeaturesDialog(operation, type, itemId)
       } else if (operation == 'copy' && data) {
         navigator.clipboard
-          .writeText(data)
+          .writeText(data as string)
           .then((a) => alert(t('common:coordinates_copied_to_clipboard')))
-      } else {
+      } else if (operation === 'get') {
+        if (type) {
+          if (type === 'Timeseries') {
+            if (
+              selectedLayer &&
+              selectedLayer.activeLayer &&
+              data
+            ) {
+              addLayerTimeseries(data, selectedLayer)
+            } else {
+              displayWarningSnackbar(t('maps:timeseriesNoLayer'))
+            }
+          } else if (type === 'FeatureInfo' && data) {
+            if (selectedLayers && selectedLayers.length > 0) {
+              const map = mapViewRef.current?.getMap()!
+              const bboxSize = getBboxSizeFromZoom(map.getZoom())
+              const ll = mapboxgl.LngLat.convert(data as mapboxgl.LngLatLike)
+              const bounds = ll.toBounds(bboxSize / 2)
+              addLayerFeatureInfo(geoServerConfig, 1, 1, bounds, window.innerWidth)
+            } else {
+              displayWarningSnackbar(t('maps:featureInfoNoLayer'))
+            }
+          }
+        }
+      } 
+      else {
         if (
           type &&
           ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
@@ -461,7 +497,7 @@ export function MapLayout(props) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [addLayerTimeseries, displayWarningSnackbar, selectedLayer, setRightClickedPoint, startFeatureEdit]
   )
 
   // Used when entering on an iteractive layer with the mouse
@@ -522,7 +558,7 @@ export function MapLayout(props) {
       onMapDoubleClickHandler(
         mapViewRef,
         mapMode,
-        props.selectedLayer,
+        selectedLayer,
         addLayerTimeseries,
         setMapHeadDrawerCoordinates,
         setClickedPoint,
@@ -530,7 +566,7 @@ export function MapLayout(props) {
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapMode, props.selectedLayer] // TODO check if needed
+    [mapMode, selectedLayer] // TODO check if needed
   )
 
   // Called on right click
@@ -901,6 +937,7 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
+            selectedLayer={selectedLayer}
           ></ContextMenu>
         )}
       </InteractiveMap>

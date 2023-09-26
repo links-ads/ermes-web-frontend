@@ -110,7 +110,7 @@ const mapRequestCard = (
   else {
   const mapRequestDetails = data.feature.properties
   return (
-    <Card elevation={0}>
+    <Card elevation={0} style={{ overflowX: 'auto'}}>
       <CardContent style={{ paddingTop: '10px' }}>
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
@@ -1041,8 +1041,8 @@ export const EmergencyColorMap: ColorMapType = {
   Mission: '#ff8e1f', //green[400],
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
-  Alert: green[800],
-  Station: '#f9aaf9',
+  Alert: '#4072f1', //'green[800]',
+  Station: '#f56c5c',
   SelectedPosition: yellow[800]
 }
 
@@ -1100,7 +1100,7 @@ export function EmergencyHoverCardContent({
         </Typography>
         <br />
         <Typography variant="h6" color="inherit" component={'span'}>
-          {type} <Dot type={type} />
+          {t('maps:legend_' + type.toLowerCase())} <Dot type={type} />
         </Typography>
       </div>
 

@@ -1,6 +1,21 @@
 Ver.
 -----------------------
+- Bugfix - Get timeseries for geojson (#145)
+- Bugfix - Layer selection update after refresh (#143)
+- Bugfix - Map request detail popup (#142)
+- Feature - Default time window (#148)
+- Bugfix - Label update (#147)
 
+Ver. 2.14.1 - 2023-09-21
+-----------------------
+- Feature - Back button in layer player (#140)
+- Bugfix - New entity colors for alert and camera features (#141)
+
+Ver. 2.14.0 - 2023-09-21
+-----------------------
+- Feature - Access allow also to first responders (#138)
+- Bugfix - Set european bbox for layers' loading (#139)
+- Feature - Get feature info (#135)
 
 Ver. 2.13.0 - 2023-09-08
 -----------------------

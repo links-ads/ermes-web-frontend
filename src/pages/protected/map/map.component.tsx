@@ -36,6 +36,8 @@ import LayersFloatingPanel from './map-layers/layers-floating-panel.component'
 import { PixelPostion } from '../../../models/common/PixelPosition'
 import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
+import { MapFeatureInfo } from './map-popup-feature-info.component'
+import { removeLayerFromMap } from '../../../common/map/map-common'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -162,7 +164,10 @@ export function Map() {
     updateLayerLegendVisibility,
     updateDefaultPosAndDim,
     addLayerTimeseries, 
-    closeLayerTimeseries
+    closeLayerTimeseries,
+    addLayerFeatureInfo,
+    updateLayerFeatureInfoPosition,
+    updateLayerFeatureInfoVisibility
   ] = useMapLayers()
   const {
     rawLayers,
@@ -174,6 +179,7 @@ export function Map() {
     defaultDimension,
     defaultPosition,
     layerTimeseries,
+    layerFeatureInfo,
     isLoading
   } = layersState
 
@@ -357,6 +363,14 @@ export function Map() {
     })
     updateMapFeatures()
   }, [filtersObj, fetchGeoJson, fetchLayers])
+
+  useEffect(() => {
+    if (toBeRemovedLayers.length > 0) {
+      for (let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(map, toBeRemovedLayers[i])
+      }
+    }
+  }, [toBeRemovedLayers])
 
   useEffect(() => {
     if (defaultDimension.w !== innerWidth) {
@@ -565,34 +579,34 @@ export function Map() {
   ///////
   return (
     <>
-    <MapStateContextProvider<MapFeature>>
-      <MapDrawer
-        toggleSideDrawer={toggleSideDrawer}
-        map={map}
-        setMapHoverState={setMapHoverState}
-        spiderLayerIds={spiderLayerIds}
-        spiderifierRef={spiderifierRef}
-        setToggleDrawerTab={setToggleSideDrawer}
-        filtersObj={filtersObj}
-        rerenderKey={fakeKey}
-        getLegend={manageLayerLegend}
-        getMeta={getLayerMeta}
-        forceUpdate={forceUpdate}
-        teamList={teamList}
-        fetchGeoJson={fetchGeoJson}
-        mapRequestsSettings={mapRequestsSettings}
-        updateMapRequestsSettings={updateMapRequestsSettings}
-        setMapRequestsSettings={setMapRequestsSettings}
-        availableLayers={rawLayers}
-        communicationCounter={communicationCounter}
-        missionCounter={missionCounter}
-        mapRequestCounter={mapRequestCounter}
-        resetListCounter={resetListCounter}
-        dataState={dataState}
-        updateTabIndex={updateTabIndex}
-        selectTabCard={selectTabCard}
-        updateCardId={updateCardId}
-      />
+      <MapStateContextProvider<MapFeature>>
+        <MapDrawer
+          toggleSideDrawer={toggleSideDrawer}
+          map={map}
+          setMapHoverState={setMapHoverState}
+          spiderLayerIds={spiderLayerIds}
+          spiderifierRef={spiderifierRef}
+          setToggleDrawerTab={setToggleSideDrawer}
+          filtersObj={filtersObj}
+          rerenderKey={fakeKey}
+          getLegend={manageLayerLegend}
+          getMeta={getLayerMeta}
+          forceUpdate={forceUpdate}
+          teamList={teamList}
+          fetchGeoJson={fetchGeoJson}
+          mapRequestsSettings={mapRequestsSettings}
+          updateMapRequestsSettings={updateMapRequestsSettings}
+          setMapRequestsSettings={setMapRequestsSettings}
+          availableLayers={rawLayers}
+          communicationCounter={communicationCounter}
+          missionCounter={missionCounter}
+          mapRequestCounter={mapRequestCounter}
+          resetListCounter={resetListCounter}
+          dataState={dataState}
+          updateTabIndex={updateTabIndex}
+          selectTabCard={selectTabCard}
+          updateCardId={updateCardId}
+        />
         <MapContainer initialHeight={window.innerHeight - 112} style={{ height: '110%' }}>
           {selectedLayers &&
             selectedLayers.length > 0 &&
@@ -642,8 +656,17 @@ export function Map() {
               defaultPosition={mapTimeSeriesContainerDefaultCoord}
               position={mapTimeSeriesContainerPosition}
               onPositionChange={setMapTimeSeriesContainerPosition}
-              selectedFilters={filtersObj?.filters}/>
-            )}
+              selectedFilters={filtersObj?.filters}
+            />
+          )}
+
+          {layerFeatureInfo && (
+            <MapFeatureInfo
+              layerFeatureInfo={layerFeatureInfo}
+              onPositionChange={updateLayerFeatureInfoPosition}
+              updateVisibility={updateLayerFeatureInfoVisibility}
+            />
+          )}
 
           <LayersFloatingPanel
             layerGroups={groupedLayers}
@@ -678,9 +701,10 @@ export function Map() {
             forceUpdate={forceUpdate}
             fetchGeoJson={fetchGeoJson}
             addLayerTimeseries={addLayerTimeseries}
+            addLayerFeatureInfo={addLayerFeatureInfo}
             refreshList={refreshList}
             downloadGeojsonFeatureCollection={downloadGeojsonFeatureCollectionHandler}
-            selectedLayer={selectedLayers[selectedLayers.length - 1]} // TODO only top one
+            selectedLayers={selectedLayers}
             mapRequestsSettings={mapRequestsSettings}
             mapDrawerDataState={dataState}
           />

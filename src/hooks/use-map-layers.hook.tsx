@@ -2,8 +2,13 @@ import { useCallback, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
-import { getLegendURL } from '../utils/map.utils'
+import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
+import {
+  FeatureInfo,
+  LayerFeatureInfo,
+  LayerFeatureInfoState
+} from '../models/layers/LayerFeatureInfo'
 
 const initialState = {
   rawLayers: {},
@@ -13,10 +18,84 @@ const initialState = {
   layersMetadata: [],
   layersLegend: [],
   layerTimeseries: null,
+  layerFeatureInfo: null,
   defaultPosition: { x: 0, y: 0 },
   defaultDimension: { h: 116, w: 1000 },
   isLoading: true,
   error: false
+}
+
+const keepPrevSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        groupedLayers &&
+        groupedLayers[selectedLayer.group] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][
+          selectedLayer.dataTypeId
+        ].isChecked = true
+      }
+    }
+  }
+  return groupedLayers
+}
+
+const updateSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const oldSelectedLayersLength = selectedLayers.length
+  if (oldSelectedLayersLength > 0) {
+    for (let i = 0; i < oldSelectedLayersLength; i++) {
+      const selectedLayer = oldSelectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const selectedLayerIdx = selectedLayers.findIndex(
+          (e) =>
+            e.group === selectedLayer.group &&
+            e.subGroup === selectedLayer.subGroup &&
+            e.dataTypeId === selectedLayer.dataTypeId
+        )
+        if (selectedLayerIdx > -1) {
+          selectedLayers.splice(selectedLayerIdx, 1)
+        }
+      }
+    }
+  }
+  return selectedLayers
+}
+
+const updateToRemove = (newGroupedLayers, oldSelectedLayers, oldToBeRemovedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const toBeRemovedLayers = [...oldToBeRemovedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const activeLayer = {
+          layerName: selectedLayer.activeLayer,
+          layerDateIndex: selectedLayer.dateIndex
+        }
+        toBeRemovedLayers.push(activeLayer)
+      }
+    }
+  }
+  return toBeRemovedLayers
 }
 
 const reducer = (currentState, action) => {
@@ -25,8 +104,24 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        groupedLayers: action.value.groupedLayers,
-        rawLayers: action.value.rawLayers
+        groupedLayers: keepPrevSelection(action.value.groupedLayers, [
+          ...currentState.selectedLayers
+        ]),
+        rawLayers: action.value.rawLayers,
+        selectedLayers: [
+          ...updateSelection(action.value.groupedLayers, [...currentState.selectedLayers])
+        ],
+        toBeRemovedLayers: updateToRemove(
+          action.value.groupedLayers,
+          [...currentState.selectedLayers],
+          [...currentState.toBeRemovedLayers]
+        ),
+        layersMetadata: updateSelection(action.value.groupedLayers, [
+          ...currentState.layersMetadata
+        ]),
+        layersLegend: updateSelection(action.value.groupedLayers, [...currentState.layersLegend]),
+        layerTimeseries: null,
+        layerFeatureInfo: null
       }
     case 'OPACITY':
       return {
@@ -47,7 +142,8 @@ const reducer = (currentState, action) => {
         toBeRemovedLayers: action.value.toBeRemovedLayers,
         layersLegend: action.value.layersLegend,
         layersMetadata: action.value.layersMetadata,
-        layerTimeseries: action.value.layerTimeseries
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
       }
     case 'UPDATE_LAYER_PLAYER':
       return {
@@ -74,6 +170,11 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         layerTimeseries: action.value
+      }
+    case 'UPDATE_LAYER_FEATURE_INFO':
+      return {
+        ...currentState,
+        layerFeatureInfo: action.value
       }
     case 'ERROR':
       return {
@@ -111,7 +212,10 @@ const useMapLayers = () => {
           const mappedResult = transformData(result)
           dispatch({
             type: 'RESULT',
-            value: { groupedLayers: mappedResult, rawLayers: result.data }
+            value: {
+              groupedLayers: mappedResult,
+              rawLayers: result.data
+            }
           })
         })
         .catch((err) => {
@@ -269,6 +373,7 @@ const useMapLayers = () => {
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
       let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -296,17 +401,23 @@ const useMapLayers = () => {
             }
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
+          // remove legend
           const findLegendIdx = updateLegends.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findLegendIdx >= 0) {
             updateLegends.splice(findLegendIdx, 1)
           }
+          // remove metadata
           const findMetadataIdx = updateMetadata.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findMetadataIdx >= 0) {
             updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
           }
         }
         const defaultPos = { ...dataState.defaultPosition }
@@ -326,7 +437,8 @@ const useMapLayers = () => {
             toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, changedSelectedLayers),
             layersLegend: updateLegends,
             layersMetadata: updateMetadata,
-            layerTimeseries: updateTimeseries
+            layerTimeseries: updateTimeseries,
+            layerFeatureInfo: updateFeatureInfo
           }
         })
       }
@@ -521,6 +633,95 @@ const useMapLayers = () => {
     })
   }, [dataState])
 
+  const addLayerFeatureInfo = useCallback(
+    (geoServerConfig, w, h, mapBounds, windowInnerWidth) => {
+      const selectedLayers = [...dataState.selectedLayers]
+      const layers = selectedLayers.map((e) => e.activeLayer).join(',')
+      fetch(getFeatureInfoUrl(geoServerConfig, w, h, layers, mapBounds))
+        .then((response) => response.json())
+        .then((result) => {
+          const featInfo = new LayerFeatureInfo(
+            result.features,
+            result.totalFeatures,
+            result.numberReturned,
+            result.timestatmp,
+            result.crs
+          )
+          const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
+          const mappedFeatureInfo: LayerFeatureInfoState[] = []
+          let i = 0,
+            j = 0
+          while (j < featInfo.features.length) {
+            const feature = featInfo.features[j]
+            if ((feature.id as string).length === 0) {
+              if (j !== 0) {
+                i++
+              }
+            }
+            const layerName = layerNames[i]
+            const property = feature.properties
+            const featureInfo = Object.keys(property!!).map(
+              (e) => new FeatureInfo(e, property!![e])
+            )
+
+            const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
+            if (prevIdx > -1) {
+              const prevFeat = mappedFeatureInfo[prevIdx].featuresInfo
+              const allFeat = prevFeat.concat(featureInfo)
+              const updatedFeatureInfo = new LayerFeatureInfoState(layerName, allFeat)
+              mappedFeatureInfo[prevIdx] = updatedFeatureInfo
+            } else {
+              const layerFeatureInfo = new LayerFeatureInfoState(layerName, featureInfo)
+              mappedFeatureInfo.push(layerFeatureInfo)
+            }
+            j++
+          }
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: mappedFeatureInfo,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: false
+            }
+          })
+        })
+        .catch((err) => {
+          console.debug(err)
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: null,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: true
+            }
+          })
+        })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoPosition = useCallback(
+    (x, y) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.position = { x: x, y: y }
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoVisibility = useCallback(
+    (visibility) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.visibility = visibility
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
   return [
     dataState,
     fetchLayers,
@@ -536,7 +737,10 @@ const useMapLayers = () => {
     updateLayerLegendVisibility,
     updateDefaultPosAndDim,
     addLayerTimeseries,
-    closeLayerTimeseries
+    closeLayerTimeseries,
+    addLayerFeatureInfo,
+    updateLayerFeatureInfoPosition,
+    updateLayerFeatureInfoVisibility
   ]
 }
 
