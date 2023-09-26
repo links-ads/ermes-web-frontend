@@ -44,7 +44,7 @@ export function PostEventMonitoringDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted, mapArea } = editState
+  const { mapSelectionCompleted, mapArea, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -219,6 +219,7 @@ export function PostEventMonitoringDialog({
         <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
+            mapRequestType={type}
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
             mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}

@@ -30,7 +30,7 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
-import { AddCircle, Delete, ScatterPlot, Timeline } from '@material-ui/icons'
+import { AddCircle, Delete, Gesture, ScatterPlot, Timeline } from '@material-ui/icons'
 import { MapMode, MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature, {
   lineColors
@@ -57,7 +57,7 @@ export function WildFireSimulationDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted, mapArea, boundaryConditions } = editState
+  const { mapSelectionCompleted, mapArea, boundaryConditions, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -414,15 +414,25 @@ export function WildFireSimulationDialog({
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row" justifyContent="space-between">
-          <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
-          <Tooltip title={t('maps:drawPoint') ?? ''}>
-            <IconButton onClick={() => setWildfireMapMode('editPoint')}>
-              <ScatterPlot></ScatterPlot>
-            </IconButton>
-          </Tooltip>
+          <Grid item xs={10}>
+            <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
+          </Grid>
+          <Grid item xs={2}>
+            <Tooltip title={t('maps:drawPoint') ?? ''}>
+              <IconButton onClick={() => setWildfireMapMode('editPoint')}>
+                <ScatterPlot></ScatterPlot>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={t('maps:draw_polygon_msg') ?? ''}>
+              <IconButton onClick={() => setWildfireMapMode('edit')}>
+                <Gesture></Gesture>
+              </IconButton>
+            </Tooltip>
+          </Grid>
         </Grid>
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
+            mapRequestType={type}
             customMapMode={wildfireMapMode}
             lineIdx={boundaryConditionIdx}
             areaSelectedAlertHandler={setAreaSelectionStatus}
