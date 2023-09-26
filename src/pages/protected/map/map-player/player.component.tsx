@@ -20,7 +20,6 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { AppConfig, AppConfigContext } from '../../../../config'
 import { useSnackbars } from '../../../../hooks/use-snackbars.hook'
 import GetAppIcon from '@material-ui/icons/GetApp'
-import { tileJSONIfy } from '../../../../utils/map.utils'
 import { LayerSettingsState } from '../../../../models/layers/LayerState'
 import { PixelPostion } from '../../../../models/common/PixelPosition'
 import {
@@ -30,6 +29,7 @@ import {
   SkipPreviousOutlined
 } from '@material-ui/icons'
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
+import { removeLayerFromMap, paintMapWithLayer } from '../../../../common/map/map-common'
 
 const useStyles = makeStyles((theme) => ({
   slider: {
@@ -146,48 +146,16 @@ const LayersPlayer: React.FC<{
     setIsLoading(false)
   }
 
-  const removeLayerFromMap = (toRemoveLayer) => {
-    const removeLayerName = toRemoveLayer.layerName + '-' + toRemoveLayer.layerDateIndex
-    if (map.getLayer(removeLayerName)) {
-      map.removeLayer(removeLayerName)
-      map.removeSource(removeLayerName)
-    }
-  }
-
   useEffect(() => {
     if (!selectedLayer) return
 
     if (toBeRemovedLayers && toBeRemovedLayers.length > 0) {
       for (let i = 0; i < toBeRemovedLayers.length; i++) {
-        removeLayerFromMap(toBeRemovedLayers[i])
+        removeLayerFromMap(map, toBeRemovedLayers[i])
       }
     }
 
-    const currentLayerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
-    if (currentLayerName != '' && !map.getLayer(currentLayerName)) {
-      const source = tileJSONIfy(
-        map,
-        selectedLayer.activeLayer,
-        selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-        geoServerConfig,
-        map.getBounds()
-      )
-      source['properties'] = {
-        format: undefined,
-        fromTime: undefined,
-        toTime: undefined
-      }
-      map.addSource(currentLayerName, source as mapboxgl.RasterSource)
-      map.addLayer(
-        {
-          id: currentLayerName,
-          type: 'raster',
-          source: currentLayerName
-        },
-        'clusters'
-      )
-      map.setPaintProperty(currentLayerName, 'raster-opacity', selectedLayer.opacity / 100)
-    }
+    paintMapWithLayer(map, selectedLayer, geoServerConfig)
   }, [selectedLayer?.dateIndex, toBeRemovedLayers])
 
   useEffect(() => {

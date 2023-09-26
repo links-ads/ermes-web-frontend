@@ -110,7 +110,7 @@ const mapRequestCard = (
   else {
   const mapRequestDetails = data.feature.properties
   return (
-    <Card elevation={0}>
+    <Card elevation={0} style={{ overflowX: 'auto'}}>
       <CardContent style={{ paddingTop: '10px' }}>
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
@@ -1100,7 +1100,7 @@ export function EmergencyHoverCardContent({
         </Typography>
         <br />
         <Typography variant="h6" color="inherit" component={'span'}>
-          {type} <Dot type={type} />
+          {t('maps:legend_' + type.toLowerCase())} <Dot type={type} />
         </Typography>
       </div>
 

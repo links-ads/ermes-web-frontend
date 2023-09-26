@@ -25,14 +25,103 @@ const initialState = {
   error: false
 }
 
+const keepPrevSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        groupedLayers &&
+        groupedLayers[selectedLayer.group] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][
+          selectedLayer.dataTypeId
+        ].isChecked = true
+      }
+    }
+  }
+  return groupedLayers
+}
+
+const updateSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const oldSelectedLayersLength = selectedLayers.length
+  if (oldSelectedLayersLength > 0) {
+    for (let i = 0; i < oldSelectedLayersLength; i++) {
+      const selectedLayer = oldSelectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const selectedLayerIdx = selectedLayers.findIndex(
+          (e) =>
+            e.group === selectedLayer.group &&
+            e.subGroup === selectedLayer.subGroup &&
+            e.dataTypeId === selectedLayer.dataTypeId
+        )
+        if (selectedLayerIdx > -1) {
+          selectedLayers.splice(selectedLayerIdx, 1)
+        }
+      }
+    }
+  }
+  return selectedLayers
+}
+
+const updateToRemove = (newGroupedLayers, oldSelectedLayers, oldToBeRemovedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const toBeRemovedLayers = [...oldToBeRemovedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const activeLayer = {
+          layerName: selectedLayer.activeLayer,
+          layerDateIndex: selectedLayer.dateIndex
+        }
+        toBeRemovedLayers.push(activeLayer)
+      }
+    }
+  }
+  return toBeRemovedLayers
+}
+
 const reducer = (currentState, action) => {
   switch (action.type) {
     case 'RESULT':
       return {
         ...currentState,
         isLoading: false,
-        groupedLayers: action.value.groupedLayers,
-        rawLayers: action.value.rawLayers
+        groupedLayers: keepPrevSelection(action.value.groupedLayers, [
+          ...currentState.selectedLayers
+        ]),
+        rawLayers: action.value.rawLayers,
+        selectedLayers: [
+          ...updateSelection(action.value.groupedLayers, [...currentState.selectedLayers])
+        ],
+        toBeRemovedLayers: updateToRemove(
+          action.value.groupedLayers,
+          [...currentState.selectedLayers],
+          [...currentState.toBeRemovedLayers]
+        ),
+        layersMetadata: updateSelection(action.value.groupedLayers, [
+          ...currentState.layersMetadata
+        ]),
+        layersLegend: updateSelection(action.value.groupedLayers, [...currentState.layersLegend]),
+        layerTimeseries: null,
+        layerFeatureInfo: null
       }
     case 'OPACITY':
       return {
@@ -123,7 +212,10 @@ const useMapLayers = () => {
           const mappedResult = transformData(result)
           dispatch({
             type: 'RESULT',
-            value: { groupedLayers: mappedResult, rawLayers: result.data }
+            value: {
+              groupedLayers: mappedResult,
+              rawLayers: result.data
+            }
           })
         })
         .catch((err) => {
@@ -590,7 +682,21 @@ const useMapLayers = () => {
               featureInfo: mappedFeatureInfo,
               layers: selectedLayers,
               visibility: true,
-              position: { x: windowInnerWidth - 109 - 741, y: 60 }
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: false
+            }
+          })
+        })
+        .catch((err) => {
+          console.debug(err)
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: null,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: true
             }
           })
         })
