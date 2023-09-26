@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl": "https://safersblobstoragetest.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://safersblobstoragedev.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -30,7 +30,7 @@
   "crs": "EPSG:4326",
   "mapPollingInterval": 60,
   "geoServer": {
-    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
@@ -44,14 +44,14 @@
   },
   "fusionAuth": {
     "url": "https://auth.safers-project.cloud/",
-    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
-    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
+    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
+    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
-    "url": "https://api-test.safers-project.cloud"
+    "url": "https://api-dev.safers-project.cloud"
   },
   "userTagsFilter": {
     "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-dev.safers-project.cloud"
 }
