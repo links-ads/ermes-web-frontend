@@ -1100,7 +1100,7 @@ export function EmergencyHoverCardContent({
         </Typography>
         <br />
         <Typography variant="h6" color="inherit" component={'span'}>
-          {type} <Dot type={type} />
+          {t('maps:legend_' + type.toLowerCase())} <Dot type={type} />
         </Typography>
       </div>
 
