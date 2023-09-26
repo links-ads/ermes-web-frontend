@@ -25,6 +25,7 @@ import { SensorDto, StationDto } from 'ermes-backoffice-ts-sdk'
 import { CameraDetails } from '../camera-details.component'
 import { useDispatch } from 'react-redux'
 import { setSelectedCamera } from '../../../../../state/selected-camera.state'
+import { getSensorsLastUpdate } from '../../../../../utils/get-sensors-last-update.util'
 
 const MAX_DESCRIPTION_LENGTH = 500
 
@@ -37,22 +38,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText
   }
 }))
-
-function getLastUpdate(sensors: SensorDto[]) {
-  let lastUpdate = 0
-
-  sensors.forEach((sensor) => {
-    sensor.measurements?.forEach((measurement) => {
-      const currentTimestamp = new Date(measurement.timestamp!).getTime()
-
-      if (!isNaN(currentTimestamp) && currentTimestamp > lastUpdate) {
-        lastUpdate = currentTimestamp
-      }
-    })
-  })
-
-  return lastUpdate
-}
 
 const CameraCard: React.FC<{
   key: number
@@ -71,7 +56,7 @@ const CameraCard: React.FC<{
 
   const theme = useTheme()
 
-  const lastUpdate = getLastUpdate(elem?.sensors ?? [])
+  const lastUpdate = getSensorsLastUpdate(elem?.sensors ?? [])
 
   const hasFire = elem?.sensors?.some((sensor) =>
     sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)

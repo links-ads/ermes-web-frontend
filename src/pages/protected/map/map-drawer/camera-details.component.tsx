@@ -1,49 +1,44 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Grid,
-  Badge,
-  createStyles,
-  Chip,
-  useTheme,
-  useMediaQuery,
   Button,
-  Switch,
-  FormGroup,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   FormControlLabel,
+  FormGroup,
+  Grid,
   IconButton,
-  MenuItem,
-  Menu
+  Switch,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+  useTheme
 } from '@material-ui/core'
 import {
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
+  AddCircle,
   ArrowLeft,
   ArrowRight,
-  Check,
   Cancel,
+  Check,
   CheckCircle,
-  AddCircle,
-  RemoveCircle,
-  Close
+  Close,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  RemoveCircle
 } from '@material-ui/icons'
-import { MeasureDto, SensorDto, StationDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
-import useCameras from '../../../../hooks/use-cameras.hook'
+import { MeasureDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
+import moment from 'moment'
+import { useSnackbar } from 'notistack'
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
+import { useAPIConfiguration } from '../../../../hooks/api-hooks'
+import useCameras from '../../../../hooks/use-cameras.hook'
 import { AppState } from '../../../../state/app.state'
 import { clearSelectedCamera } from '../../../../state/selected-camera.state'
 import classes from './drawer-cards/communication-card.module.scss'
-import moment from 'moment'
-import { StationsApi } from 'ermes-backoffice-ts-sdk'
-import { useAPIConfiguration } from '../../../../hooks/api-hooks'
-import { useSnackbar } from 'notistack'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -122,6 +117,8 @@ function getValidationStatus(type, metadata) {
 function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
   const theme = useTheme()
 
+  const { t } = useTranslation(['common', 'maps'])
+
   if (!show) {
     return null
   }
@@ -133,8 +130,6 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
       : validationStatus === ValidationStatus.UndetectedAndAdded
       ? null
       : value
-
-  console.log(type, validationStatus)
 
   return (
     <Button
@@ -152,49 +147,49 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
     >
       {validationStatus === ValidationStatus.DetectedAndValidated && value && (
         <>
-          <CheckCircle /> {type}
+          <CheckCircle /> {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.DetectedAndDiscarded && value === false && (
         <>
-          <Cancel /> {type}
+          <Cancel /> {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.UndetectedAndAdded && (
         <>
-          <RemoveCircle /> Remove {type}
+          <RemoveCircle /> {t(`maps:remove`)} {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.Undetected && (
         <>
-          <AddCircle /> Add {type}
+          <AddCircle /> {t(`maps:add`)} {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.Detected && value && (
         <>
-          <Check /> Confirm {type}
+          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.DetectedAndDiscarded && value && (
         <>
-          <Check /> Confirm {type}
+          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.Detected && value === false && (
         <>
-          <Close /> Discard {type}
+          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
         </>
       )}
 
       {validationStatus === ValidationStatus.DetectedAndValidated && value === false && (
         <>
-          <Close /> Discard {type}
+          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
         </>
       )}
     </Button>
@@ -534,6 +529,8 @@ export function CameraDetails({}: CameraDetailsProps) {
               const hasFire = measurement.metadata?.detection?.fire
               const hasSmoke = measurement.metadata?.detection?.smoke
               const thumbnail = measurement.metadata?.thumbnail_uri ?? measurement.measure
+              const fireValidationStatus = getValidationStatus('fire', measurement.metadata)
+              const smokeValidationStatus = getValidationStatus('smoke', measurement.metadata)
 
               const style = { ...localStyles.thumbnail }
               if (selectedSensorMeasurementId === measurement.id) {
@@ -544,7 +541,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                 <div key={measurement.id as any}>
                   <div style={style} onClick={() => setSelectedSensorMeasurement(measurement.id)}>
                     <div style={localStyles.smallBadgeContainer}>
-                      {hasFire && (
+                      {hasFire && fireValidationStatus === ValidationStatus.Detected && (
                         <Chip
                           color="primary"
                           size="small"
@@ -558,7 +555,39 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
-                      {hasSmoke && (
+                      {hasFire &&
+                        fireValidationStatus === ValidationStatus.DetectedAndValidated && (
+                          <div
+                            style={{
+                              borderRadius: '50%',
+                              backgroundColor: 'white',
+                              width: 16,
+                              height: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <CheckCircle style={{ fill: theme.palette.error.dark, fontSize: 20 }} />
+                          </div>
+                        )}
+                      {hasFire &&
+                        fireValidationStatus === ValidationStatus.DetectedAndDiscarded && (
+                          <div
+                            style={{
+                              borderRadius: '50%',
+                              backgroundColor: 'white',
+                              width: 16,
+                              height: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <Cancel style={{ fill: theme.palette.error.dark, fontSize: 20 }} />
+                          </div>
+                        )}
+                      {hasSmoke && smokeValidationStatus === ValidationStatus.Detected && (
                         <Chip
                           color="primary"
                           size="small"
@@ -572,6 +601,42 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
+                      {hasSmoke &&
+                        smokeValidationStatus === ValidationStatus.DetectedAndValidated && (
+                          <div
+                            style={{
+                              borderRadius: '50%',
+                              backgroundColor: 'black',
+                              width: 16,
+                              height: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <CheckCircle
+                              style={{ fill: theme.palette.primary.contrastText, fontSize: 20 }}
+                            />
+                          </div>
+                        )}
+                      {hasSmoke &&
+                        smokeValidationStatus === ValidationStatus.DetectedAndDiscarded && (
+                          <div
+                            style={{
+                              borderRadius: '50%',
+                              backgroundColor: 'black',
+                              width: 16,
+                              height: 16,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <Cancel
+                              style={{ fill: theme.palette.primary.contrastText, fontSize: 20 }}
+                            />
+                          </div>
+                        )}
                     </div>
                     <img
                       style={{ width: 100, height: 75, objectFit: 'cover' }}
