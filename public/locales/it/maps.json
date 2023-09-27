@@ -60,6 +60,7 @@
   "operation_delete": "Elimina",
   "operation_close": "Chiudi",
   "operation_get": "Ottieni",
+  "operation_duplicate": "Duplica", 
   "description_label": "Descrizione",
   "title_label": "Titolo",
   "description_placeholder": "Aggiungi descrizione qui",

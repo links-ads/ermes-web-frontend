@@ -1,4 +1,4 @@
-import { Box, CardActions, CardContent, IconButton, Typography } from "@material-ui/core";
+import { Box, CardActions, CardContent, IconButton, Tooltip, Typography } from "@material-ui/core";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { FormatDate } from "../../../../../utils/date.utils";
@@ -75,13 +75,27 @@ const MapRequestCard: React.FC<{
             </Box>
           </div>
           <div>
-            <IconButton onClick={() => props.fetchRequestById(mapRequestInfo.id)}>
-              <FileCopyIcon />
-            </IconButton>
-            {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
-              <IconButton onClick={() => props.deleteMR(mapRequestInfo.code)}>
-                <DeleteIcon />
+            <Tooltip title={t('maps:operation_duplicate') ?? ''}>
+              <IconButton
+                onClick={(evt) => {
+                  evt.stopPropagation()
+                  props.fetchRequestById(mapRequestInfo.id)
+                }}
+              >
+                <FileCopyIcon />
               </IconButton>
+            </Tooltip>
+            {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
+              <Tooltip title={t('maps:operation_delete') ?? ''}>
+                <IconButton
+                  onClick={(evt) => {
+                    evt.stopPropagation()
+                    props.deleteMR(mapRequestInfo.code)
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             ) : null}
           </div>
         </div>
@@ -96,9 +110,11 @@ const MapRequestCard: React.FC<{
               {t('labels:type')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
-            {mapRequestInfo.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ? t('maps:fireAndBurnedAreas') 
-            : mapRequestInfo.mapRequestType === MapRequestType.POST_EVENT_MONITORING ? t('maps:postEventMonitoring') 
-            : t('maps:wildfireSimulation') }
+              {mapRequestInfo.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA
+                ? t('maps:fireAndBurnedAreas')
+                : mapRequestInfo.mapRequestType === MapRequestType.POST_EVENT_MONITORING
+                ? t('maps:postEventMonitoring')
+                : t('maps:wildfireSimulation')}
             </Typography>
             <br />
           </div>
@@ -174,7 +190,7 @@ const MapRequestCard: React.FC<{
             return null
           })}
         </div>
-        <div className={classes.pos}>
+        <div onClick={(evt) => evt.stopPropagation()} className={classes.pos}>
           {mapRequestInfo.status === MapRequestStatusType.CONTENT_AVAILABLE && (
             <MapRequestAccordion
               getMeta={getMeta}
@@ -193,12 +209,13 @@ const MapRequestCard: React.FC<{
         </Typography>
         <IconButton
           size="small"
-          onClick={() =>
+          onClick={(evt) => {
+            evt.stopPropagation()
             setGoToCoord({
               latitude: mapRequestInfo.centroid?.latitude as number,
               longitude: mapRequestInfo.centroid?.longitude as number
             })
-          }
+          }}
           className={classes.viewInMap}
         >
           <LocationOnIcon htmlColor={EmergencyColorMap.MapRequest} />

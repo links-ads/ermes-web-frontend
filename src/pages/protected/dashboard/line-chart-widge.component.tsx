@@ -8,7 +8,7 @@ export const LineChartWidget: React.FC<{data: LineChartProps}> = (
     props
 ) => {
     const theme = useTheme()
-    const { chartData, xValues } = props.data;
+    const { chartData, xValues, type: chartDataType } = props.data;
     // const formatTicks = (v) => {
     //     return v.length > 10 ? (
     //         <tspan>
@@ -30,7 +30,7 @@ export const LineChartWidget: React.FC<{data: LineChartProps}> = (
                 xScale={{ type: 'point' }}
                 
                 yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
-                yFormat=">-6.2f"
+                yFormat={chartDataType === 'Number' ? ">-6.2f" :  undefined}
                 theme={
                     {
                         textColor: theme['palette']['text']['primary'],
@@ -60,7 +60,7 @@ export const LineChartWidget: React.FC<{data: LineChartProps}> = (
                         ChartTooltip(
                             d.point.serieId as string,
                             d.point.serieColor,
-                            (d.point.data.y as number).toFixed(4))
+                            chartDataType === 'Number' ? (d.point.data.y as number).toFixed(4) : (d.point.data.y as string))
                             )
                         }}
             />

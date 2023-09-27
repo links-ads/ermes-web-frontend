@@ -647,7 +647,9 @@ const useMapLayers = () => {
             const layerName = layerNames[i]
             const property = feature.properties
             const featureInfo = Object.keys(property!!).map(
-              (e) => new FeatureInfo(e, property!![e])
+              (e) => {
+                const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+                return new FeatureInfo(e, rounded)}
             )
 
             const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
