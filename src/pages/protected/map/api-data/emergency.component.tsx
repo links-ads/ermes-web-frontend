@@ -1062,9 +1062,9 @@ const stationCard = (data, classes, t, formatter, latitude, longitude, theme, di
               <Chip
                 avatar={
                   hasAllSmokeValidationsDiscarded ? (
-                    <DiscardedIcon type="fire" avatar />
+                    <DiscardedIcon type="smoke" avatar />
                   ) : hasAtLeastOneSmokeValidation ? (
-                    <ValidatedIcon type="fire" avatar />
+                    <ValidatedIcon type="smoke" avatar />
                   ) : undefined
                 }
                 color="primary"
