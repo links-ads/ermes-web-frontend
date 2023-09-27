@@ -39,6 +39,11 @@ import { getSensorsLastUpdate } from '../../../../utils/get-sensors-last-update.
 import ccmClasses from '../map-drawer/drawer-cards/communication-card.module.scss'
 import { useDispatch } from 'react-redux'
 import { setSelectedCamera } from '../../../../state/selected-camera.state'
+import {
+  CameraValidationStatus,
+  getCameraValidationStatus
+} from '../../../../utils/get-camera-validation-status.util'
+import { DiscardedIcon, ValidatedIcon } from '../map-drawer/camera-chip-icons.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -956,6 +961,38 @@ const stationCard = (data, classes, t, formatter, latitude, longitude, theme, di
     sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
   )
 
+  const hasAtLeastOneFireValidation = data?.sensors?.some((sensor) => {
+    return sensor.measurements?.some(
+      (measurement) =>
+        getCameraValidationStatus('fire', measurement.metadata) ===
+        CameraValidationStatus.DetectedAndValidated
+    )
+  })
+
+  const hasAllFireValidationsDiscarded = data?.sensors?.every((sensor) => {
+    return sensor.measurements?.every(
+      (measurement) =>
+        getCameraValidationStatus('fire', measurement.metadata) ===
+        CameraValidationStatus.DetectedAndDiscarded
+    )
+  })
+
+  const hasAtLeastOneSmokeValidation = data?.sensors?.some((sensor) => {
+    return sensor.measurements?.some(
+      (measurement) =>
+        getCameraValidationStatus('smoke', measurement.metadata) ===
+        CameraValidationStatus.DetectedAndValidated
+    )
+  })
+
+  const hasAllSmokeValidationsDiscarded = data?.sensors?.every((sensor) => {
+    return sensor.measurements?.every(
+      (measurement) =>
+        getCameraValidationStatus('smoke', measurement.metadata) ===
+        CameraValidationStatus.DetectedAndDiscarded
+    )
+  })
+
   if (!data) {
     return (
       <Grid container style={{ height: 200 }} justifyContent="center" alignItems="center">
@@ -1003,6 +1040,13 @@ const stationCard = (data, classes, t, formatter, latitude, longitude, theme, di
           <div className={ccmClasses.chipContainer}>
             {hasFire && (
               <Chip
+                avatar={
+                  hasAllFireValidationsDiscarded ? (
+                    <DiscardedIcon type="fire" avatar />
+                  ) : hasAtLeastOneFireValidation ? (
+                    <ValidatedIcon type="fire" avatar />
+                  ) : undefined
+                }
                 color="primary"
                 size="small"
                 style={{
@@ -1016,6 +1060,13 @@ const stationCard = (data, classes, t, formatter, latitude, longitude, theme, di
             )}
             {hasSmoke && (
               <Chip
+                avatar={
+                  hasAllSmokeValidationsDiscarded ? (
+                    <DiscardedIcon type="fire" avatar />
+                  ) : hasAtLeastOneSmokeValidation ? (
+                    <ValidatedIcon type="fire" avatar />
+                  ) : undefined
+                }
                 color="primary"
                 size="small"
                 style={{

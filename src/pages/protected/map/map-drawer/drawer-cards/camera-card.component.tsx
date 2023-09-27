@@ -13,7 +13,7 @@ import {
   useTheme
 } from '@material-ui/core'
 import { AlertDto, EntityType } from 'ermes-ts-sdk'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CardWithPopup from './card-with-popup.component'
 import classes from './communication-card.module.scss'
@@ -26,6 +26,12 @@ import { CameraDetails } from '../camera-details.component'
 import { useDispatch } from 'react-redux'
 import { setSelectedCamera } from '../../../../../state/selected-camera.state'
 import { getSensorsLastUpdate } from '../../../../../utils/get-sensors-last-update.util'
+import {
+  CameraValidationStatus,
+  getCameraValidationStatus
+} from '../../../../../utils/get-camera-validation-status.util'
+import { Cancel, CheckCircle } from '@material-ui/icons'
+import { DiscardedIcon, ValidatedIcon } from '../camera-chip-icons.component'
 
 const MAX_DESCRIPTION_LENGTH = 500
 
@@ -58,15 +64,67 @@ const CameraCard: React.FC<{
 
   const lastUpdate = getSensorsLastUpdate(elem?.sensors ?? [])
 
-  const hasFire = elem?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
-  )
-  const hasSmoke = elem?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
-  )
-  const hasNotAvailable = elem?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.not_available)
-  )
+  const [
+    hasFire,
+    hasSmoke,
+    hasNotAvailable,
+    hasAtLeastOneFireValidation,
+    hasAllFireValidationsDiscarded,
+    hasAtLeastOneSmokeValidation,
+    hasAllSmokeValidationsDiscarded
+  ] = useMemo(() => {
+    const hasFire = elem?.sensors?.some((sensor) =>
+      sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
+    )
+    const hasSmoke = elem?.sensors?.some((sensor) =>
+      sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
+    )
+    const hasNotAvailable = elem?.sensors?.some((sensor) =>
+      sensor.measurements?.some((measurement) => measurement.metadata?.detection?.not_available)
+    )
+
+    const hasAtLeastOneFireValidation = elem?.sensors?.some((sensor) => {
+      return sensor.measurements?.some(
+        (measurement) =>
+          getCameraValidationStatus('fire', measurement.metadata) ===
+          CameraValidationStatus.DetectedAndValidated
+      )
+    })
+
+    const hasAllFireValidationsDiscarded = elem?.sensors?.every((sensor) => {
+      return sensor.measurements?.every(
+        (measurement) =>
+          getCameraValidationStatus('fire', measurement.metadata) ===
+          CameraValidationStatus.DetectedAndDiscarded
+      )
+    })
+
+    const hasAtLeastOneSmokeValidation = elem?.sensors?.some((sensor) => {
+      return sensor.measurements?.some(
+        (measurement) =>
+          getCameraValidationStatus('smoke', measurement.metadata) ===
+          CameraValidationStatus.DetectedAndValidated
+      )
+    })
+
+    const hasAllSmokeValidationsDiscarded = elem?.sensors?.every((sensor) => {
+      return sensor.measurements?.every(
+        (measurement) =>
+          getCameraValidationStatus('smoke', measurement.metadata) ===
+          CameraValidationStatus.DetectedAndDiscarded
+      )
+    })
+
+    return [
+      hasFire,
+      hasSmoke,
+      hasNotAvailable,
+      hasAtLeastOneFireValidation,
+      hasAllFireValidationsDiscarded,
+      hasAtLeastOneSmokeValidation,
+      hasAllSmokeValidationsDiscarded
+    ]
+  }, [elem])
 
   function handleShowDetails(event, elem) {
     event.stopPropagation()
@@ -134,6 +192,13 @@ const CameraCard: React.FC<{
           <div className={classes.chipContainer}>
             {hasFire && (
               <Chip
+                avatar={
+                  hasAllFireValidationsDiscarded ? (
+                    <DiscardedIcon type="fire" avatar />
+                  ) : hasAtLeastOneFireValidation ? (
+                    <ValidatedIcon type="fire" avatar />
+                  ) : undefined
+                }
                 color="primary"
                 size="small"
                 style={{
@@ -147,6 +212,13 @@ const CameraCard: React.FC<{
             )}
             {hasSmoke && (
               <Chip
+                avatar={
+                  hasAllSmokeValidationsDiscarded ? (
+                    <DiscardedIcon type="fire" avatar />
+                  ) : hasAtLeastOneSmokeValidation ? (
+                    <ValidatedIcon type="fire" avatar />
+                  ) : undefined
+                }
                 color="primary"
                 size="small"
                 style={{
