@@ -67,6 +67,7 @@ import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from "@terraformer/wkt"
+import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -721,27 +722,29 @@ export function MapLayout(props) {
     if (clickedPoint) {
       if (polyToMap && polyToMap?.feature?.geometry) {
         const geometry = JSON.parse(polyToMap?.feature?.geometry)
-        const polyToDraw =
-          geometry.type === 'Polygon'
-            ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point'
-            ? geometryCollection(
-                [geometry].concat(
-                  polyToMap.feature.properties.boundaryConditions.map((e) => {
-                    if (e.fireBreak) {
-                      const lineString = Object.values(e.fireBreak)[0] as string
-                      let geojsonLine = null
-                      if (lineString.startsWith('L')) {
-                        geojsonLine = wktToGeoJSON(lineString)
-                      } else {
-                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
-                      }
-                      return geojsonLine
+        const isGeometryCollection =
+          polyToMap.feature.properties.type === EntityType.MAP_REQUEST &&
+          polyToMap.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+        const polyToDraw = isGeometryCollection
+          ? geometryCollection(
+              [geometry].concat(
+                polyToMap.feature.properties.boundaryConditions.map((e) => {
+                  if (e.fireBreak) {
+                    const lineString = Object.values(e.fireBreak)[0] as string
+                    let geojsonLine = null
+                    if (lineString.startsWith('L')) {
+                      geojsonLine = wktToGeoJSON(lineString)
+                    } else {
+                      geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
                     }
-                  })
-                )
+                    return geojsonLine
+                  }
+                })
               )
-            : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
+            )
+          : geometry.type === 'Polygon'
+          ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+          : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
         const mapIsMoving = map?.isMoving()
         if (mapIsMoving) {
           map?.once('moveend', function (e) {

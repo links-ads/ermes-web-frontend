@@ -219,6 +219,18 @@ const mapRequestCard = (
               color="textSecondary"
               style={{ textTransform: 'uppercase' }}
             >
+              {t('maps:hoursOfProjectionLabel')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.timeLimit}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
               {t('maps:probabilityRangeLabel')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">

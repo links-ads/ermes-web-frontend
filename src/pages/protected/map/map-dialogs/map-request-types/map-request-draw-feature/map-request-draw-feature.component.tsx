@@ -18,6 +18,7 @@ import { MapMode, useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
 import { Color } from '@material-ui/lab'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
+import { Chip, Theme, createStyles, makeStyles } from '@material-ui/core'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -37,6 +38,19 @@ export const lineColors = {
   4: pink[600],
   5: purple[600]
 }
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    mapCoorZoom: {
+      zIndex: 97,
+      top: 10, 
+      left: 56, 
+      position: 'absolute',
+      color: '#fff',
+      backgroundColor: '#333'
+    }
+  })
+)
 
 const MapRequestDrawFeature: React.FC<{
   mapRequestType: MapRequestType
@@ -71,6 +85,7 @@ const MapRequestDrawFeature: React.FC<{
     mapSelectedFeatures
   } = props
 
+  const classes = useStyles()
   const { t } = useTranslation(['maps', 'labels'])
 
   const [mapFeatures, setMapFeatures] = useState<GeoJSON.Feature[]>(mapSelectedFeatures ?? [])
@@ -201,6 +216,19 @@ const MapRequestDrawFeature: React.FC<{
   const getLineColor = (lineIdx) => {
     return lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
   }
+
+  const mapCoordinatesZoom =
+    t('social:map_latitude') +
+    ': ' +
+    viewport.latitude.toFixed(2) +
+    ' | ' +
+    t('social:map_longitude') +
+    ': ' +
+    viewport.longitude.toFixed(2) +
+    ' | ' +
+    t('social:map_zoom') +
+    ': ' +
+    viewport.zoom.toFixed(2)
 
   return (
     mapFeatures &&
@@ -461,6 +489,9 @@ const MapRequestDrawFeature: React.FC<{
             <ScaleControl />
           </div>
         </InteractiveMap>
+        <Chip className={classes.mapCoorZoom} 
+          label={mapCoordinatesZoom}
+        />
       </MapContainer>
     )
   )

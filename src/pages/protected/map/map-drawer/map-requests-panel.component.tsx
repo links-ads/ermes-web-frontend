@@ -46,16 +46,6 @@ const MapRequestsPanel: React.FC<{
   showFeaturesDialog
   selectedItemsList
 }> = (props) => {
-  const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
-  const [
-    mapRequestsData,
-    getMapRequestsData,
-    applyFilterByText,
-    deleteMapRequest,
-    fetchMapRequestById,
-    appendSelectedItems
-  ] = useMapRequestList()
   const {
     mapRequestsSettings,
     updateMapRequestsSettings,
@@ -67,6 +57,18 @@ const MapRequestsPanel: React.FC<{
     showFeaturesDialog,
     selectedItemsList
   } = props
+
+  const { t } = useTranslation(['common', 'maps'])
+  const [searchText, setSearchText] = React.useState('')
+  const [
+    mapRequestsData,
+    getMapRequestsData,
+    applyFilterByText,
+    deleteMapRequest,
+    fetchMapRequestById,
+    appendSelectedItems
+  ] = useMapRequestList()
+  
   const [height, setHeight] = React.useState(window.innerHeight)
 
   const resizeHeight = () => {
@@ -86,7 +88,7 @@ const MapRequestsPanel: React.FC<{
 
   const fetchData = (initialize: boolean = false) => {
     getMapRequestsData(
-      mapRequestsData.data.length - mapRequestsData.selectedItems.length,
+      initialize ? 0 : mapRequestsData.data.length - mapRequestsData.selectedItems.length,
       (data: MapRequestDto[]) => {
         data.forEach((mr) => {
           var currentMr = mapRequestsSettings[mr.code!]
