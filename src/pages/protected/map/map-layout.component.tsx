@@ -326,42 +326,53 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()!
 
     //Management of layer not related to a Map Request
-    if (selectedLayer) {
-      if (selectedLayer.activeLayer !== null) {
-        map.removeLayer(selectedLayer.activeLayer)
-        map.removeSource(selectedLayer.activeLayer)
-        setGeoLayerState({ tileId: null, tileSource: {} })
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i = 0; i < selectedLayers.length; i++) {
+        const currentSelectedLayer = selectedLayers[i]
+        const currentSelectedLayerActive = currentSelectedLayer.activeLayer
+        if (currentSelectedLayerActive !== null) {
+          if (map.getLayer(currentSelectedLayerActive)) {
+            map.removeLayer(currentSelectedLayerActive)
+          }
+          if (map.getSource(currentSelectedLayerActive)) {
+            map.removeSource(currentSelectedLayerActive)
+          }
+          setGeoLayerState({ tileId: null, tileSource: {} })
+        }
       }
 
       setTimeout(() => {
-        const layerName = selectedLayer.activeLayer
-        if (layerName != '' && !map.getLayer(layerName)) {
-          const source = tileJSONIfy(
-            map,
-            layerName,
-            selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-            geoServerConfig,
-            map.getBounds()
-          )
-          source['properties'] = {
-            format: undefined,
-            fromTime: undefined,
-            toTime: undefined
+        for (let i = 0; i < selectedLayers.length; i++) {
+          const currentSelectedLayer = selectedLayers[i]
+          const layerName = currentSelectedLayer.activeLayer
+          if (layerName != '' && !map.getLayer(layerName)) {
+            const source = tileJSONIfy(
+              map,
+              layerName,
+              selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+              geoServerConfig,
+              map.getBounds()
+            )
+            source['properties'] = {
+              format: undefined,
+              fromTime: undefined,
+              toTime: undefined
+            }
+            map.addSource(layerName, source as mapboxgl.RasterSource)
+            map.addLayer(
+              {
+                id: layerName,
+                type: 'raster',
+                source: layerName
+              },
+              'clusters'
+            )
+            map.setPaintProperty(
+              selectedLayer.activeLayer,
+              'raster-opacity',
+              selectedLayer.opacity / 100
+            )
           }
-          map.addSource(layerName, source as mapboxgl.RasterSource)
-          map.addLayer(
-            {
-              id: layerName,
-              type: 'raster',
-              source: layerName
-            },
-            'clusters'
-          )
-          map.setPaintProperty(
-            selectedLayer.activeLayer,
-            'raster-opacity',
-            selectedLayer.opacity / 100
-          )
         }
       }, 1000) //after 1 sec
     }
@@ -372,8 +383,12 @@ export function MapLayout(props) {
         Object.keys(mapRequestsSettings[mrCode]).forEach((dataTypeId) => {
           const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
           if (activeLayer && activeLayer !== '') {
-            map.removeLayer(activeLayer)
-            map.removeSource(activeLayer)
+            if (map.getLayer(activeLayer)) {
+              map.removeLayer(activeLayer)
+            }
+            if (map.getSource(activeLayer)) {
+              map.removeSource(activeLayer)
+            }
             setTimeout(() => {
               const source = tileJSONIfy(
                 map,
@@ -389,15 +404,19 @@ export function MapLayout(props) {
                 fromTime: undefined,
                 toTime: undefined
               }
-              map.addSource(activeLayer, source as mapboxgl.RasterSource)
-              map.addLayer(
-                {
-                  id: activeLayer,
-                  type: 'raster',
-                  source: activeLayer
-                },
-                'clusters'
-              )
+              if (!map.getSource(activeLayer)) {
+                map.addSource(activeLayer, source as mapboxgl.RasterSource)
+              }
+              if (!map.getLayer(activeLayer)) {
+                map.addLayer(
+                  {
+                    id: activeLayer,
+                    type: 'raster',
+                    source: activeLayer
+                  },
+                  'clusters'
+                )
+              }
               map.setPaintProperty(
                 activeLayer,
                 'raster-opacity',
