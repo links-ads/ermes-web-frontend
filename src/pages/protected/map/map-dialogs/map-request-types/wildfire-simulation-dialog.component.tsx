@@ -446,7 +446,7 @@ export function WildFireSimulationDialog({
             setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             boundaryLinesTot={boundaryLinesTot}
             mapSelectedFeatures={
-              mapSelectionCompleted && mapArea && mapArea.geometry.type === 'Point'
+              mapSelectionCompleted && mapArea
                 ? [{ ...mapArea }].concat(
                     boundaryConditions
                       .filter((e) => e.fireBreakType)

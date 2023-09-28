@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - Map request and map style (#159)
+
+Ver. 2.15.0 - 2023-09-28
+-----------------------
 - Feature - Map request fine tuning (#150)
 - Bugfix - Get timeseries for geojson (#145)
 - Bugfix - Layer selection update after refresh (#143)
