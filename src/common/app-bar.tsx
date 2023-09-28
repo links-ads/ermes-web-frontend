@@ -31,9 +31,19 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   path.shift()
 
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
+  const showCategoryFilters = path[0] !== 'dashboard' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
-  const { localStorageFilters, filters, mapDrawerTabVisibility, lastUpdate, applyDate, applyFilters, updateTeamList, updateMapDrawerTabs } = filtersCtx
+  const {
+    localStorageFilters,
+    filters,
+    mapDrawerTabVisibility,
+    lastUpdate,
+    applyDate,
+    applyFilters,
+    updateTeamList,
+    updateMapDrawerTabs
+  } = filtersCtx
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -52,7 +62,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
       teamsApiHandlerState.result.data
     ) {
       //update starting filter object with actual team names from http
-      const teamNamesList = teamsApiHandlerState.result.data.data.map(t => t.name)
+      const teamNamesList = teamsApiHandlerState.result.data.data.map((t) => t.name)
       updateTeamList(teamNamesList)
     }
   }, [teamsApiHandlerState])
@@ -78,7 +88,16 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         <BrandLogo />
         <Spacer />
         {filterActive ? (
-          <DashboardFilters filters={filters} localStorageFilters={localStorageFilters} mapDrawerTabVisibility={mapDrawerTabVisibility} lastUpdate={lastUpdate} onDateFilterApply={applyDate} onFilterApply={applyFilters} onFilterChecked={updateMapDrawerTabs} />
+          <DashboardFilters
+            filters={filters}
+            localStorageFilters={localStorageFilters}
+            mapDrawerTabVisibility={mapDrawerTabVisibility}
+            lastUpdate={lastUpdate}
+            onDateFilterApply={applyDate}
+            onFilterApply={applyFilters}
+            onFilterChecked={updateMapDrawerTabs}
+            showCategoryFilters={showCategoryFilters}
+          />
         ) : (
           <TitleWidget />
         )}
