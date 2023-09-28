@@ -114,7 +114,7 @@ export default function MapTimeSeries(props) {
   }
 
   // map to LineChartData
-  const mapToLineChartData = useCallback((timeseries, layerName) => {
+  const mapToLineChartData = useCallback((timeseries, layerName, varType) => {
     const dateOptions = {
       dateStyle: 'short',
       timeStyle: 'short',
@@ -130,7 +130,7 @@ export default function MapTimeSeries(props) {
           (series) =>
             new PointChartData(
               formatter.format(new Date((series as any).dateTime)),
-              parseFloat((series as any).value)
+              varType === 'Number' ? parseFloat((series as any).value) : (series as any).value
             )
         )
     )
@@ -138,7 +138,7 @@ export default function MapTimeSeries(props) {
   }, [])
 
   // layer timeseries
-  const getLayerTimeseriesHandler = async (point, startDate, endDate) => {
+  const getLayerTimeseriesHandler = async (point, startDate, endDate, mapRequestCode?) => {
     setIsLoading(true)
     try {
       let lineChartTabs: LineChartProps[] = []
@@ -153,7 +153,7 @@ export default function MapTimeSeries(props) {
         selectedLayer.dataTypeId,
         pointWKT,
         appConfig.crs,
-        undefined,
+        mapRequestCode,
         undefined,
         startDate,
         endDate
@@ -167,7 +167,7 @@ export default function MapTimeSeries(props) {
             associatedLayer.dataTypeId,
             pointWKT,
             appConfig.crs,
-            undefined,
+            mapRequestCode,
             undefined,
             startDate,
             endDate
@@ -178,7 +178,9 @@ export default function MapTimeSeries(props) {
 
       const promisesResult = await Promise.all(layerPromises)
       let variableName = ''
+      let variableType = ''
       let chartDataVar = {}
+      let varDataType = {}
 
       for (let i = 0; i < promisesResult.length; i++) {
         const result = promisesResult[i]
@@ -190,12 +192,14 @@ export default function MapTimeSeries(props) {
             for (let j = 0; j < result.data.variables.length; j++) {
               const timeseries = result.data.variables[j].values ?? []
               variableName = result.data.variables[j].var_name ?? ''
+              variableType = result.data.variables[j].type ?? ''
 
               if (timeseries && timeseries.length > 0) {
-                let layerTimeseries = mapToLineChartData(timeseries, layerName)
+                let layerTimeseries = mapToLineChartData(timeseries, layerName, variableType)
                 let currentChartData: LineChartData[] = chartDataVar[variableName] ?? []
                 currentChartData.push(layerTimeseries)
                 chartDataVar[variableName] = currentChartData
+                varDataType[variableName] = variableType
               }
             }
           }
@@ -203,7 +207,7 @@ export default function MapTimeSeries(props) {
       }
 
       Object.keys(chartDataVar).forEach((key) => {
-        let lineChart = new LineChartProps(chartDataVar[key], key)
+        let lineChart = new LineChartProps(chartDataVar[key], key, varDataType[key])
         lineChartTabs.push(lineChart)
       })
 
@@ -218,7 +222,8 @@ export default function MapTimeSeries(props) {
 
   useEffect(() => {
     const timeRange = [selectedFilters.datestart.selected, selectedFilters.dateend.selected]
-    getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1]).then((lineChart) => {
+    const mapRequestCode = selectedLayer.group === 'Map Request Layer' ? selectedLayer.subGroup : undefined
+    getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1], mapRequestCode).then((lineChart) => {
       setLineChartData(lineChart as LineChartProps[])
     })
   }, [coord, selectedLayer])

@@ -1,5 +1,7 @@
 Ver.
 -----------------------
+- Feature - Map request fine tuning (#150)
+- Bugfix - Get timeseries for geojson (#145)
 - Bugfix - Layer selection update after refresh (#143)
 - Bugfix - Map request detail popup (#142)
 - Bugfix - Label update (#147)

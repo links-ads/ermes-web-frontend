@@ -59,6 +59,7 @@
   "operation_delete": "Delete",
   "operation_close": "Close",
   "operation_get": "Get",
+  "operation_duplicate": "Duplicate", 
   "description_label": "Description",
   "title_label": "Title",
   "description_placeholder": "Insert description here",
