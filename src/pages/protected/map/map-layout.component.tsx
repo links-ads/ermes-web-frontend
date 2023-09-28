@@ -65,8 +65,11 @@ import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
-import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
-import { wktToGeoJSON } from "@terraformer/wkt"
+import {
+  areClickedPointAndSelectedCardEqual,
+  findFeatureByTypeAndId
+} from '../../../hooks/use-map-drawer.hook'
+import { wktToGeoJSON } from '@terraformer/wkt'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -98,7 +101,7 @@ const useStyles = makeStyles((theme: Theme) =>
       top: 225,
       right: '10px',
       zIndex: 99,
-      width: 27, 
+      width: 27,
       height: 27,
       minHeight: 27,
       backgroundColor: theme.palette.secondary.main,
@@ -134,8 +137,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     mapCoorZoom: {
       zIndex: 97,
-      top: 10, 
-      left: 56, 
+      top: 10,
+      left: 56,
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
@@ -226,10 +229,9 @@ export function MapLayout(props) {
   const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
 
   useEffect(() => {
-    if(selectedLayers && selectedLayers.length > 0) {
+    if (selectedLayers && selectedLayers.length > 0) {
       setSelectedLayer(selectedLayers[selectedLayers.length - 1])
-    }
-    else {
+    } else {
       setSelectedLayer(null)
     }
   }, [selectedLayers])
@@ -258,7 +260,7 @@ export function MapLayout(props) {
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
-  const [ searchHereActive, setSearchHereActive ] = useState<boolean>(false)
+  const [searchHereActive, setSearchHereActive] = useState<boolean>(false)
 
   useEffect(
     () => {
@@ -460,11 +462,7 @@ export function MapLayout(props) {
       } else if (operation === 'get') {
         if (type) {
           if (type === 'Timeseries') {
-            if (
-              selectedLayer &&
-              selectedLayer.activeLayer &&
-              data
-            ) {
+            if (selectedLayer && selectedLayer.activeLayer && data) {
               addLayerTimeseries(data, selectedLayer)
             } else {
               displayWarningSnackbar(t('maps:timeseriesNoLayer'))
@@ -481,8 +479,7 @@ export function MapLayout(props) {
             }
           }
         }
-      } 
-      else {
+      } else {
         if (
           type &&
           ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
@@ -497,7 +494,13 @@ export function MapLayout(props) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addLayerTimeseries, displayWarningSnackbar, selectedLayer, setRightClickedPoint, startFeatureEdit]
+    [
+      addLayerTimeseries,
+      displayWarningSnackbar,
+      selectedLayer,
+      setRightClickedPoint,
+      startFeatureEdit
+    ]
   )
 
   // Used when entering on an iteractive layer with the mouse
@@ -655,7 +658,7 @@ export function MapLayout(props) {
             longitude: goToCoord.longitude,
             latitude: goToCoord.latitude
           }
-        )        
+        )
       }
       setGoToCoord(undefined)
     }
@@ -813,7 +816,11 @@ export function MapLayout(props) {
 
   const onViewportChangeHandler = (nextViewport) => {
     setViewport(nextViewport)
-    if (viewport.latitude !== nextViewport.latitude || viewport.longitude !== nextViewport.longitude || viewport.zoom !== nextViewport.zoom){
+    if (
+      viewport.latitude !== nextViewport.latitude ||
+      viewport.longitude !== nextViewport.longitude ||
+      viewport.zoom !== nextViewport.zoom
+    ) {
       setSearchHereActive(true)
     }
   }
@@ -942,7 +949,7 @@ export function MapLayout(props) {
         )}
       </InteractiveMap>
       {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
-      {!isMobileDevice && (
+      {!isMobileDevice && !props.dashboardMode && (
         <>
           <DrawerToggle
             toggleDrawerTab={props.toggleDrawerTab}
@@ -956,12 +963,12 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          <DownloadButton 
+          <DownloadButton
             downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           />
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
-      )}      
+      )}
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
@@ -974,7 +981,9 @@ export function MapLayout(props) {
                     }}
                     className={classes.legend_dot}
                   ></div>
-                  <div className={classes.legend_text}>&nbsp; {t('maps:legend_' + key.toLocaleLowerCase())} </div>
+                  <div className={classes.legend_text}>
+                    &nbsp; {t('maps:legend_' + key.toLocaleLowerCase())}{' '}
+                  </div>
                 </div>
               )
             })}
@@ -995,9 +1004,7 @@ export function MapLayout(props) {
       >
         <InfoIcon />
       </Fab>
-      <Chip className={classes.mapCoorZoom} 
-        label={mapCoordinatesZoom}
-      />
+      <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

@@ -289,107 +289,109 @@ export const DashboardFilters = (props) => {
             </Button>
           </Grid>
         </Grid>
-        <Grid
-          container
-          direction={'row'}
-          justifyContent="flex-start"
-          alignItems="center"
-          spacing={1}
-          style={{ flexGrow: 1, marginTop: 3 }}
-        >
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label="persons"
-              emergencyLabel={EntityType.PERSON}
-              category={filtersState.persons}
-              applyFilters={applyPersonFilters}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={personChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
+        {props.showCategoryFilters && (
+          <Grid
+            container
+            direction={'row'}
+            justifyContent="flex-start"
+            alignItems="center"
+            spacing={1}
+            style={{ flexGrow: 1, marginTop: 3 }}
+          >
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label="persons"
+                emergencyLabel={EntityType.PERSON}
+                category={filtersState.persons}
+                applyFilters={applyPersonFilters}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={personChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label="report"
+                emergencyLabel={EntityType.REPORT}
+                category={filtersState.report}
+                applyFilters={applyReportFilters}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={reportChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label="mission"
+                emergencyLabel={EntityType.MISSION}
+                category={filtersState.mission}
+                applyFilters={applyMissionFilters}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={missionChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label={EntityType.COMMUNICATION}
+                emergencyLabel={EntityType.COMMUNICATION}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={communicationChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label={EntityType.MAP_REQUEST}
+                emergencyLabel={EntityType.MAP_REQUEST}
+                category={filtersState.mapRequests}
+                applyFilters={applyMapRequestFilters}
+                isChecked={mapRequestChecked}
+                filterCheckedHandler={onFilterChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label={EntityType.ALERT}
+                emergencyLabel={EntityType.ALERT}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={alertChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
+            <Grid item>
+              <CategoryFilter
+                t={t}
+                classes={classes}
+                label={EntityType.STATION}
+                emergencyLabel={EntityType.STATION}
+                filterCheckedHandler={onFilterChecked}
+                isChecked={cameraChecked}
+                clickCounter={btnClickCounter}
+                setClickCounter={setBtnClickCounter}
+              />
+            </Grid>
           </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label="report"
-              emergencyLabel={EntityType.REPORT}
-              category={filtersState.report}
-              applyFilters={applyReportFilters}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={reportChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label="mission"
-              emergencyLabel={EntityType.MISSION}
-              category={filtersState.mission}
-              applyFilters={applyMissionFilters}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={missionChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label={EntityType.COMMUNICATION}
-              emergencyLabel={EntityType.COMMUNICATION}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={communicationChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label={EntityType.MAP_REQUEST}
-              emergencyLabel={EntityType.MAP_REQUEST}
-              category={filtersState.mapRequests}
-              applyFilters={applyMapRequestFilters}
-              isChecked={mapRequestChecked}
-              filterCheckedHandler={onFilterChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label={EntityType.ALERT}
-              emergencyLabel={EntityType.ALERT}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={alertChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label={EntityType.STATION}
-              emergencyLabel={EntityType.STATION}
-              filterCheckedHandler={onFilterChecked}
-              isChecked={cameraChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-            />
-          </Grid>
-        </Grid>
+        )}
       </Grid>
       <Grid item style={{ position: 'absolute', right: 24, bottom: 8 }}>
         <Grid container direction={'row'}>
