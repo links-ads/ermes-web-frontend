@@ -80,10 +80,11 @@ export default function MapTimeSeries(props) {
 
   const [lineChartData, setLineChartData] = useState<LineChartProps[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<boolean>(false)
 
   const [value, setValue] = React.useState(0)
 
-  const { t } = useTranslation(['social'])
+  const { t } = useTranslation(['social', 'errors'])
 
   const appConfig = useContext<AppConfig>(AppConfigContext)
 
@@ -214,6 +215,8 @@ export default function MapTimeSeries(props) {
       return lineChartTabs
     } catch (error) {
       console.error(error)
+      setIsLoading(false)
+      setError(true)
     }
   }
 
@@ -234,6 +237,13 @@ export default function MapTimeSeries(props) {
     <Grid container justifyContent="center">
       <Typography style={{ margin: 15 }} align="center" variant="caption">
         {t('social:no_results')}
+      </Typography>
+    </Grid>
+  )
+  const errorData = (
+    <Grid container justifyContent="center">
+      <Typography style={{ margin: 15 }} align="center" variant="caption">
+        {t('errors:error_generic')}
       </Typography>
     </Grid>
   )
@@ -275,9 +285,11 @@ export default function MapTimeSeries(props) {
           </AppBar>
           <CardContent style={{ height: '100%', overflowX: 'scroll', padding: '0px' }}>
             {!isLoading ? (
-              lineChartData &&
-              lineChartData.length > 0 &&
-              lineChartData.filter((e) => e.chartData.length > 0).length > 0 ? (
+              error ? (
+                errorData
+              ) : lineChartData &&
+                lineChartData.length > 0 &&
+                lineChartData.filter((e) => e.chartData.length > 0).length > 0 ? (
                 <div className={classes.root}>
                   <AppBar position="static" color="default">
                     <Tabs

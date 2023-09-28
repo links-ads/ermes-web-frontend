@@ -2,6 +2,7 @@ import React from 'react';
 import { CircularProgress, Grid } from '@material-ui/core';
 import mapboxgl from 'mapbox-gl'
 import { Feature } from '@turf/helpers';
+import { tileJSONIfy } from '../../utils/map.utils';
 
 export const POLYGON_SOURCE_ID = 'polygon-source'
 export const POLYGON_LAYER_ID = 'polygon-layer'
@@ -402,6 +403,42 @@ export const removeUserClickedPoint = (map) => {
     }
     map.removeSource(POLYGON_SOURCE_ID)
   }
+}
+
+export const paintMapWithLayer = (map, selectedLayer, geoServerConfig) => {
+  const layerName = selectedLayer.activeLayer + '-' + selectedLayer.dateIndex
+  if (layerName != '' && !map.getLayer(layerName)) {
+    const source = tileJSONIfy(
+      map,
+      selectedLayer.activeLayer,
+      selectedLayer.availableTimestamps[selectedLayer.dateIndex],
+      geoServerConfig,
+      map.getBounds()
+    )
+    source['properties'] = {
+      format: undefined,
+      fromTime: undefined,
+      toTime: undefined
+    }
+    map.addSource(layerName, source as mapboxgl.RasterSource)
+    map.addLayer(
+      {
+        id: layerName,
+        type: 'raster',
+        source: layerName
+      },
+      'clusters'
+    )
+    map.setPaintProperty(layerName, 'raster-opacity', selectedLayer.opacity / 100)
+  }
+}
+
+export const removeLayerFromMap = (map, toRemoveLayer) => {
+  const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+  if (map.getLayer(removeLayerName)) {
+    map.removeLayer(removeLayerName)
+    map.removeSource(removeLayerName)
+  }    
 }
 
 export const MapLoadingDiv = (props) => {

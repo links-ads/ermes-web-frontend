@@ -37,6 +37,7 @@ import { PixelPostion } from '../../../models/common/PixelPosition'
 import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
 import { MapFeatureInfo } from './map-popup-feature-info.component'
+import { removeLayerFromMap } from '../../../common/map/map-common'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -364,6 +365,14 @@ export function Map() {
     })
     updateMapFeatures()
   }, [filtersObj, fetchGeoJson, fetchLayers])
+
+  useEffect(() => {
+    if (toBeRemovedLayers.length > 0) {
+      for (let i = 0; i < toBeRemovedLayers.length; i++) {
+        removeLayerFromMap(map, toBeRemovedLayers[i])
+      }
+    }
+  }, [toBeRemovedLayers])
 
   useEffect(() => {
     if (defaultDimension.w !== innerWidth) {
