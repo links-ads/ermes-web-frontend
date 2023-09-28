@@ -4,6 +4,8 @@ Ver.
 - Bugfix - Map request detail popup (#142)
 - Bugfix - Label update (#147)
 - Feature - Default time window (#148)
+- Bugfix - Get timeseries for geojson (#145)
+- Bugfix - DSS messages with HTML tags management (#144)
 
 Ver. 2.14.1 - 2023-09-21
 -----------------------

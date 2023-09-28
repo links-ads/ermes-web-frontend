@@ -463,7 +463,6 @@ export function MapLayout(props) {
             if (
               selectedLayer &&
               selectedLayer.activeLayer &&
-              selectedLayer.format === 'NetCDF' &&
               data
             ) {
               addLayerTimeseries(data, selectedLayer)
