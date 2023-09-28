@@ -936,7 +936,7 @@ export function MapLayout(props) {
         )}
       </InteractiveMap>
       {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
-      {!isMobileDevice && (
+      {!isMobileDevice && !props.dashboardMode && (
         <>
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
           {/* <FilterButton
