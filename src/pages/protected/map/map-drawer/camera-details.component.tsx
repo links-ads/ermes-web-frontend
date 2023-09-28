@@ -1,49 +1,49 @@
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  Typography,
-  Tabs,
-  Tab,
-  CircularProgress,
-  Grid,
-  Badge,
-  createStyles,
-  Chip,
-  useTheme,
-  useMediaQuery,
   Button,
-  Switch,
-  FormGroup,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   FormControlLabel,
+  FormGroup,
+  Grid,
   IconButton,
-  MenuItem,
-  Menu
+  Switch,
+  Tab,
+  Tabs,
+  Typography,
+  useMediaQuery,
+  useTheme
 } from '@material-ui/core'
 import {
-  KeyboardArrowLeft,
-  KeyboardArrowRight,
+  AddCircle,
   ArrowLeft,
   ArrowRight,
-  Check,
   Cancel,
+  Check,
   CheckCircle,
-  AddCircle,
-  RemoveCircle,
-  Close
+  Close,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  RemoveCircle
 } from '@material-ui/icons'
-import { MeasureDto, SensorDto, StationDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
-import useCameras from '../../../../hooks/use-cameras.hook'
+import { MeasureDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
+import moment from 'moment'
+import { useSnackbar } from 'notistack'
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
-import { AppState } from '../../../../state/app.state'
-import { clearSelectedCamera } from '../../../../state/selected-camera.state'
-import classes from './drawer-cards/communication-card.module.scss'
-import moment from 'moment'
-import { StationsApi } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
-import { useSnackbar } from 'notistack'
+import useCameras from '../../../../hooks/use-cameras.hook'
+import { AppState } from '../../../../state/app.state'
+import { clearSelectedCamera, replaceMeasurement } from '../../../../state/selected-camera.state'
+import classes from './drawer-cards/communication-card.module.scss'
+import {
+  CameraValidationStatus,
+  getCameraValidationStatus
+} from '../../../../utils/get-camera-validation-status.util'
+import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -54,147 +54,82 @@ type CameraDetailsProps = {}
 
 const PAGE_SIZE = 6
 
-enum ValidationStatus {
-  Unknown,
-  Detected,
-  DetectedAndValidated,
-  DetectedAndDiscarded,
-  Undetected,
-  UndetectedAndAdded
-}
-
-function getValidationStatus(type, metadata) {
-  const validationValue = metadata?.validation?.[type]
-  const isValidationPresent = typeof metadata?.validation?.[type] === 'boolean'
-
-  const detectionValue = metadata?.detection?.[type]
-  const isDetectionPresent = typeof metadata?.detection?.[type] === 'boolean'
-
-  console.log({
-    validationValue,
-    isValidationPresent,
-
-    detectionValue,
-    isDetectionPresent
-  })
-
-  if (isDetectionPresent) {
-    if (isValidationPresent) {
-      if (detectionValue === true && validationValue === true) {
-        return ValidationStatus.DetectedAndValidated
-      }
-
-      if (detectionValue === true && validationValue === false) {
-        return ValidationStatus.DetectedAndDiscarded
-      }
-
-      if (detectionValue === false && validationValue === true) {
-        return ValidationStatus.UndetectedAndAdded
-      }
-
-      if (detectionValue === false && validationValue === false) {
-        return ValidationStatus.Undetected
-      }
-    } else {
-      if (detectionValue === true) {
-        return ValidationStatus.Detected
-      }
-
-      if (detectionValue === false) {
-        return ValidationStatus.Undetected
-      }
-    }
-  } else {
-    if (isValidationPresent) {
-      if (validationValue === true) {
-        return ValidationStatus.UndetectedAndAdded
-      }
-
-      if (validationValue === false || validationValue === null) {
-        return ValidationStatus.Undetected
-      }
-    }
-  }
-
-  return ValidationStatus.Unknown
-}
-
 function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
   const theme = useTheme()
+
+  const { t } = useTranslation(['common', 'maps'])
 
   if (!show) {
     return null
   }
 
-  const validationStatus = getValidationStatus(type, metadata)
+  const validationStatus = getCameraValidationStatus(type, metadata)
   const _value =
-    validationStatus === ValidationStatus.Undetected
+    validationStatus === CameraValidationStatus.Undetected
       ? true
-      : validationStatus === ValidationStatus.UndetectedAndAdded
+      : validationStatus === CameraValidationStatus.UndetectedAndAdded
       ? null
       : value
-
-  console.log(type, validationStatus)
 
   return (
     <Button
       variant="contained"
       style={{
         backgroundColor:
-          (validationStatus === ValidationStatus.DetectedAndValidated && value) ||
-          (validationStatus === ValidationStatus.DetectedAndDiscarded && !value) ||
-          validationStatus === ValidationStatus.UndetectedAndAdded
+          (validationStatus === CameraValidationStatus.DetectedAndValidated && value) ||
+          (validationStatus === CameraValidationStatus.DetectedAndDiscarded && !value) ||
+          validationStatus === CameraValidationStatus.UndetectedAndAdded
             ? '#005500'
             : baseColor,
         color: theme.palette.primary.contrastText
       }}
       onClick={() => onClick(type, _value)}
     >
-      {validationStatus === ValidationStatus.DetectedAndValidated && value && (
+      {validationStatus === CameraValidationStatus.DetectedAndValidated && value && (
         <>
-          <CheckCircle /> {type}
+          <CheckCircle /> {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.DetectedAndDiscarded && value === false && (
+      {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value === false && (
         <>
-          <Cancel /> {type}
+          <Cancel /> {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.UndetectedAndAdded && (
+      {validationStatus === CameraValidationStatus.UndetectedAndAdded && (
         <>
-          <RemoveCircle /> Remove {type}
+          <RemoveCircle /> {t(`maps:remove`)} {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.Undetected && (
+      {validationStatus === CameraValidationStatus.Undetected && (
         <>
-          <AddCircle /> Add {type}
+          <AddCircle /> {t(`maps:add`)} {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.Detected && value && (
+      {validationStatus === CameraValidationStatus.Detected && value && (
         <>
-          <Check /> Confirm {type}
+          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.DetectedAndDiscarded && value && (
+      {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value && (
         <>
-          <Check /> Confirm {type}
+          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.Detected && value === false && (
+      {validationStatus === CameraValidationStatus.Detected && value === false && (
         <>
-          <Close /> Discard {type}
+          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
         </>
       )}
 
-      {validationStatus === ValidationStatus.DetectedAndValidated && value === false && (
+      {validationStatus === CameraValidationStatus.DetectedAndValidated && value === false && (
         <>
-          <Close /> Discard {type}
+          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
         </>
       )}
     </Button>
@@ -293,10 +228,9 @@ export function CameraDetails({}: CameraDetailsProps) {
       .finally(() => {
         setLoading(false)
       })
-  }, [elem, selectedSensorId])
+  }, [elem?.id, selectedSensorId])
 
   const selectedSensorMeasurement = sensorData?.find((s) => s.id === selectedSensorMeasurementId)
-  console.log(selectedSensorMeasurement)
 
   async function handlePerformValidation(type, value) {
     const currentMetadata = selectedSensorMeasurement?.metadata
@@ -328,6 +262,8 @@ export function CameraDetails({}: CameraDetailsProps) {
           return m
         })
       })
+
+      dispatch(replaceMeasurement(response.data.measure!))
 
       enqueueSnackbar(t('common:validationSuccess'), {
         variant: 'success'
@@ -382,12 +318,41 @@ export function CameraDetails({}: CameraDetailsProps) {
 
               const hasFire = sensor.measurements?.some((m) => m.metadata?.detection?.fire)
               const hasSmoke = sensor.measurements?.some((m) => m.metadata?.detection?.smoke)
+
+              const hasAtLeastOneFireValidation = sensor.measurements?.some(
+                (m) =>
+                  getCameraValidationStatus('fire', m.metadata) ===
+                  CameraValidationStatus.DetectedAndValidated
+              )
+
+              const hasAtLeastOneSmokeValidation = sensor.measurements?.some(
+                (m) =>
+                  getCameraValidationStatus('smoke', m.metadata) ===
+                  CameraValidationStatus.DetectedAndValidated
+              )
+
+              const hasAllFireValidationsDiscarded = sensor.measurements
+                ?.filter((m) => m.metadata?.detection?.fire)
+                .every(
+                  (m) =>
+                    getCameraValidationStatus('fire', m.metadata) ===
+                    CameraValidationStatus.DetectedAndDiscarded
+                )
+
+              const hasAllSmokeValidationsDiscarded = sensor.measurements
+                ?.filter((m) => m.metadata?.detection?.smoke)
+                .every(
+                  (m) =>
+                    getCameraValidationStatus('smoke', m.metadata) ===
+                    CameraValidationStatus.DetectedAndDiscarded
+                )
+
               const thumbnail = firstMeasurement.measure
               const description = sensor.description
 
               return (
                 <Tab
-                  key={sensor.id as any}
+                  key={sensor.id!}
                   value={sensor.id}
                   className={classes.cameraDetailsTab}
                   label={
@@ -395,6 +360,13 @@ export function CameraDetails({}: CameraDetailsProps) {
                       <div style={localStyles.badgeContainer}>
                         {hasFire && (
                           <Chip
+                            avatar={
+                              hasAllFireValidationsDiscarded ? (
+                                <DiscardedIcon type="fire" avatar />
+                              ) : hasAtLeastOneFireValidation ? (
+                                <ValidatedIcon type="fire" avatar />
+                              ) : undefined
+                            }
                             color="primary"
                             size="small"
                             style={{
@@ -408,6 +380,13 @@ export function CameraDetails({}: CameraDetailsProps) {
                         )}
                         {hasSmoke && (
                           <Chip
+                            avatar={
+                              hasAllSmokeValidationsDiscarded ? (
+                                <DiscardedIcon type="smoke" avatar />
+                              ) : hasAtLeastOneSmokeValidation ? (
+                                <ValidatedIcon type="smoke" avatar />
+                              ) : undefined
+                            }
                             color="primary"
                             size="small"
                             style={{
@@ -534,6 +513,8 @@ export function CameraDetails({}: CameraDetailsProps) {
               const hasFire = measurement.metadata?.detection?.fire
               const hasSmoke = measurement.metadata?.detection?.smoke
               const thumbnail = measurement.metadata?.thumbnail_uri ?? measurement.measure
+              const fireValidationStatus = getCameraValidationStatus('fire', measurement.metadata)
+              const smokeValidationStatus = getCameraValidationStatus('smoke', measurement.metadata)
 
               const style = { ...localStyles.thumbnail }
               if (selectedSensorMeasurementId === measurement.id) {
@@ -544,7 +525,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                 <div key={measurement.id as any}>
                   <div style={style} onClick={() => setSelectedSensorMeasurement(measurement.id)}>
                     <div style={localStyles.smallBadgeContainer}>
-                      {hasFire && (
+                      {hasFire && fireValidationStatus === CameraValidationStatus.Detected && (
                         <Chip
                           color="primary"
                           size="small"
@@ -558,7 +539,15 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
-                      {hasSmoke && (
+                      {hasFire &&
+                        fireValidationStatus === CameraValidationStatus.DetectedAndValidated && (
+                          <ValidatedIcon type="fire" />
+                        )}
+                      {hasFire &&
+                        fireValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
+                          <DiscardedIcon type="fire" />
+                        )}
+                      {hasSmoke && smokeValidationStatus === CameraValidationStatus.Detected && (
                         <Chip
                           color="primary"
                           size="small"
@@ -572,6 +561,14 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
+                      {hasSmoke &&
+                        smokeValidationStatus === CameraValidationStatus.DetectedAndValidated && (
+                          <ValidatedIcon type="smoke" />
+                        )}
+                      {hasSmoke &&
+                        smokeValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
+                          <DiscardedIcon type="smoke" />
+                        )}
                     </div>
                     <img
                       style={{ width: 100, height: 75, objectFit: 'cover' }}
