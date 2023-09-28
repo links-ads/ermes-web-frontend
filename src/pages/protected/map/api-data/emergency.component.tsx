@@ -927,8 +927,13 @@ const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) 
       <>
         <Card elevation={0}>
           <CardContent>
-            <Typography variant="body2" component="h2" gutterBottom>
-              {alertInfo.details}
+            <Typography
+              variant="body2"
+              component="h2"
+              gutterBottom
+              dangerouslySetInnerHTML={{ __html: alertInfo.details }}
+            >
+             
             </Typography>
             <div>
               <Typography color="textSecondary">
