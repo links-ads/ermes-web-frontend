@@ -457,7 +457,7 @@ const useMapLayers = () => {
   )
 
   const updateSelectedLayersFromMapRequest = useCallback(
-    (newMRSettings) => {
+    (newMRSettings, newDateIndex?: number) => {
       let updatedSelectedLayers = [...dataState.selectedLayers]
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
@@ -472,9 +472,26 @@ const useMapLayers = () => {
       const subGroup = newSettings.subGroup
       const dataTypeId = newSettings.dataTypeId
       if (newSettings.isChecked) {
-        updatedSelectedLayers.push(newSettings)
-      }
-      else {
+        if (newSettings.activeLayer != '') {
+          toBeRemovedLayers.push({
+            layerName: newSettings.activeLayer,
+            layerDateIndex: newSettings.dateIndex
+          })
+        }
+        if (newDateIndex) {
+          newSettings.dateIndex = newDateIndex
+        }
+        newSettings.activeLayer =
+          newSettings.timestampsToFiles[newSettings.availableTimestamps[newSettings.dateIndex]]
+        const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findSelectedLayerIdx >= 0) {
+          updatedSelectedLayers[findSelectedLayerIdx] = newSettings
+        } else {
+          updatedSelectedLayers.push(newSettings)
+        }
+      } else {
         const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
           (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
         )
@@ -738,11 +755,10 @@ const useMapLayers = () => {
             }
             const layerName = layerNames[i]
             const property = feature.properties
-            const featureInfo = Object.keys(property!!).map(
-              (e) => {
-                const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
-                return new FeatureInfo(e, rounded)}
-            )
+            const featureInfo = Object.keys(property!!).map((e) => {
+              const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+              return new FeatureInfo(e, rounded)
+            })
 
             const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
             if (prevIdx > -1) {
