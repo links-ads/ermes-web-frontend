@@ -82,5 +82,7 @@
   "Creator": "Creatore",
   "Frequency": "Frequency",
   "Resolution": "Resolution",
-  "coordinates_copied_to_clipboard": "Coordinates copied to clipboard"
+  "coordinates_copied_to_clipboard": "Coordinates copied to clipboard",
+  "validationSuccess": "Validation Success",
+  "validationError": "Validation Error"
 }
