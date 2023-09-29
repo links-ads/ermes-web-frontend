@@ -38,6 +38,7 @@ import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
 import { MapFeatureInfo } from './map-popup-feature-info.component'
 import { removeLayerFromMap } from '../../../common/map/map-common'
+import { CameraDetails } from './map-drawer/camera-details.component'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -46,7 +47,7 @@ export function Map() {
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
   // toggle variable for te type filter tab
   const [toggleActiveFilterTab, setToggleActiveFilterTab] = useState<boolean>(false)
-  const [ dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId ] = useMapDrawer()
+  const [dataState, updateTabIndex, selectTabCard, addCardToTabList, updateCardId] = useMapDrawer()
 
   const [isLayersPanelVisible, setIsLayersPanelVisible] = useState<boolean>(false)
 
@@ -163,7 +164,7 @@ export function Map() {
     updateLayerLegendPosition,
     updateLayerLegendVisibility,
     updateDefaultPosAndDim,
-    addLayerTimeseries, 
+    addLayerTimeseries,
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
@@ -311,7 +312,7 @@ export function Map() {
                 layer.format!,
                 layer.frequency!,
                 layer.type!,
-                layer.unitOfMeasure!, 
+                layer.unitOfMeasure!,
                 layersPlayerDefaultCoord.y,
                 window.innerWidth
               )
@@ -350,12 +351,7 @@ export function Map() {
           let parent =
             groupLayersState[assLayer.group!][assLayer.subGroup!][assLayer.parentDataTypeId!]
           parent.associatedLayers.push(
-            new AssociatedLayer(
-              assLayer.dataTypeId,
-              assLayer.name,
-              parent.dataTypeId,
-              parent.name
-            )
+            new AssociatedLayer(assLayer.dataTypeId, assLayer.name, parent.dataTypeId, parent.name)
           )
         })
       }
@@ -375,7 +371,7 @@ export function Map() {
   useEffect(() => {
     if (defaultDimension.w !== innerWidth) {
       updateDefaultPosAndDim(innerHeight, innerWidth)
-    }    
+    }
   }, [innerHeight, innerWidth])
 
   const [layersSelectContainerPosition, setLayersSelectContainerPosition] = useState<
@@ -464,10 +460,24 @@ export function Map() {
   }
 
   const manageLayerLegend = (activeLayerName, group, subGroup, dataTypeId, layerName) => {
-    getLayerLegend(appConfig.geoServer, activeLayerName, group, subGroup, dataTypeId, layerName, innerWidth)
+    getLayerLegend(
+      appConfig.geoServer,
+      activeLayerName,
+      group,
+      subGroup,
+      dataTypeId,
+      layerName,
+      innerWidth
+    )
   }
 
-  const getLayerMeta = (metaId: string, group: string, subGroup: string, dataTypeId: number, layerName: string) => {
+  const getLayerMeta = (
+    metaId: string,
+    group: string,
+    subGroup: string,
+    dataTypeId: number,
+    layerName: string
+  ) => {
     getMetaData(metaId, group, subGroup, dataTypeId, layerName, formatMeta, innerWidth)
   }
 
@@ -713,6 +723,7 @@ export function Map() {
         </MapContainer>
       </MapStateContextProvider>
       {/* <MapSearchHere /> */}
+      <CameraDetails />
     </>
   )
 }
