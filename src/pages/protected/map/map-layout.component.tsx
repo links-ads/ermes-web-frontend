@@ -51,12 +51,12 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, getBboxSizeFromZoom, removePolyToMap } from '../../../common/map/map-common'
+import { drawPolyToMap, getBboxSizeFromZoom, paintMapWithLayer, removeLayerFromMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -331,12 +331,10 @@ export function MapLayout(props) {
         const currentSelectedLayer = selectedLayers[i]
         const currentSelectedLayerActive = currentSelectedLayer.activeLayer
         if (currentSelectedLayerActive !== null) {
-          if (map.getLayer(currentSelectedLayerActive)) {
-            map.removeLayer(currentSelectedLayerActive)
-          }
-          if (map.getSource(currentSelectedLayerActive)) {
-            map.removeSource(currentSelectedLayerActive)
-          }
+          removeLayerFromMap(map, {
+            layerName: currentSelectedLayer.activeLayer,
+            layerDateIndex: currentSelectedLayer.dateIndex
+          })
           setGeoLayerState({ tileId: null, tileSource: {} })
         }
       }
@@ -344,35 +342,7 @@ export function MapLayout(props) {
       setTimeout(() => {
         for (let i = 0; i < selectedLayers.length; i++) {
           const currentSelectedLayer = selectedLayers[i]
-          const layerName = currentSelectedLayer.activeLayer
-          if (layerName != '' && !map.getLayer(layerName)) {
-            const source = tileJSONIfy(
-              map,
-              layerName,
-              selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-              geoServerConfig,
-              map.getBounds()
-            )
-            source['properties'] = {
-              format: undefined,
-              fromTime: undefined,
-              toTime: undefined
-            }
-            map.addSource(layerName, source as mapboxgl.RasterSource)
-            map.addLayer(
-              {
-                id: layerName,
-                type: 'raster',
-                source: layerName
-              },
-              'clusters'
-            )
-            map.setPaintProperty(
-              selectedLayer.activeLayer,
-              'raster-opacity',
-              selectedLayer.opacity / 100
-            )
-          }
+          paintMapWithLayer(map, currentSelectedLayer, geoServerConfig)
         }
       }, 1000) //after 1 sec
     }
