@@ -68,8 +68,10 @@ export function Map() {
         switch (actionType) {
           case 'OPACITY':
             newSettings.opacity = newValue
+            updateSelectedLayersFromMapRequest(newSettings)
             break
           case 'TIMESTAMP':
+            updateSelectedLayersFromMapRequest(newSettings, newValue)
             newSettings.dateIndex = newValue
             if (currentLayer.activeLayer !== '')
               newSettings.toBeRemovedLayer = currentLayer.activeLayer
@@ -86,7 +88,7 @@ export function Map() {
                   currentLayer.availableTimestamps[currentLayer.dateIndex]
                 ]
               : ''
-            updateSelectedLayersFromMapRequest(newSettings)            
+            updateSelectedLayersFromMapRequest(newSettings)
             break
           default:
             break
