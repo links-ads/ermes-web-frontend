@@ -137,6 +137,8 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
   )
 }
 
+const emptyArray = []
+
 export function CameraDetails({}: CameraDetailsProps) {
   const { t } = useTranslation(['common', 'maps'])
   const elem = useSelector((state: AppState) => state.selectedCameraState)
@@ -164,7 +166,7 @@ export function CameraDetails({}: CameraDetailsProps) {
 
   const filteredMeasurements = useMemo(() => {
     if (!sensorData) {
-      return []
+      return emptyArray
     }
 
     return sensorData.filter((measurement: MeasureDto) => {
