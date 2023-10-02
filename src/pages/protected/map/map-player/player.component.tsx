@@ -445,7 +445,7 @@ const LayersPlayer: React.FC<{
                 min={0}
                 max={selectedLayer.availableTimestamps.length}
                 color="secondary"
-                onChange={(event, value) => {
+                onChangeCommitted={(event, value) => {
                   changeDateHandler(event, value)
                 }}
                 marks={layerMarks}
