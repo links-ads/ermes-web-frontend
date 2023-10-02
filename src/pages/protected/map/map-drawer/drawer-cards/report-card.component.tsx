@@ -99,11 +99,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 {t('maps:creator')}:&nbsp;
               </Typography>
               <Typography component={'span'} variant="body1">
-                {elem.displayName == null
-                  ? elem.username == null
-                    ? elem.email
-                    : elem.username
-                  : elem?.displayName.length > 20
+                {elem?.displayName.length > 20
                   ? elem.displayName.substring(0, 20) + '...'
                   : elem.displayName}
               </Typography>

@@ -58,7 +58,7 @@ export const UserCard = memo(function UserCard() {
     <Card style={profile.role !== 'citizen' ? { margin: 'auto'} : { margin: 'auto', height:'100%', width:'100%' }}
     
     >
-      <CardHeader title={t('common:authenticated_as', { displayName: (profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)  })} />
+      <CardHeader title={t('common:authenticated_as', { displayName: profile.user.displayName })} />
       <CardContent>
         <AvatarContainer>
           <Avatar
@@ -103,7 +103,7 @@ export const UserCard = memo(function UserCard() {
            { t('labels:username')+':'}
            </Typography>
           <Typography variant="body2" color="textSecondary" component="p">
-         {(profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName)}
+         {profile.user.displayName}
           </Typography>
           </div>
     
