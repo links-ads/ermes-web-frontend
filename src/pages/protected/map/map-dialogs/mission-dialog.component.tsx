@@ -62,7 +62,7 @@ export function MissionDialog(
 
     const usersOptions = useMemo(() => {
         return (teamsApiHandlerState.result.data && editState.teamId !== -1) ?
-            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId)[0]['members'].map(obj => [obj['id'], obj['username']]).filter(e => e[1] ? true : false))
+            Object.fromEntries(teamsApiHandlerState.result.data.data.filter(e => e['id'] === editState.teamId)[0]['members'].map(obj => [obj['id'], obj['displayName']]).filter(e => e[1] ? true : false))
             : {}
     }, [teamsApiHandlerState, editState.teamId])
 

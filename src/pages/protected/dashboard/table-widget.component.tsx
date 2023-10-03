@@ -8,7 +8,7 @@ export const TableWidget = (
 ) => {
     const { t } = useTranslation(['labels', 'tables'])
     const columns = [
-        { title: t('username'), field: 'username' },
+        { title: t('username'), field: 'displayName' },
         { title: t('user_ssn'), field: 'tax_code' },
         { title: t('organizationName'), field: 'organizationName' },
         { title: t('status'), field: 'status' },
