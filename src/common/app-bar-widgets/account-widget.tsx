@@ -13,7 +13,7 @@ export function AccountWidget() {
   const { profile } = useUser()
   const { t } = useTranslation()
   const title = profile
-    ? t('common:authenticated_as', { displayName: (profile.user.displayName == null ? (profile.user.username == null ? profile.user.email : profile.user.username) : profile.user.displayName) })
+    ? t('common:authenticated_as', { displayName: profile.user.displayName })
     : ''
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)

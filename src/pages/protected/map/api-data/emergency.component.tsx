@@ -165,7 +165,7 @@ const mapRequestCard = (
           {t('maps:creator')}:&nbsp;
         </Typography>
         <Typography component={'span'} variant="body1">
-          {t('labels:' + mapRequestDetails.username.toLowerCase())}
+          {t('labels:' + mapRequestDetails.displayName.toLowerCase())}
         </Typography>
         <br />
         <Typography

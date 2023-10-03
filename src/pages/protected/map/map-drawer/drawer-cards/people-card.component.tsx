@@ -34,12 +34,8 @@ const PeopleCard: React.FC<DrawerCardProps> = (props) => {
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
             <Typography gutterBottom variant="h5" component="h2" style={{ marginBottom: '0px' }}>
-              {elem.username.length > 22
-                ? elem.username.substring(0, 20) + '...'
-                : elem.displayName == null
-                ? elem.username == null
-                  ? elem.email
-                  : elem.username
+              {elem.displayName.length > 22
+                ? elem.displayName.substring(0, 20) + '...'
                 : elem.displayName}
             </Typography>
           </Box>

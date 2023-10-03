@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - Users without username (#160)
+
+Ver. 2.15.1 - 2023-09-29
+-----------------------
 - Bugfix - Map request and map style (#159)
 
 Ver. 2.15.0 - 2023-09-28
