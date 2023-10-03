@@ -271,8 +271,23 @@ const useMapLayers = () => {
   )
 
   const clearToBeRemovedLayers = (layers, selectedLayers) => {
-    const activeLayers = selectedLayers.map((e) => e.activeLayer)
-    const cleanLayers = layers.filter((e) => e !== '' && !activeLayers.includes(e))
+    const activeLayers = selectedLayers.map((e) => {
+      return {
+        layerName: e.activeLayer,
+        layerDateIndex: e.dateIndex
+      }
+    })
+    const cleanLayers = layers.filter((e) => {
+      if (
+        activeLayers.findIndex(
+          (d) => d.layerName === e.layerName && d.layerDateIndex === e.layerDateIndex
+        ) >= 0
+      ) {
+        return false
+      } else {
+        return true
+      }
+    })
     const uniqueLayers = [...new Set(cleanLayers)]
     return uniqueLayers
   }

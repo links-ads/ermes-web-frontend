@@ -41,6 +41,7 @@ import useMapDrawer from '../../../hooks/use-map-drawer.hook'
 import useMapLayers from '../../../hooks/use-map-layers.hook'
 import { MapFeatureInfo } from './map-popup-feature-info.component'
 import { removeLayerFromMap } from '../../../common/map/map-common'
+import { CameraDetails } from './map-drawer/camera-details.component'
 type MapFeature = CulturalProps
 
 export function Map({
@@ -738,6 +739,7 @@ export function Map({
         </MapContainer>
       </MapStateContextProvider>
       {/* <MapSearchHere /> */}
+      <CameraDetails />
     </>
   )
 }

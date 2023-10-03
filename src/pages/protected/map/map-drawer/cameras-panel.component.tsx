@@ -9,6 +9,8 @@ import classes from './map-drawer.module.scss'
 import SearchBar from '../../../../common/search-bar.component'
 import { EntityType } from 'ermes-ts-sdk'
 import CameraCard from './drawer-cards/camera-card.component'
+import { useSelector } from 'react-redux'
+import { AppState } from '../../../../state/app.state'
 
 const CamerasPanel: React.FC<{
   setGoToCoord: any
@@ -23,7 +25,7 @@ const CamerasPanel: React.FC<{
   const { t } = useTranslation(['common', 'maps'])
   const [searchText, setSearchText] = React.useState('')
   const [camerasData, getCameras, applyFilterByText, getCameraById] = useCameras()
-  const { selectedCard } = props
+  const selectedCameraState = useSelector((state: AppState) => state.selectedCameraState)
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -51,6 +53,10 @@ const CamerasPanel: React.FC<{
 
   // Calls the data only the first time is needed
   useEffect(() => {
+    if (selectedCameraState) {
+      return
+    }
+
     getCameras(
       0,
       (data) => {
@@ -59,9 +65,10 @@ const CamerasPanel: React.FC<{
       {},
       (data) => {
         return data
-      }
+      },
+      true
     )
-  }, [])
+  }, [selectedCameraState])
 
   // Fix height of the list when the window is resized
   useEffect(() => {

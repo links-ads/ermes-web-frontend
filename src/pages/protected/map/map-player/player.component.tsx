@@ -95,9 +95,10 @@ const LayersPlayer: React.FC<{
     getMeta,
     getLegend
   } = props
-  const { activeLayer: layerName, availableTimestamps } = selectedLayer!!
+  const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [playerValue, setPlayerValue] = useState<number>(dateIndex)
   const { t } = useTranslation(['maps', 'labels'])
   const { displayErrorSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
@@ -189,14 +190,17 @@ const LayersPlayer: React.FC<{
 
   const onClickNextDateHandler = (event) => {
     event.stopPropagation()
-    skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
+    const nextStep = selectedLayer ? selectedLayer.dateIndex + 1 : 0
+    skipNext(nextStep)
+    setPlayerValue(nextStep)
   }
 
   const onClickPrevDateHandler = (event) => {
     event.stopPropagation()
     const dateIndex = selectedLayer ? selectedLayer.dateIndex : 0
-    const previousStep = dateIndex - 1
-    skipNext(previousStep > -1 ? previousStep : 0)
+    const previousStep = dateIndex - 1 > -1 ? dateIndex - 1 : 0
+    skipNext(previousStep)
+    setPlayerValue(previousStep)
   }
 
   const changeDateHandler = (event, value) => {
@@ -205,7 +209,15 @@ const LayersPlayer: React.FC<{
   }
 
   useMapLayerPlayer(() => {
-    if (playing) skipNext(selectedLayer ? selectedLayer.dateIndex + 1 : 0)
+    if (playing) {
+      const nextValue = selectedLayer
+        ? selectedLayer.dateIndex + 1 < availableTimestamps.length
+          ? selectedLayer.dateIndex + 1
+          : 0
+        : 0
+      skipNext(nextValue)
+      setPlayerValue(nextValue)
+    }
   }, 3000)
 
   if (!selectedLayer) return <div></div>
@@ -441,11 +453,12 @@ const LayersPlayer: React.FC<{
                 valueLabelFormat={valuetext}
                 valueLabelDisplay="on"
                 //step={1}
-                value={selectedLayer.dateIndex}
+                value={playerValue}
                 min={0}
                 max={selectedLayer.availableTimestamps.length}
                 color="secondary"
-                onChange={(event, value) => {
+                onChange={(event, value) => setPlayerValue(value as number)}
+                onChangeCommitted={(event, value) => {
                   changeDateHandler(event, value)
                 }}
                 marks={layerMarks}

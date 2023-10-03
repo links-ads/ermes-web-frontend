@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Bugfix - Users without username (#160)
+- Bugfix - Timestamp slider (#162)
 
 Ver. 2.15.1 - 2023-09-29
 -----------------------

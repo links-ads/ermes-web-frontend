@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
 import { Button, CardHeader, Chip, Grid, IconButton, useTheme } from '@material-ui/core'
 import styled from 'styled-components'
@@ -44,6 +44,7 @@ import {
   getCameraValidationStatus
 } from '../../../../utils/get-camera-validation-status.util'
 import { DiscardedIcon, ValidatedIcon } from '../map-drawer/camera-chip-icons.component'
+import { getCameraState } from '../../../../utils/get-camera-state.util'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -972,45 +973,37 @@ const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) 
   )
 }
 
-const stationCard = (data, classes, t, formatter, latitude, longitude, theme, dispatch) => {
-  const hasFire = data?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
-  )
-  const hasSmoke = data?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
-  )
+function StationCard({ data, latitude, longitude }) {
+  const theme = useTheme()
+  const dispatch = useDispatch()
+  const { t } = useTranslation()
 
-  const hasAtLeastOneFireValidation = data?.sensors?.some((sensor) => {
-    return sensor.measurements?.some(
-      (measurement) =>
-        getCameraValidationStatus('fire', measurement.metadata) ===
-        CameraValidationStatus.DetectedAndValidated
-    )
-  })
+  const [
+    hasFire,
+    hasAtLeastOneFireValidation,
+    hasAllFireValidationsDiscarded,
+    hasSmoke,
+    hasAtLeastOneSmokeValidation,
+    hasAllSmokeValidationsDiscarded
+  ] = useMemo(() => {
+    const allMeasurements = data?.sensors?.flatMap((sensor) => sensor.measurements) ?? []
 
-  const hasAllFireValidationsDiscarded = data?.sensors?.every((sensor) => {
-    return sensor.measurements?.every(
-      (measurement) =>
-        getCameraValidationStatus('fire', measurement.metadata) ===
-        CameraValidationStatus.DetectedAndDiscarded
+    const [hasFire, hasAtLeastOneFireValidation, hasAllFireValidationsDiscarded] = getCameraState(
+      'fire',
+      allMeasurements
     )
-  })
+    const [hasSmoke, hasAtLeastOneSmokeValidation, hasAllSmokeValidationsDiscarded] =
+      getCameraState('smoke', allMeasurements)
 
-  const hasAtLeastOneSmokeValidation = data?.sensors?.some((sensor) => {
-    return sensor.measurements?.some(
-      (measurement) =>
-        getCameraValidationStatus('smoke', measurement.metadata) ===
-        CameraValidationStatus.DetectedAndValidated
-    )
-  })
-
-  const hasAllSmokeValidationsDiscarded = data?.sensors?.every((sensor) => {
-    return sensor.measurements?.every(
-      (measurement) =>
-        getCameraValidationStatus('smoke', measurement.metadata) ===
-        CameraValidationStatus.DetectedAndDiscarded
-    )
-  })
+    return [
+      hasFire,
+      hasAtLeastOneFireValidation,
+      hasAllFireValidationsDiscarded,
+      hasSmoke,
+      hasAtLeastOneSmokeValidation,
+      hasAllSmokeValidationsDiscarded
+    ]
+  }, [data])
 
   if (!data) {
     return (
@@ -1516,7 +1509,7 @@ export function EmergencyContent({
       break
     case 'Station':
       const camera = cameras.data?.find((e) => e.id === rest.details)
-      todisplay = stationCard(camera, classes, t, formatter, latitude, longitude, theme, dispatch)
+      todisplay = <StationCard data={camera} latitude={latitude} longitude={longitude} />
       break
     default: {
       todisplay = <div>Work in progress...</div>
