@@ -7,7 +7,14 @@ import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-f
 
 const MAX_RESULT_COUNT = 9
 
-const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedCamera: {}, selectedItems: [] }
+const initialState = {
+  error: false,
+  isLoading: true,
+  data: [],
+  tot: 0,
+  selectedCamera: {},
+  selectedItems: []
+}
 
 const mergeAndRemoveDuplicates = (a, b) => {
   const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
@@ -70,7 +77,7 @@ const reducer = (currentState, action) => {
         isLoading: false,
         data: [...action.value],
         hasMore: false,
-        error: true,
+        error: false,
         tot: action.tot
       }
   }
@@ -79,6 +86,7 @@ const reducer = (currentState, action) => {
 
 export default function useCameraList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
+
   const { displayErrorSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -95,6 +103,9 @@ export default function useCameraList() {
       initialize = false
     ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+
+      dispatch({ type: 'FETCH', tot: tot })
+
       camerasApiFactory
         .stationsGetStations(
           (filters?.datestart as any)?.selected,

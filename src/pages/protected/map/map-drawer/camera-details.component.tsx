@@ -38,12 +38,13 @@ import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import useCameras from '../../../../hooks/use-cameras.hook'
 import { AppState } from '../../../../state/app.state'
 import { clearSelectedCamera, replaceMeasurement } from '../../../../state/selected-camera.state'
-import classes from './drawer-cards/communication-card.module.scss'
 import {
   CameraValidationStatus,
   getCameraValidationStatus
 } from '../../../../utils/get-camera-validation-status.util'
 import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
+import classes from './drawer-cards/communication-card.module.scss'
+import { getCameraState } from '../../../../utils/get-camera-state.util'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -136,6 +137,8 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
   )
 }
 
+const emptyArray = []
+
 export function CameraDetails({}: CameraDetailsProps) {
   const { t } = useTranslation(['common', 'maps'])
   const elem = useSelector((state: AppState) => state.selectedCameraState)
@@ -153,7 +156,7 @@ export function CameraDetails({}: CameraDetailsProps) {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const { enqueueSnackbar } = useSnackbar()
 
-  function handleClose() {
+  async function handleClose() {
     setSelectedSensorId(undefined)
     setSensorData(null)
     setSelectedSensorMeasurement(null)
@@ -163,7 +166,7 @@ export function CameraDetails({}: CameraDetailsProps) {
 
   const filteredMeasurements = useMemo(() => {
     if (!sensorData) {
-      return []
+      return emptyArray
     }
 
     return sensorData.filter((measurement: MeasureDto) => {
@@ -171,7 +174,12 @@ export function CameraDetails({}: CameraDetailsProps) {
         return true
       }
 
-      return measurement.metadata?.detection?.fire || measurement.metadata?.detection?.smoke
+      return (
+        measurement.metadata?.detection?.fire ||
+        measurement.metadata?.detection?.smoke ||
+        measurement.metadata?.validation?.fire ||
+        measurement.metadata?.validation?.smoke
+      )
     })
   }, [sensorData, hideMeasurementsWithoutDetections])
 
@@ -316,36 +324,10 @@ export function CameraDetails({}: CameraDetailsProps) {
               const firstMeasurement = sensor.measurements?.[0]
               if (!firstMeasurement) return null
 
-              const hasFire = sensor.measurements?.some((m) => m.metadata?.detection?.fire)
-              const hasSmoke = sensor.measurements?.some((m) => m.metadata?.detection?.smoke)
-
-              const hasAtLeastOneFireValidation = sensor.measurements?.some(
-                (m) =>
-                  getCameraValidationStatus('fire', m.metadata) ===
-                  CameraValidationStatus.DetectedAndValidated
-              )
-
-              const hasAtLeastOneSmokeValidation = sensor.measurements?.some(
-                (m) =>
-                  getCameraValidationStatus('smoke', m.metadata) ===
-                  CameraValidationStatus.DetectedAndValidated
-              )
-
-              const hasAllFireValidationsDiscarded = sensor.measurements
-                ?.filter((m) => m.metadata?.detection?.fire)
-                .every(
-                  (m) =>
-                    getCameraValidationStatus('fire', m.metadata) ===
-                    CameraValidationStatus.DetectedAndDiscarded
-                )
-
-              const hasAllSmokeValidationsDiscarded = sensor.measurements
-                ?.filter((m) => m.metadata?.detection?.smoke)
-                .every(
-                  (m) =>
-                    getCameraValidationStatus('smoke', m.metadata) ===
-                    CameraValidationStatus.DetectedAndDiscarded
-                )
+              const [hasFire, hasAtLeastOneFireValidation, hasAllFireValidationsDiscarded] =
+                getCameraState('fire', sensor.measurements)
+              const [hasSmoke, hasAtLeastOneSmokeValidation, hasAllSmokeValidationsDiscarded] =
+                getCameraState('smoke', sensor.measurements)
 
               const thumbnail = firstMeasurement.measure
               const description = sensor.description
@@ -539,10 +521,11 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
-                      {hasFire &&
-                        fireValidationStatus === CameraValidationStatus.DetectedAndValidated && (
-                          <ValidatedIcon type="fire" />
-                        )}
+                      {((hasFire &&
+                        fireValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
+                        fireValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
+                        <ValidatedIcon type="fire" />
+                      )}
                       {hasFire &&
                         fireValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
                           <DiscardedIcon type="fire" />
@@ -561,10 +544,11 @@ export function CameraDetails({}: CameraDetailsProps) {
                           className={classes.chipStyle}
                         />
                       )}
-                      {hasSmoke &&
-                        smokeValidationStatus === CameraValidationStatus.DetectedAndValidated && (
-                          <ValidatedIcon type="smoke" />
-                        )}
+                      {((hasSmoke &&
+                        smokeValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
+                        smokeValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
+                        <ValidatedIcon type="smoke" />
+                      )}
                       {hasSmoke &&
                         smokeValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
                           <DiscardedIcon type="smoke" />
