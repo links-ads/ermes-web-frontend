@@ -1,10 +1,20 @@
 Ver.
 -----------------------
+
+
+Ver. 2.15.1 - 2023-09-29
+-----------------------
+- Bugfix - Map request and map style (#159)
+
+Ver. 2.15.0 - 2023-09-28
+-----------------------
+- Feature - Map request fine tuning (#150)
 - Bugfix - Get timeseries for geojson (#145)
 - Bugfix - Layer selection update after refresh (#143)
 - Bugfix - Map request detail popup (#142)
 - Feature - Default time window (#148)
 - Bugfix - Label update (#147)
+- Bugfix - DSS messages with HTML tags management (#144)
 
 Ver. 2.14.1 - 2023-09-21
 -----------------------

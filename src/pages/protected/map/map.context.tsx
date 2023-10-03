@@ -97,7 +97,7 @@ interface MapStateSelectors<T extends object = object> {
     type: ProvisionalFeatureType | null
     id: string | number | null
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null
-    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon> | null
   }) => void
   // Point features
   setClickedPoint: PointUpdater<T>
@@ -145,7 +145,7 @@ export function MapStateContextProvider<T extends object = object>({
     type: ProvisionalFeatureType | null
     id: string | number | null
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null
-    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon> | null
   }>({
     type: null,
     id: null,
@@ -201,7 +201,7 @@ interface FeatureEditingSelectors {
     type: ProvisionalFeatureType,
     id: string | number | null,
     area?: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null,
-    collection?: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null
+    collection?: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon> | null
   ) => void
   clearFeatureEdit: () => void
 }
@@ -258,7 +258,7 @@ export function useMapStateContext<T extends object = object>() {
     type: ProvisionalFeatureType,
     id: string | number | null = null,
     area: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon> | null = null,
-    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString> | null = null, 
+    collection: GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon> | null = null, 
   ) {
     if (type !== 'Report' && type !== 'MapRequest') {
       setMapMode('edit')

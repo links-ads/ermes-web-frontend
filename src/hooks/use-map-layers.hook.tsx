@@ -145,6 +145,16 @@ const reducer = (currentState, action) => {
         layerTimeseries: action.value.layerTimeseries,
         layerFeatureInfo: action.value.layerFeatureInfo
       }
+    case 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST':
+      return {
+        ...currentState,
+        selectedLayers: action.value.selectedLayers,
+        toBeRemovedLayers: action.value.toBeRemovedLayers,
+        layersLegend: action.value.layersLegend,
+        layersMetadata: action.value.layersMetadata,
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
+      }
     case 'UPDATE_LAYER_PLAYER':
       return {
         ...currentState,
@@ -446,6 +456,91 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const updateSelectedLayersFromMapRequest = useCallback(
+    (newMRSettings, newDateIndex?: number) => {
+      let updatedSelectedLayers = [...dataState.selectedLayers]
+      let updateLegends = [...dataState.layersLegend]
+      let updateMetadata = [...dataState.layersMetadata]
+      let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
+      let toBeRemovedLayers: any[] = [...dataState.toBeRemovedLayers]
+      let newSettings: LayerSettingsState = { ...newMRSettings }
+      newSettings.group = 'Map Request Layer'
+      newSettings.subGroup = newMRSettings.mapRequestCode
+      newSettings.dimension = { ...dataState.defaultDimension }
+      const group = newSettings.group
+      const subGroup = newSettings.subGroup
+      const dataTypeId = newSettings.dataTypeId
+      if (newSettings.isChecked) {
+        if (newSettings.activeLayer != '') {
+          toBeRemovedLayers.push({
+            layerName: newSettings.activeLayer,
+            layerDateIndex: newSettings.dateIndex
+          })
+        }
+        if (newDateIndex) {
+          newSettings.dateIndex = newDateIndex
+        }
+        newSettings.activeLayer =
+          newSettings.timestampsToFiles[newSettings.availableTimestamps[newSettings.dateIndex]]
+        const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findSelectedLayerIdx >= 0) {
+          updatedSelectedLayers[findSelectedLayerIdx] = newSettings
+        } else {
+          updatedSelectedLayers.push(newSettings)
+        }
+      } else {
+        const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findToDeselectedLayerIdx >= 0) {
+          const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx]
+          toBeRemovedLayers.push({
+            layerName: activeLayerToRemove.activeLayer,
+            layerDateIndex: activeLayerToRemove.dateIndex
+          })
+          if (findToDeselectedLayerIdx === updatedSelectedLayers.length - 1) {
+            // if layer removed is last one, make sure to remove timeseries as well
+            updateTimeseries = null
+          }
+          updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
+          // remove legend
+          const findLegendIdx = updateLegends.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findLegendIdx >= 0) {
+            updateLegends.splice(findLegendIdx, 1)
+          }
+          // remove metadata
+          const findMetadataIdx = updateMetadata.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findMetadataIdx >= 0) {
+            updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
+          }
+        }
+      }
+      dispatch({
+        type: 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST',
+        value: {
+          selectedLayers: updatedSelectedLayers,
+          toBeRemovedLayers: toBeRemovedLayers,
+          layersLegend: updateLegends,
+          layersMetadata: updateMetadata,
+          layerTimeseries: updateTimeseries,
+          layerFeatureInfo: updateFeatureInfo
+        }
+      })
+    },
+    [dataState]
+  )
+
   const updateLayerPlayerPosition = useCallback(
     (x, y, group, subGroup, dataTypeId) => {
       let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -660,9 +755,10 @@ const useMapLayers = () => {
             }
             const layerName = layerNames[i]
             const property = feature.properties
-            const featureInfo = Object.keys(property!!).map(
-              (e) => new FeatureInfo(e, property!![e])
-            )
+            const featureInfo = Object.keys(property!!).map((e) => {
+              const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+              return new FeatureInfo(e, rounded)
+            })
 
             const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
             if (prevIdx > -1) {
@@ -740,7 +836,8 @@ const useMapLayers = () => {
     closeLayerTimeseries,
     addLayerFeatureInfo,
     updateLayerFeatureInfoPosition,
-    updateLayerFeatureInfoVisibility
+    updateLayerFeatureInfoVisibility,
+    updateSelectedLayersFromMapRequest
   ]
 }
 

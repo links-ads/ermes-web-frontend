@@ -420,7 +420,9 @@ export const paintMapWithLayer = (map, selectedLayer, geoServerConfig) => {
       fromTime: undefined,
       toTime: undefined
     }
-    map.addSource(layerName, source as mapboxgl.RasterSource)
+    if (!map.getSource(layerName)) {
+      map.addSource(layerName, source as mapboxgl.RasterSource)
+    }
     map.addLayer(
       {
         id: layerName,
@@ -434,11 +436,13 @@ export const paintMapWithLayer = (map, selectedLayer, geoServerConfig) => {
 }
 
 export const removeLayerFromMap = (map, toRemoveLayer) => {
-  const removeLayerName = toRemoveLayer.layerName+ '-' + toRemoveLayer.layerDateIndex
+  const removeLayerName = toRemoveLayer.layerName + '-' + toRemoveLayer.layerDateIndex
   if (map.getLayer(removeLayerName)) {
     map.removeLayer(removeLayerName)
+  }
+  if (map.getSource(removeLayerName)) {
     map.removeSource(removeLayerName)
-  }    
+  }
 }
 
 export const MapLoadingDiv = (props) => {

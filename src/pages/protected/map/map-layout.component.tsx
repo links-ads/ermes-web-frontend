@@ -51,12 +51,12 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, getBboxSizeFromZoom, removePolyToMap } from '../../../common/map/map-common'
+import { drawPolyToMap, getBboxSizeFromZoom, paintMapWithLayer, removeLayerFromMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -67,6 +67,7 @@ import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from "@terraformer/wkt"
+import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -325,42 +326,23 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()!
 
     //Management of layer not related to a Map Request
-    if (selectedLayer) {
-      if (selectedLayer.activeLayer !== null) {
-        map.removeLayer(selectedLayer.activeLayer)
-        map.removeSource(selectedLayer.activeLayer)
-        setGeoLayerState({ tileId: null, tileSource: {} })
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i = 0; i < selectedLayers.length; i++) {
+        const currentSelectedLayer = selectedLayers[i]
+        const currentSelectedLayerActive = currentSelectedLayer.activeLayer
+        if (currentSelectedLayerActive !== null) {
+          removeLayerFromMap(map, {
+            layerName: currentSelectedLayer.activeLayer,
+            layerDateIndex: currentSelectedLayer.dateIndex
+          })
+          setGeoLayerState({ tileId: null, tileSource: {} })
+        }
       }
 
       setTimeout(() => {
-        const layerName = selectedLayer.activeLayer
-        if (layerName != '' && !map.getLayer(layerName)) {
-          const source = tileJSONIfy(
-            map,
-            layerName,
-            selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-            geoServerConfig,
-            map.getBounds()
-          )
-          source['properties'] = {
-            format: undefined,
-            fromTime: undefined,
-            toTime: undefined
-          }
-          map.addSource(layerName, source as mapboxgl.RasterSource)
-          map.addLayer(
-            {
-              id: layerName,
-              type: 'raster',
-              source: layerName
-            },
-            'clusters'
-          )
-          map.setPaintProperty(
-            selectedLayer.activeLayer,
-            'raster-opacity',
-            selectedLayer.opacity / 100
-          )
+        for (let i = 0; i < selectedLayers.length; i++) {
+          const currentSelectedLayer = selectedLayers[i]
+          paintMapWithLayer(map, currentSelectedLayer, geoServerConfig)
         }
       }, 1000) //after 1 sec
     }
@@ -371,8 +353,12 @@ export function MapLayout(props) {
         Object.keys(mapRequestsSettings[mrCode]).forEach((dataTypeId) => {
           const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
           if (activeLayer && activeLayer !== '') {
-            map.removeLayer(activeLayer)
-            map.removeSource(activeLayer)
+            if (map.getLayer(activeLayer)) {
+              map.removeLayer(activeLayer)
+            }
+            if (map.getSource(activeLayer)) {
+              map.removeSource(activeLayer)
+            }
             setTimeout(() => {
               const source = tileJSONIfy(
                 map,
@@ -388,15 +374,19 @@ export function MapLayout(props) {
                 fromTime: undefined,
                 toTime: undefined
               }
-              map.addSource(activeLayer, source as mapboxgl.RasterSource)
-              map.addLayer(
-                {
-                  id: activeLayer,
-                  type: 'raster',
-                  source: activeLayer
-                },
-                'clusters'
-              )
+              if (!map.getSource(activeLayer)) {
+                map.addSource(activeLayer, source as mapboxgl.RasterSource)
+              }
+              if (!map.getLayer(activeLayer)) {
+                map.addLayer(
+                  {
+                    id: activeLayer,
+                    type: 'raster',
+                    source: activeLayer
+                  },
+                  'clusters'
+                )
+              }
               map.setPaintProperty(
                 activeLayer,
                 'raster-opacity',
@@ -721,27 +711,29 @@ export function MapLayout(props) {
     if (clickedPoint) {
       if (polyToMap && polyToMap?.feature?.geometry) {
         const geometry = JSON.parse(polyToMap?.feature?.geometry)
-        const polyToDraw =
-          geometry.type === 'Polygon'
-            ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point'
-            ? geometryCollection(
-                [geometry].concat(
-                  polyToMap.feature.properties.boundaryConditions.map((e) => {
-                    if (e.fireBreak) {
-                      const lineString = Object.values(e.fireBreak)[0] as string
-                      let geojsonLine = null
-                      if (lineString.startsWith('L')) {
-                        geojsonLine = wktToGeoJSON(lineString)
-                      } else {
-                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
-                      }
-                      return geojsonLine
+        const isGeometryCollection =
+          polyToMap.feature.properties.type === EntityType.MAP_REQUEST &&
+          polyToMap.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+        const polyToDraw = isGeometryCollection
+          ? geometryCollection(
+              [geometry].concat(
+                polyToMap.feature.properties.boundaryConditions.map((e) => {
+                  if (e.fireBreak) {
+                    const lineString = Object.values(e.fireBreak)[0] as string
+                    let geojsonLine = null
+                    if (lineString.startsWith('L')) {
+                      geojsonLine = wktToGeoJSON(lineString)
+                    } else {
+                      geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
                     }
-                  })
-                )
+                    return geojsonLine
+                  }
+                })
               )
-            : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
+            )
+          : geometry.type === 'Polygon'
+          ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+          : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
         const mapIsMoving = map?.isMoving()
         if (mapIsMoving) {
           map?.once('moveend', function (e) {

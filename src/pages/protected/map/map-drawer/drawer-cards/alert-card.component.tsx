@@ -70,12 +70,7 @@ const AlertCard: React.FC<{
 
           <>
             {' '}
-            <Chip
-              label={elem.status!}
-              color="secondary"
-              size="small"
-              className={style.chipStyle}
-            />
+            <Chip label={elem.status!} color="secondary" size="small" className={style.chipStyle} />
           </>
 
           <>
@@ -92,8 +87,12 @@ const AlertCard: React.FC<{
             )}
           </>
         </div>
-        <Typography variant="body2" component="h2" gutterBottom>
-          {description}
+        <Typography
+          variant="body2"
+          component="h2"
+          gutterBottom
+          dangerouslySetInnerHTML={{ __html: description }}
+        >
         </Typography>
         <Typography variant="body2" component="h2" gutterBottom>
           {t('maps:location')}: {elem.region}
