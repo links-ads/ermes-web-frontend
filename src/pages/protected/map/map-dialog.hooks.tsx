@@ -233,7 +233,7 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
       }
     case 'TYPE':
       return {
-        ...currentState,
+        ...setinitialEditState(null),
         type: action.value
       }
     case 'FREQUENCY':

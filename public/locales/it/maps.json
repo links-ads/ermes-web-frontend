@@ -126,6 +126,8 @@
   "mapSelectionErrorMessage": "Selezione sulla mappa non completata",
   "drawLine": "Disegna la linea sulla mappa",
   "drawPoint": "Disegna il punto sulla mappa",
+  "wktHelp": "Inserisci WKT",
+  "invalidWkt": "WKT non valido", 
   "tab_persons": "Persone",
   "tab_reports": "Segnalazioni",
   "tab_communications": "Avvisi",

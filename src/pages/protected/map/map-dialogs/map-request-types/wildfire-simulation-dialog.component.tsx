@@ -38,6 +38,8 @@ import MapRequestDrawFeature, {
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import { FireBreakType } from '../../map-dialog.hooks'
 import { Alert, Color } from '@material-ui/lab'
+import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
+import { feature } from '@turf/helpers'
 
 type MapFeature = CulturalProps
 
@@ -62,6 +64,19 @@ export function WildFireSimulationDialog({
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
   const [boundaryLinesTot, setBoundaryLinesTot] = useState<number>(0)
+  const [mapFeatures, setMapFeatures] = useState<any[]>(
+    mapSelectionCompleted && mapArea
+      ? [{ ...mapArea }].concat(
+          boundaryConditions
+            .filter((e) => e.fireBreakType && Object.values(e.fireBreakType).length > 0)
+            .map((e) => Object.values(e.fireBreakType)[0])
+        )
+      : []
+  )
+  const [areaOfInterestWKT, setAreaOfIntererstWKT] = useState<string>(
+    mapArea && mapArea.geometry ? geojsonToWKT(mapArea.geometry) : ''
+  )
+  const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -93,7 +108,37 @@ export function WildFireSimulationDialog({
 
   const setMapArea = (area) => {
     dispatchEditAction({ type: 'MAP_AREA', value: area })
+    const aoiWKT = geojsonToWKT(area.geometry)
+    setAoiWKTError(false)
+    setAreaOfIntererstWKT(aoiWKT)
   }
+
+  const aoiWKTOnChangeHandler = (event) => {
+    const newAoiWKT = event.target.value
+
+    try {
+      const geojsonAoi = wktToGeoJSON(newAoiWKT)
+      const mapAreaFeature = feature(geojsonAoi)
+      dispatchEditAction({ type: 'MAP_AREA', value: mapAreaFeature })
+      setAoiWKTError(false)
+    } catch (err) {
+      console.error(err)
+      setAoiWKTError(true)
+    } finally {
+      setAreaOfIntererstWKT(newAoiWKT)
+    }
+  }
+
+  useEffect(() => {
+    if (mapArea) {
+      const concatFeatures = [{ ...mapArea }].concat(
+        boundaryConditions
+          .filter((e) => e.fireBreakType && Object.values(e.fireBreakType).length > 0)
+          .map((e) => Object.values(e.fireBreakType)[0])
+      )
+      setMapFeatures(concatFeatures)
+    }
+  }, [mapArea])
 
   const { startDate, hoursOfProjection } = editState
 
@@ -445,17 +490,22 @@ export function WildFireSimulationDialog({
             toRemoveBoundaryConditionIdx={toRemoveBoundaryConditionIdx}
             setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             boundaryLinesTot={boundaryLinesTot}
-            mapSelectedFeatures={
-              mapSelectionCompleted && mapArea
-                ? [{ ...mapArea }].concat(
-                    boundaryConditions
-                      .filter((e) => e.fireBreakType)
-                      .map((e) => Object.values(e.fireBreakType)[0])
-                  )
-                : []
-            }
+            mapSelectedFeatures={mapFeatures}
           />
         </MapStateContextProvider>
+        <Grid container direction="row">
+          <TextField
+            id="aoi"
+            fullWidth
+            variant="outlined"
+            multiline
+            value={areaOfInterestWKT}
+            onChange={aoiWKTOnChangeHandler}
+            error={aoiWKTError}
+            helperText={aoiWKTError ? t('maps:invalidWkt') : ''}
+            placeholder={t('maps:wktHelp')}
+          />
+        </Grid>
       </Grid>
     </Grid>
   )

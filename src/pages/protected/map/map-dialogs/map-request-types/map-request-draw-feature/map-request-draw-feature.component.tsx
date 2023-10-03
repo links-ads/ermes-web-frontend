@@ -19,6 +19,7 @@ import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core
 import { Color } from '@material-ui/lab'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 import { Chip, Theme, createStyles, makeStyles } from '@material-ui/core'
+import { featureCollection as createFeatureCollection } from '@turf/helpers'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -43,8 +44,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     mapCoorZoom: {
       zIndex: 97,
-      top: 10, 
-      left: 56, 
+      top: 10,
+      left: 56,
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
@@ -91,10 +92,11 @@ const MapRequestDrawFeature: React.FC<{
   const [mapFeatures, setMapFeatures] = useState<GeoJSON.Feature[]>(mapSelectedFeatures ?? [])
   const [featureCollection, setFeatureCollection] = useState<
     GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon>
-  >({
-    type: 'FeatureCollection',
-    features: mapSelectedFeatures ?? []
-  })
+  >(
+    createFeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon>(
+      mapSelectedFeatures ?? []
+    )
+  )
 
   // GeoJSON source Ref
   const geoJSONPointsSourceRef = useRef(null)
@@ -136,6 +138,17 @@ const MapRequestDrawFeature: React.FC<{
       setMapMode(customMapMode)
     }
   }, [customMapMode])
+
+  useEffect(() => {
+    if (mapSelectedFeatures && mapSelectedFeatures.length > 0) {
+      setMapFeatures(mapSelectedFeatures)
+      const featCollection = createFeatureCollection<
+        GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
+      >(mapSelectedFeatures)
+      setFeatureCollection(featCollection)
+      updateMap(featCollection)
+    }
+  }, [mapSelectedFeatures])
 
   const updateMap = (updatedFeatureCollection) => {
     const map = mapViewRef!!.current!!.getMap()
@@ -200,16 +213,29 @@ const MapRequestDrawFeature: React.FC<{
 
   useEffect(() => {
     if (
-      mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length !== boundaryLinesTot
+      mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+      mapRequestType === MapRequestType.POST_EVENT_MONITORING
     ) {
-      areaSelectedAlertHandler('info')
-      mapSelectionNotCompletedHandler()
-    } else if (
-      mapFeatures.find((e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon') &&
-      mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length === boundaryLinesTot
-    ) {
-      areaSelectedAlertHandler('success')
-      mapSelectionCompletedHandler()
+      if (mapFeatures.find((e) => e.geometry.type === 'Polygon')) {
+        areaSelectedAlertHandler('success')
+        mapSelectionCompletedHandler()
+      } else {
+        areaSelectedAlertHandler('info')
+        mapSelectionNotCompletedHandler()
+      }
+    } else {
+      if (
+        mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length !== boundaryLinesTot
+      ) {
+        areaSelectedAlertHandler('info')
+        mapSelectionNotCompletedHandler()
+      } else if (
+        mapFeatures.find((e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon') &&
+        mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length === boundaryLinesTot
+      ) {
+        areaSelectedAlertHandler('success')
+        mapSelectionCompletedHandler()
+      }
     }
   }, [boundaryLinesTot, mapFeatures])
 
@@ -489,9 +515,7 @@ const MapRequestDrawFeature: React.FC<{
             <ScaleControl />
           </div>
         </InteractiveMap>
-        <Chip className={classes.mapCoorZoom} 
-          label={mapCoordinatesZoom}
-        />
+        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
       </MapContainer>
     )
   )

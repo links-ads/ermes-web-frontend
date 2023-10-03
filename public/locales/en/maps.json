@@ -125,6 +125,8 @@
   "mapSelectionErrorMessage": "Map selection not completed",
   "drawLine": "Draw line on map",
   "drawPoint": "Draw point on map",
+  "wktHelp": "Inserisci WKT",
+  "invalidWkt": "Invalid WKT", 
   "tab_persons": "Persons",
   "tab_reports": "Reports",
   "tab_communications": "Updates",
