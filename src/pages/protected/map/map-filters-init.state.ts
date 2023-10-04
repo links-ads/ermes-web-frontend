@@ -1,3 +1,4 @@
+import { CommunicationRestrictionType, CommunicationScopeType, MapRequestStatusType } from 'ermes-backoffice-ts-sdk'
 import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import { _MS_PER_DAY } from '../../../utils/utils.common'
 
@@ -101,38 +102,88 @@ export const initObjectState = {
       tab: 1,
       content: [
         {
-          name: 'map_request_status',
-          options: ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable', 'Canceled'],
+          name: 'map_request_types',
+          options: ['FireAndBurnedArea', 'PostEventMonitoring', 'WildfireSimulation'],
           type: 'multipleselect',
-          selected: ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
+          selected: ['FireAndBurnedArea', 'PostEventMonitoring', 'WildfireSimulation']
         },
         {
-          name: 'map_request_layer',
-          options: ['BurnedArea', 'Delineation', 'Forecast', 'Nowcast', 'RiskMap'],
+          name: 'map_request_status',
+          options: [
+            MapRequestStatusType.REQUEST_SUBMITTED,
+            MapRequestStatusType.PROCESSING,
+            MapRequestStatusType.CONTENT_AVAILABLE,
+            MapRequestStatusType.CONTENT_NOT_AVAILABLE,
+            MapRequestStatusType.CANCELED
+          ],
+          type: 'multipleselect',
+          selected: [
+            MapRequestStatusType.REQUEST_SUBMITTED,
+            MapRequestStatusType.PROCESSING,
+            MapRequestStatusType.CONTENT_AVAILABLE,
+            MapRequestStatusType.CONTENT_NOT_AVAILABLE
+          ]
+        }
+        // {
+        //   name: 'map_request_layer',
+        //   options: ['BurnedArea', 'Delineation', 'Forecast', 'Nowcast', 'RiskMap'],
+        //   type: 'multipleselect',
+        //   selected: []
+        // },
+        // {
+        //   name: 'map_request_hazards',
+        //   options: [
+        //     'None',
+        //     'Avalanche',
+        //     'Earthquake',
+        //     'Fire',
+        //     'Flood',
+        //     'Landslide',
+        //     'Storm',
+        //     'Weather',
+        //     'Subsidence'
+        //   ],
+        //   type: 'multipleselect',
+        //   selected: []
+        // },
+      ]
+    },
+    communication: {
+      title: 'communication',
+      type: 'accordion',
+      tab: 1,
+      content: [
+        {
+          name: 'scope',
+          options: [CommunicationScopeType.PUBLIC, CommunicationScopeType.RESTRICTED],
           type: 'multipleselect',
           selected: []
         },
         {
-          name: 'map_request_hazards',
+          name: 'restriction',
           options: [
-            'None',
-            'Avalanche',
-            'Earthquake',
-            'Fire',
-            'Flood',
-            'Landslide',
-            'Storm',
-            'Weather',
-            'Subsidence'
+            CommunicationRestrictionType.CITIZEN,
+            CommunicationRestrictionType.ORGANIZATION,
+            CommunicationRestrictionType.PROFESSIONAL
+          ],
+          type: 'conditional_multipleselect',
+          selected: []
+        }        
+      ]
+    },
+    alert: {
+      title: 'alert',
+      type: 'accordion',
+      tab: 1,
+      content: [
+        {
+          name: 'restriction',
+          options: [
+            CommunicationRestrictionType.CITIZEN,
+            CommunicationRestrictionType.PROFESSIONAL
           ],
           type: 'multipleselect',
           selected: []
-        },
-        {
-          name: 'map_request_types',
-          options: ["FireAndBurnedArea", "PostEventMonitoring", "WildfireSimulation"],
-          type: 'multipleselect',
-          selected: ["FireAndBurnedArea", "PostEventMonitoring", "WildfireSimulation"]
         }
       ]
     },

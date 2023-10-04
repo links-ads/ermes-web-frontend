@@ -115,6 +115,7 @@
   "contentavailable": "Content available",
   "contentnotavailable": "Content not available",
   "canceled": "Canceled",
+  "processing": "Processing", 
   "burnedarea": "Burned area",
   "delineation": "Delineation",
   "forecast": "Forecast",

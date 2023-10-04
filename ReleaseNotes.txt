@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Area of interest from WKT (#156)
+- Feature - Update of filters (#154)
 
 Ver. 2.15.2 - 2023-093-10
 -----------------------
