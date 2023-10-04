@@ -143,10 +143,6 @@ const RenderMembersTables = (
       let selectUser = {
         id: elem.user.id,
         name: elem.user.displayName
-          ? elem.user.displayName
-          : elem.user.username
-          ? elem.user.username
-          : elem.user.email
       }
       lookupPeople[selectUser.id] = selectUser.name
       return selectUser

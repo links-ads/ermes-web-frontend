@@ -2,6 +2,11 @@ Ver.
 -----------------------
 - Feature - Area of interest from WKT (#156)
 
+Ver. 2.15.2 - 2023-093-10
+-----------------------
+- Bugfix - Users without username (#160)
+- Bugfix - Timestamp slider (#162)
+
 Ver. 2.15.1 - 2023-09-29
 -----------------------
 - Bugfix - Map request and map style (#159)

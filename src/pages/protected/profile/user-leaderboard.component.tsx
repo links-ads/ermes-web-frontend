@@ -92,7 +92,7 @@ isLoading={statsState.isLoading}
             //   initialEditValue: ''
             // },
            // { title: t('admin:user_username'), field: 'user.displayName' == null ? ('user.username' == null ? 'user.email' : 'user.username') : 'user.displayName'},
-           { title: t('common:nickname'), field: 'displayName' == null ? 'username' : 'displayName'},
+           { title: t('common:nickname'), field: 'displayName'},
            { title: t('common:leader_points'), field:'points'},
             { title: t('common:leader_gpos'), field:'position'},
             { title: t('common:leader_level'), field:'levelName'},

@@ -28,7 +28,7 @@ import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
-import { CommunicationScopeType } from 'ermes-ts-sdk'
+import { CommunicationScopeType, EntityType } from 'ermes-ts-sdk'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { yellow } from '@material-ui/core/colors'
 import useAlertList from '../../../../hooks/use-alerts.hook'
@@ -166,7 +166,7 @@ const mapRequestCard = (
           {t('maps:creator')}:&nbsp;
         </Typography>
         <Typography component={'span'} variant="body1">
-          {t('labels:' + mapRequestDetails.username.toLowerCase())}
+          {t('labels:' + mapRequestDetails.displayName.toLowerCase())}
         </Typography>
         <br />
         <Typography
@@ -1170,6 +1170,22 @@ export function EmergencyHoverCardContent({
 }: EmergencyProps) {
   const classes = useStyles()
   const { t } = useTranslation(['maps'])
+  let detailComponent = <div />;
+  if(type === EntityType.ALERT)
+    detailComponent = <Typography
+                variant="body2"
+                component="h2"
+                gutterBottom
+                dangerouslySetInnerHTML={{ __html: details }}
+              />
+  else
+    detailComponent =  <Typography
+                variant="body2"
+                component="h2"
+                gutterBottom
+              >
+            {details}
+          </Typography>
   return (
     // <Card className={classes.root} variant="outlined">
     <CardContent>
@@ -1200,9 +1216,7 @@ export function EmergencyHoverCardContent({
             {t('maps:description')}
           </Typography>
           <br />
-          <Typography component={'span'} variant="body1">
-            {details}
-          </Typography>
+          {detailComponent}
         </div>
       ) : null}
       {creator !== 'null' && creator ? (

@@ -62,7 +62,7 @@ const UncompletedUsersComponent = (props) => {
       {
         title: t('admin:user_username'),
         field: 'user.username',
-        render: (rowData) => rowData.user.username
+        render: (rowData) => rowData.user.displayName
       },
       {
         title: t('admin:user_roles'),
