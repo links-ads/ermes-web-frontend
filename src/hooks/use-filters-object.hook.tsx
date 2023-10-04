@@ -3,7 +3,7 @@ import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-f
 import { initObjectState } from '../pages/protected/map/map-filters-init.state'
 import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
-import { EntityType } from 'ermes-ts-sdk'
+import { CommunicationRestrictionType, EntityType } from 'ermes-ts-sdk'
 
 export interface MapDrawerTabVisibility {
   Person: boolean
@@ -88,7 +88,7 @@ export const initializer = (userProfile, appConfig) => {
     filtersObj.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
     filtersObj.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
     filtersObj.filters.report.content[2] =
-      userProfile?.role == ROLE_CITIZEN
+      userProfile?.role === ROLE_CITIZEN
         ? {
             name: 'hazard_visibility',
             options: ['Public'],
@@ -100,6 +100,41 @@ export const initializer = (userProfile, appConfig) => {
             options: ['Private', 'Public', 'All'],
             type: 'select',
             selected: 'Private'
+          }
+    filtersObj.filters.communication.content[1] =
+      userProfile?.role === ROLE_CITIZEN
+        ? {
+            name: 'restriction',
+            options: [CommunicationRestrictionType.CITIZEN],
+            type: 'conditional_multipleselect',
+            selected: [CommunicationRestrictionType.CITIZEN]
+          }
+        : {
+            name: 'restriction',
+            options: [
+              CommunicationRestrictionType.CITIZEN,
+              CommunicationRestrictionType.ORGANIZATION,
+              CommunicationRestrictionType.PROFESSIONAL
+            ],
+            type: 'conditional_multipleselect',
+            selected: []
+          }
+    filtersObj.filters.alert.content[0] =
+      userProfile?.role === ROLE_CITIZEN
+        ? {
+            name: 'restriction',
+            options: [CommunicationRestrictionType.CITIZEN],
+            type: 'multipleselect',
+            selected: [CommunicationRestrictionType.CITIZEN]
+          }
+        : {
+            name: 'restriction',
+            options: [
+              CommunicationRestrictionType.CITIZEN,
+              CommunicationRestrictionType.PROFESSIONAL
+            ],
+            type: 'multipleselect',
+            selected: []
           }
   } else {
     filtersObj = JSON.parse(storedFilters)

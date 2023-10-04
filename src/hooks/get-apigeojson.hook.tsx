@@ -1,5 +1,5 @@
 import { useCallback, useReducer, useMemo, useContext } from 'react'
-import { GeoJsonApiFactory } from 'ermes-backoffice-ts-sdk'
+import { CommunicationRestrictionType, CommunicationScopeType, GeoJsonApiFactory } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -75,6 +75,9 @@ export default function GetApiGeoJson() {
     (teamIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       dispatch({ type: 'FETCH' })
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
+        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      }
       repApiFactory
         .geoJsonGetFeatureCollection(
           (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
@@ -88,12 +91,15 @@ export default function GetApiGeoJson() {
           (filters?.report as any).content[0]?.selected,
           (filters?.report as any).content[1]?.selected,
           (filters?.mission as any).content[0]?.selected,
-          (filters?.mapRequests as any).content[3]?.selected,
           (filters?.mapRequests as any).content[0]?.selected,
+          (filters?.mapRequests as any).content[1]?.selected,
           undefined,
           teamIds,
           (filters?.report as any).content[2]?.selected,
           (filters?.report as any).content[3]?.selected,
+          (filters?.communication as any).content[1]?.selected,
+          (filters?.communication as any).content[0]?.selected,
+          (filters?.alert as any).content[0]?.selected,
           {
             headers: {
               'Accept-Language': i18n.language
@@ -131,6 +137,9 @@ export default function GetApiGeoJson() {
       sideEffect = (data) => {}
     ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
+        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      }
       repApiFactory
         .geoJsonDownloadFeatureCollection(
           (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
@@ -144,12 +153,15 @@ export default function GetApiGeoJson() {
           (filters?.report as any).content[0]?.selected,
           (filters?.report as any).content[1]?.selected,
           (filters?.mission as any).content[0]?.selected,
-          (filters?.mapRequests as any).content[3]?.selected,
           (filters?.mapRequests as any).content[0]?.selected,
+          (filters?.mapRequests as any).content[1]?.selected,
           activityIds,
           teamIds,
           (filters?.report as any).content[2]?.selected,
           (filters?.report as any).content[3]?.selected,
+          (filters?.communication as any).content[1]?.selected,
+          (filters?.communication as any).content[0]?.selected,
+          (filters?.alert as any).content[0]?.selected,
           {
             headers: {
               'Accept-Language': i18n.language

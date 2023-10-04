@@ -33,12 +33,25 @@ import 'moment/locale/en-gb'
 import './filters.css'
 import { ArrowDropDown } from '@material-ui/icons'
 import { EmergencyColorMap } from '../map/api-data/emergency.component'
-import { EntityType } from 'ermes-ts-sdk'
+import {
+  CommunicationRestrictionType,
+  CommunicationScopeType,
+  EntityType,
+  MapRequestStatusType
+} from 'ermes-ts-sdk'
+import { useUser } from '../../../state/auth/auth.hooks'
+import { ROLE_CITIZEN } from '../../../App.const'
 
-const MAP_REQUEST_STATUS_DEFAULT = ['RequestSubmitted', 'ContentAvailable', 'ContentNotAvailable']
+const MAP_REQUEST_STATUS_DEFAULT = [
+  MapRequestStatusType.REQUEST_SUBMITTED,
+  MapRequestStatusType.PROCESSING,
+  MapRequestStatusType.CONTENT_AVAILABLE,
+  MapRequestStatusType.CONTENT_NOT_AVAILABLE
+]
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
 export const DashboardFilters = (props) => {
+  const { profile } = useUser()
   const { t, i18n } = useTranslation(['social', 'filters', 'labels'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const { datestart, dateend } = filters
@@ -119,11 +132,49 @@ export const DashboardFilters = (props) => {
     })
   }
 
+  const applyCommunicationFilters = (communicationFilters) => {
+    const newFilters = filtersState
+    const contentLength = newFilters.communication.content.length
+    for (let i = 0; i < contentLength; i++) {
+      newFilters.communication.content[i].selected = communicationFilters.content[i].selected
+    }
+    if (profile?.role === ROLE_CITIZEN) {
+      if (
+        !newFilters.communication.content[0].selected.includes(CommunicationScopeType.RESTRICTED)
+      ) {
+        const citizenRestrictionIdx = newFilters.communication.content[1].selected.findIndex(
+          (e) => e === CommunicationRestrictionType.CITIZEN
+        )
+        if (citizenRestrictionIdx >= 0) {
+          newFilters.communication.content[1].selected.splice(citizenRestrictionIdx, 1)
+        }
+      }
+    }
+    setFiltersState({ ...newFilters })
+    props.onFilterApply({
+      ...localStorageFilters,
+      filters: filtersState
+    })
+  }
+
   const applyMapRequestFilters = (mapRequestFilters) => {
     const newFilters = filtersState
     const contentLength = newFilters.mapRequests.content.length
     for (let i = 0; i < contentLength; i++) {
       newFilters.mapRequests.content[i].selected = mapRequestFilters.content[i].selected
+    }
+    setFiltersState({ ...newFilters })
+    props.onFilterApply({
+      ...localStorageFilters,
+      filters: filtersState
+    })
+  }
+
+  const applyAlertFilters = (alertFilters) => {
+    const newFilters = filtersState
+    const contentLength = newFilters.alert.content.length
+    for (let i = 0; i < contentLength; i++) {
+      newFilters.alert.content[i].selected = alertFilters.content[i].selected
     }
     setFiltersState({ ...newFilters })
     props.onFilterApply({
@@ -309,6 +360,7 @@ export const DashboardFilters = (props) => {
               isChecked={personChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -323,6 +375,7 @@ export const DashboardFilters = (props) => {
               isChecked={reportChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -337,6 +390,7 @@ export const DashboardFilters = (props) => {
               isChecked={missionChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -345,10 +399,13 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.COMMUNICATION}
               emergencyLabel={EntityType.COMMUNICATION}
+              category={filtersState.communication}
+              applyFilters={applyCommunicationFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={communicationChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -363,6 +420,7 @@ export const DashboardFilters = (props) => {
               filterCheckedHandler={onFilterChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -371,10 +429,13 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.ALERT}
               emergencyLabel={EntityType.ALERT}
+              category={filtersState.alert}
+              applyFilters={applyAlertFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={alertChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
           <Grid item>
@@ -387,6 +448,7 @@ export const DashboardFilters = (props) => {
               isChecked={cameraChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
+              userProfile={profile}
             />
           </Grid>
         </Grid>
@@ -415,7 +477,8 @@ const CategoryFilter = (props) => {
     isChecked,
     filterCheckedHandler,
     clickCounter,
-    setClickCounter
+    setClickCounter,
+    userProfile
   } = props
   const [categoryFilters, setCategoryFilters] = useState(category)
 
@@ -487,6 +550,15 @@ const CategoryFilter = (props) => {
     handleClose()
   }, [])
 
+  const disabledSelect =
+    category &&
+    category.content &&
+    category.content.length > 1 &&
+    category.content[0].name === 'scope' &&
+    category.content[1].name === 'restriction' &&
+    category.content[1].type === 'conditional_multipleselect' &&
+    !category.content[0].selected.includes(CommunicationScopeType.RESTRICTED)
+
   return (
     <>
       <Paper elevation={3}>
@@ -505,13 +577,19 @@ const CategoryFilter = (props) => {
               {t('labels:filter_' + label.toLowerCase())}
             </Typography>
           </Button>
-          {category && category.content && category.content.length > 0 ? (
+          {category &&
+          category.content &&
+          category.content.length > 0 &&
+          !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
             <Button aria-describedby={id} size="small" disabled={!isChecked} onClick={handleClick}>
               <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
             </Button>
           ) : null}
         </ButtonGroup>
-        {category && category.content && category.content.length > 0 ? (
+        {category &&
+        category.content &&
+        category.content.length > 0 &&
+        !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
           <>
             <Popover
               id={id}
@@ -530,7 +608,11 @@ const CategoryFilter = (props) => {
               <Paper key={'category-paper-' + label} elevation={3}>
                 <MenuList autoFocusItem={open} id="menu-list-grow">
                   {category.content.map((elem, i) => {
-                    if (elem.name === 'hazard_status' || elem.name === 'hazard_content') {
+                    if (
+                      elem.name === 'hazard_status' ||
+                      elem.name === 'hazard_content' ||
+                      (elem.name === 'restriction' && userProfile.role === ROLE_CITIZEN)
+                    ) {
                       return null
                     } else {
                       return (
@@ -542,13 +624,18 @@ const CategoryFilter = (props) => {
                             <Select
                               labelId={'demo-mutiple-checkbox-label_' + i}
                               id={'demo-mutiple-checkbox_' + i}
-                              multiple={elem.type === 'multipleselect'}
+                              multiple={
+                                elem.type === 'multipleselect' ||
+                                elem.type === 'conditional_multipleselect'
+                              }
                               value={elem.selected}
                               renderValue={
-                                elem.type === 'multipleselect'
+                                elem.type === 'multipleselect' ||
+                                elem.type === 'conditional_multipleselect'
                                   ? (v) => renderValues(v, 'labels:')
                                   : (v) => t('labels:' + (v as String).toLowerCase())
                               }
+                              disabled={elem.name === 'restriction' && disabledSelect}
                               onChange={(event) => {
                                 event.stopPropagation()
                                 const newCategoryFilter = categoryFilters
@@ -560,7 +647,8 @@ const CategoryFilter = (props) => {
                             >
                               {elem.options.map((value, key) => (
                                 <MenuItem key={'category-select-' + key} value={value}>
-                                  {elem.type === 'multipleselect' ? (
+                                  {elem.type === 'multipleselect' ||
+                                  elem.type === 'conditional_multipleselect' ? (
                                     <>
                                       <Checkbox checked={elem.selected.indexOf(value) > -1} />
                                       <ListItemText primary={t('labels:' + value.toLowerCase())} />
@@ -576,7 +664,16 @@ const CategoryFilter = (props) => {
                       )
                     }
                   })}
-                  <MenuItem>
+                  <MenuItem style={{ justifyContent: 'end' }}>
+                    <Button
+                      className={classes.resetButton}
+                      style={{ textTransform: 'capitalize' }}
+                      onClick={resetCategoryFilters}
+                      size="small"
+                      variant="contained"
+                    >
+                      {t('social:filter_reset')}
+                    </Button>
                     <Button
                       className={getApplyButtonClass(emergencyLabel)}
                       style={{ textTransform: 'capitalize' }}
@@ -586,15 +683,6 @@ const CategoryFilter = (props) => {
                       variant="contained"
                     >
                       {t('social:filter_apply')}
-                    </Button>
-                    <Button
-                      className={classes.resetButton}
-                      style={{ textTransform: 'capitalize' }}
-                      onClick={resetCategoryFilters}
-                      size="small"
-                      variant="contained"
-                    >
-                      {t('social:filter_reset')}
                     </Button>
                   </MenuItem>
                 </MenuList>

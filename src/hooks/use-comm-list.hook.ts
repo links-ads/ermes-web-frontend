@@ -104,6 +104,8 @@ export default function useCommList() {
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
           (filters?.mapBounds as any).southWest[0],
+          (filters?.communication as any).content[1]?.selected,
+          (filters?.communication as any).content[0]?.selected,
           MAX_RESULT_COUNT,
           tot,
           undefined,
