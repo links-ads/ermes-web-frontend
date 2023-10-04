@@ -141,10 +141,25 @@ const MapRequestDrawFeature: React.FC<{
 
   useEffect(() => {
     if (mapSelectedFeatures && mapSelectedFeatures.length > 0) {
-      setMapFeatures(mapSelectedFeatures)
-      const featCollection = createFeatureCollection<
-        GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
-      >(mapSelectedFeatures)
+      let featCollection
+      if (
+        mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+        mapRequestType === MapRequestType.POST_EVENT_MONITORING
+      ) {
+        const polygonFeatures = mapSelectedFeatures.filter(e => e.geometry.type === 'Polygon')
+        setMapFeatures(polygonFeatures)
+        featCollection = createFeatureCollection<
+          GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
+        >(polygonFeatures)
+        setFeatureCollection(featCollection)
+        updateMap(featCollection)
+      }
+      else {
+        setMapFeatures(mapSelectedFeatures)
+        featCollection = createFeatureCollection<
+          GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
+        >(mapSelectedFeatures)
+      }
       setFeatureCollection(featCollection)
       updateMap(featCollection)
     }

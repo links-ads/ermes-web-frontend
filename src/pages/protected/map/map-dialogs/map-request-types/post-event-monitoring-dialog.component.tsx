@@ -101,8 +101,12 @@ export function PostEventMonitoringDialog({
     try {
       const geojsonAoi = wktToGeoJSON(newAoiWKT)
       const mapAreaFeature = feature(geojsonAoi)
-      dispatchEditAction({ type: 'MAP_AREA', value: mapAreaFeature })
-      setAoiWKTError(false)
+      if (mapAreaFeature.geometry.type === 'Polygon') {
+        dispatchEditAction({ type: 'MAP_AREA', value: mapAreaFeature })
+        setAoiWKTError(false)
+      } else {
+        setAoiWKTError(true)
+      }
     } catch (err) {
       console.error(err)
       setAoiWKTError(true)
