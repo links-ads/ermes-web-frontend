@@ -31,7 +31,6 @@ export function MapRequestDialog({
 
   const handleChange = (event) => {
     setValue(event.target.value)
-    dispatchEditAction({ type: 'RESET' })
     dispatchEditAction({ type: 'TYPE', value: event.target.value })
     setEditError(false)
   }
