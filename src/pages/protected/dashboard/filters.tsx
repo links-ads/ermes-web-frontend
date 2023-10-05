@@ -641,10 +641,9 @@ const CategoryFilter = (props) => {
                                 const newCategoryFilter = categoryFilters
                                 const checkedOptions = event.target.value
                                 newCategoryFilter.content[i].selected = checkedOptions
-                                if (
-                                  newCategoryFilter.content
-                                    .filter((a) => a.name === 'scope')[0]
-                                    .selected.findIndex((a) => a == CommunicationScopeType.RESTRICTED) < 0
+
+                                var scope = newCategoryFilter.content.filter((a) => a.name === 'scope')[0]
+                                if (scope && scope.selected.findIndex((a) => a == CommunicationScopeType.RESTRICTED) < 0
                                 ){
                                   newCategoryFilter.content.filter(a => a.name === 'restriction')[0].selected = [];
                                 }
