@@ -1,7 +1,5 @@
 Ver.
 -----------------------
-- Feature - Area of interest from WKT (#156)
-- Feature - Update of filters (#154)
 - Feature - Time for Get Feature Info (#165)
 
 Ver. 2.15.3 - 2023-10-05
