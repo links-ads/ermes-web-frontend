@@ -582,7 +582,7 @@ const CategoryFilter = (props) => {
           {category &&
           category.content &&
           category.content.length > 0 &&
-          !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
+          !(category.title === 'alert' && userProfile?.role === ROLE_CITIZEN) ? (
             <Button aria-describedby={id} size="small" disabled={!isChecked} onClick={handleClick}>
               <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
             </Button>
@@ -591,7 +591,7 @@ const CategoryFilter = (props) => {
         {category &&
         category.content &&
         category.content.length > 0 &&
-        !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
+        !(category.title === 'alert' && userProfile?.role === ROLE_CITIZEN) ? (
           <>
             <Popover
               id={id}
@@ -613,7 +613,7 @@ const CategoryFilter = (props) => {
                     if (
                       elem.name === 'hazard_status' ||
                       elem.name === 'hazard_content' ||
-                      (elem.name === 'restriction' && userProfile.role === ROLE_CITIZEN)
+                      (elem.name === 'restriction' && userProfile?.role === ROLE_CITIZEN)
                     ) {
                       return null
                     } else {
@@ -643,10 +643,9 @@ const CategoryFilter = (props) => {
                                 const newCategoryFilter = categoryFilters
                                 const checkedOptions = event.target.value
                                 newCategoryFilter.content[i].selected = checkedOptions
-                                if (
-                                  newCategoryFilter.content
-                                    .filter((a) => a.name === 'scope')[0]
-                                    .selected.findIndex((a) => a == CommunicationScopeType.RESTRICTED) < 0
+
+                                var scope = newCategoryFilter.content.filter((a) => a.name === 'scope')[0]
+                                if (scope && scope.selected.findIndex((a) => a == CommunicationScopeType.RESTRICTED) < 0
                                 ){
                                   newCategoryFilter.content.filter(a => a.name === 'restriction')[0].selected = [];
                                 }

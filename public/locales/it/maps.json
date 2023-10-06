@@ -76,6 +76,7 @@
   "featureInfoNoLayer": "Impossibile ottenere informazioni di layer non valido",
   "noFeautureInfo": "Impossibile ottenere informazioni sul punto",
   "zeroFeatureInfo": "0 informazioni sul punto trovate",
+  "zeroFeatureInfoForLayer": "0 informazioni sul punto trovate per questo layer",
   "details": "Codice",
   "no_layers": "Non ci sono layers che soddisfano i criteri di ricerca",
   "category": "Categoria",

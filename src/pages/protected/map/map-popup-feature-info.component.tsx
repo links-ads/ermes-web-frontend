@@ -86,10 +86,10 @@ export const MapFeatureInfo = (props) => {
         {error && <p>{t('maps:noFeautureInfo')}</p>}
         {featureInfo && featureInfo.length === 0 && <p>{t('maps:zeroFeatureInfo')}</p>}
         {featureInfo &&
-          featureInfo.map((feature, i) => (
+          featureInfo.map((feat, i) => (
             <div key={'feat-info-div-' + i}>
               <Typography key={'feat-info-title-' + i} component={'h5'}>
-                {feature.layerName}
+                {feat.layerName}
               </Typography>
               <Table
                 key={'feat-info-table-' + i}
@@ -98,25 +98,31 @@ export const MapFeatureInfo = (props) => {
                 size="medium"
               >
                 <TableBody key={'feat-info-table-body-' + i}>
-                  {feature.featuresInfo.map((feature, j) => (
-                    <TableRow key={'feature-info-' + i + '-' + j}>
-                      <TableCell
-                        key={'feature-property-' + i + '-' + j}
-                        component="th"
-                        scope="row"
-                        style={{ minWidth: 120 }}
-                      >
-                        {feature.name}
-                      </TableCell>
-                      <TableCell
-                        key={'feature-value-' + i + '-' + j}
-                        align="right"
-                        style={{ minWidth: 120 }}
-                      >
-                        {feature.value}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {feat.featuresInfo.length > 0 ? (
+                    feat.featuresInfo.map((e) =>
+                      e.map((fInfo, j) => (
+                        <TableRow key={'feature-info-' + i + '-' + j}>
+                          <TableCell
+                            key={'feature-property-' + i + '-' + j}
+                            component="th"
+                            scope="row"
+                            style={{ minWidth: 120 }}
+                          >
+                            {fInfo.name}
+                          </TableCell>
+                          <TableCell
+                            key={'feature-value-' + i + '-' + j}
+                            align="right"
+                            style={{ minWidth: 120 }}
+                          >
+                            {fInfo.value}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )
+                  ) : (
+                    <span key={'feature-info-' + i}>{t('maps:zeroFeatureInfoForLayer')}</span>
+                  )}
                 </TableBody>
               </Table>
             </div>
