@@ -43,7 +43,7 @@ export function getLegendURL(geoServerConfig, w, h, layerName) {
   return `${baseUrl}/${suffix}?${composeParams(params)}`
 }
 
-export const getFeatureInfoUrl = (geoServerConfig, w, h, layerNames, mapBounds) => {
+export const getFeatureInfoUrl = (geoServerConfig, w, h, layerName, timestamp, mapBounds) => {
   const baseUrl = geoServerConfig?.baseUrl
   const suffix = geoServerConfig?.suffix
   const params = {
@@ -55,8 +55,9 @@ export const getFeatureInfoUrl = (geoServerConfig, w, h, layerNames, mapBounds) 
     info_format: 'application/json',
     width: w,
     height: h,
-    layers: layerNames,
-    query_layers: layerNames,
+    layers: layerName,
+    query_layers: layerName,
+    time: timestamp,
     x: 1,
     y: 1,
     bbox: toBBoxString(mapBounds),

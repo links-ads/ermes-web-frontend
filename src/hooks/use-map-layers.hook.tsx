@@ -746,46 +746,49 @@ const useMapLayers = () => {
   const addLayerFeatureInfo = useCallback(
     (geoServerConfig, w, h, mapBounds, windowInnerWidth) => {
       const selectedLayers = [...dataState.selectedLayers]
-      const layers = selectedLayers.map((e) => e.activeLayer).join(',')
-      fetch(getFeatureInfoUrl(geoServerConfig, w, h, layers, mapBounds))
-        .then((response) => response.json())
-        .then((result) => {
-          const featInfo = new LayerFeatureInfo(
-            result.features,
-            result.totalFeatures,
-            result.numberReturned,
-            result.timestatmp,
-            result.crs
+      const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
+      let requestPromises: any[] = []
+      for (let i = 0; i < selectedLayers.length; i++) {
+        const currentLayer = selectedLayers[i]
+        const activeLayer = currentLayer.activeLayer
+        const currentTimestamp = currentLayer.availableTimestamps[currentLayer.dateIndex]
+        const featInfoPromise = new Promise((resolve, reject) => {
+          resolve(
+            fetch(
+              getFeatureInfoUrl(geoServerConfig, w, h, activeLayer, currentTimestamp, mapBounds)
+            )
           )
-          const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
-          const mappedFeatureInfo: LayerFeatureInfoState[] = []
-          let i = 0,
-            j = 0
-          while (j < featInfo.features.length) {
-            const feature = featInfo.features[j]
-            if ((feature.id as string).length === 0) {
-              if (j !== 0) {
-                i++
-              }
-            }
-            const layerName = layerNames[i]
-            const property = feature.properties
-            const featureInfo = Object.keys(property!!).map((e) => {
-              const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
-              return new FeatureInfo(e, rounded)
-            })
+        })
+        requestPromises.push(featInfoPromise)
+      }
 
-            const prevIdx = mappedFeatureInfo.findIndex((e) => e.layerName === layerName)
-            if (prevIdx > -1) {
-              const prevFeat = mappedFeatureInfo[prevIdx].featuresInfo
-              const allFeat = prevFeat.concat(featureInfo)
-              const updatedFeatureInfo = new LayerFeatureInfoState(layerName, allFeat)
-              mappedFeatureInfo[prevIdx] = updatedFeatureInfo
-            } else {
-              const layerFeatureInfo = new LayerFeatureInfoState(layerName, featureInfo)
-              mappedFeatureInfo.push(layerFeatureInfo)
+      Promise.all(requestPromises)
+        .then((response) => Promise.all(response.map((r) => r.json())))
+        .then((result) => {
+          const mappedFeatureInfo: LayerFeatureInfoState[] = []
+          for (let i = 0; i < result.length; i++) {
+            const res = result[i]
+            const featInfo = new LayerFeatureInfo(
+              res.features,
+              res.totalFeatures,
+              res.numberReturned,
+              res.timestatmp,
+              res.crs
+            )
+
+            let allFeat: any[] = []
+            for (let j = 0; j < featInfo.features.length; j++) {
+              const feat = featInfo.features[j]
+              const property = feat.properties
+              const featureInfo = Object.keys(property!!).map((e) => {
+                const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+                return new FeatureInfo(e, rounded)
+              })
+              allFeat.push(featureInfo)
             }
-            j++
+
+            const layerFeatureInfo = new LayerFeatureInfoState(layerNames[i], allFeat)
+            mappedFeatureInfo.push(layerFeatureInfo)
           }
           dispatch({
             type: 'UPDATE_LAYER_FEATURE_INFO',
