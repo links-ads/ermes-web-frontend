@@ -580,7 +580,7 @@ const CategoryFilter = (props) => {
           {category &&
           category.content &&
           category.content.length > 0 &&
-          !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
+          !(category.title === 'alert' && userProfile?.role === ROLE_CITIZEN) ? (
             <Button aria-describedby={id} size="small" disabled={!isChecked} onClick={handleClick}>
               <ArrowDropDown htmlColor={EmergencyColorMap[emergencyLabel]} />
             </Button>
@@ -589,7 +589,7 @@ const CategoryFilter = (props) => {
         {category &&
         category.content &&
         category.content.length > 0 &&
-        !(category.title === 'alert' && userProfile.role === ROLE_CITIZEN) ? (
+        !(category.title === 'alert' && userProfile?.role === ROLE_CITIZEN) ? (
           <>
             <Popover
               id={id}
@@ -611,7 +611,7 @@ const CategoryFilter = (props) => {
                     if (
                       elem.name === 'hazard_status' ||
                       elem.name === 'hazard_content' ||
-                      (elem.name === 'restriction' && userProfile.role === ROLE_CITIZEN)
+                      (elem.name === 'restriction' && userProfile?.role === ROLE_CITIZEN)
                     ) {
                       return null
                     } else {
