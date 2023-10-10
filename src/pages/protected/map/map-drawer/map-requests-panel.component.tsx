@@ -44,16 +44,8 @@ const MapRequestsPanel: React.FC<{
   selectedCard
   setSelectedCard
   showFeaturesDialog
+  selectedItemsList
 }> = (props) => {
-  const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
-  const [
-    mapRequestsData,
-    getMapRequestsData,
-    applyFilterByText,
-    deleteMapRequest,
-    fetchMapRequestById
-  ] = useMapRequestList()
   const {
     mapRequestsSettings,
     updateMapRequestsSettings,
@@ -62,8 +54,21 @@ const MapRequestsPanel: React.FC<{
     setMapRequestsSettings,
     availableLayers,
     layersDefinition,
-    showFeaturesDialog
+    showFeaturesDialog,
+    selectedItemsList
   } = props
+
+  const { t } = useTranslation(['common', 'maps'])
+  const [searchText, setSearchText] = React.useState('')
+  const [
+    mapRequestsData,
+    getMapRequestsData,
+    applyFilterByText,
+    deleteMapRequest,
+    fetchMapRequestById,
+    appendSelectedItems
+  ] = useMapRequestList()
+  
   const [height, setHeight] = React.useState(window.innerHeight)
 
   const resizeHeight = () => {
@@ -83,7 +88,7 @@ const MapRequestsPanel: React.FC<{
 
   const fetchData = (initialize: boolean = false) => {
     getMapRequestsData(
-      mapRequestsData.data.length,
+      initialize ? 0 : mapRequestsData.data.length - mapRequestsData.selectedItems.length,
       (data: MapRequestDto[]) => {
         data.forEach((mr) => {
           var currentMr = mapRequestsSettings[mr.code!]
@@ -178,14 +183,14 @@ const MapRequestsPanel: React.FC<{
         return data
       },
       (error) => {
-        console.log(error)
+        console.debug(error)
       },
       (data) => {
         return data
       }
     )
   }
-  const [copyState, setCopystate] = useState<any | null>(null)
+
   useEffect(() => {
     if (mapRequestsData.selectedMr && mapRequestsData.selectedMr.feature) {
       const mr = mapRequestsData.selectedMr
@@ -259,11 +264,16 @@ const MapRequestsPanel: React.FC<{
             : null,
         mapSelectionCompleted: true
       }
-      setCopystate(defaultEditState)
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
       showFeaturesDialog('create', 'MapRequest', '', areaObject, defaultEditState)
     }
   }, [mapRequestsData.selectedMr])
+
+  useEffect(() => {
+    if(selectedItemsList.length > 0){
+      appendSelectedItems(selectedItemsList)
+    }
+  }, [selectedItemsList])
 
   // Calls the data only the first time is needed
   useEffect(() => {

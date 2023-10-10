@@ -30,14 +30,16 @@ import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
 import useLanguage from '../../../../../hooks/use-language.hook'
-import { AddCircle, Delete, ScatterPlot, Timeline } from '@material-ui/icons'
-import { MapStateContextProvider } from '../../map.contest'
+import { AddCircle, Delete, Gesture, ScatterPlot, Timeline } from '@material-ui/icons'
+import { MapMode, MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature, {
   lineColors
 } from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import { FireBreakType } from '../../map-dialog.hooks'
 import { Alert, Color } from '@material-ui/lab'
+import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
+import { feature } from '@turf/helpers'
 
 type MapFeature = CulturalProps
 
@@ -57,11 +59,24 @@ export function WildFireSimulationDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted, mapArea, boundaryConditions } = editState
+  const { mapSelectionCompleted, mapArea, boundaryConditions, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
   const [boundaryLinesTot, setBoundaryLinesTot] = useState<number>(0)
+  const [mapFeatures, setMapFeatures] = useState<any[]>(
+    mapSelectionCompleted && mapArea
+      ? [{ ...mapArea }].concat(
+          boundaryConditions
+            .filter((e) => e.fireBreakType && Object.values(e.fireBreakType).length > 0)
+            .map((e) => Object.values(e.fireBreakType)[0])
+        )
+      : []
+  )
+  const [areaOfInterestWKT, setAreaOfIntererstWKT] = useState<string>(
+    mapArea && mapArea.geometry ? geojsonToWKT(mapArea.geometry) : ''
+  )
+  const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -93,11 +108,41 @@ export function WildFireSimulationDialog({
 
   const setMapArea = (area) => {
     dispatchEditAction({ type: 'MAP_AREA', value: area })
+    const aoiWKT = geojsonToWKT(area.geometry)
+    setAoiWKTError(false)
+    setAreaOfIntererstWKT(aoiWKT)
   }
+
+  const aoiWKTOnChangeHandler = (event) => {
+    const newAoiWKT = event.target.value
+
+    try {
+      const geojsonAoi = wktToGeoJSON(newAoiWKT)
+      const mapAreaFeature = feature(geojsonAoi)
+      dispatchEditAction({ type: 'MAP_AREA', value: mapAreaFeature })
+      setAoiWKTError(false)
+    } catch (err) {
+      console.error(err)
+      setAoiWKTError(true)
+    } finally {
+      setAreaOfIntererstWKT(newAoiWKT)
+    }
+  }
+
+  useEffect(() => {
+    if (mapArea) {
+      const concatFeatures = [{ ...mapArea }].concat(
+        boundaryConditions
+          .filter((e) => e.fireBreakType && Object.values(e.fireBreakType).length > 0)
+          .map((e) => Object.values(e.fireBreakType)[0])
+      )
+      setMapFeatures(concatFeatures)
+    }
+  }, [mapArea])
 
   const { startDate, hoursOfProjection } = editState
 
-  const [wildfireMapMode, setWildfireMapMode] = useState<string>('editPoint')
+  const [wildfireMapMode, setWildfireMapMode] = useState<MapMode>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
   const [toRemoveLineIdx, setToRemoveLineIdx] = useState<number>(-1)
@@ -129,7 +174,7 @@ export function WildFireSimulationDialog({
 
   useEffect(() => {
     const tot = boundaryConditions
-      .map((e) => e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null)
+      .map((e) => (e.fireBreakType ? Object.keys(e.fireBreakType)[0] : null))
       .filter((e) => e).length
     setBoundaryLinesTot(tot)
   }, [boundaryConditions])
@@ -414,15 +459,25 @@ export function WildFireSimulationDialog({
       </Grid>
       <Grid item xs={6} style={{ minWidth: 600 }}>
         <Grid container direction="row" justifyContent="space-between">
-          <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
-          <Tooltip title={t('maps:drawPoint') ?? ''}>
-            <IconButton onClick={() => setWildfireMapMode('editPoint')}>
-              <ScatterPlot></ScatterPlot>
-            </IconButton>
-          </Tooltip>
+          <Grid item xs={10}>
+            <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
+          </Grid>
+          <Grid item xs={2}>
+            <Tooltip title={t('maps:drawPoint') ?? ''}>
+              <IconButton onClick={() => setWildfireMapMode('editPoint')}>
+                <ScatterPlot></ScatterPlot>
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={t('maps:draw_polygon_msg') ?? ''}>
+              <IconButton onClick={() => setWildfireMapMode('edit')}>
+                <Gesture></Gesture>
+              </IconButton>
+            </Tooltip>
+          </Grid>
         </Grid>
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
+            mapRequestType={type}
             customMapMode={wildfireMapMode}
             lineIdx={boundaryConditionIdx}
             areaSelectedAlertHandler={setAreaSelectionStatus}
@@ -435,19 +490,22 @@ export function WildFireSimulationDialog({
             toRemoveBoundaryConditionIdx={toRemoveBoundaryConditionIdx}
             setToRemoveBoundaryConditionIdx={setToRemoveBoundaryConditionIdx}
             boundaryLinesTot={boundaryLinesTot}
-            mapSelectedFeatures={
-              editState.mapSelectionCompleted &&
-              editState.mapArea &&
-              editState.mapArea.geometry.type === 'Point'
-                ? [editState.mapArea].concat(
-                    editState.boundaryConditions
-                      .filter((e) => e.fireBreakType)
-                      .map((e) => Object.values(e.fireBreakType)[0])
-                  )
-                : []
-            }
+            mapSelectedFeatures={mapFeatures}
           />
         </MapStateContextProvider>
+        <Grid container direction="row">
+          <TextField
+            id="aoi"
+            fullWidth
+            variant="outlined"
+            multiline
+            value={areaOfInterestWKT}
+            onChange={aoiWKTOnChangeHandler}
+            error={aoiWKTError}
+            helperText={aoiWKTError ? t('maps:invalidWkt') : ''}
+            placeholder={t('maps:wktHelp')}
+          />
+        </Grid>
       </Grid>
     </Grid>
   )

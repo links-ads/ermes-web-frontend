@@ -22,10 +22,12 @@ import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
-import { MapStateContextProvider } from '../../map.contest'
+import { MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-feature.component'
 import { CulturalProps } from '../../provisional-data/cultural.component'
 import { Alert, Color } from '@material-ui/lab'
+import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
+import { feature } from '@turf/helpers'
 
 type MapFeature = CulturalProps
 
@@ -44,10 +46,19 @@ export function PostEventMonitoringDialog({
     )
   }, [])
 
-  const { mapSelectionCompleted, mapArea } = editState
+  const { mapSelectionCompleted, mapArea, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
+  const [mapFeatures, setMapFeatures] = useState<any[]>(
+    mapSelectionCompleted && mapArea && mapArea.geometry.type !== 'Point' ? [{ ...mapArea }] : []
+  )
+  const [areaOfInterestWKT, setAreaOfIntererstWKT] = useState<string>(
+    mapArea && mapArea.geometry && mapArea.geometry.type !== 'Point'
+      ? geojsonToWKT(mapArea.geometry)
+      : ''
+  )
+  const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -58,6 +69,10 @@ export function PostEventMonitoringDialog({
 
   const setMapSelectionCompleted = () => {
     dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: true })
+  }
+
+  const unsetMapSelectionCompleted = () => {
+    dispatchEditAction({ type: 'MAP_SELECTION_COMPLETED', value: false })
   }
 
   useEffect(() => {
@@ -75,7 +90,37 @@ export function PostEventMonitoringDialog({
 
   const setMapArea = (area) => {
     dispatchEditAction({ type: 'MAP_AREA', value: area })
+    const aoiWKT = geojsonToWKT(area.geometry)
+    setAoiWKTError(false)
+    setAreaOfIntererstWKT(aoiWKT)
   }
+
+  const aoiWKTOnChangeHandler = (event) => {
+    const newAoiWKT = event.target.value
+
+    try {
+      const geojsonAoi = wktToGeoJSON(newAoiWKT)
+      const mapAreaFeature = feature(geojsonAoi)
+      if (mapAreaFeature.geometry.type === 'Polygon') {
+        dispatchEditAction({ type: 'MAP_AREA', value: mapAreaFeature })
+        setAoiWKTError(false)
+      } else {
+        setAoiWKTError(true)
+      }
+    } catch (err) {
+      console.error(err)
+      setAoiWKTError(true)
+    } finally {
+      setAreaOfIntererstWKT(newAoiWKT)
+    }
+  }
+
+  useEffect(() => {
+    if (mapArea) {
+      const concatFeatures = [{ ...mapArea }]
+      setMapFeatures(concatFeatures)
+    }
+  }, [mapArea])
 
   /**
    * object that represents the list elements in the createmaprequest layers dropdown;
@@ -215,16 +260,27 @@ export function PostEventMonitoringDialog({
         <Alert severity={areaSelectionStatus}>{t(`maps:${areaSelectionStatusMessage}`)}</Alert>
         <MapStateContextProvider<MapFeature>>
           <MapRequestDrawFeature
+            mapRequestType={type}
             areaSelectedAlertHandler={setAreaSelectionStatus}
             mapSelectionCompletedHandler={setMapSelectionCompleted}
+            mapSelectionNotCompletedHandler={unsetMapSelectionCompleted}
             setMapAreaHandler={setMapArea}
-            mapSelectedFeatures={
-              mapSelectionCompleted && mapArea
-                ? [{...mapArea}]
-                : []
-            }
+            mapSelectedFeatures={mapFeatures}
           />
         </MapStateContextProvider>
+        <Grid container direction="row">
+          <TextField
+            id="aoi"
+            fullWidth
+            variant="outlined"
+            multiline
+            value={areaOfInterestWKT}
+            onChange={aoiWKTOnChangeHandler}
+            error={aoiWKTError}
+            helperText={aoiWKTError ? t('maps:invalidWkt') : ''}
+            placeholder={t('maps:wktHelp')}
+          />
+        </Grid>
       </Grid>
     </Grid>
   )

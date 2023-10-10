@@ -17,7 +17,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const theme = useTheme()
   return (
     <CardWithPopup
-      keyID={'report' + String(elem.id)}
+      keyID={EntityType.REPORT + '-' + String(elem.id)}
       latitude={elem!.location!.latitude as number}
       longitude={elem!.location!.longitude as number}
       className={classes.card}
@@ -99,11 +99,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 {t('maps:creator')}:&nbsp;
               </Typography>
               <Typography component={'span'} variant="body1">
-                {elem.displayName == null
-                  ? elem.username == null
-                    ? elem.email
-                    : elem.username
-                  : elem?.displayName.length > 20
+                {elem?.displayName.length > 20
                   ? elem.displayName.substring(0, 20) + '...'
                   : elem.displayName}
               </Typography>

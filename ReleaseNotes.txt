@@ -2,6 +2,50 @@ Ver.
 -----------------------
 - Feature - Associated layer style (#118)
 
+Ver. 2.15.4 - 2023-10-06
+-----------------------
+- Feature - Time for Get Feature Info (#165)
+
+Ver. 2.15.3 - 2023-10-05
+-----------------------
+- Feature - Area of interest from WKT (#156)
+- Feature - Update of filters (#154)
+
+Ver. 2.15.2 - 2023-09-10
+-----------------------
+- Bugfix - Users without username (#160)
+- Bugfix - Timestamp slider (#162)
+
+Ver. 2.15.1 - 2023-09-29
+-----------------------
+- Bugfix - Map request and map style (#159)
+
+Ver. 2.15.0 - 2023-09-28
+-----------------------
+- Feature - Map request fine tuning (#150)
+- Bugfix - Get timeseries for geojson (#145)
+- Bugfix - Layer selection update after refresh (#143)
+- Bugfix - Map request detail popup (#142)
+- Feature - Default time window (#148)
+- Bugfix - Label update (#147)
+- Bugfix - DSS messages with HTML tags management (#144)
+
+Ver. 2.14.1 - 2023-09-21
+-----------------------
+- Feature - Back button in layer player (#140)
+- Bugfix - New entity colors for alert and camera features (#141)
+
+Ver. 2.14.0 - 2023-09-21
+-----------------------
+- Feature - Access allow also to first responders (#138)
+- Bugfix - Set european bbox for layers' loading (#139)
+- Feature - Get feature info (#135)
+
+Ver. 2.13.0 - 2023-09-08
+-----------------------
+- Bugfix - Bugs after dashboard tutorial fixed (#137)
+- Feature - Sync map drawer behaviour (#129)
+
 Ver. 2.12.1 - 2023-09-08
 -----------------------
 - Bugfix - Fix wildfire simulation map request

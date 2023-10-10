@@ -1,6 +1,6 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo, useContext, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useContext, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
@@ -25,8 +25,10 @@ import LayerDefinition from '../../../../models/layers/LayerDefinition'
 import { FiltersContext } from '../../../../state/filters.context'
 import AlertPanel from './alerts-panel.component'
 import CamerasPanel from './cameras-panel.component'
-import { CameraDetails } from './camera-details.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
+import { EmergencyProps } from '../api-data/emergency.component'
+import { useMapStateContext } from '../map.context'
+import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,8 +87,37 @@ export default function MapDrawer(props) {
     mapRequestsSettings,
     updateMapRequestsSettings,
     setMapRequestsSettings,
-    availableLayers
+    availableLayers,
+    dataState,
+    updateTabIndex,
+    selectTabCard,
+    updateCardId
   } = props
+
+  // Map state
+  const [
+    {
+      mapMode,
+      viewport,
+      clickedPoint,
+      hoveredPoint,
+      rightClickedPoint,
+      editingFeatureArea,
+      editingFeatureType,
+      editingFeatureId,
+      goToCoord
+    },
+    {
+      setMapMode,
+      setViewport,
+      setClickedPoint,
+      setHoveredPoint,
+      setRightClickedPoint,
+      startFeatureEdit,
+      clearFeatureEdit,
+      setGoToCoord
+    }
+  ] = useMapStateContext<EmergencyProps>()
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
@@ -96,11 +127,10 @@ export default function MapDrawer(props) {
   const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
-  const [tabValue, setTabValue] = React.useState(0)
-  const [selectedCard, setSelectedCard] = useState<string>('')
+  const { tabIndex: tabValue, selectedFeatureId, selectedItemsList } = dataState
 
   const onCardClick = (selectedItemId) => {
-    setSelectedCard(selectedCard === selectedItemId ? '' : selectedItemId)
+    updateCardId(selectedFeatureId === selectedItemId ? '' : selectedItemId)
   }
 
   const onFeatureDialogClose = useCallback(
@@ -122,43 +152,43 @@ export default function MapDrawer(props) {
     let tabValueAssigned = false
     if (Person) {
       if (!tabValueAssigned) {
-        setTabValue(0)
+        updateTabIndex(0)
         tabValueAssigned = true
       }
     }
     if (Report) {
       if (!tabValueAssigned) {
-        setTabValue(1)
+        updateTabIndex(1)
         tabValueAssigned = true
       }
     }
     if (Mission) {
       if (!tabValueAssigned) {
-        setTabValue(2)
+        updateTabIndex(2)
         tabValueAssigned = true
       }
     }
     if (Communication) {
       if (!tabValueAssigned) {
-        setTabValue(3)
+        updateTabIndex(3)
         tabValueAssigned = true
       }
     }
     if (MapRequest) {
       if (!tabValueAssigned) {
-        setTabValue(4)
+        updateTabIndex(4)
         tabValueAssigned = true
       }
     }
     if (Alert) {
       if (!tabValueAssigned) {
-        setTabValue(5)
+        updateTabIndex(5)
         tabValueAssigned = true
       }
     }
     if (Station) {
       if (!tabValueAssigned) {
-        setTabValue(6)
+        updateTabIndex(6)
         tabValueAssigned = true
       }
     }
@@ -182,16 +212,27 @@ export default function MapDrawer(props) {
   }, [apiHandlerState])
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setTabValue(newValue)
+    updateTabIndex(newValue)
   }
   const handleChangeIndex = (index: number) => {
-    setTabValue(index)
+    updateTabIndex(index)
   }
 
   // toggle on off drawer
   const onClick = function () {
     props.setToggleDrawerTab(false)
   }
+
+  useEffect(() => {
+    if (clickedPoint && clickedPoint !== null && clickedPoint.item) {
+      if (!areClickedPointAndSelectedCardEqual(clickedPoint, selectedFeatureId)) {
+        const clickedItem = clickedPoint.item as EmergencyProps
+        selectTabCard(clickedItem)
+      }
+    } else {
+      updateCardId('')
+    }
+  }, [clickedPoint])
 
   const noData = (
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
@@ -288,14 +329,14 @@ export default function MapDrawer(props) {
             {/* PEOPLE */}
             <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
               <PeoplePanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
                 filters={props.filtersObj.filters.persons}
                 teamList={props.teamList}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
               />
             </TabPanel>
@@ -303,43 +344,46 @@ export default function MapDrawer(props) {
             {/* REPORTS */}
             <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
               <ReportPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
             {/* MISSIONS */}
             <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
               <MissionsPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
                 missionCounter={props.missionCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
             {/* COMMUNICATION */}
             <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
               <CommunicationPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
                 communicationCounter={props.communicationCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
@@ -347,7 +391,7 @@ export default function MapDrawer(props) {
             <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
               <MapRequestsPanel
                 filters={props.filtersObj.filters.mapRequests}
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
@@ -362,35 +406,37 @@ export default function MapDrawer(props) {
                 layersDefinition={layersDefinition}
                 mapRequestCounter={props.mapRequestCounter}
                 resetListCounter={props.resetListCounter}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
             {/* ALERTS */}
             <TabPanel value={tabValue} index={5} key={'alert-' + props.rerenderKey}>
               <AlertPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
+                selectedItemsList={selectedItemsList}
               />
             </TabPanel>
 
             {/* CAMERA */}
             <TabPanel value={tabValue} index={6} key={'camera-' + props.rerenderKey}>
               <CamerasPanel
-                setGoToCoord={props.setGoToCoord}
+                setGoToCoord={setGoToCoord}
                 map={props.map}
                 setMapHoverState={props.setMapHoverState}
                 spiderLayerIds={props.spiderLayerIds}
                 spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedCard}
+                selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
               />
@@ -404,7 +450,6 @@ export default function MapDrawer(props) {
             backgroundColor: theme.palette.primary.main
           }}
         ></AppBar>
-        <CameraDetails />
       </div>
     </Slide>
   )

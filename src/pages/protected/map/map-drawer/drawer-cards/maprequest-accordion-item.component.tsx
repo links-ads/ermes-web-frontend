@@ -88,6 +88,7 @@ const MapRequestAccordionItem: React.FC<{
   const importerBaseUrl = appConfig.importerBaseUrl
 
   const isCheckedHandler = (event: any) => {
+    event.stopPropagation()
     if (!event.target.checked) setPlaying(false)
     updateMapRequestsSettings(mapRequestCode, dataTypeId, !isChecked, 'ISCHECKED')
   }
@@ -128,6 +129,7 @@ const MapRequestAccordionItem: React.FC<{
   }
 
   const onButtonPlayerHandler = (event) => {
+    event.stopPropagation()
     setPlaying(!playing)
   }
 
@@ -207,7 +209,8 @@ const MapRequestAccordionItem: React.FC<{
           {errorTooltip}
           <IconButton
             disabled={!currentLayer.isChecked}
-            onClick={() => {
+            onClick={(evt) => {
+              evt.stopPropagation()
               getMeta(
                 currentLayer.metadataIds[currentLayer.availableTimestamps[currentLayer.dateIndex]],
                 'Map Request Layer',
@@ -221,7 +224,8 @@ const MapRequestAccordionItem: React.FC<{
           </IconButton>
           <IconButton
             disabled={!currentLayer.isChecked}
-            onClick={() => {
+            onClick={(evt) => {
+              evt.stopPropagation()
               getLegend(
                 currentLayer.activeLayer,
                 'Map Request Layer',
@@ -315,6 +319,7 @@ const MapRequestAccordionItem: React.FC<{
               <div
                 className={classes.sliderContainer}
                 style={{ paddingTop: '5px', alignItems: 'flex-start' }}
+                onClick={(event) => event.stopPropagation()}
               >
                 <label htmlFor="opacity-slider" style={{ marginRight: '10px' }}>
                   <Typography>{t('maps:opacity')}:&nbsp;</Typography>
@@ -332,7 +337,7 @@ const MapRequestAccordionItem: React.FC<{
                   disabled={!isChecked}
                   onChange={(event, value) => {
                     changeOpacityHandler(event, value)
-                  }}
+                  }}                  
                 />
               </div>
             </div>

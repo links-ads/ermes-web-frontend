@@ -46,7 +46,7 @@ const AlertCard: React.FC<{
 
   return (
     <CardWithPopup
-      keyID={'alert' + String(elem.id)}
+      keyID={EntityType.ALERT + '-' + String(elem.id)}
       latitude={elem!.centroid!.latitude as number}
       longitude={elem!.centroid!.longitude as number}
       className={classes.card}
@@ -70,12 +70,7 @@ const AlertCard: React.FC<{
 
           <>
             {' '}
-            <Chip
-              label={elem.status!}
-              color="secondary"
-              size="small"
-              className={style.chipStyle}
-            />
+            <Chip label={elem.status!} color="secondary" size="small" className={style.chipStyle} />
           </>
 
           <>
@@ -92,8 +87,12 @@ const AlertCard: React.FC<{
             )}
           </>
         </div>
-        <Typography variant="body2" component="h2" gutterBottom>
-          {description}
+        <Typography
+          variant="body2"
+          component="h2"
+          gutterBottom
+          dangerouslySetInnerHTML={{ __html: description }}
+        >
         </Typography>
         <Typography variant="body2" component="h2" gutterBottom>
           {t('maps:location')}: {elem.region}

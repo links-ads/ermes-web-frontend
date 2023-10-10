@@ -1,7 +1,7 @@
 export class PointChartData {
   x: any
-  y: number
-  constructor(x: any, y: number) {
+  y: number | string
+  constructor(x: any, y: number | string) {
     this.x = x
     this.y = y
   }
@@ -17,9 +17,13 @@ export class LineChartData {
 }
 
 class LineChartProps {
+  name: string
+  type: string
   chartData: LineChartData[]
   xValues: any[]
-  constructor(chartData: LineChartData[]) {
+  constructor(chartData: LineChartData[], name?: string, type?: string) {
+    this.name = name ? name : ''
+    this.type = type ? type : ''
     this.chartData = chartData
     let xValues: any[] = []
     chartData.forEach((chart) => {

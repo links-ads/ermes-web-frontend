@@ -21,6 +21,7 @@ import {
   clusterLayer,
   unclusteredPointPinsPaint,
   unclusteredPointLayerPins,
+  clickedPointPin,
   updateEmergencyMarkers,
   hoveredPointPin
 } from './api-data/emergency.layers'
@@ -35,7 +36,7 @@ import {
   ItemWithLatLng,
   ProvisionalFeatureType,
   ProvisionalOperationType
-} from './map.contest'
+} from './map.context'
 import {
   onMapLoadHandler,
   onMouseEnterHandler,
@@ -50,12 +51,12 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, removePolyToMap } from '../../../common/map/map-common'
+import { drawPolyToMap, getBboxSizeFromZoom, paintMapWithLayer, removeLayerFromMap, removePolyToMap } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Button, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -63,7 +64,10 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
+import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from "@terraformer/wkt"
+import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
@@ -182,13 +186,13 @@ export function MapLayout(props) {
 
   // Parse props
   const {
-    goToCoord,
-    setGoToCoord,
     setMap,
     setSpiderifierRef,
-    setDblClickFeatures,
-    selectedLayer,
-    mapRequestsSettings
+    addLayerTimeseries,
+    selectedLayers,
+    mapRequestsSettings,
+    mapDrawerDataState,
+    addLayerFeatureInfo
   } = props
 
   // Map state
@@ -201,7 +205,9 @@ export function MapLayout(props) {
       rightClickedPoint,
       editingFeatureArea,
       editingFeatureType,
-      editingFeatureId
+      editingFeatureId,
+      goToCoord,
+      clickedCluster
     },
     {
       setMapMode,
@@ -210,11 +216,24 @@ export function MapLayout(props) {
       setHoveredPoint,
       setRightClickedPoint,
       startFeatureEdit,
-      clearFeatureEdit
+      clearFeatureEdit,
+      setGoToCoord,
+      setClickedCluster
     }
   ] = useMapStateContext<EmergencyProps>()
 
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
+  const { selectedFeatureId } = mapDrawerDataState
+  const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
+
+  useEffect(() => {
+    if(selectedLayers && selectedLayers.length > 0) {
+      setSelectedLayer(selectedLayers[selectedLayers.length - 1])
+    }
+    else {
+      setSelectedLayer(null)
+    }
+  }, [selectedLayers])
 
   // Guided procedure dialog
   const onFeatureDialogClose = useCallback(
@@ -297,7 +316,7 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()
     if (!map) return
     updateMarkers(map)
-  }, [props.mapHoverState])
+  }, [props.mapHoverState, clickedCluster])
 
   /**
    * method to control style changing on map, removing currently shown layer, changing style and adding the layer again after a delay to
@@ -307,42 +326,23 @@ export function MapLayout(props) {
     const map = mapViewRef.current?.getMap()!
 
     //Management of layer not related to a Map Request
-    if (selectedLayer) {
-      if (selectedLayer.activeLayer !== null) {
-        map.removeLayer(selectedLayer.activeLayer)
-        map.removeSource(selectedLayer.activeLayer)
-        setGeoLayerState({ tileId: null, tileSource: {} })
+    if (selectedLayers && selectedLayers.length > 0) {
+      for (let i = 0; i < selectedLayers.length; i++) {
+        const currentSelectedLayer = selectedLayers[i]
+        const currentSelectedLayerActive = currentSelectedLayer.activeLayer
+        if (currentSelectedLayerActive !== null) {
+          removeLayerFromMap(map, {
+            layerName: currentSelectedLayer.activeLayer,
+            layerDateIndex: currentSelectedLayer.dateIndex
+          })
+          setGeoLayerState({ tileId: null, tileSource: {} })
+        }
       }
 
       setTimeout(() => {
-        const layerName = selectedLayer.activeLayer
-        if (layerName != '' && !map.getLayer(layerName)) {
-          const source = tileJSONIfy(
-            map,
-            layerName,
-            selectedLayer.availableTimestamps[selectedLayer.dateIndex],
-            geoServerConfig,
-            map.getBounds()
-          )
-          source['properties'] = {
-            format: undefined,
-            fromTime: undefined,
-            toTime: undefined
-          }
-          map.addSource(layerName, source as mapboxgl.RasterSource)
-          map.addLayer(
-            {
-              id: layerName,
-              type: 'raster',
-              source: layerName
-            },
-            'clusters'
-          )
-          map.setPaintProperty(
-            selectedLayer.activeLayer,
-            'raster-opacity',
-            selectedLayer.opacity / 100
-          )
+        for (let i = 0; i < selectedLayers.length; i++) {
+          const currentSelectedLayer = selectedLayers[i]
+          paintMapWithLayer(map, currentSelectedLayer, geoServerConfig)
         }
       }, 1000) //after 1 sec
     }
@@ -353,8 +353,12 @@ export function MapLayout(props) {
         Object.keys(mapRequestsSettings[mrCode]).forEach((dataTypeId) => {
           const activeLayer = mapRequestsSettings[mrCode][dataTypeId].activeLayer
           if (activeLayer && activeLayer !== '') {
-            map.removeLayer(activeLayer)
-            map.removeSource(activeLayer)
+            if (map.getLayer(activeLayer)) {
+              map.removeLayer(activeLayer)
+            }
+            if (map.getSource(activeLayer)) {
+              map.removeSource(activeLayer)
+            }
             setTimeout(() => {
               const source = tileJSONIfy(
                 map,
@@ -370,15 +374,19 @@ export function MapLayout(props) {
                 fromTime: undefined,
                 toTime: undefined
               }
-              map.addSource(activeLayer, source as mapboxgl.RasterSource)
-              map.addLayer(
-                {
-                  id: activeLayer,
-                  type: 'raster',
-                  source: activeLayer
-                },
-                'clusters'
-              )
+              if (!map.getSource(activeLayer)) {
+                map.addSource(activeLayer, source as mapboxgl.RasterSource)
+              }
+              if (!map.getLayer(activeLayer)) {
+                map.addLayer(
+                  {
+                    id: activeLayer,
+                    type: 'raster',
+                    source: activeLayer
+                  },
+                  'clusters'
+                )
+              }
               map.setPaintProperty(
                 activeLayer,
                 'raster-opacity',
@@ -425,7 +433,7 @@ export function MapLayout(props) {
       operation?: ProvisionalOperationType,
       type?: ProvisionalFeatureType,
       itemId?: string,
-      data?: string
+      data?: string | mapboxgl.LngLatLike
     ) => {
       // Open modal with creation/update/delete wizards
       if (operation && type) {
@@ -437,9 +445,34 @@ export function MapLayout(props) {
         showFeaturesDialog(operation, type, itemId)
       } else if (operation == 'copy' && data) {
         navigator.clipboard
-          .writeText(data)
+          .writeText(data as string)
           .then((a) => alert(t('common:coordinates_copied_to_clipboard')))
-      } else {
+      } else if (operation === 'get') {
+        if (type) {
+          if (type === 'Timeseries') {
+            if (
+              selectedLayer &&
+              selectedLayer.activeLayer &&
+              data
+            ) {
+              addLayerTimeseries(data, selectedLayer)
+            } else {
+              displayWarningSnackbar(t('maps:timeseriesNoLayer'))
+            }
+          } else if (type === 'FeatureInfo' && data) {
+            if (selectedLayers && selectedLayers.length > 0) {
+              const map = mapViewRef.current?.getMap()!
+              const bboxSize = getBboxSizeFromZoom(map.getZoom())
+              const ll = mapboxgl.LngLat.convert(data as mapboxgl.LngLatLike)
+              const bounds = ll.toBounds(bboxSize / 2)
+              addLayerFeatureInfo(geoServerConfig, 1, 1, bounds, window.innerWidth)
+            } else {
+              displayWarningSnackbar(t('maps:featureInfoNoLayer'))
+            }
+          }
+        }
+      } 
+      else {
         if (
           type &&
           ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
@@ -454,7 +487,7 @@ export function MapLayout(props) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [addLayerTimeseries, displayWarningSnackbar, selectedLayer, setRightClickedPoint, startFeatureEdit]
   )
 
   // Used when entering on an iteractive layer with the mouse
@@ -515,14 +548,15 @@ export function MapLayout(props) {
       onMapDoubleClickHandler(
         mapViewRef,
         mapMode,
-        props.selectedLayer,
-        setDblClickFeatures,
+        selectedLayer,
+        addLayerTimeseries,
         setMapHeadDrawerCoordinates,
+        setClickedPoint,
         evt
       )
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapMode, props.selectedLayer] // TODO check if needed
+    [mapMode, selectedLayer] // TODO check if needed
   )
 
   // Called on right click
@@ -611,11 +645,64 @@ export function MapLayout(props) {
             longitude: goToCoord.longitude,
             latitude: goToCoord.latitude
           }
-        )
+        )        
       }
       setGoToCoord(undefined)
     }
   }, [goToCoord, setGoToCoord])
+
+  const { zoom: viewportZoom, latitude: viewportLatitude, longitude: viewportLongitude } = viewport
+
+  const ensureSelectedCardPinHighlight = useCallback(
+    (
+      centerOnMap: boolean = false,
+      updateClickedPoint: boolean = false,
+      firstSetup: boolean = true
+    ) => {
+      const map = mapViewRef.current?.getMap()
+      if (selectedFeatureId !== '') {
+        const selectedFeature = findFeatureByTypeAndId(jsonData.features, selectedFeatureId)
+        if (selectedFeature) {
+          const [longitude, latitude] = (selectedFeature as any).geometry.coordinates
+          if (centerOnMap) {
+            setGoToCoord({ latitude: latitude, longitude: longitude })
+          }
+          highlightClickedPoint(
+            selectedFeature,
+            mapViewRef,
+            spiderifierRef,
+            props.spiderLayerIds,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint,
+            updateClickedPoint
+          )
+          updateMarkers(map)
+        }
+      } else {
+        if (firstSetup) {
+          tonedownClickedPoint(
+            mapViewRef,
+            spiderifierRef,
+            clickedCluster,
+            setClickedCluster,
+            setClickedPoint
+          )
+          updateMarkers(map)
+        }
+      }
+    },
+    [findFeatureByTypeAndId, highlightClickedPoint, tonedownClickedPoint, updateMarkers]
+  )
+
+  useEffect(() => {
+    ensureSelectedCardPinHighlight(false, false, false)
+  }, [viewportZoom, viewportLatitude, viewportLongitude])
+
+  useEffect(() => {
+    const updateClickedPoint = !areClickedPointAndSelectedCardEqual(clickedPoint, selectedFeatureId)
+    ensureSelectedCardPinHighlight(true, updateClickedPoint, true)
+  }, [selectedFeatureId])
 
   // Draw communication polygon to map when pin is clicked, if not remove it
   useEffect(() => {
@@ -624,34 +711,55 @@ export function MapLayout(props) {
     if (clickedPoint) {
       if (polyToMap && polyToMap?.feature?.geometry) {
         const geometry = JSON.parse(polyToMap?.feature?.geometry)
-        const polyToDraw =
-          geometry.type === 'Polygon'
-            ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
-            : geometry.type === 'Point'
-            ? geometryCollection(
-                [geometry].concat(
-                  polyToMap.feature.properties.boundaryConditions.map((e) => {
-                    if (e.fireBreak) {
-                      const lineString = Object.values(e.fireBreak)[0] as string
-                      let geojsonLine = null
-                      if (lineString.startsWith('L')) {
-                        geojsonLine = wktToGeoJSON(lineString)
-                      } else {
-                        geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
-                      }
-                      return geojsonLine
+        const isGeometryCollection =
+          polyToMap.feature.properties.type === EntityType.MAP_REQUEST &&
+          polyToMap.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
+        const polyToDraw = isGeometryCollection
+          ? geometryCollection(
+              [geometry].concat(
+                polyToMap.feature.properties.boundaryConditions.map((e) => {
+                  if (e.fireBreak) {
+                    const lineString = Object.values(e.fireBreak)[0] as string
+                    let geojsonLine = null
+                    if (lineString.startsWith('L')) {
+                      geojsonLine = wktToGeoJSON(lineString)
+                    } else {
+                      geojsonLine = JSON.parse(lineString) // to ensure compatibility with previous map requests
                     }
-                  })
-                )
+                    return geojsonLine
+                  }
+                })
               )
-            : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
-
-        drawPolyToMap(
-          map,
-          polyToMap?.feature.properties.centroid,
-          polyToDraw,
-          EmergencyColorMap[polyToMap?.feature.properties.type]
+            )
+          : geometry.type === 'Polygon'
+          ? polygon(geometry.coordinates, polyToMap?.feature?.properties)
+          : multiPolygon(geometry.coordinates, polyToMap?.feature?.properties)
+        const mapIsMoving = map?.isMoving()
+        if (mapIsMoving) {
+          map?.once('moveend', function (e) {
+            removePolyToMap(map)
+            drawPolyToMap(
+              map,
+              polyToMap?.feature.properties.centroid,
+              polyToDraw,
+              EmergencyColorMap[polyToMap?.feature.properties.type]
+            )
+          })
+        } else {
+          removePolyToMap(map)
+          drawPolyToMap(
+            map,
+            polyToMap?.feature.properties.centroid,
+            polyToDraw,
+            EmergencyColorMap[polyToMap?.feature.properties.type]
+          )
+        }
+      } else if (
+        !['Communication', 'MapRequest', 'Mission', 'Alert'].includes(
+          (clickedPoint.item as EmergencyProps).type
         )
+      ) {
+        removePolyToMap(map)
       }
     } else {
       removePolyToMap(map)
@@ -788,6 +896,7 @@ export function MapLayout(props) {
           <Layer {...clusterLayer} />
           <Layer {...unclusteredPointLayerPins} />
           <Layer {...hoveredPointPin} />
+          <Layer {...clickedPointPin} />
         </Source>
         {/* Map controls */}
         <GeolocateControl
@@ -799,6 +908,12 @@ export function MapLayout(props) {
         />
         <div className="controls-contaniner" style={{ top: 0 }}>
           <NavigationControl />
+          <MapStyleToggle
+            mapViewRef={mapViewRef}
+            spiderifierRef={spiderifierRef}
+            onMapStyleChange={onMapStyleChange}
+            mapChangeSource={0}
+          ></MapStyleToggle>
         </div>
         <div className="controls-contaniner" style={{ bottom: 16 }}>
           <ScaleControl />
@@ -814,6 +929,7 @@ export function MapLayout(props) {
             latitude={rightClickedPoint?.latitude}
             longitude={rightClickedPoint?.longitude}
             onListItemClick={onMenuItemClick}
+            selectedLayer={selectedLayer}
           ></ContextMenu>
         )}
       </InteractiveMap>
@@ -837,13 +953,7 @@ export function MapLayout(props) {
           />
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
-      )}
-      <MapStyleToggle
-        mapViewRef={mapViewRef}
-        spiderifierRef={spiderifierRef}
-        onMapStyleChange={onMapStyleChange}
-        mapChangeSource={0}
-      ></MapStyleToggle>
+      )}      
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
@@ -892,7 +1002,7 @@ export function MapLayout(props) {
           <EmergencyDetailsCard
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
-            setGoToCoord={props.setGoToCoord}
+            setGoToCoord={setGoToCoord}
             setPersonTeam={setPersonTeam}
             teamName={teamName}
           />

@@ -7,7 +7,27 @@ import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-f
 
 const MAX_RESULT_COUNT = 9
 
-const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedCamera: {} }
+const initialState = {
+  error: false,
+  isLoading: true,
+  data: [],
+  tot: 0,
+  selectedCamera: {},
+  selectedItems: []
+}
+
+const mergeAndRemoveDuplicates = (a, b) => {
+  const c = a.concat(b.filter((item) => a.map((e) => e.id).indexOf(item.id) < 0))
+  return c
+}
+
+const removeDuplicates = (a, b) => {
+  if (a.length > 0) {
+    const c = a.filter((item) => b.map((e) => e.id).indexOf(item.id) < 0)
+    return c
+  }
+  return a
+}
 
 const reducer = (currentState, action) => {
   switch (action.type) {
@@ -24,10 +44,14 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        data: [...currentState.data, ...action.value],
+        data: mergeAndRemoveDuplicates(
+          [...currentState.selectedItems],
+          [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
+        ),
         error: false,
         tot: action.tot,
-        selectedCamera: {}
+        selectedCamera: {},
+        selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
       }
     case 'ERROR':
       return {
@@ -53,7 +77,7 @@ const reducer = (currentState, action) => {
         isLoading: false,
         data: [...action.value],
         hasMore: false,
-        error: true,
+        error: false,
         tot: action.tot
       }
   }
@@ -62,6 +86,7 @@ const reducer = (currentState, action) => {
 
 export default function useCameraList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
+
   const { displayErrorSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -78,6 +103,9 @@ export default function useCameraList() {
       initialize = false
     ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
+
+      dispatch({ type: 'FETCH', tot: tot })
+
       camerasApiFactory
         .stationsGetStations(
           (filters?.datestart as any)?.selected,

@@ -2,8 +2,13 @@ import { useCallback, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
-import { getLegendURL } from '../utils/map.utils'
+import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
+import {
+  FeatureInfo,
+  LayerFeatureInfo,
+  LayerFeatureInfoState
+} from '../models/layers/LayerFeatureInfo'
 
 const initialState = {
   rawLayers: {},
@@ -12,10 +17,85 @@ const initialState = {
   toBeRemovedLayers: [],
   layersMetadata: [],
   layersLegend: [],
+  layerTimeseries: null,
+  layerFeatureInfo: null,
   defaultPosition: { x: 0, y: 0 },
   defaultDimension: { h: 116, w: 1000 },
   isLoading: true,
   error: false
+}
+
+const keepPrevSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        groupedLayers &&
+        groupedLayers[selectedLayer.group] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup] &&
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        groupedLayers[selectedLayer.group][selectedLayer.subGroup][
+          selectedLayer.dataTypeId
+        ].isChecked = true
+      }
+    }
+  }
+  return groupedLayers
+}
+
+const updateSelection = (newGroupedLayers, oldSelectedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const oldSelectedLayersLength = selectedLayers.length
+  if (oldSelectedLayersLength > 0) {
+    for (let i = 0; i < oldSelectedLayersLength; i++) {
+      const selectedLayer = oldSelectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const selectedLayerIdx = selectedLayers.findIndex(
+          (e) =>
+            e.group === selectedLayer.group &&
+            e.subGroup === selectedLayer.subGroup &&
+            e.dataTypeId === selectedLayer.dataTypeId
+        )
+        if (selectedLayerIdx > -1) {
+          selectedLayers.splice(selectedLayerIdx, 1)
+        }
+      }
+    }
+  }
+  return selectedLayers
+}
+
+const updateToRemove = (newGroupedLayers, oldSelectedLayers, oldToBeRemovedLayers) => {
+  const groupedLayers = { ...newGroupedLayers }
+  const selectedLayers = [...oldSelectedLayers]
+  const toBeRemovedLayers = [...oldToBeRemovedLayers]
+  if (selectedLayers.length > 0) {
+    for (let i = 0; i < selectedLayers.length; i++) {
+      const selectedLayer = selectedLayers[i]
+      if (
+        !groupedLayers ||
+        !groupedLayers[selectedLayer.group] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup] ||
+        !groupedLayers[selectedLayer.group][selectedLayer.subGroup][selectedLayer.dataTypeId]
+      ) {
+        const activeLayer = {
+          layerName: selectedLayer.activeLayer,
+          layerDateIndex: selectedLayer.dateIndex
+        }
+        toBeRemovedLayers.push(activeLayer)
+      }
+    }
+  }
+  return toBeRemovedLayers
 }
 
 const reducer = (currentState, action) => {
@@ -24,8 +104,24 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        groupedLayers: action.value.groupedLayers,
-        rawLayers: action.value.rawLayers
+        groupedLayers: keepPrevSelection(action.value.groupedLayers, [
+          ...currentState.selectedLayers
+        ]),
+        rawLayers: action.value.rawLayers,
+        selectedLayers: [
+          ...updateSelection(action.value.groupedLayers, [...currentState.selectedLayers])
+        ],
+        toBeRemovedLayers: updateToRemove(
+          action.value.groupedLayers,
+          [...currentState.selectedLayers],
+          [...currentState.toBeRemovedLayers]
+        ),
+        layersMetadata: updateSelection(action.value.groupedLayers, [
+          ...currentState.layersMetadata
+        ]),
+        layersLegend: updateSelection(action.value.groupedLayers, [...currentState.layersLegend]),
+        layerTimeseries: null,
+        layerFeatureInfo: null
       }
     case 'OPACITY':
       return {
@@ -45,7 +141,19 @@ const reducer = (currentState, action) => {
         selectedLayers: action.value.selectedLayers,
         toBeRemovedLayers: action.value.toBeRemovedLayers,
         layersLegend: action.value.layersLegend,
-        layersMetadata: action.value.layersMetadata
+        layersMetadata: action.value.layersMetadata,
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
+      }
+    case 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST':
+      return {
+        ...currentState,
+        selectedLayers: action.value.selectedLayers,
+        toBeRemovedLayers: action.value.toBeRemovedLayers,
+        layersLegend: action.value.layersLegend,
+        layersMetadata: action.value.layersMetadata,
+        layerTimeseries: action.value.layerTimeseries,
+        layerFeatureInfo: action.value.layerFeatureInfo
       }
     case 'UPDATE_LAYER_PLAYER':
       return {
@@ -67,6 +175,16 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         layersLegend: action.value
+      }
+    case 'UPDATE_LAYER_TIMESERIES':
+      return {
+        ...currentState,
+        layerTimeseries: action.value
+      }
+    case 'UPDATE_LAYER_FEATURE_INFO':
+      return {
+        ...currentState,
+        layerFeatureInfo: action.value
       }
     case 'ERROR':
       return {
@@ -104,7 +222,10 @@ const useMapLayers = () => {
           const mappedResult = transformData(result)
           dispatch({
             type: 'RESULT',
-            value: { groupedLayers: mappedResult, rawLayers: result.data }
+            value: {
+              groupedLayers: mappedResult,
+              rawLayers: result.data
+            }
           })
         })
         .catch((err) => {
@@ -150,8 +271,23 @@ const useMapLayers = () => {
   )
 
   const clearToBeRemovedLayers = (layers, selectedLayers) => {
-    const activeLayers = selectedLayers.map((e) => e.activeLayer)
-    const cleanLayers = layers.filter((e) => e !== '' && !activeLayers.includes(e))
+    const activeLayers = selectedLayers.map((e) => {
+      return {
+        layerName: e.activeLayer,
+        layerDateIndex: e.dateIndex
+      }
+    })
+    const cleanLayers = layers.filter((e) => {
+      if (
+        activeLayers.findIndex(
+          (d) => d.layerName === e.layerName && d.layerDateIndex === e.layerDateIndex
+        ) >= 0
+      ) {
+        return false
+      } else {
+        return true
+      }
+    })
     const uniqueLayers = [...new Set(cleanLayers)]
     return uniqueLayers
   }
@@ -261,6 +397,8 @@ const useMapLayers = () => {
       let toBeRemovedLayers: any[] = []
       let updateLegends = [...dataState.layersLegend]
       let updateMetadata = [...dataState.layersMetadata]
+      let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
       if (currentLayer) {
         let newSettings: LayerSettingsState = { ...currentLayer }
         let updatedSelectedLayers = [...dataState.selectedLayers]
@@ -282,19 +420,29 @@ const useMapLayers = () => {
               layerName: activeLayerToRemove.activeLayer,
               layerDateIndex: activeLayerToRemove.dateIndex
             })
+            if (findToDeselectedLayerIdx === updatedSelectedLayers.length - 1) {
+              // if layer removed is last one, make sure to remove timeseries as well
+              updateTimeseries = null
+            }
             updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
           }
+          // remove legend
           const findLegendIdx = updateLegends.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findLegendIdx >= 0) {
             updateLegends.splice(findLegendIdx, 1)
           }
+          // remove metadata
           const findMetadataIdx = updateMetadata.findIndex(
             (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
           )
           if (findMetadataIdx >= 0) {
             updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
           }
         }
         const defaultPos = { ...dataState.defaultPosition }
@@ -313,10 +461,97 @@ const useMapLayers = () => {
             selectedLayers: changedSelectedLayers,
             toBeRemovedLayers: clearToBeRemovedLayers(toBeRemovedLayers, changedSelectedLayers),
             layersLegend: updateLegends,
-            layersMetadata: updateMetadata
+            layersMetadata: updateMetadata,
+            layerTimeseries: updateTimeseries,
+            layerFeatureInfo: updateFeatureInfo
           }
         })
       }
+    },
+    [dataState]
+  )
+
+  const updateSelectedLayersFromMapRequest = useCallback(
+    (newMRSettings, newDateIndex?: number) => {
+      let updatedSelectedLayers = [...dataState.selectedLayers]
+      let updateLegends = [...dataState.layersLegend]
+      let updateMetadata = [...dataState.layersMetadata]
+      let updateTimeseries = { ...dataState.layerTimeseries }
+      let updateFeatureInfo = { ...dataState.layerFeatureInfo }
+      let toBeRemovedLayers: any[] = [...dataState.toBeRemovedLayers]
+      let newSettings: LayerSettingsState = { ...newMRSettings }
+      newSettings.group = 'Map Request Layer'
+      newSettings.subGroup = newMRSettings.mapRequestCode
+      newSettings.dimension = { ...dataState.defaultDimension }
+      const group = newSettings.group
+      const subGroup = newSettings.subGroup
+      const dataTypeId = newSettings.dataTypeId
+      if (newSettings.isChecked) {
+        if (newSettings.activeLayer != '') {
+          toBeRemovedLayers.push({
+            layerName: newSettings.activeLayer,
+            layerDateIndex: newSettings.dateIndex
+          })
+        }
+        if (newDateIndex) {
+          newSettings.dateIndex = newDateIndex
+        }
+        newSettings.activeLayer =
+          newSettings.timestampsToFiles[newSettings.availableTimestamps[newSettings.dateIndex]]
+        const findSelectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findSelectedLayerIdx >= 0) {
+          updatedSelectedLayers[findSelectedLayerIdx] = newSettings
+        } else {
+          updatedSelectedLayers.push(newSettings)
+        }
+      } else {
+        const findToDeselectedLayerIdx = updatedSelectedLayers.findIndex(
+          (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+        )
+        if (findToDeselectedLayerIdx >= 0) {
+          const activeLayerToRemove = updatedSelectedLayers[findToDeselectedLayerIdx]
+          toBeRemovedLayers.push({
+            layerName: activeLayerToRemove.activeLayer,
+            layerDateIndex: activeLayerToRemove.dateIndex
+          })
+          if (findToDeselectedLayerIdx === updatedSelectedLayers.length - 1) {
+            // if layer removed is last one, make sure to remove timeseries as well
+            updateTimeseries = null
+          }
+          updatedSelectedLayers.splice(findToDeselectedLayerIdx, 1)
+          // remove legend
+          const findLegendIdx = updateLegends.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findLegendIdx >= 0) {
+            updateLegends.splice(findLegendIdx, 1)
+          }
+          // remove metadata
+          const findMetadataIdx = updateMetadata.findIndex(
+            (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
+          )
+          if (findMetadataIdx >= 0) {
+            updateMetadata.splice(findMetadataIdx, 1)
+          }
+          // remove feature info if no layers are selected
+          if (updatedSelectedLayers.length < 1) {
+            updateFeatureInfo = null
+          }
+        }
+      }
+      dispatch({
+        type: 'UPDATE_SELECTED_LAYERS_FROM_MAP_REQUEST',
+        value: {
+          selectedLayers: updatedSelectedLayers,
+          toBeRemovedLayers: toBeRemovedLayers,
+          layersLegend: updateLegends,
+          layersMetadata: updateMetadata,
+          layerTimeseries: updateTimeseries,
+          layerFeatureInfo: updateFeatureInfo
+        }
+      })
     },
     [dataState]
   )
@@ -346,7 +581,15 @@ const useMapLayers = () => {
   )
 
   const getMetaData = useCallback(
-    (metaId, group, subGroup, dataTypeId, layerName, transformData = () => {}, windowInnerWidth) => {
+    (
+      metaId,
+      group,
+      subGroup,
+      dataTypeId,
+      layerName,
+      transformData = () => {},
+      windowInnerWidth
+    ) => {
       let updatedMetadata = dataState.layersMetadata
       const findMetaIdx = updatedMetadata.findIndex(
         (e) =>
@@ -418,7 +661,15 @@ const useMapLayers = () => {
   )
 
   const getLegend = useCallback(
-    (geoServerConfig, activeLayerName, group, subGroup, dataTypeId, layerName, windowInnerWidth) => {
+    (
+      geoServerConfig,
+      activeLayerName,
+      group,
+      subGroup,
+      dataTypeId,
+      layerName,
+      windowInnerWidth
+    ) => {
       let updatedLegends = dataState.layersLegend
       const findLegendIdx = updatedLegends.findIndex(
         (e) => e.group === group && e.subGroup === subGroup && e.dataTypeId === dataTypeId
@@ -471,6 +722,120 @@ const useMapLayers = () => {
     [dataState]
   )
 
+  const addLayerTimeseries = useCallback(
+    (coordinates: [number, number], clickedLayer) => {
+      dispatch({
+        type: 'UPDATE_LAYER_TIMESERIES',
+        value: {
+          showCard: true,
+          coord: coordinates,
+          selectedLayer: clickedLayer
+        }
+      })
+    },
+    [dataState]
+  )
+
+  const closeLayerTimeseries = useCallback(() => {
+    dispatch({
+      type: 'UPDATE_LAYER_TIMESERIES',
+      value: null
+    })
+  }, [dataState])
+
+  const addLayerFeatureInfo = useCallback(
+    (geoServerConfig, w, h, mapBounds, windowInnerWidth) => {
+      const selectedLayers = [...dataState.selectedLayers]
+      const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
+      let requestPromises: any[] = []
+      for (let i = 0; i < selectedLayers.length; i++) {
+        const currentLayer = selectedLayers[i]
+        const activeLayer = currentLayer.activeLayer
+        const currentTimestamp = currentLayer.availableTimestamps[currentLayer.dateIndex]
+        const featInfoPromise = new Promise((resolve, reject) => {
+          resolve(
+            fetch(
+              getFeatureInfoUrl(geoServerConfig, w, h, activeLayer, currentTimestamp, mapBounds)
+            )
+          )
+        })
+        requestPromises.push(featInfoPromise)
+      }
+
+      Promise.all(requestPromises)
+        .then((response) => Promise.all(response.map((r) => r.json())))
+        .then((result) => {
+          const mappedFeatureInfo: LayerFeatureInfoState[] = []
+          for (let i = 0; i < result.length; i++) {
+            const res = result[i]
+            const featInfo = new LayerFeatureInfo(
+              res.features,
+              res.totalFeatures,
+              res.numberReturned,
+              res.timestatmp,
+              res.crs
+            )
+
+            let allFeat: any[] = []
+            for (let j = 0; j < featInfo.features.length; j++) {
+              const feat = featInfo.features[j]
+              const property = feat.properties
+              const featureInfo = Object.keys(property!!).map((e) => {
+                const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+                return new FeatureInfo(e, rounded)
+              })
+              allFeat.push(featureInfo)
+            }
+
+            const layerFeatureInfo = new LayerFeatureInfoState(layerNames[i], allFeat)
+            mappedFeatureInfo.push(layerFeatureInfo)
+          }
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: mappedFeatureInfo,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: false
+            }
+          })
+        })
+        .catch((err) => {
+          console.debug(err)
+          dispatch({
+            type: 'UPDATE_LAYER_FEATURE_INFO',
+            value: {
+              featureInfo: null,
+              layers: selectedLayers,
+              visibility: true,
+              position: { x: windowInnerWidth - 109 - 741, y: 60 },
+              error: true
+            }
+          })
+        })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoPosition = useCallback(
+    (x, y) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.position = { x: x, y: y }
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
+  const updateLayerFeatureInfoVisibility = useCallback(
+    (visibility) => {
+      let updatedFeatureInfo = dataState.layerFeatureInfo
+      updatedFeatureInfo.visibility = visibility
+      dispatch({ type: 'UPDATE_LAYER_FEATURE_INFO', value: updatedFeatureInfo })
+    },
+    [dataState]
+  )
+
   return [
     dataState,
     fetchLayers,
@@ -484,7 +849,13 @@ const useMapLayers = () => {
     getLegend,
     updateLayerLegendPosition,
     updateLayerLegendVisibility,
-    updateDefaultPosAndDim
+    updateDefaultPosAndDim,
+    addLayerTimeseries,
+    closeLayerTimeseries,
+    addLayerFeatureInfo,
+    updateLayerFeatureInfoPosition,
+    updateLayerFeatureInfoVisibility,
+    updateSelectedLayersFromMapRequest
   ]
 }
 

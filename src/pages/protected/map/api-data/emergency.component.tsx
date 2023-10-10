@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import Typography from '@material-ui/core/Typography'
-import { CardHeader, Chip, Grid, IconButton, useTheme } from '@material-ui/core'
+import { Button, CardHeader, Chip, Grid, IconButton, useTheme } from '@material-ui/core'
 import styled from 'styled-components'
 import green from '@material-ui/core/colors/green'
 import { makeStyles } from '@material-ui/core/styles'
@@ -28,13 +28,23 @@ import Box from '@material-ui/core/Box'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import Modal from '@material-ui/core/Modal'
 import useMapRequestById from '../../../../hooks/use-map-requests-by-id'
-import { CommunicationScopeType } from 'ermes-ts-sdk'
+import { CommunicationScopeType, EntityType } from 'ermes-ts-sdk'
 import usePeopleList from '../../../../hooks/use-people-list.hook'
 import { yellow } from '@material-ui/core/colors'
 import useAlertList from '../../../../hooks/use-alerts.hook'
 import { FormatDate } from '../../../../utils/date.utils'
 import useCameraList from '../../../../hooks/use-cameras.hook'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
+import { getSensorsLastUpdate } from '../../../../utils/get-sensors-last-update.util'
+import ccmClasses from '../map-drawer/drawer-cards/communication-card.module.scss'
+import { useDispatch } from 'react-redux'
+import { setSelectedCamera } from '../../../../state/selected-camera.state'
+import {
+  CameraValidationStatus,
+  getCameraValidationStatus
+} from '../../../../utils/get-camera-validation-status.util'
+import { DiscardedIcon, ValidatedIcon } from '../map-drawer/camera-chip-icons.component'
+import { getCameraState } from '../../../../utils/get-camera-state.util'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -110,7 +120,7 @@ const mapRequestCard = (
   else {
   const mapRequestDetails = data.feature.properties
   return (
-    <Card elevation={0}>
+    <Card elevation={0} style={{ overflowX: 'auto'}}>
       <CardContent style={{ paddingTop: '10px' }}>
         <div className={classes.headerBlock}>
           <Box component="div" display="inline-block">
@@ -156,7 +166,7 @@ const mapRequestCard = (
           {t('maps:creator')}:&nbsp;
         </Typography>
         <Typography component={'span'} variant="body1">
-          {t('labels:' + mapRequestDetails.username.toLowerCase())}
+          {t('labels:' + mapRequestDetails.displayName.toLowerCase())}
         </Typography>
         <br />
         <Typography
@@ -211,6 +221,18 @@ const mapRequestCard = (
           <>
             <Typography component={'span'} variant="body1">
               {t('maps:wildfireSimulation')}
+            </Typography>
+            <br />
+            <Typography
+              component={'span'}
+              variant="caption"
+              color="textSecondary"
+              style={{ textTransform: 'uppercase' }}
+            >
+              {t('maps:hoursOfProjectionLabel')}:&nbsp;
+            </Typography>
+            <Typography component={'span'} variant="body1">
+              {mapRequestDetails.timeLimit}
             </Typography>
             <br />
             <Typography
@@ -301,12 +323,13 @@ const mapRequestCard = (
           {formatter.format(new Date(mapRequestDetails.duration.upperBound as string))}
         </Typography>
 
-        <Typography color="textSecondary">
-          {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
-        </Typography>
-      </CardActions>
-    </Card>
-  )}
+          <Typography color="textSecondary">
+            {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+          </Typography>
+        </CardActions>
+      </Card>
+    )
+  }
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
@@ -698,8 +721,8 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
       return 'audio'
     }
   }
-  console.log('REP DATA DATUM', data)
-  console.log('REP DATA DATUM DETA', catDetails)
+  console.debug('REP DATA DATUM', data)
+  console.debug('REP DATA DATUM DETA', catDetails)
   if (!data.isLoading) {
     return (
       <>
@@ -912,15 +935,20 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 }
 
 const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) => {
-  const lowerBoundDate = FormatDate(alertInfo.startDate)
-  const upperBoundDate = FormatDate(alertInfo.endDate)
+  const lowerBoundDate = formatter.format(new Date(alertInfo.startDate)) //FormatDate(alertInfo.startDate)
+  const upperBoundDate = formatter.format(new Date(alertInfo.endDate)) //FormatDate(alertInfo.endDate)
   if (!data.isLoading) {
     return (
       <>
         <Card elevation={0}>
           <CardContent>
-            <Typography variant="body2" component="h2" gutterBottom>
-              {alertInfo.details}
+            <Typography
+              variant="body2"
+              component="h2"
+              gutterBottom
+              dangerouslySetInnerHTML={{ __html: alertInfo.details }}
+            >
+             
             </Typography>
             <div>
               <Typography color="textSecondary">
@@ -945,13 +973,37 @@ const alertCard = (data, classes, t, formatter, latitude, longitude, alertInfo) 
   )
 }
 
-const stationCard = (data, classes, t, formatter, latitude, longitude, theme) => {
-  const hasFire = data?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.fire)
-  )
-  const hasSmoke = data?.sensors?.some((sensor) =>
-    sensor.measurements?.some((measurement) => measurement.metadata?.detection?.smoke)
-  )
+function StationCard({ data, latitude, longitude }) {
+  const theme = useTheme()
+  const dispatch = useDispatch()
+  const { t } = useTranslation()
+
+  const [
+    hasFire,
+    hasAtLeastOneFireValidation,
+    hasAllFireValidationsDiscarded,
+    hasSmoke,
+    hasAtLeastOneSmokeValidation,
+    hasAllSmokeValidationsDiscarded
+  ] = useMemo(() => {
+    const allMeasurements = data?.sensors?.flatMap((sensor) => sensor.measurements) ?? []
+
+    const [hasFire, hasAtLeastOneFireValidation, hasAllFireValidationsDiscarded] = getCameraState(
+      'fire',
+      allMeasurements
+    )
+    const [hasSmoke, hasAtLeastOneSmokeValidation, hasAllSmokeValidationsDiscarded] =
+      getCameraState('smoke', allMeasurements)
+
+    return [
+      hasFire,
+      hasAtLeastOneFireValidation,
+      hasAllFireValidationsDiscarded,
+      hasSmoke,
+      hasAtLeastOneSmokeValidation,
+      hasAllSmokeValidationsDiscarded
+    ]
+  }, [data])
 
   if (!data) {
     return (
@@ -963,53 +1015,85 @@ const stationCard = (data, classes, t, formatter, latitude, longitude, theme) =>
     )
   }
 
+  const lastUpdate = getSensorsLastUpdate(data?.sensors ?? [])
+
+  function handleShowDetails(event) {
+    event.stopPropagation()
+
+    dispatch(setSelectedCamera(data))
+  }
+
   return (
     <>
       <Card elevation={0}>
-        <CardActions>
-          {hasFire && (
-            <Chip
-              color="primary"
-              size="small"
-              style={{
-                backgroundColor: theme.palette.error.dark,
-                borderColor: theme.palette.error.dark,
-                color: theme.palette.error.contrastText
-              }}
-              label={t('maps:fire')}
-            />
-          )}
-          {hasSmoke && (
-            <Chip
-              color="primary"
-              size="small"
-              style={{
-                backgroundColor: theme.palette.primary.contrastText,
-                borderColor: theme.palette.primary.dark,
-                color: theme.palette.primary.dark
-              }}
-              label={t('maps:smoke')}
-            />
-          )}
-        </CardActions>
         <CardContent>
-          <Typography variant="body2" component="h2" gutterBottom>
-            {data.name}
-          </Typography>
-          {data.owner && (
-            <Typography variant="body2" component="h4" gutterBottom>
-              {data.owner}
-            </Typography>
-          )}
-          <Typography variant="body2" component="h2" gutterBottom>
-            {data.sensors?.length} {t('maps:orientations')}
-          </Typography>
+          <Grid container justifyContent="space-between">
+            <Grid item>
+              <Typography variant="body2" component="span" gutterBottom style={{ marginRight: 5 }}>
+                {data.name}
+              </Typography>
+              <Typography variant="caption" component="span" gutterBottom>
+                ({(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)})
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="body2" component="h2" gutterBottom>
+                {data.sensors?.length ?? 0} {t('maps:orientations')}
+              </Typography>
+            </Grid>
+          </Grid>
         </CardContent>
-        <CardActions className={classes.cardAction}>
-          <Typography color="textSecondary">
-            {(latitude as number).toFixed(4) + ' , ' + (longitude as number).toFixed(4)}
+        <CardActions className={ccmClasses.cardAction}>
+          <Typography color="textSecondary" variant="caption">
+            Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
           </Typography>
-          <Typography color="textSecondary">Altitude: {data.altitude?.toFixed(2)}m</Typography>
+        </CardActions>
+        <CardActions className={ccmClasses.cardAction}>
+          <div className={ccmClasses.chipContainer}>
+            {hasFire && (
+              <Chip
+                avatar={
+                  hasAllFireValidationsDiscarded ? (
+                    <DiscardedIcon type="fire" avatar />
+                  ) : hasAtLeastOneFireValidation ? (
+                    <ValidatedIcon type="fire" avatar />
+                  ) : undefined
+                }
+                color="primary"
+                size="small"
+                style={{
+                  backgroundColor: theme.palette.error.dark,
+                  borderColor: theme.palette.error.dark,
+                  color: theme.palette.error.contrastText
+                }}
+                className={ccmClasses.chipStyle}
+                label={t('maps:fire')}
+              />
+            )}
+            {hasSmoke && (
+              <Chip
+                avatar={
+                  hasAllSmokeValidationsDiscarded ? (
+                    <DiscardedIcon type="smoke" avatar />
+                  ) : hasAtLeastOneSmokeValidation ? (
+                    <ValidatedIcon type="smoke" avatar />
+                  ) : undefined
+                }
+                color="primary"
+                size="small"
+                style={{
+                  backgroundColor: theme.palette.primary.contrastText,
+                  borderColor: theme.palette.primary.dark,
+                  color: theme.palette.primary.dark
+                }}
+                className={ccmClasses.chipStyle}
+                label={t('maps:smoke')}
+              />
+            )}
+          </div>
+          <Button variant="contained" color="primary" size="small" onClick={handleShowDetails}>
+            {t('common:details')}
+          </Button>
         </CardActions>
       </Card>
     </>
@@ -1041,8 +1125,8 @@ export const EmergencyColorMap: ColorMapType = {
   Mission: '#ff8e1f', //green[400],
   Communication: '#fbd7b1', //blueGrey[800],
   MapRequest: '#fe558f', //orange[800],
-  Alert: green[800],
-  Station: '#f9aaf9',
+  Alert: '#4072f1', //'green[800]',
+  Station: '#f56c5c',
   SelectedPosition: yellow[800]
 }
 
@@ -1080,12 +1164,28 @@ export function EmergencyHoverCardContent({
   creator,
   details,
   type,
-  organizationName, 
+  organizationName,
   mapRequestTypeFilter,
   status
 }: EmergencyProps) {
   const classes = useStyles()
   const { t } = useTranslation(['maps'])
+  let detailComponent = <div />;
+  if(type === EntityType.ALERT)
+    detailComponent = <Typography
+                variant="body2"
+                component="h2"
+                gutterBottom
+                dangerouslySetInnerHTML={{ __html: details }}
+              />
+  else
+    detailComponent =  <Typography
+                variant="body2"
+                component="h2"
+                gutterBottom
+              >
+            {details}
+          </Typography>
   return (
     // <Card className={classes.root} variant="outlined">
     <CardContent>
@@ -1100,7 +1200,7 @@ export function EmergencyHoverCardContent({
         </Typography>
         <br />
         <Typography variant="h6" color="inherit" component={'span'}>
-          {type} <Dot type={type} />
+          {t('maps:legend_' + type.toLowerCase())} <Dot type={type} />
         </Typography>
       </div>
 
@@ -1116,9 +1216,7 @@ export function EmergencyHoverCardContent({
             {t('maps:description')}
           </Typography>
           <br />
-          <Typography component={'span'} variant="body1">
-            {details}
-          </Typography>
+          {detailComponent}
         </div>
       ) : null}
       {creator !== 'null' && creator ? (
@@ -1166,9 +1264,11 @@ export function EmergencyHoverCardContent({
           </Typography>
           <br />
           <Typography component={'span'} variant="body1">
-            {mapRequestTypeFilter === MapRequestType.FIRE_AND_BURNED_AREA ? t('maps:fireAndBurnedAreas') 
-            : mapRequestTypeFilter === MapRequestType.POST_EVENT_MONITORING ? t('maps:postEventMonitoring') 
-            : t('maps:wildfireSimulation') }
+            {mapRequestTypeFilter === MapRequestType.FIRE_AND_BURNED_AREA
+              ? t('maps:fireAndBurnedAreas')
+              : mapRequestTypeFilter === MapRequestType.POST_EVENT_MONITORING
+              ? t('maps:postEventMonitoring')
+              : t('maps:wildfireSimulation')}
           </Typography>
         </div>
       ) : undefined}
@@ -1325,6 +1425,8 @@ export function EmergencyContent({
     type
   ])
 
+  const dispatch = useDispatch()
+
   // useEffect(() => {
   //   console.log('REP DETAILS', repDetails)
   // }, [repDetails])
@@ -1421,7 +1523,7 @@ export function EmergencyContent({
       break
     case 'Station':
       const camera = cameras.data?.find((e) => e.id === rest.details)
-      todisplay = stationCard(camera, classes, t, formatter, latitude, longitude, theme)
+      todisplay = <StationCard data={camera} latitude={latitude} longitude={longitude} />
       break
     default: {
       todisplay = <div>Work in progress...</div>

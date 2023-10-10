@@ -14,8 +14,12 @@ import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
 import { GeoJsonProperties } from 'geojson'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMapStateContext } from '../../../map.contest'
+import { MapMode, useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
+import { Color } from '@material-ui/lab'
+import { MapRequestType } from 'ermes-backoffice-ts-sdk'
+import { Chip, Theme, createStyles, makeStyles } from '@material-ui/core'
+import { featureCollection as createFeatureCollection } from '@turf/helpers'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -36,8 +40,37 @@ export const lineColors = {
   5: purple[600]
 }
 
-const MapRequestDrawFeature = (props) => {
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    mapCoorZoom: {
+      zIndex: 97,
+      top: 10,
+      left: 56,
+      position: 'absolute',
+      color: '#fff',
+      backgroundColor: '#333'
+    }
+  })
+)
+
+const MapRequestDrawFeature: React.FC<{
+  mapRequestType: MapRequestType
+  customMapMode?: MapMode
+  lineIdx?: number
+  areaSelectedAlertHandler: React.Dispatch<React.SetStateAction<Color>>
+  mapSelectionCompletedHandler: () => void
+  mapSelectionNotCompletedHandler: () => void
+  setMapAreaHandler: (area: any) => void
+  setBoundaryLineHandler?: (idx: any, line: any) => void
+  toRemoveLineIdx?: number
+  setToRemoveLineIdx?: React.Dispatch<React.SetStateAction<number>>
+  toRemoveBoundaryConditionIdx?: number
+  setToRemoveBoundaryConditionIdx?: React.Dispatch<React.SetStateAction<number>>
+  boundaryLinesTot?: number
+  mapSelectedFeatures: any[]
+}> = (props) => {
   const {
+    mapRequestType,
     customMapMode,
     lineIdx,
     areaSelectedAlertHandler,
@@ -53,15 +86,17 @@ const MapRequestDrawFeature = (props) => {
     mapSelectedFeatures
   } = props
 
+  const classes = useStyles()
   const { t } = useTranslation(['maps', 'labels'])
 
   const [mapFeatures, setMapFeatures] = useState<GeoJSON.Feature[]>(mapSelectedFeatures ?? [])
   const [featureCollection, setFeatureCollection] = useState<
     GeoJSON.FeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon>
-  >({
-    type: 'FeatureCollection',
-    features: mapSelectedFeatures ?? []
-  })
+  >(
+    createFeatureCollection<GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon>(
+      mapSelectedFeatures ?? []
+    )
+  )
 
   // GeoJSON source Ref
   const geoJSONPointsSourceRef = useRef(null)
@@ -104,6 +139,32 @@ const MapRequestDrawFeature = (props) => {
     }
   }, [customMapMode])
 
+  useEffect(() => {
+    if (mapSelectedFeatures && mapSelectedFeatures.length > 0) {
+      let featCollection
+      if (
+        mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+        mapRequestType === MapRequestType.POST_EVENT_MONITORING
+      ) {
+        const polygonFeatures = mapSelectedFeatures.filter(e => e.geometry.type === 'Polygon')
+        setMapFeatures(polygonFeatures)
+        featCollection = createFeatureCollection<
+          GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
+        >(polygonFeatures)
+        setFeatureCollection(featCollection)
+        updateMap(featCollection)
+      }
+      else {
+        setMapFeatures(mapSelectedFeatures)
+        featCollection = createFeatureCollection<
+          GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
+        >(mapSelectedFeatures)
+      }
+      setFeatureCollection(featCollection)
+      updateMap(featCollection)
+    }
+  }, [mapSelectedFeatures])
+
   const updateMap = (updatedFeatureCollection) => {
     const map = mapViewRef!!.current!!.getMap()
     if (map) {
@@ -136,7 +197,7 @@ const MapRequestDrawFeature = (props) => {
         return e
       })
     }
-    if (removeIdx > -1) {      
+    if (removeIdx > -1) {
       // remove deleted element
       updatedFeatureCollection.features.splice(removeIdx, 1)
     }
@@ -148,35 +209,67 @@ const MapRequestDrawFeature = (props) => {
   }
 
   useEffect(() => {
-    if (toRemoveLineIdx > -1) {
+    if (toRemoveLineIdx !== undefined && toRemoveLineIdx > -1 && setToRemoveLineIdx) {
       removeLine(toRemoveLineIdx)
       setToRemoveLineIdx(-1)
     }
   }, [toRemoveLineIdx])
 
   useEffect(() => {
-    if (toRemoveBoundaryConditionIdx > -1) {
+    if (
+      toRemoveBoundaryConditionIdx &&
+      toRemoveBoundaryConditionIdx > -1 &&
+      setToRemoveBoundaryConditionIdx
+    ) {
       removeLine(toRemoveBoundaryConditionIdx, true)
       setToRemoveBoundaryConditionIdx(-1)
     }
   }, [toRemoveBoundaryConditionIdx])
 
   useEffect(() => {
-    if (mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length !== boundaryLinesTot) {
-      areaSelectedAlertHandler('info')
-      mapSelectionNotCompletedHandler()
-    } else if (
-      mapFeatures.find((e) => e.geometry.type === 'Point') &&
-      mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length === boundaryLinesTot
+    if (
+      mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+      mapRequestType === MapRequestType.POST_EVENT_MONITORING
     ) {
-      areaSelectedAlertHandler('success')
-      mapSelectionCompletedHandler()
+      if (mapFeatures.find((e) => e.geometry.type === 'Polygon')) {
+        areaSelectedAlertHandler('success')
+        mapSelectionCompletedHandler()
+      } else {
+        areaSelectedAlertHandler('info')
+        mapSelectionNotCompletedHandler()
+      }
+    } else {
+      if (
+        mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length !== boundaryLinesTot
+      ) {
+        areaSelectedAlertHandler('info')
+        mapSelectionNotCompletedHandler()
+      } else if (
+        mapFeatures.find((e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon') &&
+        mapFeatures.filter((e) => e && e.geometry.type === 'LineString').length === boundaryLinesTot
+      ) {
+        areaSelectedAlertHandler('success')
+        mapSelectionCompletedHandler()
+      }
     }
   }, [boundaryLinesTot, mapFeatures])
 
   const getLineColor = (lineIdx) => {
     return lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
   }
+
+  const mapCoordinatesZoom =
+    t('social:map_latitude') +
+    ': ' +
+    viewport.latitude.toFixed(2) +
+    ' | ' +
+    t('social:map_longitude') +
+    ': ' +
+    viewport.longitude.toFixed(2) +
+    ' | ' +
+    t('social:map_zoom') +
+    ': ' +
+    viewport.zoom.toFixed(2)
 
   return (
     mapFeatures &&
@@ -207,72 +300,83 @@ const MapRequestDrawFeature = (props) => {
             onFeatureAdd={(data: GeoJSON.Feature[]) => {
               console.debug('Feature drawn!', data)
               if (mapDrawRef.current && mapViewRef.current && data.length > 0) {
-                const editingFeatureType = 'MapRequest'
-                const editingFeatureId = 0
-                if (mapMode === 'edit') {
+                const editingFeatType = 'MapRequest'
+                const editingFeatId = 0
+                if (
+                  mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+                  mapRequestType === MapRequestType.POST_EVENT_MONITORING
+                ) {
+                  if (mapMode === 'edit') {
+                    // draw polygon
+                    setEditingFeature({
+                      type: editingFeatType,
+                      id: editingFeatId,
+                      area: null,
+                      collection: null
+                    })
+                    let polygonFeatureCollection: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
+                      type: 'FeatureCollection',
+                      features: []
+                    }
+                    if (data.length > 1) {
+                      // keep only one polygon at a time
+                      data.shift()
+                    }
+                    const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
+                    startFeatureEdit(editingFeatType, editingFeatId, featurePolygon, null)
+                    polygonFeatureCollection.features.push(featurePolygon)
+                    setFeatureCollection(polygonFeatureCollection)
+                    setMapFeatures(data)
+                    areaSelectedAlertHandler('success')
+                    mapSelectionCompletedHandler()
+                    setMapAreaHandler(featurePolygon)
+                  }
+                } else {
                   // draw polygon
                   setEditingFeature({
-                    type: editingFeatureType,
-                    id: editingFeatureId,
+                    type: editingFeatType,
+                    id: editingFeatId,
                     area: null,
                     collection: null
                   })
-                  let polygonFeatureCollection: GeoJSON.FeatureCollection<GeoJSON.Polygon> = {
-                    type: 'FeatureCollection',
-                    features: []
-                  }
-                  if (data.length > 1) {
-                    // keep only one polygon at a time
-                    data.shift()
-                  }
-                  const featurePolygon = data[0] as GeoJSON.Feature<GeoJSON.Polygon>
-                  startFeatureEdit(editingFeatureType, editingFeatureId, featurePolygon, null)
-                  polygonFeatureCollection.features.push(featurePolygon)
-                  setFeatureCollection(polygonFeatureCollection)
-                  setMapFeatures(data)
-                  areaSelectedAlertHandler('success')
-                  mapSelectionCompletedHandler()
-                  setMapAreaHandler(featurePolygon)
-                } else if (mapMode === 'editPoint' || mapMode === 'editLine') {
-                  setEditingFeature({
-                    type: editingFeatureType,
-                    id: editingFeatureId,
-                    area: null,
-                    collection: null
-                  })
-                  let pointLinesFeatureCollection: GeoJSON.FeatureCollection<
-                    GeoJSON.Point | GeoJSON.LineString
+                  let pointOrPolygonAndLinesFeatureCollection: GeoJSON.FeatureCollection<
+                    GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
                   > = {
                     type: 'FeatureCollection',
                     features: []
                   }
-                  if (mapMode === 'editPoint') {
+
+                  if (mapMode === 'edit' || mapMode === 'editPoint') {
                     const points = data.filter(
-                      (e) => e.geometry.type === 'Point'
+                      (e) => e.geometry.type === 'Polygon' || e.geometry.type === 'Point'
                     ) as GeoJSON.Feature<GeoJSON.Point>[]
                     let pointIdx = 0
                     if (points.length > 1) {
                       // keep one point at a time
-                      const prevPointIdx = data.findIndex((e) => e.geometry.type === 'Point')
+                      const prevPointIdx = data.findIndex(
+                        (e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon'
+                      )
                       data.splice(prevPointIdx, 1)
                     }
-                    pointIdx = data.findIndex((e) => e.geometry.type === 'Point')
-                    const featurePoint = data[pointIdx] as GeoJSON.Feature<GeoJSON.Point>
-                    pointLinesFeatureCollection.features.push(featurePoint)
+                    pointIdx = data.findIndex(
+                      (e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon'
+                    )
+                    const featurePoint = data[pointIdx] as GeoJSON.Feature<GeoJSON.Polygon>
+                    pointOrPolygonAndLinesFeatureCollection.features.push(featurePoint)
                     // keep lines drawn
                     const prevLines = data.filter(
                       (e) => e.geometry.type === 'LineString'
                     ) as GeoJSON.Feature<GeoJSON.LineString>[]
-                    pointLinesFeatureCollection.features.push.apply(
-                      pointLinesFeatureCollection.features,
+                    pointOrPolygonAndLinesFeatureCollection.features.push.apply(
+                      pointOrPolygonAndLinesFeatureCollection.features,
                       prevLines
                     )
-                    setFeatureCollection(pointLinesFeatureCollection)
+                    setFeatureCollection(pointOrPolygonAndLinesFeatureCollection)
                     setMapAreaHandler(featurePoint)
                   } else {
-                    const featurePoint = data.find(
-                      (e) => e.geometry.type === 'Point'
-                    ) as GeoJSON.Feature<GeoJSON.Point>
+                    const featurePointOrPolygon = data.find(
+                      (e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon'
+                    ) as GeoJSON.Feature<GeoJSON.Point | GeoJSON.Polygon>
 
                     let prevLines = data.filter((e) => e.geometry.type === 'LineString')
                     const prevLinesLength = prevLines.length
@@ -283,7 +387,7 @@ const MapRequestDrawFeature = (props) => {
                         boundaryConditionIdx: lineIdx,
                         color: getLineColor(lineIdx)
                       }
-                      setBoundaryLineHandler(lineIdx, lineToMark)
+                      if (setBoundaryLineHandler) setBoundaryLineHandler(lineIdx, lineToMark)
                       prevLines[0] = lineToMark
                       // update data
                       const toUdpdateIdx = data.findIndex((e) => e.geometry.type === 'LineString')
@@ -312,7 +416,8 @@ const MapRequestDrawFeature = (props) => {
                           boundaryConditionIdx: lineIdx,
                           color: getLineColor(lineIdx)
                         }
-                        setBoundaryLineHandler(lineIdx, data[toUdpdateIdx])
+                        if (setBoundaryLineHandler)
+                          setBoundaryLineHandler(lineIdx, data[toUdpdateIdx])
                         data.pop()
                       } else {
                         // no element found - add properties to last one (meaning new line added)
@@ -323,37 +428,42 @@ const MapRequestDrawFeature = (props) => {
                           boundaryConditionIdx: lineIdx,
                           color: getLineColor(lineIdx)
                         }
-                        setBoundaryLineHandler(lineIdx, lineToMark)
+                        if (setBoundaryLineHandler) setBoundaryLineHandler(lineIdx, lineToMark)
                         prevLines[prevLinesLength - 1] = lineToMark
                         // update data
                         const toUdpdateIdx = data.findIndex(
-                          (e) => e.geometry.type === 'LineString' && (!e.properties || e.properties.boundaryConditionIdx === lineIdx)
+                          (e) =>
+                            e.geometry.type === 'LineString' &&
+                            (!e.properties || e.properties.boundaryConditionIdx === lineIdx)
                         )
                         data[toUdpdateIdx] = lineToMark
                       }
                     }
                     if (prevLines) {
-                      pointLinesFeatureCollection.features = prevLines as GeoJSON.Feature<
-                        GeoJSON.Point | GeoJSON.LineString,
-                        GeoJsonProperties
-                      >[]
+                      pointOrPolygonAndLinesFeatureCollection.features =
+                        prevLines as GeoJSON.Feature<
+                          GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon,
+                          GeoJsonProperties
+                        >[]
                     }
-                    if (featurePoint) {
-                      pointLinesFeatureCollection.features.push(featurePoint)
+                    if (featurePointOrPolygon) {
+                      pointOrPolygonAndLinesFeatureCollection.features.push(featurePointOrPolygon)
                     }
-                    setFeatureCollection(pointLinesFeatureCollection)
+                    setFeatureCollection(pointOrPolygonAndLinesFeatureCollection)
                   }
                   startFeatureEdit(
-                    editingFeatureType,
-                    editingFeatureId,
+                    editingFeatType,
+                    editingFeatId,
                     null,
-                    pointLinesFeatureCollection
+                    pointOrPolygonAndLinesFeatureCollection
                   )
-                  setMapFeatures(pointLinesFeatureCollection.features)
+                  setMapFeatures(pointOrPolygonAndLinesFeatureCollection.features)
 
                   if (
-                    pointLinesFeatureCollection.features.find((e) => e.geometry.type === 'Point') &&
-                    pointLinesFeatureCollection.features.filter(
+                    pointOrPolygonAndLinesFeatureCollection.features.find(
+                      (e) => e.geometry.type === 'Point' || e.geometry.type === 'Polygon'
+                    ) &&
+                    pointOrPolygonAndLinesFeatureCollection.features.filter(
                       (e) => e.geometry.type === 'LineString'
                     ).length === boundaryLinesTot
                   ) {
@@ -420,6 +530,7 @@ const MapRequestDrawFeature = (props) => {
             <ScaleControl />
           </div>
         </InteractiveMap>
+        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
       </MapContainer>
     )
   )
