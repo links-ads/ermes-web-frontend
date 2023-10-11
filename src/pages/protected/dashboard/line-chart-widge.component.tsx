@@ -1,5 +1,5 @@
 import React from 'react'
-import { ResponsiveLine } from '@nivo/line'
+import { CustomLayerProps, ResponsiveLine } from '@nivo/line'
 import { useTheme } from '@material-ui/core'
 import { ChartTooltip } from '../../../common/stats-cards.components'
 import LineChartProps from '../../../models/chart/LineChartProps'
@@ -20,6 +20,31 @@ const DashedSolidLine = ({ series, lineGenerator, xScale, yScale }) => {
       strokeDasharray={index > 0 ? 6 : 0}
     />
   ))
+}
+
+const CustomSymbol = ({ size, color, borderWidth, borderColor, x, y }) => (
+  <g transform={`translate(${x}, ${y})`}>
+    <circle r={size / 2} strokeWidth={borderWidth} stroke={borderColor} fill={'transparent'} />
+  </g>
+)
+
+const CustomPoints = ({ series, points }): CustomLayerProps => {
+  const seriesIds = series.map((s, index) => (index == 0 ? s.id : undefined)).filter((s) => s)
+  return points.map((point, index) => {
+    if (seriesIds.includes(point.serieId)) {
+      return (
+        <CustomSymbol
+          key={'custom-point-' + index}
+          size={10}
+          color={point.color}
+          borderWidth={2}
+          borderColor={point.borderColor}
+          x={point.x}
+          y={point.y}
+        />
+      )
+    }
+  })
 }
 
 export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
@@ -72,12 +97,13 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
           'crosshair',
           // 'lines',
           'slices',
-          'points',
+          // 'points',
           'mesh',
           'legends',
+          CustomPoints,
           DashedSolidLine // add the custome layer here
         ]}
-        enablePoints={false}
+        enablePoints={true}
         pointSize={10}
         pointColor={{ theme: 'background' }}
         pointBorderWidth={2}

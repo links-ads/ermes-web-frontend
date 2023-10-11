@@ -49,7 +49,7 @@ const LayersFloatingPanel: React.FC<{
   }, [])
 
   const [dim, setDim] = useState({
-    width: 500,
+    width: 420,
     height: 400
   })
 

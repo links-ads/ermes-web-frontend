@@ -396,7 +396,7 @@ export function Map() {
   }, [])
 
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
-    return { x: Math.max(400, window.innerWidth - 600), y: 60 }
+    return { x: Math.max(400, window.innerWidth - 1420), y: 10 }
   }, [])
 
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<

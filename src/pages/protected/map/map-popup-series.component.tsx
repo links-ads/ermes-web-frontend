@@ -69,11 +69,11 @@ export default function MapTimeSeries(props) {
   const classes = useStyles()
 
   const [dim, setDim] = useState({
-    width: 500,
-    height: 736
+    height: 730,
+    width: window.innerWidth / 2 + 250
   })
-  const onResize = (event, data) => {
-    setDim({ height: data.size.height, width: data.size.width })
+  const onResize = (event, {node, size, handle}) => {
+    setDim({ height: size.height, width: size.height })
   }
   const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
   const { showCard, coord, selectedLayer } = layerTimeseries
@@ -276,7 +276,7 @@ export default function MapTimeSeries(props) {
         dim={dim}
         onResize={onResize}
         resizable={true}
-        style={{ minHeight: '736px', paddingBottom: '0px' }}
+        style={{ minHeight: '730px', paddingBottom: '0px' }}
       >
         <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: '0px' }}>
           <AppBar
@@ -295,7 +295,7 @@ export default function MapTimeSeries(props) {
               direction="row"
               justifyContent="space-between"
               alignItems="center"
-              style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
+              style={{ paddingLeft: 10, paddingTop: 4 }}
             >
               <Grid item xs={11}>
                 <Typography variant="h4" style={{ fontSize: 16 }}>
@@ -303,23 +303,17 @@ export default function MapTimeSeries(props) {
                 </Typography>
               </Grid>
               <Grid item xs={1}>
-                <IconButton size="small" onClick={closeLayerTimeseries}>
+                <IconButton
+                  size="small"
+                  onClick={closeLayerTimeseries}
+                  style={{ float: 'right', paddingRight: 5 }}
+                >
                   <CloseIcon />
                 </IconButton>
               </Grid>
             </Grid>
-            {/* <Toolbar>
-              <Box sx={{ flexGrow: 9 }}>
-                <Typography variant="h4">{selectedLayer.name}</Typography>
-              </Box>
-              <Box sx={{ flexGrow: 1 }}>
-                <IconButton onClick={closeLayerTimeseries}>
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-            </Toolbar> */}
           </AppBar>
-          <CardContent style={{ height: '100%', overflowX: 'scroll', padding: '0px' }}>
+          <CardContent>
             {!isLoading ? (
               error ? (
                 errorData
