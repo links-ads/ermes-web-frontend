@@ -5,7 +5,7 @@ import { ChartTooltip } from '../../../common/stats-cards.components'
 import LineChartProps from '../../../models/chart/LineChartProps'
 
 const DashedSolidLine = ({ series, lineGenerator, xScale, yScale }) => {
-  return series.map(({ id, data, color }, index) => (
+  return series.map(({ id, data, color, isAssociatedLayer }, index) => (
     <path
       key={id}
       d={lineGenerator(
@@ -17,7 +17,7 @@ const DashedSolidLine = ({ series, lineGenerator, xScale, yScale }) => {
       fill="none"
       stroke={color}
       strokeWidth={2}
-      strokeDasharray={index > 0 ? 6 : 0}
+      strokeDasharray={isAssociatedLayer ? 6 : 0}
     />
   ))
 }
@@ -29,13 +29,15 @@ const CustomSymbol = ({ size, color, borderWidth, borderColor, x, y }) => (
 )
 
 const CustomPoints = ({ series, points }): CustomLayerProps => {
-  const seriesIds = series.map((s, index) => (index == 0 ? s.id : undefined)).filter((s) => s)
+  const seriesIds = series
+    .map((s, index) => (s.isAssociatedLayer ? undefined : s.id))
+    .filter((s) => s)
   return points.map((point, index) => {
     if (seriesIds.includes(point.serieId)) {
       return (
         <CustomSymbol
           key={'custom-point-' + index}
-          size={10}
+          size={6}
           color={point.color}
           borderWidth={2}
           borderColor={point.borderColor}
@@ -50,16 +52,11 @@ const CustomPoints = ({ series, points }): CustomLayerProps => {
 export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
   const theme = useTheme()
   const { chartData, xValues, type: chartDataType } = props.data
-  // const formatTicks = (v) => {
-  //     return v.length > 10 ? (
-  //         <tspan>
-  //             {v.substring(0, 10) + "..."}
-  //             <title>{v}</title>
-  //         </tspan>
-  //     ) : (
-  //         v
-  //     );
-  // }
+  const unifOfMeasure = chartData[0] && chartData[0].unitOfMeasure
+    ? chartData[0].unitOfMeasure
+    : chartData[1] && chartData[1].unitOfMeasure
+    ? chartData[1].unitOfMeasure
+    : ''
 
   return (
     <div style={{ height: 600, marginBottom: '0', width: '1200px' }}>
@@ -84,7 +81,7 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: chartData[0].unitOfMeasure,
+          legend: unifOfMeasure,
           legendOffset: -40,
           legendPosition: 'middle'
         }}
@@ -115,7 +112,7 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
             d.point.serieId as string,
             d.point.serieColor,
             chartDataType === 'Number'
-              ? (d.point.data.y as number).toFixed(4) + chartData[0].unitOfMeasure
+              ? (d.point.data.y as number).toFixed(4) + unifOfMeasure
               : (d.point.data.y as string)
           )
         }}
@@ -124,9 +121,9 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
             anchor: 'top',
             direction: 'row',
             justify: false,
-            translateX: 0,
+            translateX: 20,
             translateY: -20,
-            itemWidth: 360,
+            itemWidth: 420,
             itemHeight: 10,
             itemsSpacing: 0,
             symbolSize: 12,

@@ -747,6 +747,7 @@ const useMapLayers = () => {
     (geoServerConfig, w, h, mapBounds, windowInnerWidth) => {
       const selectedLayers = [...dataState.selectedLayers]
       const layerNames = selectedLayers.map((e) => e.name + ' | ' + e.subGroup)
+      let unitOfMeasures: string[] = []
       let requestPromises: any[] = []
       for (let i = 0; i < selectedLayers.length; i++) {
         const currentLayer = selectedLayers[i]
@@ -760,6 +761,34 @@ const useMapLayers = () => {
           )
         })
         requestPromises.push(featInfoPromise)
+        unitOfMeasures.push(currentLayer.unitOfMeasure)
+
+        // associated layers
+        if (currentLayer.associatedLayers && currentLayer.associatedLayers.length > 0) {
+          for (let associatedLayer of currentLayer.associatedLayers) {
+            const assActiveLayer =
+              associatedLayer.timestampsToFiles[
+                associatedLayer.availableTimestamps[currentLayer.dateIndex]
+              ]
+            const assCurrentTimestamp = associatedLayer.availableTimestamps[currentLayer.dateIndex]
+            const childLayerPromise = new Promise((resolve, reject) => {
+              resolve(
+                fetch(
+                  getFeatureInfoUrl(
+                    geoServerConfig,
+                    w,
+                    h,
+                    assActiveLayer,
+                    assCurrentTimestamp,
+                    mapBounds
+                  )
+                )
+              )
+            })
+            requestPromises.push(childLayerPromise)
+            unitOfMeasures.push(currentLayer.unitOfMeasure)
+          }
+        }
       }
 
       Promise.all(requestPromises)
@@ -781,8 +810,9 @@ const useMapLayers = () => {
               const feat = featInfo.features[j]
               const property = feat.properties
               const featureInfo = Object.keys(property!!).map((e) => {
-                const rounded = property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
-                return new FeatureInfo(e, rounded)
+                const rounded = property!![e] !== 0 && property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
+                const roundedWithUnitOfMeasure = unitOfMeasures[i] ? rounded + unitOfMeasures[i] : rounded
+                return new FeatureInfo(e, roundedWithUnitOfMeasure)
               })
               allFeat.push(featureInfo)
             }

@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
-import { LineChartWidget } from '../dashboard/line-chart-widge.component'
+import { LineChartWidget } from '../dashboard/line-chart-widget.component'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import LineChartProps, { LineChartData, PointChartData } from '../../../models/chart/LineChartProps'
@@ -72,7 +72,7 @@ export default function MapTimeSeries(props) {
     height: 730,
     width: window.innerWidth / 2 + 250
   })
-  const onResize = (event, {node, size, handle}) => {
+  const onResize = (event, { node, size, handle }) => {
     setDim({ height: size.height, width: size.height })
   }
   const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
@@ -192,10 +192,7 @@ export default function MapTimeSeries(props) {
         if (result.status === 200) {
           const layerName =
             i === 0 ? selectedLayer.name : selectedLayer.associatedLayers[i - 1].name
-          const unitOfMeasure =
-            i === 0
-              ? selectedLayer.unitOfMeasure
-              : selectedLayer.associatedLayers[i - 1].unitOfMeasure
+          const unitOfMeasure = selectedLayer.unitOfMeasure
           if (result.data && result.data.variables) {
             for (let j = 0; j < result.data.variables.length; j++) {
               const timeseries = result.data.variables[j].values ?? []
@@ -276,9 +273,11 @@ export default function MapTimeSeries(props) {
         dim={dim}
         onResize={onResize}
         resizable={true}
+        resizeHandles={['se', 'e']}
+        maxConstraints={[Infinity, Infinity]}
         style={{ minHeight: '730px', paddingBottom: '0px' }}
       >
-        <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: '0px' }}>
+        <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: 0 }}>
           <AppBar
             position="static"
             color="default"

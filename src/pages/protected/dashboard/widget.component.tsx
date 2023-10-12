@@ -10,7 +10,7 @@ import { BarWidget } from './bar-widget'
 import { CircularProgress, Grid, Typography } from '@material-ui/core'
 import { PieChartStats } from '../../../common/stats-cards.components'
 import { TableWidget } from './table-widget.component'
-import { LineChartWidget } from './line-chart-widge.component'
+import { LineChartWidget } from './line-chart-widget.component'
 
 import LineChartProps, { LineChartData, PointChartData } from '../../../models/chart/LineChartProps'
 

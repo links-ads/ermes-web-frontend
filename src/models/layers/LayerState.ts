@@ -1,8 +1,8 @@
-import { PixelPostion } from "../common/PixelPosition"
-import { TimestampToFile } from "../common/TimestampToFile"
+import { PixelPostion } from '../common/PixelPosition'
+import { TimestampToFile } from '../common/TimestampToFile'
 
 interface Dimension {
-  h: number, 
+  h: number
   w: number
 }
 
@@ -11,12 +11,42 @@ export class AssociatedLayer {
   name: string
   parentDataTypeId: number
   parentName: string
+  format: string
+  frequency: number | string
+  group: string
+  subGroup: string
+  order: number
+  type: string
+  availableTimestamps: string[]
+  metadataIds: any
+  timestampsToFiles: TimestampToFile
 
-  constructor(id, name, parentId, parentName) {
-      this.dataTypeId = id
-      this.name = name
-      this.parentDataTypeId = parentId
-      this.parentName = parentName
+  constructor(
+    id: number,
+    name: string,
+    parentId: number,
+    parentName: string,
+    format: string,
+    frequency: number | string,
+    group: string,
+    subGroup: string,
+    order: number,
+    type: string
+  ) {
+    this.dataTypeId = id
+    this.name = name
+    this.parentDataTypeId = parentId
+    this.parentName = parentName
+    this.format = format
+    this.frequency = frequency
+    this.group = group
+    this.subGroup = subGroup
+    this.order = order
+    this.type = type
+
+    this.availableTimestamps = []
+    this.metadataIds = {}
+    this.timestampsToFiles = {}
   }
 }
 export class LayerSettingsState {
