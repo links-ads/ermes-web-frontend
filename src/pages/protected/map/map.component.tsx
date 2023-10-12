@@ -365,9 +365,40 @@ export function Map({
         layerData.associatedLayers.forEach((assLayer) => {
           let parent =
             groupLayersState[assLayer.group!][assLayer.subGroup!][assLayer.parentDataTypeId!]
-          parent.associatedLayers.push(
-            new AssociatedLayer(assLayer.dataTypeId, assLayer.name, parent.dataTypeId, parent.name)
+          let associatedLayer = new AssociatedLayer(
+            assLayer.dataTypeId!,
+            assLayer.name!,
+            parent.dataTypeId,
+            parent.name,
+            assLayer.format!,
+            assLayer.frequency!,
+            assLayer.group!,
+            assLayer.subGroup!,
+            assLayer.order!,
+            assLayer.type!
           )
+          assLayer.details!.forEach((detail) => {
+            let metadataId = detail.metadata_Id
+            let timestamps: string[] = [...associatedLayer.availableTimestamps]
+            detail.timestamps!.forEach((timestamp) => {
+              associatedLayer.timestampsToFiles[timestamp] = detail.name!
+              timestamps.push(timestamp)
+              associatedLayer.metadataIds[timestamp] = metadataId
+            })
+            //keep availableTimestamp sorted
+            //use Set to ensure timestamps are unique inside the final array
+            associatedLayer.availableTimestamps = Array.from(
+              new Set(
+                timestamps
+                  .map((item) => {
+                    return { dateString: item, dateValue: new Date(item) }
+                  })
+                  .sort((a, b) => (a.dateValue > b.dateValue ? 1 : -1))
+                  .map((item) => item.dateString)
+              )
+            )
+          })
+          parent.associatedLayers.push(associatedLayer)
         })
       }
       return groupLayersState
@@ -407,7 +438,7 @@ export function Map({
   }, [])
 
   const mapTimeSeriesContainerDefaultCoord = useMemo<{ x: number; y: number }>(() => {
-    return { x: Math.max(400, window.innerWidth - 600), y: 60 }
+    return { x: Math.max(400, window.innerWidth - 1420), y: 10 }
   }, [])
 
   const [mapTimeSeriesContainerPosition, setMapTimeSeriesContainerPosition] = useState<

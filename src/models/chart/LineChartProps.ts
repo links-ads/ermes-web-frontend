@@ -9,9 +9,13 @@ export class PointChartData {
 
 export class LineChartData {
   id: string
+  isAssociatedLayer: boolean
+  unitOfMeasure: string
   data: PointChartData[]
-  constructor(id: string, data: PointChartData[]) {
+  constructor(id: string, data: PointChartData[], isAssociatedLayer?: boolean, unitOfMeasure?: string) {
     this.id = id
+    this.isAssociatedLayer = isAssociatedLayer ?? false
+    this.unitOfMeasure = unitOfMeasure ?? ''
     this.data = data
   }
 }

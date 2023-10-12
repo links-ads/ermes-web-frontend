@@ -334,157 +334,159 @@ const LayersPlayer: React.FC<{
       onResize={null}
       resizable={true}
     >
-      <AppBar
-        position="static"
-        color="default"
-        style={{
-          backgroundColor: theme.palette.primary.dark,
-          boxShadow: 'none',
-          display: 'block'
-        }}
-        className="handle handleResize"
-      >
-        <Grid
-          container
-          spacing={1}
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
+      <>
+        <AppBar
+          position="static"
+          color="default"
+          style={{
+            backgroundColor: theme.palette.primary.dark,
+            boxShadow: 'none',
+            display: 'block'
+          }}
+          className="handle handleResize"
         >
-          <Grid item xs={7}>
-            <Typography
-              align="left"
-              variant="h4"
-              style={{ fontSize: '0.875rem', textTransform: 'uppercase' }}
-            >
-              {selectedLayer.group + ' | ' + selectedLayer.name}
-            </Typography>
-          </Grid>
-          <Grid
-            item
-            xs={3}
-            container
-            spacing={2}
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-          >
-            <Grid item>
-              <label htmlFor="opacity-slider">
-                {t('maps:opacity') + ': ' + selectedLayer.opacity + '%'}
-              </label>
-            </Grid>
-            <Grid item xs>
-              <Slider
-                id="opacity-slider"
-                defaultValue={100}
-                valueLabelDisplay="off"
-                step={1}
-                value={selectedLayer.opacity}
-                min={0}
-                max={100}
-                color="secondary"
-                onChange={handleOpacityChange}
-              />
-            </Grid>
-          </Grid>
-          <Grid
-            item
-            xs={2}
-            container
-            spacing={2}
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-          >
-            <IconButton onClick={getLayerLegend} size="small">
-              <LegendIcon />
-            </IconButton>
-            <IconButton onClick={getMetadata} size="small">
-              <MetaIcon />
-            </IconButton>
-            <IconButton
-              onClick={() => {
-                updateLayerSelection(
-                  selectedLayer.group,
-                  selectedLayer.subGroup,
-                  selectedLayer.dataTypeId,
-                  false
-                )
-              }}
-              size="small"
-            >
-              <CloseIcon />
-            </IconButton>
-          </Grid>
-        </Grid>
-      </AppBar>
-      <CardContent>
-        {selectedLayer.availableTimestamps.length > 1 ? (
           <Grid
             container
             spacing={1}
             direction="row"
             justifyContent="space-between"
             alignItems="center"
+            style={{ paddingLeft: 10, paddingRight: 10, paddingTop: 4 }}
           >
-            <Grid item xs={3}>
-              <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>
-                <SkipPreviousOutlined />
-              </IconButton>
-              <IconButton aria-label="play/pause" onClick={playPause}>
-                {playing ? (
-                  <PauseCircleFilled fontSize="large" />
-                ) : (
-                  <PlayCircleFilled fontSize="large" />
-                )}
-              </IconButton>
-              <IconButton aria-label="next" onClick={onClickNextDateHandler}>
-                <SkipNextOutlined />
-              </IconButton>
-            </Grid>
-            <Grid item xs={8}>
-              <Slider
-                aria-labelledby="discrete-slider-custom"
-                className={classes.slider}
-                defaultValue={0}
-                getAriaValueText={valuetext}
-                valueLabelFormat={valuetext}
-                valueLabelDisplay="on"
-                //step={1}
-                value={playerValue}
-                min={0}
-                max={selectedLayer.availableTimestamps.length}
-                color="secondary"
-                onChange={(event, value) => setPlayerValue(value as number)}
-                onChangeCommitted={(event, value) => {
-                  changeDateHandler(event, value)
-                }}
-                marks={layerMarks}
-              />
+            <Grid item xs={7}>
+              <Typography
+                align="left"
+                variant="h4"
+                style={{ fontSize: '0.875rem', textTransform: 'uppercase' }}
+              >
+                {selectedLayer.group + ' | ' + selectedLayer.name}
+              </Typography>
             </Grid>
             <Grid
               item
-              xs={1}
+              xs={3}
               container
+              spacing={2}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Grid item>
+                <label htmlFor="opacity-slider">
+                  {t('maps:opacity') + ': ' + selectedLayer.opacity + '%'}
+                </label>
+              </Grid>
+              <Grid item xs>
+                <Slider
+                  id="opacity-slider"
+                  defaultValue={100}
+                  valueLabelDisplay="off"
+                  step={1}
+                  value={selectedLayer.opacity}
+                  min={0}
+                  max={100}
+                  color="secondary"
+                  onChange={handleOpacityChange}
+                />
+              </Grid>
+            </Grid>
+            <Grid
+              item
+              xs={2}
+              container
+              spacing={2}
               direction="row"
               justifyContent="flex-end"
               alignItems="center"
             >
-              {!isLoading ? (
-                <IconButton aria-label="download" onClick={onDownloadHandler}>
-                  <GetAppIcon />
-                </IconButton>
-              ) : (
-                <CircularProgress color="secondary" size={20} />
-              )}
+              <IconButton onClick={getLayerLegend} size="small">
+                <LegendIcon />
+              </IconButton>
+              <IconButton onClick={getMetadata} size="small">
+                <MetaIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  updateLayerSelection(
+                    selectedLayer.group,
+                    selectedLayer.subGroup,
+                    selectedLayer.dataTypeId,
+                    false
+                  )
+                }}
+                size="small"
+              >
+                <CloseIcon />
+              </IconButton>
             </Grid>
           </Grid>
-        ) : (
-          <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
-        )}
-      </CardContent>
+        </AppBar>
+        <CardContent>
+          {selectedLayer.availableTimestamps.length > 1 ? (
+            <Grid
+              container
+              spacing={1}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Grid item xs={3}>
+                <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>
+                  <SkipPreviousOutlined />
+                </IconButton>
+                <IconButton aria-label="play/pause" onClick={playPause}>
+                  {playing ? (
+                    <PauseCircleFilled fontSize="large" />
+                  ) : (
+                    <PlayCircleFilled fontSize="large" />
+                  )}
+                </IconButton>
+                <IconButton aria-label="next" onClick={onClickNextDateHandler}>
+                  <SkipNextOutlined />
+                </IconButton>
+              </Grid>
+              <Grid item xs={8}>
+                <Slider
+                  aria-labelledby="discrete-slider-custom"
+                  className={classes.slider}
+                  defaultValue={0}
+                  getAriaValueText={valuetext}
+                  valueLabelFormat={valuetext}
+                  valueLabelDisplay="on"
+                  //step={1}
+                  value={playerValue}
+                  min={0}
+                  max={selectedLayer.availableTimestamps.length}
+                  color="secondary"
+                  onChange={(event, value) => setPlayerValue(value as number)}
+                  onChangeCommitted={(event, value) => {
+                    changeDateHandler(event, value)
+                  }}
+                  marks={layerMarks}
+                />
+              </Grid>
+              <Grid
+                item
+                xs={1}
+                container
+                direction="row"
+                justifyContent="flex-end"
+                alignItems="center"
+              >
+                {!isLoading ? (
+                  <IconButton aria-label="download" onClick={onDownloadHandler}>
+                    <GetAppIcon />
+                  </IconButton>
+                ) : (
+                  <CircularProgress color="secondary" size={20} />
+                )}
+              </Grid>
+            </Grid>
+          ) : (
+            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
+          )}
+        </CardContent>
+      </>
     </FloatingCardContainer>
   )
 }

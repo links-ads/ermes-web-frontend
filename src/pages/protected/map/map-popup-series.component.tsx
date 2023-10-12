@@ -17,7 +17,7 @@ import {
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
-import { LineChartWidget } from '../dashboard/line-chart-widge.component'
+import { LineChartWidget } from '../dashboard/line-chart-widget.component'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import LineChartProps, { LineChartData, PointChartData } from '../../../models/chart/LineChartProps'
@@ -69,11 +69,11 @@ export default function MapTimeSeries(props) {
   const classes = useStyles()
 
   const [dim, setDim] = useState({
-    width: 500,
-    height: 736
+    height: 730,
+    width: window.innerWidth / 2 + 250
   })
-  const onResize = (event, data) => {
-    setDim({ height: data.size.height, width: data.size.width })
+  const onResize = (event, { node, size, handle }) => {
+    setDim({ height: size.height, width: size.height })
   }
   const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
   const { showCard, coord, selectedLayer } = layerTimeseries
@@ -114,28 +114,33 @@ export default function MapTimeSeries(props) {
   }
 
   // map to LineChartData
-  const mapToLineChartData = useCallback((timeseries, layerName, varType) => {
-    const dateOptions = {
-      dateStyle: 'short',
-      timeStyle: 'short',
-      hour12: false
-    } as Intl.DateTimeFormatOptions
-    const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+  const mapToLineChartData = useCallback(
+    (timeseries, layerName, isAssociatedLayer, unitOfMeasure, varType) => {
+      const dateOptions = {
+        dateStyle: 'short',
+        timeStyle: 'short',
+        hour12: false
+      } as Intl.DateTimeFormatOptions
+      const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
-    let layerTimeseries = new LineChartData(
-      layerName,
-      timeseries
-        .sort(compareDates)
-        .map(
-          (series) =>
-            new PointChartData(
-              formatter.format(new Date((series as any).dateTime)),
-              varType === 'Number' ? parseFloat((series as any).value) : (series as any).value
-            )
-        )
-    )
-    return layerTimeseries
-  }, [])
+      let layerTimeseries = new LineChartData(
+        layerName,
+        timeseries
+          .sort(compareDates)
+          .map(
+            (series) =>
+              new PointChartData(
+                formatter.format(new Date((series as any).dateTime)),
+                varType === 'Number' ? parseFloat((series as any).value) : (series as any).value
+              )
+          ),
+        isAssociatedLayer,
+        unitOfMeasure
+      )
+      return layerTimeseries
+    },
+    []
+  )
 
   // layer timeseries
   const getLayerTimeseriesHandler = async (point, startDate, endDate, mapRequestCode?) => {
@@ -187,7 +192,7 @@ export default function MapTimeSeries(props) {
         if (result.status === 200) {
           const layerName =
             i === 0 ? selectedLayer.name : selectedLayer.associatedLayers[i - 1].name
-
+          const unitOfMeasure = selectedLayer.unitOfMeasure
           if (result.data && result.data.variables) {
             for (let j = 0; j < result.data.variables.length; j++) {
               const timeseries = result.data.variables[j].values ?? []
@@ -195,7 +200,13 @@ export default function MapTimeSeries(props) {
               variableType = result.data.variables[j].type ?? ''
 
               if (timeseries && timeseries.length > 0) {
-                let layerTimeseries = mapToLineChartData(timeseries, layerName, variableType)
+                let layerTimeseries = mapToLineChartData(
+                  timeseries,
+                  layerName,
+                  i > 0,
+                  unitOfMeasure,
+                  variableType
+                )
                 let currentChartData: LineChartData[] = chartDataVar[variableName] ?? []
                 currentChartData.push(layerTimeseries)
                 chartDataVar[variableName] = currentChartData
@@ -222,10 +233,13 @@ export default function MapTimeSeries(props) {
 
   useEffect(() => {
     const timeRange = [selectedFilters.datestart.selected, selectedFilters.dateend.selected]
-    const mapRequestCode = selectedLayer.group === 'Map Request Layer' ? selectedLayer.subGroup : undefined
-    getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1], mapRequestCode).then((lineChart) => {
-      setLineChartData(lineChart as LineChartProps[])
-    })
+    const mapRequestCode =
+      selectedLayer.group === 'Map Request Layer' ? selectedLayer.subGroup : undefined
+    getLayerTimeseriesHandler(coord, timeRange[0], timeRange[1], mapRequestCode).then(
+      (lineChart) => {
+        setLineChartData(lineChart as LineChartProps[])
+      }
+    )
   }, [coord, selectedLayer])
 
   const loader = (
@@ -259,9 +273,11 @@ export default function MapTimeSeries(props) {
         dim={dim}
         onResize={onResize}
         resizable={true}
-        style={{ minHeight: '736px', paddingBottom: '0px' }}
+        resizeHandles={['se', 'e']}
+        maxConstraints={[Infinity, Infinity]}
+        style={{ minHeight: '730px', paddingBottom: '0px' }}
       >
-        <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: '0px' }}>
+        <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: 0 }}>
           <AppBar
             position="static"
             color="default"
@@ -272,18 +288,31 @@ export default function MapTimeSeries(props) {
             }}
             className="handle handleResize"
           >
-            <Toolbar>
-              <Box sx={{ flexGrow: 9 }}>
-                <Typography variant="h4">{selectedLayer.name}</Typography>
-              </Box>
-              <Box sx={{ flexGrow: 1 }}>
-                <IconButton onClick={closeLayerTimeseries}>
+            <Grid
+              container
+              spacing={1}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              style={{ paddingLeft: 10, paddingTop: 4 }}
+            >
+              <Grid item xs={11}>
+                <Typography variant="h4" style={{ fontSize: 16 }}>
+                  {selectedLayer.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={1}>
+                <IconButton
+                  size="small"
+                  onClick={closeLayerTimeseries}
+                  style={{ float: 'right', paddingRight: 5 }}
+                >
                   <CloseIcon />
                 </IconButton>
-              </Box>
-            </Toolbar>
+              </Grid>
+            </Grid>
           </AppBar>
-          <CardContent style={{ height: '100%', overflowX: 'scroll', padding: '0px' }}>
+          <CardContent>
             {!isLoading ? (
               error ? (
                 errorData

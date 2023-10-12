@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Feature - Associated layer style (#118)
+
+Ver. 2.15.4 - 2023-10-06
+-----------------------
 - Feature - Time for Get Feature Info (#165)
 
 Ver. 2.15.3 - 2023-10-05
