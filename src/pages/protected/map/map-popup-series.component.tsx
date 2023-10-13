@@ -6,8 +6,6 @@ import {
   IconButton,
   CardContent,
   useTheme,
-  Box,
-  Toolbar,
   CircularProgress,
   Grid,
   Tabs,
@@ -73,7 +71,7 @@ export default function MapTimeSeries(props) {
     width: window.innerWidth / 2 + 250
   })
   const onResize = (event, { node, size, handle }) => {
-    setDim({ height: size.height, width: size.height })
+    setDim({ height: size.height, width: size.width })
   }
   const { layerTimeseries, closeLayerTimeseries, selectedFilters } = props
   const { showCard, coord, selectedLayer } = layerTimeseries
@@ -273,11 +271,11 @@ export default function MapTimeSeries(props) {
         dim={dim}
         onResize={onResize}
         resizable={true}
-        resizeHandles={['se', 'e']}
-        maxConstraints={[Infinity, Infinity]}
-        style={{ minHeight: '730px', paddingBottom: '0px' }}
+        resizeHandles={['se']}
+        maxConstraints={[1600, 800]}
+        style={{ minHeight: 730, minWidth: 800, paddingBottom: 0 }}
       >
-        <Card style={{ height: dim.height, minHeight: dim.height, paddingBottom: 0 }}>
+        <Card style={{ minHeight: dim.height, paddingBottom: 0 }}>
           <AppBar
             position="static"
             color="default"
