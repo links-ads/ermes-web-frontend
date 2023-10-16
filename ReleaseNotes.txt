@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Report associated with mission (#157)
 
 Ver. 2.15.5 - 2023-10-16
 -----------------------
