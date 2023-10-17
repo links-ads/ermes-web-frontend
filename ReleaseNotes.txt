@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Feature - Calendar component aligment (#166)
 
 Ver. 2.15.5 - 2023-10-16
 -----------------------
