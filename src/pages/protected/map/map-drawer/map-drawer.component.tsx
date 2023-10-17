@@ -352,6 +352,7 @@ export default function MapDrawer(props) {
                 selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
+                missionActive={Mission}
               />
             </TabPanel>
 

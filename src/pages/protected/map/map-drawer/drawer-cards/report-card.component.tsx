@@ -1,20 +1,34 @@
-import { CardActions, CardContent, CardMedia, Chip, IconButton, Typography, useTheme } from "@material-ui/core";
-import { EntityType } from "ermes-ts-sdk";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { HAZARD_SOCIAL_ICONS } from "../../../../../utils/utils.common";
-import CardWithPopup from "./card-with-popup.component";
+import {
+  CardActions,
+  CardContent,
+  CardMedia,
+  Chip,
+  IconButton,
+  Typography,
+  useTheme
+} from '@material-ui/core'
+import { EntityType } from 'ermes-ts-sdk'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { HAZARD_SOCIAL_ICONS } from '../../../../../utils/utils.common'
+import CardWithPopup from './card-with-popup.component'
 import classes from './report-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import { FormatDate } from "../../../../../utils/date.utils";
-import DrawerCardProps from "../../../../../models/DrawerCardProps";
-import { EmergencyColorMap } from "../../api-data/emergency.component";
+import { FormatDate } from '../../../../../utils/date.utils'
+import DrawerCardProps from '../../../../../models/DrawerCardProps'
+import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
-  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
-  const { t } = useTranslation(['common', 'maps', 'social'])
+  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords, missionActive } = props
+  const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
   const timestamp = FormatDate(elem.timestamp)
   const theme = useTheme()
+
+  const onMissionChipClick = (evt) => {
+    evt.stopPropagation()
+    props.setSelectedCard(EntityType.MISSION + '-' + String(elem.relativeMissionId))
+  }
+
   return (
     <CardWithPopup
       keyID={EntityType.REPORT + '-' + String(elem.id)}
@@ -53,15 +67,16 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 : null}
               {' ' + t('maps:' + elem.hazard.toLowerCase())}
             </Typography>
-            <IconButton
-              size="small"
-              onClick={() =>
-                flyToCoords(elem!.location!.latitude as number, elem!.location!.longitude as number)
-              }
-              className={classes.viewInMap}
-            >
-              <LocationOnIcon htmlColor={EmergencyColorMap.Report} />
-            </IconButton>
+            {elem.relativeMissionId !== null && (
+              <Chip
+                label={t('labels:mission_chip') + ' #' + elem.relativeMissionId}
+                color="primary"
+                size="small"
+                className={classes.chipStyle}
+                disabled={!missionActive}
+                onClick={onMissionChipClick}
+              />
+            )}
           </div>
           <Typography color="textSecondary">{timestamp}</Typography>
           <Typography variant="body2" color="textSecondary" component="p">
@@ -126,6 +141,15 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
               }}
             />
           </div>
+          <IconButton
+            size="small"
+            onClick={() =>
+              flyToCoords(elem!.location!.latitude as number, elem!.location!.longitude as number)
+            }
+            className={classes.viewInMap}
+          >
+            <LocationOnIcon htmlColor={EmergencyColorMap.Report} />
+          </IconButton>
         </CardActions>
       </div>
     </CardWithPopup>

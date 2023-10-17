@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Feature - Report associated with mission (#157)
+
+Ver. 2.15.5 - 2023-10-16
+-----------------------
 - Feature - Associated layer style (#118)
 
 Ver. 2.15.4 - 2023-10-06
