@@ -19,7 +19,7 @@ import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
-  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords } = props
+  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords, missionActive } = props
   const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
   const timestamp = FormatDate(elem.timestamp)
   const theme = useTheme()
@@ -73,7 +73,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 color="primary"
                 size="small"
                 className={classes.chipStyle}
-                disabled={true}
+                disabled={!missionActive}
                 onClick={onMissionChipClick}
               />
             )}
