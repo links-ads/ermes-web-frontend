@@ -28,6 +28,7 @@ import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-f
 import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
+import RangeDateTimePicker from '../../../../../common/range-date-time-picker'
 
 type MapFeature = CulturalProps
 
@@ -225,6 +226,12 @@ export function FiredAndBurnedAreasDialog({
               }}
             />
           </MuiPickersUtilsProvider>
+          <RangeDateTimePicker
+            editState={editState}
+            dispatchEditAction={dispatchEditAction}
+            disabledRangePickerTime={true}
+            disabledBeforeToday={false}
+          />
         </Grid>
         <Grid container style={{ marginBottom: 16, width: '100%' }}>
           <FormControl margin="normal" style={{ minWidth: '100%' }}>

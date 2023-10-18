@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect } from 'react'
 
 import {
   FormControl,
@@ -10,15 +10,9 @@ import {
   Select,
   TextField
 } from '@material-ui/core'
-import TodayIcon from '@material-ui/icons/Today'
 import ClearIcon from '@material-ui/icons/Clear'
 
 import { CoordinatorType } from '../map-dialog.hooks'
-
-// import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
-// import DateFnsUtils from '@date-io/date-fns'
-
-import useLanguage from '../../../../hooks/use-language.hook'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 
@@ -26,15 +20,7 @@ import { OrganizationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import { TeamsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../../hooks/use-api-handler'
 import { GenericDialogProps } from '../map-dialog-edit.component'
-import { DatePicker, LocaleProvider } from 'antd'
-import { Locale } from 'antd/es/locale-provider'
-import it_IT from 'antd/es/locale/it_IT'
-import en_GB from 'antd/es/locale/en_GB'
-import moment from 'moment'
-import 'moment/locale/it'
-import 'moment/locale/en-gb'
-import './mission-dialog.css'
-import '../../dashboard/filters.css'
+import RangeDateTimePicker from '../../../../common/range-date-time-picker'
 
 export function MissionDialog({
   operationType,
@@ -42,24 +28,13 @@ export function MissionDialog({
   dispatchEditAction,
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
-  const { dateFormat } = useLanguage()
-  const { t, i18n } = useTranslation(['maps', 'labels'])
-  const { language } = i18n
-  const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
+  const { t } = useTranslation(['maps', 'labels'])
   const missionStatusOptions = Object.values(MissionStatusType)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig), [backendAPIConfig])
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
   const [orgApiHandlerState, handleOrgAPICall] = useAPIHandler(false)
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
-  const { RangePicker } = DatePicker
-  const endAdornment = useMemo(() => {
-    return (
-      <IconButton>
-        <TodayIcon />
-      </IconButton>
-    )
-  }, [])
 
   useEffect(() => {
     handleOrgAPICall(() => {
@@ -99,42 +74,6 @@ export function MissionDialog({
       : {}
   }, [teamsApiHandlerState, editState.teamId])
 
-  const range = (start, end) => {
-    const result: any[] = []
-    for (let i = start; i < end; i++) {
-      result.push(i)
-    }
-    return result
-  }
-
-  const disabledRangeTime = (current, type) => {
-    let notAvailableMinutes: number[] = []
-    const start = current[0]
-    const end = current[1]
-    if (start && start != null && end && end != null) {
-      if (start.isSame(end, 'hour')) {
-        const minMinute = start.minute()
-        notAvailableMinutes = range(0, minMinute + 1)
-      }
-    }
-
-    if (type === 'start') {
-      return {}
-    }
-    return {
-      disabledMinutes: () => notAvailableMinutes
-    }
-  }
-
-  const updateRangeDate = (dates) => {
-    const startDate = dates[0]
-    const endDate = dates[1]
-    dispatchEditAction({ type: 'START_DATE', value: startDate?.toDate() as Date })
-    dispatchEditAction({ type: 'END_DATE', value: endDate?.toDate() as Date })
-    // dispatch({ type: 'DATES', start: startDate?.toDate(), end: endDate?.toDate() })
-    // setHasReset(false)
-  }
-
   useEffect(() => {
     if (Object.entries(orgOptions).length === 1)
       dispatchEditAction({
@@ -145,11 +84,6 @@ export function MissionDialog({
         }
       })
   }, [orgOptions, dispatchEditAction])
-
-  useEffect(() => {
-    moment.locale(language)
-    setLocale(language === it_IT.locale ? it_IT : en_GB)
-  }, [language])
 
   return (
     <Grid container direction="column">
@@ -172,72 +106,13 @@ export function MissionDialog({
           inputProps={{ maxLength: 255 }}
         />
       </Grid>
-      <Grid container direction="row">
-        {/* <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DateTimePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={dateFormat}
-            margin="normal"
-            id="start-date-picker-inline"
-            label={t('common:date_picker_test_start')}
-            value={editState.startDate}
-            onChange={(d) => dispatchEditAction({ type: 'START_DATE', value: d as Date })}
-            disableFuture={false}
-            autoOk={true}
-            ampm={false}
-            clearable={true}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-          <DateTimePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={dateFormat}
-            margin="normal"
-            id="end-date-picker-inline"
-            label={t('common:date_picker_test_end')}
-            value={editState.endDate}
-            onChange={(d) => dispatchEditAction({ type: 'END_DATE', value: d as Date })}
-            disableFuture={false}
-            autoOk={true}
-            ampm={false}
-            error={editError && !editState.endDate}
-            helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-            minDate={editState.startDate}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-        </MuiPickersUtilsProvider> */}
-        <Grid item>
-          <LocaleProvider locale={locale}>
-            <RangePicker
-              disabledTime={disabledRangeTime}
-              onChange={updateRangeDate}
-              showTime={{
-                defaultValue: [
-                  moment(moment(editState.startDate), 'HH:mm'),
-                  moment(moment(editState.endDate), 'HH:mm')
-                ],
-                format: 'HH:mm'
-              }}
-              defaultValue={[
-                moment(editState.startDate),
-                editState.endDate !== null ? moment(editState.endDate) : moment().endOf('day')
-              ]}
-              value={[
-                moment(editState.startDate),
-                editState.endDate !== null ? moment(editState.endDate) : moment().endOf('day')
-              ]}
-              allowClear
-              format="ddd DD MMMM YYYY - HH:mm"
-              style={{ width: 470 }}
-              locale={locale}
-            />
-          </LocaleProvider>
-        </Grid>
+      <Grid container direction="row" alignItems="center">
+        <RangeDateTimePicker
+          editState={editState}
+          dispatchEditAction={dispatchEditAction}
+          disabledRangePickerTime={false}
+          disabledBeforeToday={true}
+        />
         <Grid item style={{ marginLeft: 16, flex: 1 }}>
           <FormControl
             margin="normal"
