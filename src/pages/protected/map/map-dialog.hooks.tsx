@@ -81,6 +81,7 @@ export type EditActionType = {
   type:
     | 'START_DATE'
     | 'END_DATE'
+    | 'DATES'
     | 'DESCRIPTION'
     | 'COORDINATOR'
     | 'TITLE'
@@ -163,6 +164,12 @@ const editReducer = (currentState: EditStateType, action: EditActionType): EditS
       return {
         ...currentState,
         endDate: action.value as Date
+      }
+    case 'DATES':
+      return {
+        ...currentState,
+        startDate: action.value.start as Date,
+        endDate: action.value.end as Date
       }
     case 'DESCRIPTION':
       return {

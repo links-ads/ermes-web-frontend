@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react'
 
 import {
   Grid,
-  IconButton,
   TextField,
   FormControl,
   InputLabel,
@@ -10,34 +9,20 @@ import {
   Select,
   FormHelperText
 } from '@material-ui/core'
-import TodayIcon from '@material-ui/icons/Today'
-
-import DateFnsUtils from '@date-io/date-fns'
-import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
-
-import useLanguage from '../../../../hooks/use-language.hook'
 import { useTranslation } from 'react-i18next'
 import { GenericDialogProps } from '../map-dialog-edit.component'
 import { CommunicationRestrictionType, CommunicationScopeType } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import { OrganizationDto, OrganizationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../hooks/use-api-handler'
+import RangeDateTimePicker from '../../../../common/range-date-time-picker'
 
 export function CommunicationDialog({
   editState,
   dispatchEditAction,
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
-  const { dateFormat } = useLanguage()
   const { t } = useTranslation(['maps', 'labels'])
-  const endAdornment = useMemo(() => {
-    return (
-      <IconButton>
-        <TodayIcon />
-      </IconButton>
-    )
-  }, [])
-
   const scopeTypes = [CommunicationScopeType.PUBLIC, CommunicationScopeType.RESTRICTED]
   const restrictedTypes = [
     CommunicationRestrictionType.CITIZEN,
@@ -63,44 +48,7 @@ export function CommunicationDialog({
   return (
     <Grid container direction="column">
       <Grid container direction="row">
-        <MuiPickersUtilsProvider utils={DateFnsUtils}>
-          <DateTimePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={dateFormat}
-            margin="normal"
-            id="start-date-picker-inline"
-            label={t('common:date_picker_test_start')}
-            value={editState.startDate}
-            onChange={(d) => dispatchEditAction({ type: 'START_DATE', value: d as Date })}
-            disableFuture={false}
-            autoOk={true}
-            ampm={false}
-            clearable={true}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-          <DateTimePicker
-            style={{ paddingTop: 0, marginTop: 0 }}
-            variant="inline"
-            format={dateFormat}
-            margin="normal"
-            id="end-date-picker-inline"
-            label={t('common:date_picker_test_end')}
-            value={editState.endDate}
-            onChange={(d) => dispatchEditAction({ type: 'END_DATE', value: d as Date })}
-            disableFuture={false}
-            autoOk={true}
-            ampm={false}
-            error={editError}
-            helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-            minDate={editState.startDate}
-            InputProps={{
-              endAdornment: endAdornment
-            }}
-          />
-        </MuiPickersUtilsProvider>
+        <RangeDateTimePicker editState={editState} dispatchEditAction={dispatchEditAction} />
       </Grid>
       <Grid container style={{ marginBottom: 16, width: '100%' }}>
         <FormControl margin="normal" style={{ minWidth: '30%', marginRight: '10px' }}>
