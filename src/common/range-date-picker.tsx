@@ -9,6 +9,7 @@ import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import '../pages/protected/dashboard/filters.css'
 import { useTranslation } from 'react-i18next'
+import { _MS_PER_DAY } from '../utils/utils.common'
 
 const useStyles = makeStyles((theme) => ({
   label: {
@@ -16,61 +17,56 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-const RangeDateTimePicker: React.FC<{
+const RangeDatePicker: React.FC<{
   editState
   dispatchEditAction
+  maxDaysRangeDate?
 }> = (props) => {
-  const { RangePicker } = DatePicker
   const classes = useStyles()
   const { t, i18n } = useTranslation(['social', 'filters'])
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
-  const { editState, dispatchEditAction } = props as any
+  const { editState, dispatchEditAction, maxDaysRangeDate } = props as any
   const [startDate, setStartDate] = useState<Date>(editState.startDate)
   const [endDate, setEndDate] = useState<Date>(editState.endDate)
 
-  const range = (start, end) => {
-    const result: any[] = []
-    for (let i = start; i < end; i++) {
-      result.push(i)
+  const disabledStartDate = (startValue) => {
+    if (!startValue || !endDate) {
+      return false
     }
-    return result
+    return startValue.valueOf() > endDate.valueOf()
   }
 
-  const disabledDate = (current) => {
-    // Can not select days before today
-    return current && current < moment().startOf('day')
+  const disabledEndDate = (endValue) => {
+    if (!endValue || !startDate) {
+      return false
+    }
+
+    const maxDaysRangeDateValue = maxDaysRangeDate !== null ? maxDaysRangeDate : 0
+
+    return (
+      endValue.valueOf() <= startDate.valueOf() ||
+      endValue.valueOf() > startDate.valueOf() + maxDaysRangeDateValue * _MS_PER_DAY
+    )
   }
 
-  const disabledRangeTime = (current, type) => {
-    let notAvailableMinutes: number[] = []
-    const start = current[0]
-    const end = current[1]
-    if (start && start != null && end && end != null) {
-      if (start.isSame(end, 'hour')) {
-        const minMinute = start.minute()
-        notAvailableMinutes = range(0, minMinute + 1)
-      }
-    }
-
-    if (type === 'start') {
-      return {}
-    }
-    return {
-      disabledMinutes: () => notAvailableMinutes
-    }
-  }
-
-  const updateRangeDate = (dates) => {
-    const startDate = dates[0]
-    const endDate = dates[1]
-    setStartDate(startDate?.toDate() as Date)
-    setEndDate(endDate?.toDate() as Date)
+  const onStartChange = (value) => {
+    let startD = new Date((value?.toDate() as Date).setHours(0, 0, 0, 0))
+    setStartDate(startD)
     dispatchEditAction({
-      type: 'DATES',
-      value: { start: startDate?.toDate() as Date, end: endDate?.toDate() as Date }
+      type: 'START_DATE',
+      value: startD
+    })
+  }
+
+  const onEndChange = (value) => {
+    let endD = new Date((value?.toDate() as Date).setHours(23, 59, 59, 0))
+    setEndDate(endD)
+    dispatchEditAction({
+      type: 'END_DATE',
+      value: endD
     })
   }
 
@@ -111,23 +107,28 @@ const RangeDateTimePicker: React.FC<{
           </Grid>
         </Grid>
         <LocaleProvider locale={locale}>
-          <RangePicker
+          <DatePicker
             getCalendarContainer={(trigger) => trigger.parentNode as HTMLElement}
-            disabledDate={disabledDate}
-            disabledTime={disabledRangeTime}
-            onChange={updateRangeDate}
-            showTime={{
-              defaultValue: [moment(moment(startDate), 'HH:mm'), moment(moment(endDate), 'HH:mm')],
-              format: 'HH:mm'
-            }}
-            defaultValue={[
-              moment(startDate),
-              endDate !== null ? moment(endDate) : moment().endOf('day')
-            ]}
-            value={[moment(startDate), endDate !== null ? moment(endDate) : moment().endOf('day')]}
+            disabledDate={disabledStartDate}
+            format={'ddd DD MMMM YYYY'}
+            placeholder={t('social:starting_date')}
+            value={moment(startDate)}
+            defaultValue={moment(startDate)}
+            onChange={onStartChange}
             allowClear
-            format={'ddd DD MMMM YYYY - HH:mm'}
-            style={{ width: 560 }}
+            style={{ width: 280 }}
+            locale={locale}
+          />
+          <DatePicker
+            getCalendarContainer={(trigger) => trigger.parentNode as HTMLElement}
+            disabledDate={disabledEndDate}
+            format={'ddd DD MMMM YYYY'}
+            placeholder={t('social:end_date')}
+            value={endDate !== null ? moment(endDate) : null}
+            defaultValue={endDate !== null ? moment(endDate) : null}
+            onChange={onEndChange}
+            allowClear
+            style={{ width: 280 }}
             locale={locale}
           />
         </LocaleProvider>
@@ -143,4 +144,4 @@ const RangeDateTimePicker: React.FC<{
   )
 }
 
-export default RangeDateTimePicker
+export default RangeDatePicker

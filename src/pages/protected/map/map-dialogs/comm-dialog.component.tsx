@@ -48,12 +48,7 @@ export function CommunicationDialog({
   return (
     <Grid container direction="column">
       <Grid container direction="row">
-        <RangeDateTimePicker
-          editState={editState}
-          dispatchEditAction={dispatchEditAction}
-          disabledRangePickerTime={false}
-          disabledBeforeToday={true}
-        />
+        <RangeDateTimePicker editState={editState} dispatchEditAction={dispatchEditAction} />
       </Grid>
       <Grid container style={{ marginBottom: 16, width: '100%' }}>
         <FormControl margin="normal" style={{ minWidth: '30%', marginRight: '10px' }}>

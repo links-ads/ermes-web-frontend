@@ -107,12 +107,7 @@ export function MissionDialog({
         />
       </Grid>
       <Grid container direction="row" alignItems="center">
-        <RangeDateTimePicker
-          editState={editState}
-          dispatchEditAction={dispatchEditAction}
-          disabledRangePickerTime={false}
-          disabledBeforeToday={true}
-        />
+        <RangeDateTimePicker editState={editState} dispatchEditAction={dispatchEditAction} />
         <Grid item style={{ marginLeft: 16, flex: 1 }}>
           <FormControl
             margin="normal"

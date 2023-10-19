@@ -4,7 +4,6 @@ import {
   FormControl,
   TextField,
   Grid,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
@@ -12,10 +11,6 @@ import {
   ListItemText,
   FormHelperText
 } from '@material-ui/core'
-import TodayIcon from '@material-ui/icons/Today'
-
-import { MuiPickersUtilsProvider, DatePicker } from '@material-ui/pickers'
-import DateFnsUtils from '@date-io/date-fns'
 import { GenericDialogProps } from '../../map-dialog-edit.component'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
@@ -28,7 +23,7 @@ import MapRequestDrawFeature from './map-request-draw-feature/map-request-draw-f
 import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
-import RangeDateTimePicker from '../../../../../common/range-date-time-picker'
+import RangeDatePicker from '../../../../../common/range-date-picker'
 
 type MapFeature = CulturalProps
 
@@ -39,14 +34,6 @@ export function FiredAndBurnedAreasDialog({
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
   const { t } = useTranslation(['maps', 'labels'])
-  const endAdornment = useMemo(() => {
-    return (
-      <IconButton>
-        <TodayIcon />
-      </IconButton>
-    )
-  }, [])
-
   const { mapSelectionCompleted, mapArea, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
@@ -180,57 +167,10 @@ export function FiredAndBurnedAreasDialog({
           />
         </Grid>
         <Grid container direction="row" justifyContent="space-around" alignItems="center">
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <DatePicker
-              style={{ paddingTop: 0, marginTop: 0 }}
-              variant="inline"
-              format={'dd/MM/yyyy'}
-              margin="normal"
-              id="start-date-picker-inline"
-              label={t('common:date_picker_test_start')}
-              value={editState.startDate}
-              onChange={(d) => {
-                if (d != null) {
-                  let d1 = new Date(d?.setHours(0, 0, 0, 0))
-                  return dispatchEditAction({ type: 'START_DATE', value: d1 as Date })
-                }
-              }}
-              disableFuture={false}
-              autoOk={true}
-              InputProps={{
-                endAdornment: endAdornment
-              }}
-            />
-            <DatePicker
-              style={{ paddingTop: 0, marginTop: 0 }}
-              variant="inline"
-              format={'dd/MM/yyyy'}
-              margin="normal"
-              id="end-date-picker-inline"
-              label={t('common:date_picker_test_end')}
-              value={editState.endDate}
-              onChange={(d) => {
-                if (d != null) {
-                  let d1 = new Date(d?.setHours(23, 59, 59, 0))
-                  return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
-                }
-              }}
-              disableFuture={false}
-              autoOk={true}
-              error={editError && !editState.endDate}
-              helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-              minDate={editState.startDate}
-              maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
-              InputProps={{
-                endAdornment: endAdornment
-              }}
-            />
-          </MuiPickersUtilsProvider>
-          <RangeDateTimePicker
+          <RangeDatePicker
             editState={editState}
             dispatchEditAction={dispatchEditAction}
-            disabledRangePickerTime={true}
-            disabledBeforeToday={false}
+            maxDaysRangeDate={30}
           />
         </Grid>
         <Grid container style={{ marginBottom: 16, width: '100%' }}>
