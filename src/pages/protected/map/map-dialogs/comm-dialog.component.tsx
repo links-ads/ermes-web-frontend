@@ -46,7 +46,7 @@ export function CommunicationDialog({
   }, [orgApiHandlerState])
 
   return (
-    <Grid container direction="column">
+    <Grid container direction="column" style={{ minHeight: 330 }}>
       <Grid container direction="row">
         <RangeDateTimePicker editState={editState} dispatchEditAction={dispatchEditAction} />
       </Grid>
