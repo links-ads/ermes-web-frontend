@@ -51,12 +51,18 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, getBboxSizeFromZoom, paintMapWithLayer, removeLayerFromMap, removePolyToMap } from '../../../common/map/map-common'
+import {
+  drawPolyToMap,
+  getBboxSizeFromZoom,
+  paintMapWithLayer,
+  removeLayerFromMap,
+  removePolyToMap
+} from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
+import { ButtonGroup, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -65,15 +71,18 @@ import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
 import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
-import { areClickedPointAndSelectedCardEqual, findFeatureByTypeAndId } from '../../../hooks/use-map-drawer.hook'
-import { wktToGeoJSON } from "@terraformer/wkt"
+import {
+  areClickedPointAndSelectedCardEqual,
+  findFeatureByTypeAndId
+} from '../../../hooks/use-map-drawer.hook'
+import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
 // Style for the geolocation controls
 const geolocateStyle: React.CSSProperties = {
   position: 'absolute',
-  top: 0,
-  left: 0,
+  top: 33,
+  right: 0,
   margin: 10
 }
 
@@ -96,10 +105,10 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      top: 225,
+      top: 350,
       right: '10px',
       zIndex: 99,
-      width: 27, 
+      width: 27,
       height: 27,
       minHeight: 27,
       backgroundColor: theme.palette.secondary.main,
@@ -135,8 +144,8 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     mapCoorZoom: {
       zIndex: 97,
-      top: 10, 
-      left: 56, 
+      top: 10,
+      right: 10,
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
@@ -227,10 +236,9 @@ export function MapLayout(props) {
   const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
 
   useEffect(() => {
-    if(selectedLayers && selectedLayers.length > 0) {
+    if (selectedLayers && selectedLayers.length > 0) {
       setSelectedLayer(selectedLayers[selectedLayers.length - 1])
-    }
-    else {
+    } else {
       setSelectedLayer(null)
     }
   }, [selectedLayers])
@@ -259,7 +267,7 @@ export function MapLayout(props) {
 
   const [geoLayerState, setGeoLayerState] = useState<any>({ tileId: null, tileSource: {} })
 
-  const [ searchHereActive, setSearchHereActive ] = useState<boolean>(false)
+  const [searchHereActive, setSearchHereActive] = useState<boolean>(false)
 
   useEffect(
     () => {
@@ -450,11 +458,7 @@ export function MapLayout(props) {
       } else if (operation === 'get') {
         if (type) {
           if (type === 'Timeseries') {
-            if (
-              selectedLayer &&
-              selectedLayer.activeLayer &&
-              data
-            ) {
+            if (selectedLayer && selectedLayer.activeLayer && data) {
               addLayerTimeseries(data, selectedLayer)
             } else {
               displayWarningSnackbar(t('maps:timeseriesNoLayer'))
@@ -471,8 +475,7 @@ export function MapLayout(props) {
             }
           }
         }
-      } 
-      else {
+      } else {
         if (
           type &&
           ['Report', 'ReportRequest', 'Mission', 'Communication', 'MapRequest'].includes(type)
@@ -487,7 +490,13 @@ export function MapLayout(props) {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [addLayerTimeseries, displayWarningSnackbar, selectedLayer, setRightClickedPoint, startFeatureEdit]
+    [
+      addLayerTimeseries,
+      displayWarningSnackbar,
+      selectedLayer,
+      setRightClickedPoint,
+      startFeatureEdit
+    ]
   )
 
   // Used when entering on an iteractive layer with the mouse
@@ -645,7 +654,7 @@ export function MapLayout(props) {
             longitude: goToCoord.longitude,
             latitude: goToCoord.latitude
           }
-        )        
+        )
       }
       setGoToCoord(undefined)
     }
@@ -786,18 +795,18 @@ export function MapLayout(props) {
     (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
       ? t('social:map_latitude') +
         ': ' +
-        mapHeadDrawerCoordinates[1].toFixed(2) +
+        mapHeadDrawerCoordinates[1].toFixed(6) +
         ' | ' +
         t('social:map_longitude') +
         ': ' +
-        mapHeadDrawerCoordinates[0].toFixed(2)
+        mapHeadDrawerCoordinates[0].toFixed(6)
       : t('social:map_latitude') +
         ': ' +
-        viewport.latitude.toFixed(2) +
+        viewport.latitude.toFixed(6) +
         ' | ' +
         t('social:map_longitude') +
         ': ' +
-        viewport.longitude.toFixed(2)) +
+        viewport.longitude.toFixed(6)) +
     ' | ' +
     t('social:map_zoom') +
     ': ' +
@@ -805,7 +814,11 @@ export function MapLayout(props) {
 
   const onViewportChangeHandler = (nextViewport) => {
     setViewport(nextViewport)
-    if (viewport.latitude !== nextViewport.latitude || viewport.longitude !== nextViewport.longitude || viewport.zoom !== nextViewport.zoom){
+    if (
+      viewport.latitude !== nextViewport.latitude ||
+      viewport.longitude !== nextViewport.longitude ||
+      viewport.zoom !== nextViewport.zoom
+    ) {
       setSearchHereActive(true)
     }
   }
@@ -898,15 +911,18 @@ export function MapLayout(props) {
           <Layer {...hoveredPointPin} />
           <Layer {...clickedPointPin} />
         </Source>
+        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
+        
         {/* Map controls */}
-        <GeolocateControl
-          // ref={geolocationControlsRef}
-          label={t('maps:show_my_location')}
-          style={geolocateStyle}
-          positionOptions={{ enableHighAccuracy: true }}
-          trackUserLocation={true}
-        />
-        <div className="controls-contaniner" style={{ top: 0 }}>
+        <div className="controls-contaniner" style={{ top: 33 }}>
+          <GeolocateControl
+            // ref={geolocationControlsRef}
+            label={t('maps:show_my_location')}
+            //style={geolocateStyle}
+            className='mapboxgl-ctrl-geolocate'
+            positionOptions={{ enableHighAccuracy: true }}
+            trackUserLocation={true}
+          />
           <NavigationControl />
           <MapStyleToggle
             mapViewRef={mapViewRef}
@@ -948,12 +964,12 @@ export function MapLayout(props) {
             visibility={props.layersSelectVisibility}
             setVisibility={props.setLayersSelectVisibility}
           />
-          <DownloadButton 
+          <DownloadButton
             downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
           />
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
-      )}      
+      )}
       <Collapse in={legendToggle}>
         <Card className={classes.legend_container}>
           <CardContent style={{ padding: 12 }}>
@@ -966,7 +982,9 @@ export function MapLayout(props) {
                     }}
                     className={classes.legend_dot}
                   ></div>
-                  <div className={classes.legend_text}>&nbsp; {t('maps:legend_' + key.toLocaleLowerCase())} </div>
+                  <div className={classes.legend_text}>
+                    &nbsp; {t('maps:legend_' + key.toLocaleLowerCase())}{' '}
+                  </div>
                 </div>
               )
             })}
@@ -987,9 +1005,6 @@ export function MapLayout(props) {
       >
         <InfoIcon />
       </Fab>
-      <Chip className={classes.mapCoorZoom} 
-        label={mapCoordinatesZoom}
-      />
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

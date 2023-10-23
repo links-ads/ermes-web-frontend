@@ -56,6 +56,8 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
 
   /** Controls customization */
   .mapboxgl-ctrl.mapboxgl-ctrl-group {
+    background: ${(props) => props.theme.palette.background.paper};
+    border-radius: 12px;
     box-shadow: none;
     & button {
       background: ${(props) => props.theme.palette.background.paper};
@@ -113,7 +115,6 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
         }
       }
     }
-    background: transparent;
   }
 
   .mapboxgl-ctrl-icon.mapboxgl-ctrl-geolocate {

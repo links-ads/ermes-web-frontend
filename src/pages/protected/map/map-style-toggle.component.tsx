@@ -18,13 +18,13 @@ const MapStyleButtonContainer = withStyles(
   (theme) => ({
     root: {
       position: 'absolute',
-      top: 164,
+      top: 187,
       right: 0,
       [theme.breakpoints.down('sm')]: {
         top: 340
       },
       [theme.breakpoints.between('sm', 'md')]: {
-        top: 164
+        top: 187
       }
     }
   }),
