@@ -10,8 +10,8 @@ const DrawerToggleContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 33px;
-  left: 0px;
+  top: 300px;
+  right: 0px;
   margin: 10px;
 `
 

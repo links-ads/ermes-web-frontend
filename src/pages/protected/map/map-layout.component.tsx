@@ -51,7 +51,13 @@ import { MapStyleToggle } from './map-style-toggle.component'
 import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import mapboxgl from 'mapbox-gl'
 import { EmergencyProps, EmergencyColorMap } from './api-data/emergency.component'
-import { drawPolyToMap, getBboxSizeFromZoom, paintMapWithLayer, removeLayerFromMap, removePolyToMap } from '../../../common/map/map-common'
+import {
+  drawPolyToMap,
+  getBboxSizeFromZoom,
+  paintMapWithLayer,
+  removeLayerFromMap,
+  removePolyToMap
+} from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
@@ -72,14 +78,6 @@ import {
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 
-// Style for the geolocation controls
-const geolocateStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  margin: 10
-}
-
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
 
@@ -99,7 +97,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      top: 225,
+      top: 350,
       right: '10px',
       zIndex: 99,
       width: 27,
@@ -119,7 +117,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      top: 225,
+      top: 350,
       right: 10
     },
     legend_row: {
@@ -139,10 +137,20 @@ const useStyles = makeStyles((theme: Theme) =>
     mapCoorZoom: {
       zIndex: 97,
       top: 10,
-      left: 56,
+      right: 10,
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
+    },
+    layersAndDownload: {
+      top: 230,
+      position: 'absolute',
+      right: 0,
+      margin: 10,
+      background: '#333',
+      width: 29,
+      height: 65,
+      borderRadius: 12
     }
   })
 )
@@ -789,18 +797,18 @@ export function MapLayout(props) {
     (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
       ? t('social:map_latitude') +
         ': ' +
-        mapHeadDrawerCoordinates[1].toFixed(2) +
+        mapHeadDrawerCoordinates[1].toFixed(6) +
         ' | ' +
         t('social:map_longitude') +
         ': ' +
-        mapHeadDrawerCoordinates[0].toFixed(2)
+        mapHeadDrawerCoordinates[0].toFixed(6)
       : t('social:map_latitude') +
         ': ' +
-        viewport.latitude.toFixed(2) +
+        viewport.latitude.toFixed(6) +
         ' | ' +
         t('social:map_longitude') +
         ': ' +
-        viewport.longitude.toFixed(2)) +
+        viewport.longitude.toFixed(6)) +
     ' | ' +
     t('social:map_zoom') +
     ': ' +
@@ -905,15 +913,16 @@ export function MapLayout(props) {
           <Layer {...hoveredPointPin} />
           <Layer {...clickedPointPin} />
         </Source>
+        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
         {/* Map controls */}
-        <GeolocateControl
-          // ref={geolocationControlsRef}
-          label={t('maps:show_my_location')}
-          style={geolocateStyle}
-          positionOptions={{ enableHighAccuracy: true }}
-          trackUserLocation={true}
-        />
-        <div className="controls-contaniner" style={{ top: 0 }}>
+        <div className="controls-container" style={{ top: 40, height: 174 }}>
+          <GeolocateControl
+            // ref={geolocationControlsRef}
+            label={t('maps:show_my_location')}
+            className="mapboxgl-ctrl-geolocate"
+            positionOptions={{ enableHighAccuracy: true }}
+            trackUserLocation={true}
+          />
           <NavigationControl />
           <MapStyleToggle
             mapViewRef={mapViewRef}
@@ -922,7 +931,7 @@ export function MapLayout(props) {
             mapChangeSource={0}
           ></MapStyleToggle>
         </div>
-        <div className="controls-contaniner" style={{ bottom: 16 }}>
+        <div className="controls-container" style={{ bottom: 16 }}>
           <ScaleControl />
         </div>
         {/* Hover Popup */}
@@ -951,13 +960,15 @@ export function MapLayout(props) {
             setToggleActiveFilterTab={props.setToggleActiveFilterTab}
             toggleActiveFilterTab={props.toggleActiveFilterTab}
           ></FilterButton> */}
-          <LayersButton
-            visibility={props.layersSelectVisibility}
-            setVisibility={props.setLayersSelectVisibility}
-          />
-          <DownloadButton
-            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
-          />
+          <div className={classes.layersAndDownload}>
+            <LayersButton
+              visibility={props.layersSelectVisibility}
+              setVisibility={props.setLayersSelectVisibility}
+            />
+            <DownloadButton
+              downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
+            />
+          </div>
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
       )}
@@ -996,7 +1007,6 @@ export function MapLayout(props) {
       >
         <InfoIcon />
       </Fab>
-      <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

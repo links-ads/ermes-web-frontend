@@ -2,15 +2,17 @@ import styled from 'styled-components'
 import { SizeAwareContainer } from '../../../common/size-aware-container.component'
 //line 6 was 104
 export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-container' })`
-  width: 100%;    
+  width: 100%;
   height: 100%;
   flex-grow: 1;
   position: relative;
 
-  .controls-contaniner {
+  .controls-container {
     position: absolute;
     right: 0;
     margin: 10px;
+    background: ${(props) => props.theme.palette.background.paper};
+    border-radius: 12px;
   }
 
   .mapboxgl-popup {
@@ -125,13 +127,13 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
     background: ${(props) => props.theme.palette.background.paper} !important;
   }
 
-  @media screen and (min-width: 600px){
+  @media screen and (min-width: 600px) {
     top: 260px;
   }
-  @media screen and (min-width: 960px){
+  @media screen and (min-width: 960px) {
     top: 210px;
   }
-  @media screen and (min-width: 1280px){
+  @media screen and (min-width: 1280px) {
     top: 43px;
   }
 `
