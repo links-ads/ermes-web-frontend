@@ -159,7 +159,7 @@ const SocialMap = (props) => {
                         <Layer {...CLUSTER_COUNT_LAYER_PROPS} />
                         <Layer {...HOVER_TWEETS_LAYER_PROPS} />
                     </Source>
-                    <div className="controls-contaniner" style={{ top: '0%' }}>
+                    <div className="controls-container" style={{ top: '0%' }}>
                         <NavigationControl />
                         {
                             (props.mapRef.current?.getMap()) &&

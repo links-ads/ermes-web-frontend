@@ -45,26 +45,27 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     speedDialAction: {
       borderRadius: 0,
-      height: 27,
-      width: 27,
-      minHeight: 27
+      height: 25,
+      width: 25,
+      minHeight: 25,
+      backgroundColor: '#fff'
     },
     speedDialIconRoot: {
-      border: `2px solid ${theme.palette.background.paper}`,
+      border: `2px solid #fff`,
       borderRadius: 0,
       boxSizing: 'border-box',
-      height: 27,
-      width: 27,
-      minHeight: 27,
-      '& .MuiAvatar-root': { height: 23, width: 23, minHeight: 23 },
+      height: 23,
+      width: 23,
+      minHeight: 23,
+      '& .MuiAvatar-root': { height: 19, width: 19, minHeight: 19 },
       '& .MuiSpeedDialIcon-iconOpen': { transitionDuration: '0s!important', transform: 'none' }
     },
     speedDialFab: {
       borderRadius: 0,
       border: `2px solid ${theme.palette.background.paper}`,
-      height: 27,
-      width: 27,
-      minHeight: 27
+      height: 25,
+      width: 29,
+      minHeight: 25
     }
   })
 )

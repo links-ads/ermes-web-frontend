@@ -181,7 +181,7 @@ const EventMap = (props) => {
             <Layer {...EVENTS_LAYER_PROPS} />
             <Layer {...CLUSTER_LAYER_PROPS} />
           </Source>
-          <div className="controls-contaniner" style={{ top: '0%' }}>
+          <div className="controls-container" style={{ top: '0%' }}>
             <NavigationControl />
             {mapRef.current?.getMap() && (
               <MapStyleToggle

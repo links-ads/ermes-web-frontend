@@ -23,13 +23,6 @@ import { featureCollection as createFeatureCollection } from '@turf/helpers'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
-// Style for the geolocation controls
-const geolocateStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 45,
-  left: 0,
-  margin: 10
-}
 
 export const lineColors = {
   0: cyan[800],
@@ -45,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
     mapCoorZoom: {
       zIndex: 97,
       top: 10,
-      left: 56,
+      right: 10,
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
@@ -261,11 +254,11 @@ const MapRequestDrawFeature: React.FC<{
   const mapCoordinatesZoom =
     t('social:map_latitude') +
     ': ' +
-    viewport.latitude.toFixed(2) +
+    viewport.latitude.toFixed(6) +
     ' | ' +
     t('social:map_longitude') +
     ': ' +
-    viewport.longitude.toFixed(2) +
+    viewport.longitude.toFixed(6) +
     ' | ' +
     t('social:map_zoom') +
     ': ' +
@@ -517,20 +510,20 @@ const MapRequestDrawFeature: React.FC<{
             </Source>
           )}
           {/* Map controls */}
-          <GeolocateControl
-            label={t('maps:show_my_location')}
-            style={geolocateStyle}
-            positionOptions={{ enableHighAccuracy: true }}
-            trackUserLocation={true}
-          />
-          <div className="controls-contaniner" style={{ top: 0 }}>
+          <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
+          <div className="controls-container" style={{ top: 40 }}>
+            <GeolocateControl
+              label={t('maps:show_my_location')}
+              className="mapboxgl-ctrl-geolocate"
+              positionOptions={{ enableHighAccuracy: true }}
+              trackUserLocation={true}
+            />
             <NavigationControl />
           </div>
-          <div className="controls-contaniner" style={{ bottom: 0 }}>
+          <div className="controls-container" style={{ bottom: 0 }}>
             <ScaleControl />
           </div>
-        </InteractiveMap>
-        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
+        </InteractiveMap>        
       </MapContainer>
     )
   )

@@ -11,9 +11,7 @@ const DownloadButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
 })`
   position: absolute;
-  top: 240px;
-  right: 0px;
-  margin: 10px;
+  top: 29px;
 `
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }

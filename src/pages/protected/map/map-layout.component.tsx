@@ -62,7 +62,7 @@ import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
 import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { ButtonGroup, Chip, Collapse, createStyles, Fab } from '@material-ui/core'
+import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
 import InfoIcon from '@material-ui/icons/Info'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
@@ -77,14 +77,6 @@ import {
 } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
-
-// Style for the geolocation controls
-const geolocateStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: 33,
-  right: 0,
-  margin: 10
-}
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -125,7 +117,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      top: 225,
+      top: 350,
       right: 10
     },
     legend_row: {
@@ -149,6 +141,16 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'absolute',
       color: '#fff',
       backgroundColor: '#333'
+    },
+    layersAndDownload: {
+      top: 230,
+      position: 'absolute',
+      right: 0,
+      margin: 10,
+      background: '#333',
+      width: 29,
+      height: 65,
+      borderRadius: 12
     }
   })
 )
@@ -912,14 +914,12 @@ export function MapLayout(props) {
           <Layer {...clickedPointPin} />
         </Source>
         <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
-        
         {/* Map controls */}
-        <div className="controls-contaniner" style={{ top: 33 }}>
+        <div className="controls-container" style={{ top: 40, height: 174 }}>
           <GeolocateControl
             // ref={geolocationControlsRef}
             label={t('maps:show_my_location')}
-            //style={geolocateStyle}
-            className='mapboxgl-ctrl-geolocate'
+            className="mapboxgl-ctrl-geolocate"
             positionOptions={{ enableHighAccuracy: true }}
             trackUserLocation={true}
           />
@@ -931,7 +931,7 @@ export function MapLayout(props) {
             mapChangeSource={0}
           ></MapStyleToggle>
         </div>
-        <div className="controls-contaniner" style={{ bottom: 16 }}>
+        <div className="controls-container" style={{ bottom: 16 }}>
           <ScaleControl />
         </div>
         {/* Hover Popup */}
@@ -960,13 +960,15 @@ export function MapLayout(props) {
             setToggleActiveFilterTab={props.setToggleActiveFilterTab}
             toggleActiveFilterTab={props.toggleActiveFilterTab}
           ></FilterButton> */}
-          <LayersButton
-            visibility={props.layersSelectVisibility}
-            setVisibility={props.setLayersSelectVisibility}
-          />
-          <DownloadButton
-            downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
-          />
+          <div className={classes.layersAndDownload}>
+            <LayersButton
+              visibility={props.layersSelectVisibility}
+              setVisibility={props.setLayersSelectVisibility}
+            />
+            <DownloadButton
+              downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
+            />
+          </div>
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
         </>
       )}
