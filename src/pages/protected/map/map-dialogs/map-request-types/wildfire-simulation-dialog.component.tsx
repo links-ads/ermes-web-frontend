@@ -16,20 +16,16 @@ import {
   FormHelperText,
   Tooltip,
   ListItemText,
-  Checkbox
+  Checkbox,
+  makeStyles
 } from '@material-ui/core'
-import TodayIcon from '@material-ui/icons/Today'
 import InfoIcon from '@material-ui/icons/Info'
-
-import { MuiPickersUtilsProvider, DateTimePicker } from '@material-ui/pickers'
-import DateFnsUtils from '@date-io/date-fns'
 import { GenericDialogProps } from '../../map-dialog-edit.component'
 import { useTranslation } from 'react-i18next'
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../../hooks/use-api-handler'
 import { _MS_PER_DAY } from '../../../../../utils/utils.common'
-import useLanguage from '../../../../../hooks/use-language.hook'
 import { AddCircle, Delete, Gesture, ScatterPlot, Timeline } from '@material-ui/icons'
 import { MapMode, MapStateContextProvider } from '../../map.context'
 import MapRequestDrawFeature, {
@@ -40,8 +36,21 @@ import { FireBreakType } from '../../map-dialog.hooks'
 import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
+import { DatePicker, LocaleProvider } from 'antd'
+import { Locale } from 'antd/es/locale-provider'
+import moment from 'moment'
+import it_IT from 'antd/es/locale/it_IT'
+import en_GB from 'antd/es/locale/en_GB'
+import 'moment/locale/it'
+import 'moment/locale/en-gb'
 
 type MapFeature = CulturalProps
+
+const useStyles = makeStyles((theme) => ({
+  label: {
+    color: 'rgba(255, 255, 255, 0.7)'
+  }
+}))
 
 export function WildFireSimulationDialog({
   operationType,
@@ -49,17 +58,19 @@ export function WildFireSimulationDialog({
   dispatchEditAction,
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
-  const { dateFormat } = useLanguage()
-  const { t } = useTranslation(['maps', 'labels'])
-  const endAdornment = useMemo(() => {
-    return (
-      <IconButton>
-        <TodayIcon />
-      </IconButton>
-    )
-  }, [])
-
-  const { mapSelectionCompleted, mapArea, boundaryConditions, type } = editState
+  const classes = useStyles()
+  const { t, i18n } = useTranslation(['maps', 'labels', 'filters', 'social'])
+  const { language } = i18n
+  const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
+  const {
+    mapSelectionCompleted,
+    mapArea,
+    boundaryConditions,
+    type,
+    startDate,
+    endDate,
+    hoursOfProjection
+  } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
     useState<string>('mapSelectionInfoMessage')
@@ -140,8 +151,6 @@ export function WildFireSimulationDialog({
     }
   }, [mapArea])
 
-  const { startDate, hoursOfProjection } = editState
-
   const [wildfireMapMode, setWildfireMapMode] = useState<MapMode>('editPoint')
   const [boundaryConditionIdx, setBoundaryConditionIdx] = useState<number>(0)
   const [fireBreakType, setFireBreakType] = useState<string>('')
@@ -166,6 +175,14 @@ export function WildFireSimulationDialog({
     return endDate
   }
 
+  const onStartChange = (value) => {
+    let startD = new Date(value?.toDate() as Date)
+    dispatchEditAction({
+      type: 'START_DATE',
+      value: startD
+    })
+  }
+
   useEffect(() => {
     if (!startDate || !hoursOfProjection) return
     const endDateTime = getEndDateTime(startDate, hoursOfProjection)
@@ -178,6 +195,11 @@ export function WildFireSimulationDialog({
       .filter((e) => e).length
     setBoundaryLinesTot(tot)
   }, [boundaryConditions])
+
+  useEffect(() => {
+    moment.locale(language)
+    setLocale(language === it_IT.locale ? it_IT : en_GB)
+  }, [language])
 
   /**
    * object that represents the list elements in the createmaprequest layers dropdown;
@@ -255,54 +277,45 @@ export function WildFireSimulationDialog({
             />
           </Grid>
           <Grid item style={{ marginLeft: 8 }}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <DateTimePicker
-                style={{ paddingTop: 0, marginTop: 0 }}
-                variant="inline"
-                format={dateFormat}
-                margin="normal"
-                id="start-date-picker-inline"
-                label={t('common:date_picker_test_start')}
-                value={editState.startDate}
-                onChange={(d) => {
-                  if (d != null) {
-                    return dispatchEditAction({ type: 'START_DATE', value: d as Date })
-                  }
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <label className={classes.label}>{t('social:starting_date')}</label>
+              </Grid>
+              <Grid item xs={6}>
+                <label className={classes.label}>{t('social:end_date')}</label>
+              </Grid>
+            </Grid>
+            <LocaleProvider locale={locale}>
+              <DatePicker
+                getCalendarContainer={(trigger) => trigger.parentNode as HTMLElement}
+                format={'ddd DD MMMM YYYY - HH:mm'}
+                showTime={{
+                  defaultValue: moment(moment(startDate), 'HH:mm'),
+                  format: 'HH:mm'
                 }}
-                disableFuture={false}
-                autoOk={true}
-                ampm={false}
-                InputProps={{
-                  endAdornment: endAdornment
-                }}
+                placeholder={t('social:starting_date')}
+                value={moment(startDate)}
+                defaultValue={moment(startDate)}
+                onChange={onStartChange}
+                allowClear
+                style={{ width: 245 }}
+                locale={locale}
               />
-              <DateTimePicker
-                style={{ paddingTop: 0, marginTop: 0 }}
-                variant="inline"
-                format={dateFormat}
-                margin="normal"
-                id="end-date-picker-inline"
-                label={t('common:date_picker_test_end')}
-                value={editState.endDate}
-                onChange={(d) => {
-                  if (d != null) {
-                    let d1 = new Date(d?.setHours(23, 59, 59, 0))
-                    return dispatchEditAction({ type: 'END_DATE', value: d1 as Date })
-                  }
+              <DatePicker
+                getCalendarContainer={(trigger) => trigger.parentNode as HTMLElement}
+                format={'ddd DD MMMM YYYY - HH:mm'}
+                showTime={{
+                  defaultValue: moment(moment(endDate), 'HH:mm'),
+                  format: 'HH:mm'
                 }}
-                disableFuture={false}
-                autoOk={true}
-                error={editError && !editState.endDate}
-                helperText={editError && !editState.endDate && t('maps:mandatory_field')}
-                minDate={editState.startDate}
-                maxDate={new Date(new Date(editState.startDate).valueOf() + _MS_PER_DAY * 30)}
-                ampm={false}
+                placeholder={t('social:end_date')}
+                value={editState.endDate !== null ? moment(endDate) : null}
+                defaultValue={editState.endDate !== null ? moment(endDate) : null}
+                style={{ width: 245 }}
+                locale={locale}
                 disabled
-                InputProps={{
-                  endAdornment: endAdornment
-                }}
               />
-            </MuiPickersUtilsProvider>
+            </LocaleProvider>
           </Grid>
         </Grid>
         <Grid container style={{ marginBottom: 16, width: '100%' }}>
