@@ -2,30 +2,34 @@ import { InteractiveMap, PointerEvent } from 'react-map-gl'
 import { PointUpdater, ItemWithLatLng, PointLocation, MapMode } from '../map.context'
 import { Spiderifier } from '../../../../utils/map-spiderifier.utils'
 import mapboxgl from 'mapbox-gl'
-import { addUserClickedPoint, removeUserClickedPoint, POSITION_LAYER_ID, queryHoveredFeature } from '../../../../common/map/map-common';
-import { LayerSettingsState } from '../../../../models/layers/LayerState';
-import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils';
-import { getBboxSizeFromZoom } from '../../../../common/map/map-common';
+import {
+  addUserClickedPoint,
+  removeUserClickedPoint,
+  POSITION_LAYER_ID,
+  queryHoveredFeature
+} from '../../../../common/map/map-common'
+import { LayerSettingsState } from '../../../../models/layers/LayerState'
+import { updatePointFeatureLayerIdFilter } from '../../../../utils/map.utils'
+import { getBboxSizeFromZoom } from '../../../../common/map/map-common'
 
 const CLUSTER_LAYER_ID = 'clusters'
 const GEOJSON_LAYER_IDS = 'unclustered-point'
 const SOURCE_ID = 'emergency-source'
 
-// add position pin at click or db click of the user 
+// add position pin at click or db click of the user
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
-// remove pin if user clicks on it 
+// remove pin if user clicks on it
 const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature) => {
   // check if users is clicking on the position point - if so, remove it
-  const features = map.queryRenderedFeatures(evt.point);
-  if (features && features.length > 0){
-    const userFeatures = features.find( ({layer}) => layer.id === POSITION_LAYER_ID)
-    if (userFeatures){
-      removeUserClickedPoint(map);
+  const features = map.queryRenderedFeatures(evt.point)
+  if (features && features.length > 0) {
+    const userFeatures = features.find(({ layer }) => layer.id === POSITION_LAYER_ID)
+    if (userFeatures) {
+      removeUserClickedPoint(map)
       // reset coordinates (it will show coordinates of viewport)
-      setMapHeadDrawerCoordinates([]);
-    }    
-  }
-  else {
+      setMapHeadDrawerCoordinates([])
+    }
+  } else {
     const [longitude, latitude] = evt.lngLat
     addUserClickedPoint(map, longitude, latitude)
     // show coordinates of the point
@@ -178,18 +182,14 @@ export function onMapLeftClickHandler<T extends object>(
   const clear = (map: mapboxgl.Map) => {
     setLeftClickedFeature(null)
     setRightClickedFeature(null)
-    if (spiderifierRef.current && mapViewRef.current) {  //this if enables the closing of the spider if it is open and user clicks somewhere on the map
+    if (spiderifierRef.current && mapViewRef.current) {
+      //this if enables the closing of the spider if it is open and user clicks somewhere on the map
       spiderifierRef.current.clearSpiders(map)
     }
   }
 
-  // add position point at user's click on the map - do not add in case the user is clicking on feature
-  if (map && features && features.length === 0) {
-    manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
-  } 
-
   if (map && Array.isArray(features) && features.length > 0) {
-    // remove user clicked point 
+    // remove user clicked point
     removeUserClickedPoint(map)
     // Set clicked info
     const layer = features[0]['layer']['id'] as string
@@ -242,18 +242,14 @@ export async function onMapDoubleClickHandler<T extends object>(
   evt: PointerEvent
 ) {
   const map = mapViewRef.current?.getMap()
-  if ((mapMode !== 'browse') || (!evt['leftButton'])) {
+  if (mapMode !== 'browse' || !evt['leftButton']) {
     return
   }
 
   // manage user clicked point
   manageUserClickedPoint(map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature)
 
-  if (
-    selectedLayer &&
-    selectedLayer.activeLayer &&
-    selectedLayer.format === 'NetCDF'
-  ) {
+  if (selectedLayer && selectedLayer.activeLayer && selectedLayer.format === 'NetCDF') {
     evt.preventDefault()
     evt.stopImmediatePropagation()
     addLayerTimeseries(evt.lngLat, selectedLayer)
@@ -284,7 +280,7 @@ export function onMapRightClickHandler<T extends object>(
     // TODO Check
     return
   }
-  
+
   if (mapViewRef.current) {
     const map = mapViewRef.current.getMap()
     // Pad right clicked pixel

@@ -13,7 +13,7 @@ export default function ReportPanel(props) {
   const [repsData, getRepsData, , applyFilterByText, appendSelectedItems] = useReportList()
   const { t } = useTranslation(['common', 'maps', 'social'])
   const [searchText, setSearchText] = useState('')
-  const { selectedItemsList } = props
+  const { selectedItemsList, missionActive } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -116,6 +116,7 @@ export default function ReportPanel(props) {
                   flyToCoords={flyToCoords}
                   selectedCard={props.selectedCard}
                   setSelectedCard={props.setSelectedCard}
+                  missionActive={missionActive}
                 />
               ))}
             </InfiniteScroll>

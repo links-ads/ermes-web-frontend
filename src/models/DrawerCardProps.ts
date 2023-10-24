@@ -8,6 +8,7 @@ class DrawerCardProps {
   flyToCoords: any
   selectedCard: any
   setSelectedCard: any
+  missionActive?: boolean
 
   constructor(key: number) {
     this.key = key
