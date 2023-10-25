@@ -5,11 +5,19 @@ import {
   AccordionSummary,
   FormControl,
   FormGroup,
-  Typography
+  Typography,
+  makeStyles
 } from '@material-ui/core'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import MapRequestAccordionItem from './maprequest-accordion-item.component'
 import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
+
+const useStyles = makeStyles((theme) => ({
+  highlightBorder: {
+    borderColor: theme.palette.secondary.main,
+    borderStyle: 'solid'
+  }
+}))
 
 const MapRequestAccordion: React.FC<{
   getMeta
@@ -19,10 +27,14 @@ const MapRequestAccordion: React.FC<{
   updateMapRequestsSettings
 }> = (props) => {
   const { getMeta, getLegend, map, mapRequestSettings, updateMapRequestsSettings } = props
-
+  const classes = useStyles()
   if (!mapRequestSettings) return <div />
+  const atLeastOneLayerChecked =
+    Object.keys(mapRequestSettings)
+      .map((key) => mapRequestSettings[key].isChecked)
+      .filter((e) => e).length > 0
   return (
-    <Accordion>
+    <Accordion className={atLeastOneLayerChecked ? classes.highlightBorder : undefined}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls="panel1a-content"
