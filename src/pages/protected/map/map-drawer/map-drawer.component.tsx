@@ -3,8 +3,17 @@
 import React, { useEffect, useMemo, useContext, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
+import {
+  CardContent,
+  FormControl,
+  Grid,
+  IconButton,
+  MenuItem,
+  Select,
+  Typography
+} from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import CloseIcon from '@material-ui/icons/Close'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
@@ -46,6 +55,10 @@ const useStyles = makeStyles((theme) => ({
   hiddenTab: {
     display: 'none',
     visibility: 'hidden'
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120
   }
 }))
 
@@ -211,9 +224,14 @@ export default function MapDrawer(props) {
     }
   }, [apiHandlerState])
 
+  const handleSelectChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    updateTabIndex(event.target.value as number)
+  }
+
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     updateTabIndex(newValue)
   }
+
   const handleChangeIndex = (index: number) => {
     updateTabIndex(index)
   }
@@ -246,15 +264,15 @@ export default function MapDrawer(props) {
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
-        <AppBar
+        {/* <AppBar
           position="static"
           color="default"
           style={{
             backgroundColor: theme.palette.primary.main,
             boxShadow: 'none'
           }}
-        >
-          <IconButton
+        > */}
+          {/* <IconButton
             onClick={onClick}
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
@@ -314,8 +332,34 @@ export default function MapDrawer(props) {
               {...a11yProps(6)}
               className={!Station ? classes.hiddenTab : undefined}
             />
-          </Tabs>
-        </AppBar>
+          </Tabs> */}
+          <Grid container direction="row" alignItems='center'>
+            <Grid item xs={10}>
+              <FormControl className={classes.formControl}>
+                <Select autoWidth value={tabValue} onChange={handleSelectChange}>
+                  {Person && <MenuItem value={0}>{t('maps:tab_persons')}</MenuItem>}
+                  {Report && <MenuItem value={1}>{t('maps:tab_reports')}</MenuItem>}
+                  {Mission && <MenuItem value={2}>{t('maps:tab_missions')}</MenuItem>}
+                  {Communication && <MenuItem value={3}>{t('maps:tab_communications')}</MenuItem>}
+                  {MapRequest && <MenuItem value={4}>{t('maps:tab_maprequests')}</MenuItem>}
+                  {Alert && <MenuItem value={5}>{t('maps:tab_alerts')}</MenuItem>}
+                  {Station && <MenuItem value={6}>{t('maps:tab_stations')}</MenuItem>}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={1}></Grid>
+            <Grid item xs={1}>
+              <IconButton
+                onClick={onClick}
+                aria-label="toggle-selection"
+                className="mapboxgl-ctrl-icon"
+                size='small'
+              >
+                <CloseIcon fontSize='small' />
+              </IconButton>
+            </Grid>
+          </Grid>
+        {/* </AppBar> */}
 
         {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
           noData
