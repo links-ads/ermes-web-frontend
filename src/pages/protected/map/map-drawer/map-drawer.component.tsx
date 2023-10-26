@@ -1,17 +1,22 @@
 // Page which manages the tabs in the left drawer
 
-import React, { useEffect, useMemo, useContext, useCallback } from 'react'
+import React, { useEffect, useMemo, useContext, useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { CardContent, Grid, IconButton, Typography } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import {
+  CardContent,
+  FormControl,
+  Grid,
+  IconButton,
+  MenuItem,
+  Select,
+  Typography
+} from '@material-ui/core'
+import CloseIcon from '@material-ui/icons/Close'
 import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
 import AppBar from '@material-ui/core/AppBar'
-import Tabs from '@material-ui/core/Tabs'
-import Tab from '@material-ui/core/Tab'
-import Box from '@material-ui/core/Box'
 
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
@@ -20,15 +25,17 @@ import MissionsPanel from './missions-panel.component'
 import MapRequestsPanel from './map-requests-panel.component'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import useAPIHandler from '../../../../hooks/use-api-handler'
-import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
+import { EntityType, LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import LayerDefinition from '../../../../models/layers/LayerDefinition'
 import { FiltersContext } from '../../../../state/filters.context'
 import AlertPanel from './alerts-panel.component'
 import CamerasPanel from './cameras-panel.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
-import { EmergencyProps } from '../api-data/emergency.component'
+import { EmergencyColorMap, EmergencyProps } from '../api-data/emergency.component'
 import { useMapStateContext } from '../map.context'
 import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
+import SearchBar from '../../../../common/search-bar.component'
+import { TabPanel } from '../../../../common/common.components'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -40,44 +47,39 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 99,
     top: 43
   },
-  indicator: {
-    backgroundColor: '#FFF'
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+    // custom style to remove the underline
+    '& .MuiInput-underline:before': {
+      borderBottom: 'none'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: 'none'
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottom: 'none'
+    }
   },
-  hiddenTab: {
-    display: 'none',
-    visibility: 'hidden'
+  topBar: {
+    marginTop: 5
+  },
+  customSelect: {
+    // custom style to revert order of arrow and text
+    '& svg': {
+      left: 0
+    },
+    '& .MuiSelect-root': {
+      display: 'flex',
+      flexDirection: 'row-reverse',
+      paddingRight: 0
+    },
+    '& .MuiSelect-selectMenu': {
+      position: 'relative',
+      paddingLeft: 25
+    }
   }
 }))
-
-interface TabPanelProps {
-  children?: React.ReactNode
-  dir?: string
-  index: any
-  value: any
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box p={1}>{children}</Box>}
-    </div>
-  )
-}
-
-function a11yProps(index: any) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`
-  }
-}
 
 export default function MapDrawer(props) {
   const classes = useStyles()
@@ -128,6 +130,26 @@ export default function MapDrawer(props) {
     mapDrawerTabVisibility
   // Value to track which tab is selected + functions to handle changes
   const { tabIndex: tabValue, selectedFeatureId, selectedItemsList } = dataState
+  const [selectTextColor, setSelectTextColor] = useState<string>('')
+  const [selectRenderedText, setSelectRenderedText] = useState<string>('')
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [searchText, setSearchText] = useState<string>('')
+  const [prevSearchText, setPrevSearchText] = useState<string>('')
+  const [triggerSearch, setTriggerSearch] = useState<boolean>(false)
+  const [itemsCounter, setItemsCounter] = useState<number | undefined>(undefined)
+
+  // handle the text changes in the search field
+  const handleSearchTextChange = (e) => {
+    setSearchText(e.target.value)
+  }
+
+  // on click of the search button
+  const searchInList = () => {
+    if (searchText !== undefined && searchText != prevSearchText) {
+      setTriggerSearch(true)
+      setPrevSearchText(searchText)
+    }
+  }
 
   const onCardClick = (selectedItemId) => {
     updateCardId(selectedFeatureId === selectedItemId ? '' : selectedItemId)
@@ -192,6 +214,10 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
+    if (!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station) {
+      setIsLoading(false)
+      setSelectRenderedText('')
+    }
   }, [Person, Report, Mission, Communication, MapRequest, Alert, Station, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
@@ -211,9 +237,10 @@ export default function MapDrawer(props) {
     }
   }, [apiHandlerState])
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    updateTabIndex(newValue)
+  const handleSelectChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+    updateTabIndex(event.target.value as number)
   }
+
   const handleChangeIndex = (index: number) => {
     updateTabIndex(index)
   }
@@ -222,6 +249,79 @@ export default function MapDrawer(props) {
   const onClick = function () {
     props.setToggleDrawerTab(false)
   }
+
+  const updateSelectText = (value) => {
+    let renderedText = ''
+    switch (value) {
+      case 0:
+        renderedText = t('maps:tab_persons')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 1:
+        renderedText = t('maps:tab_reports')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 2:
+        renderedText = t('maps:tab_missions')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 3:
+        renderedText = t('maps:tab_communications')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 4:
+        renderedText = t('maps:tab_maprequests')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 5:
+        renderedText = t('maps:tab_alerts')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      case 6:
+        renderedText = t('maps:tab_stations')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
+      default:
+        renderedText = ''
+        break
+    }
+    setSelectRenderedText(renderedText)
+  }
+
+  useEffect(() => {
+    if (!isLoading && itemsCounter !== undefined) {
+      updateSelectText(tabValue)
+    }
+  }, [isLoading, itemsCounter])
+
+  useEffect(() => {
+    switch (tabValue) {
+      case 0:
+        setSelectTextColor(EmergencyColorMap[EntityType.PERSON])
+        break
+      case 1:
+        setSelectTextColor(EmergencyColorMap[EntityType.REPORT])
+        break
+      case 2:
+        setSelectTextColor(EmergencyColorMap[EntityType.MISSION])
+        break
+      case 3:
+        setSelectTextColor(EmergencyColorMap[EntityType.COMMUNICATION])
+        break
+      case 4:
+        setSelectTextColor(EmergencyColorMap[EntityType.MAP_REQUEST])
+        break
+      case 5:
+        setSelectTextColor(EmergencyColorMap[EntityType.ALERT])
+        break
+      case 6:
+        setSelectTextColor(EmergencyColorMap[EntityType.STATION])
+        break
+      default:
+        setSelectTextColor('')
+        break
+    }
+  }, [tabValue])
 
   useEffect(() => {
     if (clickedPoint && clickedPoint !== null && clickedPoint.item) {
@@ -238,7 +338,7 @@ export default function MapDrawer(props) {
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
       <Grid container justifyContent="center">
         <Typography style={{ margin: 4 }} align="center" variant="caption">
-          {t('social:no_results')}
+          {t('maps:activateFilters')}
         </Typography>
       </Grid>
     </CardContent>
@@ -246,76 +346,45 @@ export default function MapDrawer(props) {
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
-        <AppBar
-          position="static"
-          color="default"
-          style={{
-            backgroundColor: theme.palette.primary.main,
-            boxShadow: 'none'
-          }}
-        >
-          <IconButton
-            onClick={onClick}
-            aria-label="toggle-selection"
-            className="mapboxgl-ctrl-icon"
-            style={{ width: '60px', marginLeft: '25px' }}
-            // disabled={disabled}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Tabs
-            value={tabValue}
-            onChange={handleChange}
-            indicatorColor="primary"
-            classes={{ indicator: classes.indicator }}
-            color="white"
-            variant="scrollable"
-            aria-label="full width tabs example"
-          >
-            <Tab
-              value={0}
-              label={t('maps:tab_persons')}
-              {...a11yProps(0)}
-              className={!Person ? classes.hiddenTab : undefined}
+        <Grid container direction="row" alignItems="center" className={classes.topBar}>
+          <Grid item xs={6}>
+            <FormControl className={classes.formControl}>
+              <Select
+                autoWidth
+                value={tabValue}
+                renderValue={(value) => selectRenderedText}
+                onChange={handleSelectChange}
+                style={{ color: selectTextColor }}
+                className={classes.customSelect}
+              >
+                {Person && <MenuItem value={0}>{t('maps:tab_persons')}</MenuItem>}
+                {Report && <MenuItem value={1}>{t('maps:tab_reports')}</MenuItem>}
+                {Mission && <MenuItem value={2}>{t('maps:tab_missions')}</MenuItem>}
+                {Communication && <MenuItem value={3}>{t('maps:tab_communications')}</MenuItem>}
+                {MapRequest && <MenuItem value={4}>{t('maps:tab_maprequests')}</MenuItem>}
+                {Alert && <MenuItem value={5}>{t('maps:tab_alerts')}</MenuItem>}
+                {Station && <MenuItem value={6}>{t('maps:tab_stations')}</MenuItem>}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={5}>
+            <SearchBar
+              isLoading={isLoading}
+              changeTextHandler={handleSearchTextChange}
+              clickHandler={searchInList}
             />
-            <Tab
-              value={1}
-              label={t('maps:tab_reports')}
-              {...a11yProps(1)}
-              className={!Report ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={2}
-              label={t('maps:tab_missions')}
-              {...a11yProps(2)}
-              className={!Mission ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={3}
-              label={t('maps:tab_communications')}
-              {...a11yProps(3)}
-              className={!Communication ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={4}
-              label={t('maps:tab_maprequests')}
-              {...a11yProps(4)}
-              className={!MapRequest ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={5}
-              label={t('maps:tab_alerts')}
-              {...a11yProps(5)}
-              className={!Alert ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={6}
-              label={t('maps:tab_stations')}
-              {...a11yProps(6)}
-              className={!Station ? classes.hiddenTab : undefined}
-            />
-          </Tabs>
-        </AppBar>
+          </Grid>
+          <Grid item xs={1}>
+            <IconButton
+              onClick={onClick}
+              aria-label="toggle-selection"
+              className="mapboxgl-ctrl-icon"
+              size="small"
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Grid>
+        </Grid>
 
         {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
           noData
@@ -338,6 +407,11 @@ export default function MapDrawer(props) {
                 teamList={props.teamList}
                 selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -353,6 +427,11 @@ export default function MapDrawer(props) {
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
                 missionActive={Mission}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -369,6 +448,11 @@ export default function MapDrawer(props) {
                 selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -385,6 +469,11 @@ export default function MapDrawer(props) {
                 selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -411,6 +500,11 @@ export default function MapDrawer(props) {
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
                 selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -426,6 +520,11 @@ export default function MapDrawer(props) {
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
                 selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
 
@@ -440,6 +539,11 @@ export default function MapDrawer(props) {
                 selectedCard={selectedFeatureId}
                 setSelectedCard={onCardClick}
                 flyToCoords={undefined}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
               />
             </TabPanel>
           </SwipeableViews>

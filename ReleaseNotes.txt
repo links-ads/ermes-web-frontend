@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Map request fine tuning (#164)
+- Feature - Tab substitution (#169)
 
 Ver. 2.16.0- 2023-10-24
 -----------------------

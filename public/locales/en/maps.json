@@ -142,5 +142,6 @@
   "legend_mission": "Missions",
   "legend_alert": "Alerts",
   "legend_station": "Cameras",
-  "legend_selectedposition": "Selected position"
+  "legend_selectedposition": "Selected position",
+  "activateFilters": "Enable filters to view the list"
 }

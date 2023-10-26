@@ -3,11 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useCameras from '../../../../hooks/use-cameras.hook'
 import List from '@material-ui/core/List'
-import ItemCounter from './item-counter'
-import AlertCard from './drawer-cards/alert-card.component'
 import classes from './map-drawer.module.scss'
-import SearchBar from '../../../../common/search-bar.component'
-import { EntityType } from 'ermes-ts-sdk'
 import CameraCard from './drawer-cards/camera-card.component'
 import { useSelector } from 'react-redux'
 import { AppState } from '../../../../state/app.state'
@@ -21,29 +17,27 @@ const CamerasPanel: React.FC<{
   flyToCoords: any
   selectedCard: any
   setSelectedCard: any
+  updateIsLoadingStatus
+  searchText: string
+  triggerSearch: boolean
+  updateTriggerSearch
+  updateItemsCounter
 }> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
   const [camerasData, getCameras, applyFilterByText, getCameraById] = useCameras()
+  const { isLoading, tot } = camerasData
+  const {
+    updateIsLoadingStatus,
+    searchText,
+    triggerSearch,
+    updateTriggerSearch,
+    updateItemsCounter
+  } = props
   const selectedCameraState = useSelector((state: AppState) => state.selectedCameraState)
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
-  }
-
-  // handle the text changes in the search field
-  const handleSearchTextChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const [prevSearchText, setPrevSearchText] = React.useState('')
-  // on click of the search button
-  const searchInComm = () => {
-    if (searchText !== undefined && searchText != prevSearchText) {
-      applyFilterByText(searchText)
-      setPrevSearchText(searchText)
-    }
   }
 
   // calls the passed function to fly in the map to the desired point
@@ -76,20 +70,29 @@ const CamerasPanel: React.FC<{
     return () => window.removeEventListener('resize', resizeHeight)
   })
 
+  useEffect(() => {
+    updateIsLoadingStatus(isLoading)
+    if (!isLoading) {
+      const counter = tot >= 0 ? tot : 0
+      updateItemsCounter(counter)
+    }
+  }, [isLoading])
+
+  useEffect(() => {
+    if (triggerSearch) {
+      applyFilterByText(searchText)
+      updateTriggerSearch(false)
+    }
+  }, [triggerSearch])
+
   return (
     <div className="container">
-      <SearchBar
-        isLoading={camerasData.isLoading}
-        changeTextHandler={handleSearchTextChange}
-        clickHandler={searchInComm}
-      />
-      {!camerasData.isLoading && !camerasData.error ? (
+      {!isLoading && !camerasData.error ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
-          style={{ height: height - 270 }}
+          style={{ height: height - 180 }}
         >
-          <ItemCounter itemCount={camerasData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -105,11 +108,11 @@ const CamerasPanel: React.FC<{
                 )
               }}
               dataLength={camerasData.data.length}
-              hasMore={camerasData.data.length < camerasData.tot}
-              loader={<h4>{t('common:loading')}</h4>}
+              hasMore={camerasData.data.length < tot}
+              loader={<h4 className={classes.textCenter}>{t('common:loading')}</h4>}
               endMessage={
-                <div style={{ textAlign: 'center' }}>
-                  <b>{t('common:end_of_list')}</b>
+                <div className={classes.textCenter}>
+                  <b>{tot > 0 ? t('common:end_of_list') : t('common:no_items_found')}</b>
                 </div>
               }
               scrollableTarget="scrollableElem"
@@ -131,7 +134,7 @@ const CamerasPanel: React.FC<{
           </List>
         </div>
       ) : (
-        <h4>{t('common:loading')}</h4>
+        <h4 className={classes.textCenter}>{t('common:loading')}</h4>
       )}
     </div>
   )
