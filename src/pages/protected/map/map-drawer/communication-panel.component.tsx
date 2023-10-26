@@ -95,7 +95,7 @@ export default function CommunicationPanel(props) {
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
-          style={{ height: height - 270 }}
+          style={{ height: height - 180 }}
         >
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
@@ -113,10 +113,10 @@ export default function CommunicationPanel(props) {
               }}
               dataLength={commsData.data.length}
               hasMore={commsData.data.length < tot}
-              loader={<h4>{t('common:loading')}</h4>}
+              loader={<h4 className={classes.textCenter}>{t('common:loading')}</h4>}
               endMessage={
-                <div style={{ textAlign: 'center' }}>
-                  <b>{t('common:end_of_list')}</b>
+                <div className={classes.textCenter}>
+                  <b>{tot > 0 ? t('common:end_of_list') : t('common:no_items_found')}</b>
                 </div>
               }
               scrollableTarget="scrollableElem"
@@ -138,7 +138,7 @@ export default function CommunicationPanel(props) {
           </List>
         </div>
       ) : (
-        <h4>{t('common:loading')}</h4>
+        <h4 className={classes.textCenter}>{t('common:loading')}</h4>
       )}
     </div>
   )

@@ -17,7 +17,6 @@ import { makeStyles, useTheme } from '@material-ui/core/styles'
 import Slide from '@material-ui/core/Slide'
 import SwipeableViews from 'react-swipeable-views'
 import AppBar from '@material-ui/core/AppBar'
-import Box from '@material-ui/core/Box'
 
 import ReportPanel from './report-panel.component'
 import CommunicationPanel from './communication-panel.component'
@@ -36,6 +35,7 @@ import { EmergencyColorMap, EmergencyProps } from '../api-data/emergency.compone
 import { useMapStateContext } from '../map.context'
 import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
 import SearchBar from '../../../../common/search-bar.component'
+import { TabPanel } from '../../../../common/common.components'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -47,48 +47,39 @@ const useStyles = makeStyles((theme) => ({
     zIndex: 99,
     top: 43
   },
-  indicator: {
-    backgroundColor: '#FFF'
-  },
-  hiddenTab: {
-    display: 'none',
-    visibility: 'hidden'
-  },
   formControl: {
     margin: theme.spacing(1),
-    minWidth: 120
+    minWidth: 120,
+    // custom style to remove the underline
+    '& .MuiInput-underline:before': {
+      borderBottom: 'none'
+    },
+    '& .MuiInput-underline:after': {
+      borderBottom: 'none'
+    },
+    '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
+      borderBottom: 'none'
+    }
+  },
+  topBar: {
+    marginTop: 5
+  },
+  customSelect: {
+    // custom style to revert order of arrow and text
+    '& svg': {
+      left: 0
+    },
+    '& .MuiSelect-root': {
+      display: 'flex',
+      flexDirection: 'row-reverse',
+      paddingRight: 0
+    },
+    '& .MuiSelect-selectMenu': {
+      position: 'relative',
+      paddingLeft: 25
+    }
   }
 }))
-
-interface TabPanelProps {
-  children?: React.ReactNode
-  dir?: string
-  index: any
-  value: any
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box p={1}>{children}</Box>}
-    </div>
-  )
-}
-
-function a11yProps(index: any) {
-  return {
-    id: `full-width-tab-${index}`,
-    'aria-controls': `full-width-tabpanel-${index}`
-  }
-}
 
 export default function MapDrawer(props) {
   const classes = useStyles()
@@ -223,6 +214,10 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
+    if (!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station) {
+      setIsLoading(false)
+      setSelectRenderedText('')
+    }
   }, [Person, Report, Mission, Communication, MapRequest, Alert, Station, mapDrawerTabVisibility])
 
   const layersDefinition = useMemo(() => {
@@ -244,10 +239,6 @@ export default function MapDrawer(props) {
 
   const handleSelectChange = (event: React.ChangeEvent<{ value: unknown }>) => {
     updateTabIndex(event.target.value as number)
-  }
-
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    updateTabIndex(newValue)
   }
 
   const handleChangeIndex = (index: number) => {
@@ -347,7 +338,7 @@ export default function MapDrawer(props) {
     <CardContent style={{ height: '90%', overflowX: 'scroll', paddingBottom: '0px' }}>
       <Grid container justifyContent="center">
         <Typography style={{ margin: 4 }} align="center" variant="caption">
-          {t('social:no_results')}
+          {t('maps:activateFilters')}
         </Typography>
       </Grid>
     </CardContent>
@@ -355,77 +346,8 @@ export default function MapDrawer(props) {
   return (
     <Slide direction="right" in={props.toggleSideDrawer} mountOnEnter unmountOnExit>
       <div className={classes.root}>
-        {/* <AppBar
-          position="static"
-          color="default"
-          style={{
-            backgroundColor: theme.palette.primary.main,
-            boxShadow: 'none'
-          }}
-        > */}
-        {/* <IconButton
-            onClick={onClick}
-            aria-label="toggle-selection"
-            className="mapboxgl-ctrl-icon"
-            style={{ width: '60px', marginLeft: '25px' }}
-            // disabled={disabled}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Tabs
-            value={tabValue}
-            onChange={handleChange}
-            indicatorColor="primary"
-            classes={{ indicator: classes.indicator }}
-            color="white"
-            variant="scrollable"
-            aria-label="full width tabs example"
-          >
-            <Tab
-              value={0}
-              label={t('maps:tab_persons')}
-              {...a11yProps(0)}
-              className={!Person ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={1}
-              label={t('maps:tab_reports')}
-              {...a11yProps(1)}
-              className={!Report ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={2}
-              label={t('maps:tab_missions')}
-              {...a11yProps(2)}
-              className={!Mission ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={3}
-              label={t('maps:tab_communications')}
-              {...a11yProps(3)}
-              className={!Communication ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={4}
-              label={t('maps:tab_maprequests')}
-              {...a11yProps(4)}
-              className={!MapRequest ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={5}
-              label={t('maps:tab_alerts')}
-              {...a11yProps(5)}
-              className={!Alert ? classes.hiddenTab : undefined}
-            />
-            <Tab
-              value={6}
-              label={t('maps:tab_stations')}
-              {...a11yProps(6)}
-              className={!Station ? classes.hiddenTab : undefined}
-            />
-          </Tabs> */}
-        <Grid container direction="row" alignItems="center">
-          <Grid item xs={5}>
+        <Grid container direction="row" alignItems="center" className={classes.topBar}>
+          <Grid item xs={6}>
             <FormControl className={classes.formControl}>
               <Select
                 autoWidth
@@ -433,6 +355,7 @@ export default function MapDrawer(props) {
                 renderValue={(value) => selectRenderedText}
                 onChange={handleSelectChange}
                 style={{ color: selectTextColor }}
+                className={classes.customSelect}
               >
                 {Person && <MenuItem value={0}>{t('maps:tab_persons')}</MenuItem>}
                 {Report && <MenuItem value={1}>{t('maps:tab_reports')}</MenuItem>}
@@ -444,7 +367,7 @@ export default function MapDrawer(props) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <SearchBar
               isLoading={isLoading}
               changeTextHandler={handleSearchTextChange}
@@ -462,7 +385,6 @@ export default function MapDrawer(props) {
             </IconButton>
           </Grid>
         </Grid>
-        {/* </AppBar> */}
 
         {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
           noData
