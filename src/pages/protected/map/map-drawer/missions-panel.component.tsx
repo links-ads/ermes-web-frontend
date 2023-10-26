@@ -3,17 +3,22 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useMissionsList from '../../../../hooks/use-missions-list.hook'
 import List from '@material-ui/core/List'
-import ItemCounter from './item-counter'
 import MissionCard from './drawer-cards/mission-card.component'
-import SearchBar from '../../../../common/search-bar.component'
 import classes from './map-drawer.module.scss'
 import { EntityType } from 'ermes-ts-sdk'
 
 export default function MissionsPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
   const [missionsData, getMissionsData, applyFilterByText, appendSelectedItems] = useMissionsList()
-  const { selectedItemsList } = props
+  const { isLoading, tot } = missionsData
+  const {
+    selectedItemsList,
+    updateIsLoadingStatus,
+    searchText,
+    triggerSearch,
+    updateTriggerSearch,
+    updateItemsCounter
+  } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
@@ -25,21 +30,6 @@ export default function MissionsPanel(props) {
     props.setGoToCoord({ latitude: latitude, longitude: longitude })
   }
 
-  // handle the text changes in the search field
-  const handleSearchTextChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  //check if search text is same as before, if so don't call it again
-  const [prevSearchText, setPrevSearchText] = React.useState('')
-
-  // on click of the search button
-  const searchInMiss = () => {
-    if (searchText !== undefined && searchText != prevSearchText) {
-      applyFilterByText(searchText)
-      setPrevSearchText(searchText)
-    }
-  }
   // Calls the data only the first time is needed
   useEffect(() => {
     getMissionsData(
@@ -55,7 +45,7 @@ export default function MissionsPanel(props) {
   }, [])
 
   useEffect(() => {
-    if(selectedItemsList.length > 0){
+    if (selectedItemsList.length > 0) {
       appendSelectedItems(selectedItemsList)
     }
   }, [selectedItemsList])
@@ -84,20 +74,29 @@ export default function MissionsPanel(props) {
     return () => window.removeEventListener('resize', resizeHeight)
   })
 
+  useEffect(() => {
+    updateIsLoadingStatus(isLoading)
+    if (!isLoading) {
+      const counter = tot >= 0 ? tot : 0
+      updateItemsCounter(counter)
+    }
+  }, [isLoading])
+
+  useEffect(() => {
+    if (triggerSearch) {
+      applyFilterByText(searchText)
+      updateTriggerSearch(false)
+    }
+  }, [triggerSearch])
+
   return (
     <div className="container">
-      <SearchBar
-        isLoading={missionsData.isLoading}
-        changeTextHandler={handleSearchTextChange}
-        clickHandler={searchInMiss}
-      />
-      {!missionsData.isLoading ? (
+      {!isLoading ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
-          <ItemCounter itemCount={missionsData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -113,7 +112,7 @@ export default function MissionsPanel(props) {
                 )
               }}
               dataLength={missionsData.data.length}
-              hasMore={missionsData.data.length < missionsData.tot}
+              hasMore={missionsData.data.length < tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
@@ -144,4 +143,3 @@ export default function MissionsPanel(props) {
     </div>
   )
 }
-

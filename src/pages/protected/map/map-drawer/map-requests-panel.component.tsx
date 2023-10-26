@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useMapRequestList from '../../../../hooks/use-map-requests-list.hook'
 import List from '@material-ui/core/List'
-import ItemCounter from './item-counter'
 import {
   CommunicationRestrictionType,
   EntityType,
@@ -12,8 +11,7 @@ import {
   MapRequestStatusType,
   MapRequestType
 } from 'ermes-ts-sdk'
-import { CoordinatorType, DialogResponseType, FireBreakType, useMapDialog } from '../map-dialog.hooks'
-import SearchBar from '../../../../common/search-bar.component'
+import { CoordinatorType } from '../map-dialog.hooks'
 import classes from './map-drawer.module.scss'
 import MapRequestCard from './drawer-cards/maprequest-card.component'
 import MapRequestState, {
@@ -22,7 +20,7 @@ import MapRequestState, {
 } from '../../../../models/mapRequest/MapRequestState'
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
 import LayerDefinition from '../../../../models/layers/LayerDefinition'
-import { wktToGeoJSON } from "@terraformer/wkt"
+import { wktToGeoJSON } from '@terraformer/wkt'
 
 const MapRequestsPanel: React.FC<{
   filters
@@ -45,6 +43,11 @@ const MapRequestsPanel: React.FC<{
   setSelectedCard
   showFeaturesDialog
   selectedItemsList
+  updateIsLoadingStatus
+  searchText: string
+  triggerSearch: boolean
+  updateTriggerSearch
+  updateItemsCounter
 }> = (props) => {
   const {
     mapRequestsSettings,
@@ -55,11 +58,15 @@ const MapRequestsPanel: React.FC<{
     availableLayers,
     layersDefinition,
     showFeaturesDialog,
-    selectedItemsList
+    selectedItemsList,
+    updateIsLoadingStatus,
+    searchText,
+    triggerSearch,
+    updateTriggerSearch,
+    updateItemsCounter
   } = props
 
   const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
   const [
     mapRequestsData,
     getMapRequestsData,
@@ -68,22 +75,12 @@ const MapRequestsPanel: React.FC<{
     fetchMapRequestById,
     appendSelectedItems
   ] = useMapRequestList()
-  
+  const { isLoading, tot } = mapRequestsData
+
   const [height, setHeight] = React.useState(window.innerHeight)
 
   const resizeHeight = () => {
     setHeight(window.innerHeight)
-  }
-
-  // handle the text changes in the search field
-  const handleSearchTextChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const searchInMiss = () => {
-    if (searchText !== undefined) {
-      applyFilterByText(searchText)
-    }
   }
 
   const fetchData = (initialize: boolean = false) => {
@@ -227,14 +224,14 @@ const MapRequestsPanel: React.FC<{
           mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
             ? mr.feature.properties.boundaryConditions.map((e) => {
                 const mappedFirebreak = e.fireBreak
-                ? {
-                    [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
-                      ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
-                      : (Object.values(e.fireBreak)[0] as string).startsWith('L')
-                      ? wktToGeoJSON(Object.values(e.fireBreak)[0])
-                      : JSON.parse(Object.values(e.fireBreak)[0] as string)
-                  }
-                : null
+                  ? {
+                      [Object.keys(e.fireBreak)[0]]: e.fireBreakFullFeature
+                        ? JSON.parse(Object.values(e.fireBreakFullFeature)[0] as string)
+                        : (Object.values(e.fireBreak)[0] as string).startsWith('L')
+                        ? wktToGeoJSON(Object.values(e.fireBreak)[0])
+                        : JSON.parse(Object.values(e.fireBreak)[0] as string)
+                    }
+                  : null
                 return {
                   ...e,
                   timeOffset: e.time,
@@ -258,10 +255,9 @@ const MapRequestsPanel: React.FC<{
           mr.feature.properties.mapRequestType === MapRequestType.WILDFIRE_SIMULATION
             ? mr.feature.properties.probabilityRange
             : 0.75,
-        mapArea:
-          !!mr.feature.properties.mapRequestType
-            ? { type: 'Feature', properties: {}, geometry: fetchedArea }
-            : null,
+        mapArea: !!mr.feature.properties.mapRequestType
+          ? { type: 'Feature', properties: {}, geometry: fetchedArea }
+          : null,
         mapSelectionCompleted: true
       }
       let areaObject = { type: 'Feature', properties: {}, geometry: fetchedArea }
@@ -270,7 +266,7 @@ const MapRequestsPanel: React.FC<{
   }, [mapRequestsData.selectedMr])
 
   useEffect(() => {
-    if(selectedItemsList.length > 0){
+    if (selectedItemsList.length > 0) {
       appendSelectedItems(selectedItemsList)
     }
   }, [selectedItemsList])
@@ -288,27 +284,36 @@ const MapRequestsPanel: React.FC<{
     }
   }, [props.mapRequestCounter])
 
+  useEffect(() => {
+    updateIsLoadingStatus(isLoading)
+    if (!isLoading) {
+      const counter = tot >= 0 ? tot : 0
+      updateItemsCounter(counter)
+    }
+  }, [isLoading])
+
+  useEffect(() => {
+    if (triggerSearch) {
+      applyFilterByText(searchText)
+      updateTriggerSearch(false)
+    }
+  }, [triggerSearch])
+
   if (mapRequestsData.error) return <div></div>
 
   return (
     <div className="containerWithSearch">
-      <SearchBar
-        isLoading={mapRequestsData.isLoading}
-        changeTextHandler={handleSearchTextChange}
-        clickHandler={searchInMiss}
-      />
-      {!mapRequestsData.isLoading ? (
+      {!isLoading ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
           style={{ height: height - 280 }}
         >
-          <ItemCounter itemCount={mapRequestsData.tot} />
           <List component="span" aria-label="main mailbox folders">
             <InfiniteScroll
               next={fetchData}
               dataLength={mapRequestsData.data.length}
-              hasMore={mapRequestsData.data.length < mapRequestsData.tot}
+              hasMore={mapRequestsData.data.length < tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>

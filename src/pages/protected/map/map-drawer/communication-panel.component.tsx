@@ -3,35 +3,26 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { useTranslation } from 'react-i18next'
 import useCommList from '../../../../hooks/use-comm-list.hook'
 import List from '@material-ui/core/List'
-import ItemCounter from './item-counter'
 import CommunicationCard from './drawer-cards/communication-card.component'
 import classes from './map-drawer.module.scss'
-import SearchBar from '../../../../common/search-bar.component'
 import { EntityType } from 'ermes-ts-sdk'
 
 export default function CommunicationPanel(props) {
   const { t } = useTranslation(['common', 'maps'])
-  const [searchText, setSearchText] = React.useState('')
   const [commsData, getCommsData, applyFilterByText, appendSelectedItems] = useCommList()
-  const { selectedItemsList } = props
+  const { isLoading, tot } = commsData
+  const {
+    selectedItemsList,
+    updateIsLoadingStatus,
+    searchText,
+    triggerSearch,
+    updateTriggerSearch,
+    updateItemsCounter
+  } = props
 
   const [height, setHeight] = React.useState(window.innerHeight)
   const resizeHeight = () => {
     setHeight(window.innerHeight)
-  }
-
-  // handle the text changes in the search field
-  const handleSearchTextChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const [prevSearchText, setPrevSearchText] = React.useState('')
-  // on click of the search button
-  const searchInComm = () => {
-    if (searchText !== undefined && searchText != prevSearchText) {
-      applyFilterByText(searchText)
-      setPrevSearchText(searchText)
-    }
   }
 
   // calls the passed function to fly in the map to the desired point
@@ -55,7 +46,7 @@ export default function CommunicationPanel(props) {
 
   //reload data when a new communication is created from the map
   useEffect(() => {
-    if (props.communicationCounter > 0){ 
+    if (props.communicationCounter > 0) {
       getCommsData(
         0,
         (data) => {
@@ -69,10 +60,10 @@ export default function CommunicationPanel(props) {
       )
       props.resetListCounter(EntityType.COMMUNICATION)
     }
-  }, [props.communicationCounter]) 
+  }, [props.communicationCounter])
 
   useEffect(() => {
-    if(selectedItemsList.length > 0){
+    if (selectedItemsList.length > 0) {
       appendSelectedItems(selectedItemsList)
     }
   }, [selectedItemsList])
@@ -83,20 +74,29 @@ export default function CommunicationPanel(props) {
     return () => window.removeEventListener('resize', resizeHeight)
   })
 
+  useEffect(() => {
+    updateIsLoadingStatus(isLoading)
+    if (!isLoading) {
+      const counter = tot >= 0 ? tot : 0
+      updateItemsCounter(counter)
+    }
+  }, [isLoading])
+
+  useEffect(() => {
+    if (triggerSearch) {
+      applyFilterByText(searchText)
+      updateTriggerSearch(false)
+    }
+  }, [triggerSearch])
+
   return (
     <div className="container">
-      <SearchBar
-        isLoading={commsData.isLoading}
-        changeTextHandler={handleSearchTextChange}
-        clickHandler={searchInComm}
-      />
-      {!commsData.isLoading ? (
+      {!isLoading ? (
         <div
           className={classes.fixHeightContainer}
           id="scrollableElem"
           style={{ height: height - 270 }}
         >
-          <ItemCounter itemCount={commsData.tot} />
           <List component="span" aria-label="main mailbox folders" className={classes.cardList}>
             <InfiniteScroll
               next={() => {
@@ -112,7 +112,7 @@ export default function CommunicationPanel(props) {
                 )
               }}
               dataLength={commsData.data.length}
-              hasMore={commsData.data.length < commsData.tot}
+              hasMore={commsData.data.length < tot}
               loader={<h4>{t('common:loading')}</h4>}
               endMessage={
                 <div style={{ textAlign: 'center' }}>
