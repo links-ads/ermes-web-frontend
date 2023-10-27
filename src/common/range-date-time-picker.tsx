@@ -90,6 +90,15 @@ const RangeDateTimePicker: React.FC<{
     }
   }, [])
 
+  // set up null end date to a default one
+  useEffect(() => {
+    if (endDate === null && editState.endDate === null) {
+      const defaultEnd = moment().endOf('day').toDate()
+      setEndDate(defaultEnd)
+      dispatchEditAction({ type: 'END_DATE', value: defaultEnd })
+    }
+  }, [])
+
   useEffect(() => {
     checkDateValidity(startDate, endDate)
   }, [startDate, endDate])
