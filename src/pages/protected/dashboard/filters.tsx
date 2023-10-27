@@ -270,7 +270,7 @@ export const DashboardFilters = (props) => {
       justifyContent="space-around"
       className={classes.filterContainer}
     >
-      <Grid container direction={'column'} item xs={9}>
+      <Grid container direction={'column'} item xs={9} className={classes.filterSection}>
         <Grid
           container
           direction={'row'}
@@ -642,12 +642,20 @@ const CategoryFilter = (props) => {
                                 const checkedOptions = event.target.value
                                 newCategoryFilter.content[i].selected = checkedOptions
 
-                                var scope = newCategoryFilter.content.filter((a) => a.name === 'scope')[0]
-                                if (scope && scope.selected.findIndex((a) => a == CommunicationScopeType.RESTRICTED) < 0
-                                ){
-                                  newCategoryFilter.content.filter(a => a.name === 'restriction')[0].selected = [];
+                                var scope = newCategoryFilter.content.filter(
+                                  (a) => a.name === 'scope'
+                                )[0]
+                                if (
+                                  scope &&
+                                  scope.selected.findIndex(
+                                    (a) => a == CommunicationScopeType.RESTRICTED
+                                  ) < 0
+                                ) {
+                                  newCategoryFilter.content.filter(
+                                    (a) => a.name === 'restriction'
+                                  )[0].selected = []
                                 }
-                                  setCategoryFilters({ ...newCategoryFilter })
+                                setCategoryFilters({ ...newCategoryFilter })
                               }}
                               input={<Input />}
                             >
