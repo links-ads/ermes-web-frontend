@@ -4,6 +4,7 @@ import { TimestampToFile } from '../common/TimestampToFile'
 interface Dimension {
   h: number
   w: number
+  percW?: string
 }
 
 export class AssociatedLayer {
