@@ -58,8 +58,8 @@ export const getFeatureInfoUrl = (geoServerConfig, w, h, layerName, timestamp, m
     layers: layerName,
     query_layers: layerName,
     time: timestamp,
-    x: 1,
-    y: 1,
+    x: 50,
+    y: 50,
     bbox: toBBoxString(mapBounds),
     feature_count: 50
   }

@@ -127,13 +127,25 @@ export const MapContainer = styled(SizeAwareContainer).attrs({ className: 'map-c
     background: ${(props) => props.theme.palette.background.paper} !important;
   }
 
-  @media screen and (min-width: 600px) {
-    top: 260px;
+  @media screen and (min-width: 298px) {
+    top: 309px;
   }
-  @media screen and (min-width: 960px) {
-    top: 210px;
+  @media screen and (min-width: 320px) {
+    top: 269px;
   }
-  @media screen and (min-width: 1280px) {
+  @media screen and (min-width: 365px) {
+    top: 229px;
+  }
+  @media screen and (min-width: 514px) {
+    top: 181px;
+  }
+  @media screen and (min-width: 1075px) {
+    top: 141px;
+  }
+  @media screen and (min-width: 1321px) {
+    top: 83px;
+  }
+  @media screen and (min-width: 1566px) {
     top: 43px;
   }
 `

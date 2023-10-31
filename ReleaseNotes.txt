@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Bugfix - General site responsiveness (#172)
+
+Ver. 2.17.0 - 2023-10-27
+-----------------------
 - Feature - Map request fine tuning (#164)
 - Feature - Tab substitution (#169)
 - Bugfix - Update creation (#171)

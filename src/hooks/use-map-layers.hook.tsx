@@ -20,7 +20,7 @@ const initialState = {
   layerTimeseries: null,
   layerFeatureInfo: null,
   defaultPosition: { x: 0, y: 0 },
-  defaultDimension: { h: 116, w: 1000 },
+  defaultDimension: { h: 116, w: 1000, percW: '100%' },
   isLoading: true,
   error: false
 }
@@ -336,10 +336,12 @@ const useMapLayers = () => {
       // change y position of second element
       let first = players[0]
       first.dimension.w = defaultDim.w
+      first.dimension.percW = defaultDim.percW
       first.position = defaultPos
       updatedPlayers[0] = first
       let lastPlayer = { ...updatedPlayers[cnt - 1] }
       lastPlayer.position.x = defaultPos.x
+      lastPlayer.dimension.percW = defaultDim.percW
       lastPlayer.position.y = defaultPos.y - defaultDim.h - 2
       lastPlayer.dimension.w = defaultDim.w
       updatedPlayers[cnt - 1] = lastPlayer
@@ -347,41 +349,50 @@ const useMapLayers = () => {
       // change x and y position of second element
       // change 7 position of third element
       // change dimension of all three elements
+      let percWidth = 'calc(50% - 3px)'
       let midWidth = defaultDim.w / 2 - 2
       let first = players[0]
       first.dimension.w = midWidth
+      first.dimension.percW = percWidth
       first.position = defaultPos
       updatedPlayers[0] = first
       let second = players[1]
       second.dimension.w = midWidth
+      second.dimension.percW = percWidth
       second.position.x = defaultPos.x + midWidth + 4
       second.position.y = defaultPos.y
       updatedPlayers[1] = second
       let third = players[2]
       third.dimension.w = midWidth
+      third.dimension.percW = percWidth
       third.position.x = defaultPos.x
       third.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[2] = third
     } else if (cnt === 4) {
       // change x and y position of forth  element
       // change dimension of forth elements
+      let percWidth = 'calc(50% - 3px)'
       let midWidth = defaultDim.w / 2 - 2
       let first = players[0]
       first.dimension.w = midWidth
+      first.dimension.percW = percWidth
       first.position = defaultPos
       updatedPlayers[0] = first
       let second = players[1]
       second.dimension.w = midWidth
+      second.dimension.percW = percWidth
       second.position.x = defaultPos.x + midWidth + 4
       second.position.y = defaultPos.y
       updatedPlayers[1] = second
       let third = players[2]
       third.dimension.w = midWidth
+      third.dimension.percW = percWidth
       third.position.x = defaultPos.x
       third.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[2] = third
       let forth = players[3]
       forth.dimension.w = midWidth
+      forth.dimension.percW = percWidth
       forth.position.x = defaultPos.x + midWidth + 4
       forth.position.y = defaultPos.y - defaultDim.h - 2
       updatedPlayers[3] = forth
@@ -810,8 +821,13 @@ const useMapLayers = () => {
               const feat = featInfo.features[j]
               const property = feat.properties
               const featureInfo = Object.keys(property!!).map((e) => {
-                const rounded = property!![e] !== 0 && property!![e] % 1 > 0 ? property!![e].toFixed(2) : property!![e]
-                const roundedWithUnitOfMeasure = unitOfMeasures[i] ? rounded + unitOfMeasures[i] : rounded
+                const rounded =
+                  property!![e] !== 0 && property!![e] % 1 > 0
+                    ? property!![e].toFixed(2)
+                    : property!![e]
+                const roundedWithUnitOfMeasure = unitOfMeasures[i]
+                  ? rounded + unitOfMeasures[i]
+                  : rounded
                 return new FeatureInfo(e, roundedWithUnitOfMeasure)
               })
               allFeat.push(featureInfo)

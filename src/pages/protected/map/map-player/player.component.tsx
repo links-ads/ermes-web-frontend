@@ -328,11 +328,13 @@ const LayersPlayer: React.FC<{
       onPositionChange={onPositionUpdate}
       toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
-        width: selectedLayer.dimension.w,
+        width: undefined,
         height: selectedLayer.dimension.h
       }}
       onResize={null}
-      resizable={true}
+      resizable={false}
+      isPlayer={true}
+      playerWidth={selectedLayer.dimension.percW}
     >
       <>
         <AppBar
