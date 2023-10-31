@@ -1,14 +1,14 @@
 Ver.
 -----------------------
-
+- Feature - Mapbox geocoding (#173)
 
 Ver. 2.17.0 - 2023-10-27
 -----------------------
 - Map request fine tuning (#164)
 - Feature - Tab substitution (#169)
-- Bugfix - Update creation (#171)- Feature 
+- Bugfix - Update creation (#171)
 
-Ver. 2.16.0- 2023-10-24
+Ver. 2.16.0 - 2023-10-24
 -----------------------
 - Feature - Buttons on map (#168)
 - Feature - Report associated with mission (#157)

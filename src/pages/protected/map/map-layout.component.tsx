@@ -77,6 +77,7 @@ import {
 } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
+import MapGeocoderSearchButton from './map-geocoder-search-button.component'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -97,7 +98,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      top: 350,
+      top: 400,
       right: '10px',
       zIndex: 99,
       width: 27,
@@ -143,7 +144,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#333'
     },
     layersAndDownload: {
-      top: 230,
+      top: 270,
       position: 'absolute',
       right: 0,
       margin: 10,
@@ -915,7 +916,8 @@ export function MapLayout(props) {
         </Source>
         <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
         {/* Map controls */}
-        <div className="controls-container" style={{ top: 40, height: 174 }}>
+        <div className="controls-container" style={{ top: 40, height: 206 }}>
+          <MapGeocoderSearchButton markSearchLocation={setGoToCoord}/>
           <GeolocateControl
             // ref={geolocationControlsRef}
             label={t('maps:show_my_location')}
