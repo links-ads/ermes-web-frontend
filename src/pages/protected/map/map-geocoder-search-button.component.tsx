@@ -77,7 +77,7 @@ const MapGeocoderSearchButton = (props) => {
   }
 
   const onClickHandler = (itemCoord) => {
-    // TODO fly to coord from props
+    // TODO add marker on map
     console.debug(itemCoord)
     markSearchLocation({ latitude: itemCoord[1], longitude: itemCoord[0] })
   }
