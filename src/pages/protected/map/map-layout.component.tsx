@@ -70,7 +70,7 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
-import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import { highlightClickedPoint, placePositionPin, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
 import {
   areClickedPointAndSelectedCardEqual,
   findFeatureByTypeAndId
@@ -826,6 +826,12 @@ export function MapLayout(props) {
     }
   }
 
+  const markSearchLocation = (latitude, longitude) => {
+    setGoToCoord({ latitude: latitude, longitude: longitude })
+    const map = mapViewRef.current?.getMap()
+    placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setClickedPoint)
+  }
+
   return (
     <>
       <InteractiveMap
@@ -917,7 +923,7 @@ export function MapLayout(props) {
         <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
         {/* Map controls */}
         <div className="controls-container" style={{ top: 40, height: 206 }}>
-          <MapGeocoderSearchButton markSearchLocation={setGoToCoord}/>
+          <MapGeocoderSearchButton markSearchLocation={markSearchLocation}/>
           <GeolocateControl
             // ref={geolocationControlsRef}
             label={t('maps:show_my_location')}

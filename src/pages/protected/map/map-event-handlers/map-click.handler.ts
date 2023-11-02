@@ -16,6 +16,23 @@ const CLUSTER_LAYER_ID = 'clusters'
 const GEOJSON_LAYER_IDS = 'unclustered-point'
 const SOURCE_ID = 'emergency-source'
 
+export const placePositionPin = (
+  map,
+  longitude,
+  latitude,
+  setMapHeadDrawerCoordinates,
+  setLeftClickedFeature
+) => {
+  //const [longitude, latitude] = evt.lngLat
+  addUserClickedPoint(map, longitude, latitude)
+  // show coordinates of the point
+  setMapHeadDrawerCoordinates([longitude, latitude])
+  // remove clicked point
+  updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
+  // closed open feature
+  setLeftClickedFeature(null)
+}
+
 // add position pin at click or db click of the user
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
 // remove pin if user clicks on it
@@ -31,13 +48,7 @@ const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftCl
     }
   } else {
     const [longitude, latitude] = evt.lngLat
-    addUserClickedPoint(map, longitude, latitude)
-    // show coordinates of the point
-    setMapHeadDrawerCoordinates(evt.lngLat)
-    // remove clicked point
-    updatePointFeatureLayerIdFilter(map, 'unclustered-point-clicked', 'null')
-    // closed open feature
-    setLeftClickedFeature(null)
+    placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setLeftClickedFeature)
   }
 }
 
