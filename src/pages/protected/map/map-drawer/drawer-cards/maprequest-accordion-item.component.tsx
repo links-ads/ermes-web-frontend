@@ -23,7 +23,6 @@ import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
-import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({

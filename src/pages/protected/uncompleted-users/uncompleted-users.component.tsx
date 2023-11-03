@@ -10,7 +10,6 @@ import ClearIcon from '@material-ui/icons/Clear'
 import { ProfileApiFactory } from 'ermes-ts-sdk'
 import { Chip, makeStyles, Typography } from '@material-ui/core'
 import { AdministrationContainer } from '../../../common/common.components'
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {

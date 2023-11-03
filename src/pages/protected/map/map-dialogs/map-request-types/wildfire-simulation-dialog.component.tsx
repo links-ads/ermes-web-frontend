@@ -43,7 +43,6 @@ import it_IT from 'antd/es/locale/it_IT'
 import en_GB from 'antd/es/locale/en_GB'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
-import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 type MapFeature = CulturalProps

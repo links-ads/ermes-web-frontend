@@ -33,7 +33,6 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
-import { CreatAxiosInstance } from '../../../utils/axios.utils';
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context';
 
 const MAX_RESULT_COUNT = 100

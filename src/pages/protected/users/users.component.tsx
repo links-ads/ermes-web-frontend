@@ -17,7 +17,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {

@@ -24,7 +24,6 @@ import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
 import RangeDatePicker from '../../../../../common/range-date-picker'
-import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 type MapFeature = CulturalProps

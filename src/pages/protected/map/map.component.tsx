@@ -39,7 +39,6 @@ import useMapLayers from '../../../hooks/use-map-layers.hook'
 import { MapFeatureInfo } from './map-popup-feature-info.component'
 import { removeLayerFromMap } from '../../../common/map/map-common'
 import { CameraDetails } from './map-drawer/camera-details.component'
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 type MapFeature = CulturalProps
 

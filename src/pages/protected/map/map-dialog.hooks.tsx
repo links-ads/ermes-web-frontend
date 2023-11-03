@@ -12,7 +12,6 @@ import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.context'
 import { DialogEdit } from './map-dialog-edit.component'
 import { geojsonToWKT } from "@terraformer/wkt"
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 // Find a more suitable solution, especially for large screens

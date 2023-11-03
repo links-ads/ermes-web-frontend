@@ -4,7 +4,6 @@ import {
     useAPIConfiguration
   } from './api-hooks';
   import useLanguage from './use-language.hook';
-import { CreatAxiosInstance } from "../utils/axios.utils";
 import { ErmesAxiosContext } from "../state/ermesaxios.context";
 
   const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }

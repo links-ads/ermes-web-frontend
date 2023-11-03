@@ -21,6 +21,7 @@ const ErmesAxiosContextProvider = (props) => {
 
   axiosInstance.interceptors.response.use(undefined, function (error) {
     if (error?.response?.status === 401) {
+      //TODO: try with refresh token
       dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
     }
 

@@ -23,7 +23,6 @@ import { geojsonToWKT } from '@terraformer/wkt'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { useTranslation } from 'react-i18next'
 import SwipeableViews from 'react-swipeable-views'
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 interface TabPanelProps {

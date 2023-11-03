@@ -47,6 +47,9 @@ export function thunkLoadProfile(
       else
       {
         const backendUrl = cfg.basePath!
+
+        //Cannot use axios instance provided by ErmesAxiosProvider;
+        //a new one must be created
         const axiosInstance = CreatAxiosInstance(backendUrl)
         const apiFactory = ProfileApiFactory(cfg, backendUrl, axiosInstance)
         
@@ -69,6 +72,7 @@ export function thunkLoadProfile(
     }
     else
     {
+      //TODO: try with refresh token
       dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
       localStorage.removeItem(userProfileStorageKey)
       onSessionExpired('errors:session_expired')
@@ -112,7 +116,7 @@ export function thunkLoadProfile(
     //       } catch (err) {
     //         console.error('Could not Load User Profile', err)
     //         dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: false })
-    //         if (err.isAxiosError && err.response.status === 401) {
+    //         if (err.isAxiosError && err.response.status !== 401) {
     //           // Token expired
     //           dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
     //           localStorage.removeItem(userProfileStorageKey)

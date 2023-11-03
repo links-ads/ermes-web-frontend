@@ -36,7 +36,6 @@ import { useMapStateContext } from '../map.context'
 import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
 import SearchBar from '../../../../common/search-bar.component'
 import { TabPanel } from '../../../../common/common.components'
-import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({

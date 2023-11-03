@@ -30,7 +30,6 @@ import {
 } from '@material-ui/icons'
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 import { removeLayerFromMap, paintMapWithLayer } from '../../../../common/map/map-common'
-import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({

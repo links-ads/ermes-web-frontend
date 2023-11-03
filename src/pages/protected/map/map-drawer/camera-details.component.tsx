@@ -45,7 +45,6 @@ import {
 import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
 import classes from './drawer-cards/communication-card.module.scss'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
-import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 function getCardinalDirection(angle) {

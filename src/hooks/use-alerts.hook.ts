@@ -150,7 +150,7 @@ export default function useAlertList() {
           }
         })
         .catch((err) => {
-          displayErrorSnackbar(err)
+          if (err?.response?.status !== 401) displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },

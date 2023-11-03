@@ -58,7 +58,7 @@ export default function Root({
   useEffect(
     () => {
       console.debug('Mounting Root')
-      axiosHooksConfiguration(displayWarningSnackbar, displayErrorSnackbar)
+      //axiosHooksConfiguration(displayWarningSnackbar, displayErrorSnackbar)
       return () => {
         console.debug('Unmounting Root')
       }

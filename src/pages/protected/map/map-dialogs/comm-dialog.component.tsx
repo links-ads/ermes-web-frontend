@@ -16,7 +16,6 @@ import { useAPIConfiguration } from '../../../../hooks/api-hooks'
 import { OrganizationDto, OrganizationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import useAPIHandler from '../../../../hooks/use-api-handler'
 import RangeDateTimePicker from '../../../../common/range-date-time-picker'
-import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 export function CommunicationDialog({

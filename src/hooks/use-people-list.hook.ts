@@ -111,8 +111,7 @@ export default function usePeopleList() {
           })}
         })
         .catch((err) => {
-          console.log('httperror', err, err.code, errorData)
-          displayErrorSnackbar(err)
+          if (err?.response?.status !== 401) displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },

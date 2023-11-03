@@ -21,7 +21,6 @@ import {
 import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
-import { CreatAxiosInstance } from '../../../utils/axios.utils'
 import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {

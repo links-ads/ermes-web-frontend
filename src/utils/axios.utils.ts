@@ -10,7 +10,7 @@ export function CreatAxiosInstance(backendUrl: string): AxiosInstance {
   instance.interceptors.response.use(undefined, function (error) {
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
-    if (error?.response?.status === 401) {
+    if (error?.response?.status !== 401) {
       console.log(error.response.data.error)
       //dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
       //localStorage.clear()
