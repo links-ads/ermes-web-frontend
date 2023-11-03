@@ -61,7 +61,7 @@ async function start() {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
       if (error?.response?.status === 401) {
-        onSessionExpired(error.response.data.error)
+        //onSessionExpired(error.response.data.error)
         store.dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
         localStorage.clear()
       }

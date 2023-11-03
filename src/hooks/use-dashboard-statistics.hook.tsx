@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo } from 'react';
+import { useCallback, useReducer, useMemo, useContext } from 'react'
 import {
   DashboardApiFactory
 } from 'ermes-backoffice-ts-sdk';
@@ -6,7 +6,7 @@ import {
   useAPIConfiguration
 } from './api-hooks';
 import useLanguage from './use-language.hook';
-import { CreatAxiosInstance } from '../utils/axios.utils';
+import { ErmesAxiosContext } from '../state/ermesaxios.context';
 
 const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }
 
@@ -39,7 +39,7 @@ const useDashboardStats = () => {
   const [statsState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const dashboardApiFactory = useMemo(() => DashboardApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const {dateLocale} = useLanguage()
 

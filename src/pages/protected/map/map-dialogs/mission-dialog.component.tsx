@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useContext } from 'react'
 
 import {
   FormControl,
@@ -21,7 +21,7 @@ import { TeamsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../../hooks/use-api-handler'
 import { GenericDialogProps } from '../map-dialog-edit.component'
 import RangeDateTimePicker from '../../../../common/range-date-time-picker'
-import { CreatAxiosInstance } from '../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 export function MissionDialog({
   operationType,
@@ -33,7 +33,7 @@ export function MissionDialog({
   const missionStatusOptions = Object.values(MissionStatusType)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)   
+  const {axiosInstance} = useContext(ErmesAxiosContext)   
   const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const teamsApiFactory = useMemo(
     () => TeamsApiFactory(backendAPIConfig, backendUrl, axiosInstance),

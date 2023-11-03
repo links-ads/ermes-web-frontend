@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo } from 'react';
+import { useCallback, useReducer, useMemo, useContext } from 'react';
 import {
     ImportApiFactory
 } from 'ermes-backoffice-ts-sdk';
@@ -6,7 +6,7 @@ import {
     useAPIConfiguration
 } from './api-hooks';
 import { useSnackbars } from './use-snackbars.hook';
-import { CreatAxiosInstance } from '../utils/axios.utils';
+import { ErmesAxiosContext } from '../state/ermesaxios.context';
 
 export enum ImportEnum {
     ACTIVITIES = "activities",
@@ -55,7 +55,7 @@ const useImports = () => {
     const [importState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const backendUrl = backendAPIConfig.basePath!
-    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const {axiosInstance} = useContext(ErmesAxiosContext)    
     const importApiFactory = useMemo(() => ImportApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const { displayErrorSnackbar } = useSnackbars()
 

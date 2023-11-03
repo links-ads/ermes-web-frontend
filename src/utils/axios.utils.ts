@@ -13,7 +13,7 @@ export function CreatAxiosInstance(backendUrl: string): AxiosInstance {
     if (error?.response?.status === 401) {
       console.log(error.response.data.error)
       //dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
-      localStorage.clear()
+      //localStorage.clear()
     }
     // Other errors must be catched locally
     return Promise.reject(error)

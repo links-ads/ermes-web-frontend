@@ -31,6 +31,7 @@ import {
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 import { removeLayerFromMap, paintMapWithLayer } from '../../../../common/map/map-common'
 import { CreatAxiosInstance } from '../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({
   slider: {
@@ -106,7 +107,7 @@ const LayersPlayer: React.FC<{
   const geoServerConfig = appConfig.geoServer
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 

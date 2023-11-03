@@ -1,7 +1,7 @@
-import { useCallback, useReducer, useMemo } from 'react'
+import { useCallback, useReducer, useMemo, useContext } from 'react'
 import { MissionsApiFactory, GetEntityByIdOutputOfMissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { error: false, isLoading: true, data: {} }
 
@@ -36,7 +36,7 @@ const useMissionsById = () => {
   const [missionState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)    
+  const {axiosInstance} = useContext(ErmesAxiosContext)    
   const missionApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchMissionById = useCallback(

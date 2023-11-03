@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect, useState, useContext } from 'react'
 
 import {
   FormControl,
@@ -44,6 +44,7 @@ import en_GB from 'antd/es/locale/en_GB'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
 import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 type MapFeature = CulturalProps
 
@@ -92,7 +93,7 @@ export function WildFireSimulationDialog({
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)     
+  const {axiosInstance} = useContext(ErmesAxiosContext)     
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {

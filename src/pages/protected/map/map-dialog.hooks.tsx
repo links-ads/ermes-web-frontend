@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useReducer } from 'react'
+import React, { useState, useEffect, useMemo, useReducer, useContext } from 'react'
 import { useModal } from 'react-modal-hook'
 import { ConfirmDialog } from '../../../common/dialogs/confirm-dialog.component'
 import styled from 'styled-components'
@@ -13,6 +13,7 @@ import { ProvisionalFeatureType } from './map.context'
 import { DialogEdit } from './map-dialog-edit.component'
 import { geojsonToWKT } from "@terraformer/wkt"
 import { CreatAxiosInstance } from '../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 // Find a more suitable solution, especially for large screens
 const Container = styled.div`
@@ -333,7 +334,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
   const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const missionsApiFactory = useMemo(
     () => MissionsApiFactory(backendAPIConfig, backendUrl, axiosInstance),

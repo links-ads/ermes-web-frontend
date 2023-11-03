@@ -1,8 +1,8 @@
-import { useReducer, useMemo, useCallback } from 'react'
+import { useReducer, useMemo, useCallback, useContext } from 'react'
 import { RolesApiFactory, RoleDto } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
 
@@ -39,7 +39,7 @@ export default function useRolesList() {
   const { displayErrorSnackbar } = useSnackbars()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
   const roleApiFactory = useMemo(() => RolesApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchRoles = useCallback(

@@ -1,10 +1,10 @@
-import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef, useContext } from 'react'
 import { MissionsApiFactory, MissionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedItems: [] }
@@ -83,7 +83,7 @@ export default function useMissionsList() {
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
   const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)

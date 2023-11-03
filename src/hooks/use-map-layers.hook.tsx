@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer } from 'react'
+import { useCallback, useContext, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
 import { GroupLayerState, LayerSettingsState } from '../models/layers/LayerState'
@@ -9,7 +9,7 @@ import {
   LayerFeatureInfo,
   LayerFeatureInfoState
 } from '../models/layers/LayerFeatureInfo'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = {
   rawLayers: {},
@@ -202,7 +202,7 @@ const useMapLayers = () => {
   const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)    
+  const {axiosInstance} = useContext(ErmesAxiosContext)    
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchLayers = useCallback(

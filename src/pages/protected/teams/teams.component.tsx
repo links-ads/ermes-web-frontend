@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useContext } from 'react'
 import Typography from '@material-ui/core/Typography'
 
 /*
@@ -34,6 +34,7 @@ import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
 import { CreatAxiosInstance } from '../../../utils/axios.utils';
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context';
 
 const MAX_RESULT_COUNT = 100
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
@@ -239,7 +240,7 @@ export function Teams() {
   // Load api to get the data needed for Teams, set it to backoffice (not public) and load load the configurations
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const teamAPIFactory = TeamsApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const methodName: KRTmsApiPC = 'teamsGetTeams'
   const opts: APIAxiosHookOpts<TmsApiPC> = {

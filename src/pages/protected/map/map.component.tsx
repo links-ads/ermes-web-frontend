@@ -40,6 +40,7 @@ import { MapFeatureInfo } from './map-popup-feature-info.component'
 import { removeLayerFromMap } from '../../../common/map/map-common'
 import { CameraDetails } from './map-drawer/camera-details.component'
 import { CreatAxiosInstance } from '../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 type MapFeature = CulturalProps
 
 export function Map() {
@@ -195,7 +196,7 @@ export function Map() {
   // Retrieve json data, and the function to make the call to filter by date
   const [prepGeoData, fetchGeoJson, downloadGeoJson] = GetApiGeoJson()
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl) 
+  const {axiosInstance} = useContext(ErmesAxiosContext) 
   const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
 

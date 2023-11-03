@@ -1,7 +1,7 @@
-import { useCallback, useReducer, useMemo } from 'react'
+import { useCallback, useReducer, useMemo, useContext } from 'react'
 import { MapRequestsApiFactory, GetEntityByIdOutputOfMapRequestDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { error: false, isLoading: true, data: {} }
 
@@ -36,7 +36,7 @@ const useMapRequestById = () => {
   const [annotationsState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)    
+  const {axiosInstance} = useContext(ErmesAxiosContext)    
   const mrApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchAnnotations = useCallback(

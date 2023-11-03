@@ -1,6 +1,6 @@
 import { DTOrder, DTOrderDir, UsersApiFactory } from 'ermes-backoffice-ts-sdk'
 import MaterialTable, { Options } from 'material-table'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
@@ -11,6 +11,7 @@ import { ProfileApiFactory } from 'ermes-ts-sdk'
 import { Chip, makeStyles, Typography } from '@material-ui/core'
 import { AdministrationContainer } from '../../../common/common.components'
 import { CreatAxiosInstance } from '../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {
   sorting: false,
@@ -45,7 +46,7 @@ const UncompletedUsersComponent = (props) => {
   const { language } = i18n
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const usersAPIFactory = UsersApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const profileAPIFactory = ProfileApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const { displaySuccessSnackbar, displayErrorSnackbar } = useSnackbars()

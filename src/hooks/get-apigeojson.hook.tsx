@@ -6,7 +6,7 @@ import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { useTranslation } from 'react-i18next'
 import { FiltersContext } from '../state/filters.context'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = {
   error: false,
@@ -66,7 +66,7 @@ export default function GetApiGeoJson() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)
+  const {axiosInstance} = useContext(ErmesAxiosContext)//CreatAxiosInstance(backendUrl)
   const geoJsonApiFactory = useMemo(() => GeoJsonApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)

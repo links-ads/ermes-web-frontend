@@ -1,11 +1,11 @@
-import { useCallback, useReducer, useMemo } from 'react';
+import { useCallback, useReducer, useMemo, useContext } from 'react';
 import {
     SocialApiFactory
 } from 'ermes-backoffice-ts-sdk';
 import {
     useAPIConfiguration
 } from './api-hooks';
-import { CreatAxiosInstance } from '../utils/axios.utils';
+import { ErmesAxiosContext } from '../state/ermesaxios.context';
 
 const initialState = { error: false, isLoading: true, hazardNames: [], mapHazardsToIds: {}, mapIdsToHazards: {}, infoNames: [], mapInfosToIds: {}, mapIdsToInfos: {} }
 
@@ -37,7 +37,7 @@ const useFilters = () => {
     const [filtersState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const backendUrl = backendAPIConfig.basePath!
-    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const {axiosInstance} = useContext(ErmesAxiosContext)    
     const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const fetchData = useCallback(() => {
         dispatch({ type: 'FETCH' })

@@ -1,10 +1,11 @@
 import { GamificationApiFactory } from "ermes-ts-sdk";
-import { useCallback, useReducer, useMemo } from 'react';
+import { useCallback, useReducer, useMemo, useContext } from 'react';
 import {
     useAPIConfiguration
   } from './api-hooks';
   import useLanguage from './use-language.hook';
 import { CreatAxiosInstance } from "../utils/axios.utils";
+import { ErmesAxiosContext } from "../state/ermesaxios.context";
 
   const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }
 
@@ -38,7 +39,7 @@ import { CreatAxiosInstance } from "../utils/axios.utils";
     const [statsState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const backendUrl = backendAPIConfig.basePath!
-    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const {axiosInstance} = useContext(ErmesAxiosContext)    
     const gamificationApiFactory = useMemo(() => GamificationApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const {dateLocale} = useLanguage()
     const parseCompetitorsData = useCallback((persons) => {

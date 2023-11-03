@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import Typography from '@material-ui/core/Typography'
 import MaterialTable, { Column, Options } from 'material-table'
 import { AdministrationContainer } from '../../../common/common.components'
@@ -22,6 +22,7 @@ import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { CreatAxiosInstance } from '../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {
   sorting: false,
@@ -39,7 +40,7 @@ export function Organizations() {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const { displayErrorSnackbar } = useSnackbars()
 

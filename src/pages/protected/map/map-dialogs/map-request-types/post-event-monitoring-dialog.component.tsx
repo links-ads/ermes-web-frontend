@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect, useState, useContext } from 'react'
 
 import {
   FormControl,
@@ -25,6 +25,7 @@ import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
 import RangeDatePicker from '../../../../../common/range-date-picker'
 import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 type MapFeature = CulturalProps
 
@@ -51,7 +52,7 @@ export function PostEventMonitoringDialog({
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)     
+  const {axiosInstance} = useContext(ErmesAxiosContext)     
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {

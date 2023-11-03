@@ -7,7 +7,7 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 import { FiltersContext } from '../state/filters.context'
 
 const MAX_RESULT_COUNT = 9
@@ -81,7 +81,7 @@ export default function useReportList() {
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
 

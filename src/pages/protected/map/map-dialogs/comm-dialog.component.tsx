@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 
 import {
   Grid,
@@ -17,6 +17,7 @@ import { OrganizationDto, OrganizationsApiFactory } from 'ermes-backoffice-ts-sd
 import useAPIHandler from '../../../../hooks/use-api-handler'
 import RangeDateTimePicker from '../../../../common/range-date-time-picker'
 import { CreatAxiosInstance } from '../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 export function CommunicationDialog({
   editState,
@@ -32,7 +33,7 @@ export function CommunicationDialog({
   ]
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)   
+  const {axiosInstance} = useContext(ErmesAxiosContext)   
   const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [orgApiHandlerState, handleOrgAPICall] = useAPIHandler(false)
 

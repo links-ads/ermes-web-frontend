@@ -1,11 +1,11 @@
-import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef, useContext } from 'react'
 import { ActionsApiFactory, PersonActionDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { useTranslation } from 'react-i18next'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -46,7 +46,7 @@ export default function usePeopleList() {
   const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
   const actionApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const { i18n } = useTranslation()
 

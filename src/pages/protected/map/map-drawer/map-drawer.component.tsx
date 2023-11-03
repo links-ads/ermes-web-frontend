@@ -37,6 +37,7 @@ import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-d
 import SearchBar from '../../../../common/search-bar.component'
 import { TabPanel } from '../../../../common/common.components'
 import { CreatAxiosInstance } from '../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -124,7 +125,7 @@ export default function MapDrawer(props) {
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   const filtersCtx = useContext(FiltersContext)

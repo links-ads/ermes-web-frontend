@@ -1,11 +1,11 @@
-import { useCallback, useReducer, useMemo } from 'react';
+import { useCallback, useReducer, useMemo, useContext } from 'react';
 import {
     SocialApiFactory
 } from 'ermes-backoffice-ts-sdk';
 import {
     useAPIConfiguration
 } from './api-hooks';
-import { CreatAxiosInstance } from '../utils/axios.utils';
+import { ErmesAxiosContext } from '../state/ermesaxios.context';
 
 const initialState = { error:false,hasMore: false, isLoading: true, data: [], nextPage: 1 }
 
@@ -49,7 +49,7 @@ const useEventsAnnotations = () => {
     const [annotationsState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
     const backendUrl = backendAPIConfig.basePath!
-    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const {axiosInstance} = useContext(ErmesAxiosContext)    
     const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
     const fetchAnnotations = useCallback((args, page_size, update, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { },annotationsState) => {

@@ -24,6 +24,7 @@ import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
 import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
+import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({
   buttonsContainer: {
@@ -86,7 +87,7 @@ const MapRequestAccordionItem: React.FC<{
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 

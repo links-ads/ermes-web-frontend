@@ -24,7 +24,6 @@ export const FiltersContext = createContext({
 
 const FiltersContextProvider = (props) => {
   const { profile, role } = useUser()
-  const { axiosInstance} = props
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const [filtersObj, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
   const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersObj

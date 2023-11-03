@@ -10,10 +10,10 @@ import {
   MissionsApiFactory,
   ReportsApiFactory
 } from 'ermes-ts-sdk'
-import { useCallback, useMemo, useReducer } from 'react'
+import { useCallback, useContext, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { EntityType } from 'ermes-backoffice-ts-sdk'
-import { CreatAxiosInstance } from '../utils/axios.utils'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { tabIndex: 0, selectedFeatureId: '', selectedItemsList: [] }
 
@@ -114,7 +114,7 @@ export default function useMapDrawer() {
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const missionsApiFactory = useMemo(
     () => MissionsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
