@@ -4,6 +4,7 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const MAX_RESULT_COUNT = 9
 
@@ -90,7 +91,12 @@ export default function useCameraList() {
   const { displayErrorSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const camerasApiFactory = useMemo(() => StationsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)
+  const camerasApiFactory = useMemo(
+    () => StationsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)

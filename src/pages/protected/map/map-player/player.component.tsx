@@ -30,6 +30,7 @@ import {
 } from '@material-ui/icons'
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 import { removeLayerFromMap, paintMapWithLayer } from '../../../../common/map/map-common'
+import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 
 const useStyles = makeStyles((theme) => ({
   slider: {
@@ -104,7 +105,9 @@ const LayersPlayer: React.FC<{
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 
   const defaultPosition = useMemo<PixelPostion>(() => {

@@ -45,6 +45,7 @@ import {
 import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
 import classes from './drawer-cards/communication-card.module.scss'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
+import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -154,6 +155,12 @@ export function CameraDetails({}: CameraDetailsProps) {
   const [hideMeasurementsWithoutDetections, setHideMeasurementsWithoutDetections] = useState(true)
   const [page, setPage] = useState(0)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)
+  const stationsApiFactory = useMemo(
+    () => StationsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )  
   const { enqueueSnackbar } = useSnackbar()
 
   async function handleClose() {
@@ -249,7 +256,7 @@ export function CameraDetails({}: CameraDetailsProps) {
     const { validation, ...rest } = currentMetadata
 
     try {
-      const response = await StationsApiFactory(backendAPIConfig).stationsValidateMeasure({
+      const response = await stationsApiFactory.stationsValidateMeasure({
         measureId: selectedSensorMeasurementId,
         smoke: type === 'smoke' ? value : validation?.smoke ?? null,
         fire: type === 'fire' ? value : validation?.fire ?? null,

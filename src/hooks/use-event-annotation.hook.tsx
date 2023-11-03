@@ -5,6 +5,7 @@ import {
 import {
     useAPIConfiguration
 } from './api-hooks';
+import { CreatAxiosInstance } from '../utils/axios.utils';
 
 const initialState = { error:false,hasMore: false, isLoading: true, data: [], nextPage: 1 }
 
@@ -47,7 +48,9 @@ const useEventsAnnotations = () => {
 
     const [annotationsState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig), [backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
     const fetchAnnotations = useCallback((args, page_size, update, transformData = (data) => { }, errorData = {}, sideEffect = (data) => { },annotationsState) => {
         let pageNumber = update ? annotationsState.nextPage : 1

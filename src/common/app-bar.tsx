@@ -19,6 +19,7 @@ import { FiltersContext } from '../state/filters.context'
 import { TeamsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from '../hooks/api-hooks'
 import useAPIHandler from '../hooks/use-api-handler'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -36,26 +37,30 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   const { localStorageFilters, filters, mapDrawerTabVisibility, lastUpdate, applyDate, applyFilters, updateTeamList, updateMapDrawerTabs } = filtersCtx
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)    
+  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
 
-  useEffect(() => {
-    handleTeamsAPICall(() => {
-      return teamsApiFactory.teamsGetTeams(1000)
-    })
-  }, [teamsApiFactory, handleTeamsAPICall])
+  //TODO: restore this function
+  // do not make call when user is not authenticated
+  // useEffect(() => {
+  //     handleTeamsAPICall(() => {
+  //       return teamsApiFactory.teamsGetTeams(1000)
+  //     })
+  // }, [teamsApiFactory, handleTeamsAPICall])
 
-  useEffect(() => {
-    if (
-      !teamsApiHandlerState.loading &&
-      !!teamsApiHandlerState.result &&
-      teamsApiHandlerState.result.data
-    ) {
-      //update starting filter object with actual team names from http
-      const teamNamesList = teamsApiHandlerState.result.data.data.map(t => t.name)
-      updateTeamList(teamNamesList)
-    }
-  }, [teamsApiHandlerState])
+  // useEffect(() => {
+  //   if (
+  //     !teamsApiHandlerState.loading &&
+  //     !!teamsApiHandlerState.result &&
+  //     teamsApiHandlerState.result.data
+  //   ) {
+  //     //update starting filter object with actual team names from http
+  //     const teamNamesList = teamsApiHandlerState.result.data.data.map(t => t.name)
+  //     updateTeamList(teamNamesList)
+  //   }
+  // }, [teamsApiHandlerState])
 
   return (
     <Header

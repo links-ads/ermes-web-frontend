@@ -6,6 +6,7 @@ import {
     useAPIConfiguration
 } from './api-hooks';
 import { useSnackbars } from './use-snackbars.hook';
+import { CreatAxiosInstance } from '../utils/axios.utils';
 
 export enum ImportEnum {
     ACTIVITIES = "activities",
@@ -53,7 +54,9 @@ const useImports = () => {
 
     const [importState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const importApiFactory = useMemo(() => ImportApiFactory(backendAPIConfig), [backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const importApiFactory = useMemo(() => ImportApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const { displayErrorSnackbar } = useSnackbars()
 
     const handleSuccess = useCallback((response) => {

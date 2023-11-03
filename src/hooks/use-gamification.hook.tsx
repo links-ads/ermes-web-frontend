@@ -4,6 +4,7 @@ import {
     useAPIConfiguration
   } from './api-hooks';
   import useLanguage from './use-language.hook';
+import { CreatAxiosInstance } from "../utils/axios.utils";
 
   const initialState: { isError: boolean, isLoading: boolean, data: any } = { isError: false, isLoading: true, data: {} }
 
@@ -36,7 +37,9 @@ import {
 
     const [statsState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const gamificationApiFactory = useMemo(() => GamificationApiFactory(backendAPIConfig), [backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const gamificationApiFactory = useMemo(() => GamificationApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const {dateLocale} = useLanguage()
     const parseCompetitorsData = useCallback((persons) => {
         const newComp = [] as any[]

@@ -43,6 +43,7 @@ import it_IT from 'antd/es/locale/it_IT'
 import en_GB from 'antd/es/locale/en_GB'
 import 'moment/locale/it'
 import 'moment/locale/en-gb'
+import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 
 type MapFeature = CulturalProps
 
@@ -90,7 +91,9 @@ export function WildFireSimulationDialog({
   const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)     
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())

@@ -21,6 +21,7 @@ import { TeamsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
 import useAPIHandler from '../../../../hooks/use-api-handler'
 import { GenericDialogProps } from '../map-dialog-edit.component'
 import RangeDateTimePicker from '../../../../common/range-date-time-picker'
+import { CreatAxiosInstance } from '../../../../utils/axios.utils'
 
 export function MissionDialog({
   operationType,
@@ -31,8 +32,13 @@ export function MissionDialog({
   const { t } = useTranslation(['maps', 'labels'])
   const missionStatusOptions = Object.values(MissionStatusType)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)   
+  const orgApiFactory = useMemo(() => OrganizationsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
+  const teamsApiFactory = useMemo(
+    () => TeamsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
   const [orgApiHandlerState, handleOrgAPICall] = useAPIHandler(false)
   const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
 

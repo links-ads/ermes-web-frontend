@@ -3,6 +3,7 @@ import { CategoryDto, ReportsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const initialState = { error: false, isLoading: true, data: [] }
 
@@ -38,7 +39,9 @@ export default function useCategoriesList() {
   const { displayErrorSnackbar } = useSnackbars()
   const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig]);
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig]);
 
   const fetchCategoriesList = useCallback(
     (transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {

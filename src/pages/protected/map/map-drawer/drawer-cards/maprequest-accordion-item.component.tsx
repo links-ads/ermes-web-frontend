@@ -23,6 +23,7 @@ import { AppConfigContext, AppConfig } from '../../../../../config'
 import ErrorMessagesTooltip from '../../../../../common/tooltips/error-messages-tooltip.component'
 import { useAPIConfiguration } from '../../../../../hooks/api-hooks'
 import { useSnackbars } from '../../../../../hooks/use-snackbars.hook'
+import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 
 const useStyles = makeStyles((theme) => ({
   buttonsContainer: {
@@ -84,7 +85,9 @@ const MapRequestAccordionItem: React.FC<{
   const geoServerConfig = appConfig.geoServer
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 
   const isCheckedHandler = (event: any) => {

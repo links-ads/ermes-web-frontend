@@ -108,7 +108,7 @@ export function NavHeader() {
               {profile.user.email}
             </Typography>
             <Typography noWrap gutterBottom>
-              {t('common:' + profile.role)}
+              {t('common:' + (profile?.user?.roles?[0] : ''))}
             </Typography>
           </div>
         )}

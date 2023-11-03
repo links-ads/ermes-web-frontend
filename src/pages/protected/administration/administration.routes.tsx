@@ -7,11 +7,11 @@ import { Administration } from './administration.component'
 import { useUser } from '../../../state/auth/auth.hooks'
 
 export function AdministrationRoutes({ location }: RouteChildrenProps) {
-  const { profile } = useUser()
-  if (!profile || !['administrator', 'organization_manager'].includes(profile.role)) {
+  const { profile, role } = useUser()
+  if (!profile || !['administrator', 'organization_manager'].includes(role)) {
     return null
   } else {
-    const isAdministrator = profile.role === 'administrator'
+    const isAdministrator = role === 'administrator'
     // TODO if organization_manager, get org id and check that matches
     return (
       <Switch location={location}>

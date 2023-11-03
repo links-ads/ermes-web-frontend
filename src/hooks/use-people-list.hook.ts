@@ -5,6 +5,7 @@ import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { useTranslation } from 'react-i18next'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0 }
@@ -44,7 +45,9 @@ export default function usePeopleList() {
   const { displayErrorSnackbar } = useSnackbars()
   const [searchText, setSearchText] = useState<string | undefined>(undefined)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const actionApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const { i18n } = useTranslation()
 
   const [ searchFilter, setSearchFilter] = useState<Number [] | undefined>(undefined)
@@ -67,7 +70,7 @@ export default function usePeopleList() {
   const fetchPeople = useCallback(
     (tot, personId, teamList?, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-      repApiFactory
+      actionApiFactory
         .actionsGetActions(
           (filters?.datestart as any)?.selected,
           (filters?.dateend as any)?.selected,
@@ -113,7 +116,7 @@ export default function usePeopleList() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, searchText]
+    [actionApiFactory, displayErrorSnackbar, searchText]
   )
   const applyFilterReloadData = (newFilters) => {
     // dispatch(initialState)

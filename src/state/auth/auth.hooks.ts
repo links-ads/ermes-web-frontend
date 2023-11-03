@@ -1,5 +1,5 @@
 import { useEffect, useContext, useCallback, useMemo } from 'react'
-import { useOAuth2Token, parseJWT, isExpired } from '../../oauth/react-oauth2-hook-mod'
+import { useOAuth2Token, parseJWT, isExpired, isTokenExpired, oauthStateName, storagePrefix } from '../../oauth/react-oauth2-hook-mod'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { AuthThunkDispatch, AuthThunkAction } from './auth.types'
 import { AUTH_ACTIONS } from './auth.actions'
@@ -14,9 +14,12 @@ import { useTranslation } from 'react-i18next'
 import { AppConfigContext, AppConfig } from '../../config'
 import { getFusionAuthURLs } from './auth.utils'
 import { Configuration, ProfileApiFactory, ProfileDto } from 'ermes-ts-sdk'
-import { Profile } from 'ermes-ts-sdk'
 import { useSnackbars } from '../../hooks/use-snackbars.hook'
 import { USER_STORAGE_KEY } from '../store.utils'
+import Cookie from 'js-cookie'
+import useStorage from 'react-storage-hook'
+import { CreatAxiosInstance } from '../../utils/axios.utils'
+
 
 /**
  * Async Thunk!
@@ -30,60 +33,99 @@ export function thunkLoadProfile(
   userProfileStorageKey: string
 ): AuthThunkAction {
   return async (dispatch, getState) => {
-    const apiTtoken = cfg.apiKey
+    //const apiTtoken = cfg.apiKey
     const authState = getState().auth
     const { profile, token } = authState
-    if (apiTtoken === token && profile) {
-      return
-    } else if (typeof apiTtoken === 'string') {
-      const jwt = parseJWT(apiTtoken)
-      if (jwt) {
-        // Check token expired
-        const expired = isExpired(jwt)
-        if (expired) {
-          // Token expired
+    const expTime = Cookie.get('app.at_exp')
+    let isAuthenticated = false
+    if (expTime) isAuthenticated = !isTokenExpired(expTime)
+    if(isAuthenticated)
+    {
+      dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: true })
+      if(profile)
+        dispatch({ type: AUTH_ACTIONS.SET_USER_DATA, profile: profile })
+      else
+      {
+        const backendUrl = cfg.basePath!
+        const axiosInstance = CreatAxiosInstance(backendUrl)
+        const apiFactory = ProfileApiFactory(cfg, backendUrl, axiosInstance)
+        
+        let profile: ProfileDto | null | undefined = { user: {} }
+        try {
+          const response = await apiFactory.profileGetProfile()
+          profile = response.data.profile
+        } catch (err) {
           dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
+          dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: false })
           localStorage.removeItem(userProfileStorageKey)
-          onSessionExpired('errors:session_expired')
-        } else {
-          dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: true })
-          const apiFactory = ProfileApiFactory(cfg)
-          let profile: ProfileDto | null | undefined = { user: {} }
-
-          try {
-            // BEGIN: PROVISIONAL UNTIL 500 err are solved!
-
-            try {
-              const response = await apiFactory.profileGetProfile()
-              profile = response.data.profile
-            } catch (err) {
-              console.warn('Error retrieving Profile')
-            }
-            // END: PROVISIONAL UNTIL 500 err are solved!
-
-            const userProfile = Profile.create(jwt, profile || { user: {} })
-            if (userProfile) {
-              dispatch({ type: AUTH_ACTIONS.SET_TOKEN, token: apiTtoken })
-              dispatch({ type: AUTH_ACTIONS.SET_USER_DATA, profile: userProfile })
-              localStorage.setItem(userProfileStorageKey, JSON.stringify(userProfile))
-            }
-          } catch (err) {
-            console.error('Could not Load User Profile', err)
-            dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: false })
-            if (err.isAxiosError && err.response.status === 401) {
-              // Token expired
-              dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
-              localStorage.removeItem(userProfileStorageKey)
-              onSessionExpired(err.response.data.error)
-            } else {
-              const errorObject = err.isAxiosError ? err.response.data.error : err
-              onError(errorObject)
-            }
-            // throw err
-          }
+          onSessionExpired((err as any).response.data.error)
+          return
         }
+        
+        dispatch({ type: AUTH_ACTIONS.SET_USER_DATA, profile: profile! })
       }
+
+      localStorage.setItem(userProfileStorageKey, JSON.stringify(profile))
     }
+    else
+    {
+      dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
+      localStorage.removeItem(userProfileStorageKey)
+      onSessionExpired('errors:session_expired')
+    }
+
+    dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: false })
+    // if (apiTtoken === token && profile) {
+    //   return
+    // } else if (typeof apiTtoken === 'string') {
+    //   const jwt = parseJWT(apiTtoken)
+    //   if (jwt) {
+    //     // Check token expired
+    //     const expired = isExpired(jwt)
+    //     if (expired) {
+    //       // Token expired
+    //       dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
+    //       localStorage.removeItem(userProfileStorageKey)
+    //       onSessionExpired('errors:session_expired')
+    //     } else {
+    //       dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: true })
+    //       const apiFactory = ProfileApiFactory(cfg)
+    //       let profile: ProfileDto | null | undefined = { user: {} }
+
+    //       try {
+    //         // BEGIN: PROVISIONAL UNTIL 500 err are solved!
+
+    //         try {
+    //           const response = await apiFactory.profileGetProfile()
+    //           profile = response.data.profile
+    //         } catch (err) {
+    //           console.warn('Error retrieving Profile')
+    //         }
+    //         // END: PROVISIONAL UNTIL 500 err are solved!
+
+    //         const userProfile = Profile.create(jwt, profile || { user: {} })
+    //         if (userProfile) {
+    //           dispatch({ type: AUTH_ACTIONS.SET_TOKEN, token: apiTtoken })
+    //           dispatch({ type: AUTH_ACTIONS.SET_USER_DATA, profile: userProfile })
+    //           localStorage.setItem(userProfileStorageKey, JSON.stringify(userProfile))
+    //         }
+    //       } catch (err) {
+    //         console.error('Could not Load User Profile', err)
+    //         dispatch({ type: AUTH_ACTIONS.LOADING_USER_DATA, loading: false })
+    //         if (err.isAxiosError && err.response.status === 401) {
+    //           // Token expired
+    //           dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
+    //           localStorage.removeItem(userProfileStorageKey)
+    //           onSessionExpired(err.response.data.error)
+    //         } else {
+    //           const errorObject = err.isAxiosError ? err.response.data.error : err
+    //           onError(errorObject)
+    //         }
+    //         // throw err
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
 
@@ -92,7 +134,8 @@ export function useOauth() {
   const { displayErrorSnackbar, displayWarningSnackbar } = useSnackbars()
   const { oauth2CallbackUrl, authorizeUrl, logoutUrl } = getFusionAuthURLs(
     appConfig.rootUrl,
-    appConfig.fusionAuth?.url || ''
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
   )
   const tenantId = appConfig.fusionAuth?.tenantId || ''
   const clientId = appConfig.fusionAuth?.clientId || ''
@@ -104,7 +147,8 @@ export function useOauth() {
     redirectUri: oauth2CallbackUrl,
     clientId,
     tenantId,
-    locale
+    locale,
+    responseType: 'code'
   })
 
   const beAPIConfig = useMemo(
@@ -162,7 +206,8 @@ export function useUser() {
   const { isAuthenticated, profile } = useSelector(getUserStateSelector, userEqualityFn)
   return {
     isAuthenticated,
-    profile: profile ? Profile.fromPlainObjcet(profile) : null
+    profile: profile ? profile : null,
+    role: profile? profile.user? profile.user.roles? profile.user.roles[0] : '' : '' : ''
   }
 }
 
@@ -172,20 +217,30 @@ export function useToken() {
 }
 
 export function useLogout() {
-  const { clientId, tenantId, logoutUrl, setToken } = useOauth()
+  const { clientId, tenantId, logoutUrl } = useOauth()
   const dispatch = useDispatch<AuthThunkDispatch>()
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const { logoutCallbackUrl } = getFusionAuthURLs(
+    appConfig.rootUrl,
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
+  )
+  let [, setHasHandle] = useStorage<boolean>('logout-window-handle', {
+    placeholder: false
+  })
 
   // Logout action
   function logout(): void {
     // setUser(null)
-    setToken(null)
+    //setToken(null)
     /* const handle = */ window.open(
-      `${logoutUrl}?client_id=${clientId}&tenantId=${tenantId}`,
+      `${logoutUrl}?client_id=${clientId}&tenantId=${tenantId}&post_logout_redirect_uri=${logoutCallbackUrl}`,
       'Logout',
       'width=360,height=400'
     )
     dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
     localStorage.clear()
+    setHasHandle(true)
     // updateLogoutHandle(handle)
     // console.debug('HANDLE', handle)
   }

@@ -6,6 +6,7 @@ import {
     useAPIConfiguration
 } from './api-hooks';
 import { parseStats } from '../common/stats-cards.components';
+import { CreatAxiosInstance } from '../utils/axios.utils';
 
 const initialState = {error:false, isLoading: true, stats: {} }
 
@@ -37,7 +38,9 @@ const useSocialStat = (type : 'TWEETS' | "EVENTS") => {
 
     const [socialStatState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const socialApiFactory = useMemo(()=> SocialApiFactory(backendAPIConfig),[backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)        
+    const socialApiFactory = useMemo(()=> SocialApiFactory(backendAPIConfig, backendUrl, axiosInstance),[backendAPIConfig])
     const fetchEventStats = useCallback((args) => {
         dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetEventStatistics(args.languageSelect, args.datestart,

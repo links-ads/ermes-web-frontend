@@ -215,7 +215,7 @@ export function NavContent() {
     } */
   }
 
-  const role: string = profile?.role || ''
+  const role = profile?.user?.roles?[0] : ''
   const organizationId: string = profile?.organization?.name || 'unkn'
   const list = useMemo(()=> getLinks(role as UserRole,organizationId), [
     role,

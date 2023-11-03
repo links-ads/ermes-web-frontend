@@ -34,7 +34,8 @@ async function start() {
   // CONFIGURE INSTANCE FOR Axios BE calls
   // See https://github.com/simoneb/axios-hooks#configure-cache-axios-
   const axios = Axios.create({
-    baseURL: appConfig?.backend?.url || '/'
+    baseURL: appConfig?.backend?.url || '/',
+    withCredentials: true
   })
 
   // // Use interceptors for code expiration

@@ -24,6 +24,7 @@ import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
 import RangeDatePicker from '../../../../../common/range-date-picker'
+import { CreatAxiosInstance } from '../../../../../utils/axios.utils'
 
 type MapFeature = CulturalProps
 
@@ -49,7 +50,9 @@ export function PostEventMonitoringDialog({
   const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)     
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
     handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())

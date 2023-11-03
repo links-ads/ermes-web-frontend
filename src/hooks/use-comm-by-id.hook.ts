@@ -1,6 +1,7 @@
 import { useCallback, useReducer, useMemo } from 'react'
 import { CommunicationsApiFactory, GetEntityByIdOutputOfCommunicationDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const initialState = { error: false, isLoading: true, data: {}}
 
@@ -34,7 +35,9 @@ const reducer = (currentState, action) => {
 const useCommById = () => {
   const [commByIdState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const commApiFactory = useMemo(() => CommunicationsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchCommById = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {

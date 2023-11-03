@@ -9,6 +9,7 @@ import {
   LayerFeatureInfo,
   LayerFeatureInfoState
 } from '../models/layers/LayerFeatureInfo'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const initialState = {
   rawLayers: {},
@@ -200,7 +201,9 @@ const useMapLayers = () => {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)    
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchLayers = useCallback(
     (filtersObj, transformData = () => {}) => {

@@ -17,6 +17,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import { ClassNameMap } from '@material-ui/core/styles/withStyles'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { ROLE_FIRST_RESPONDER, ROLE_CITIZEN } from '../../../App.const'
+import { CreatAxiosInstance } from '../../../utils/axios.utils'
 
 const options: Options<any> = {
   sorting: true,
@@ -155,7 +156,9 @@ export function Users() {
   const { isOrgLoading, orgLookup } = useOrgList()
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const userAPIFactory = UsersApiFactory(backendAPIConfig)
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const userAPIFactory = UsersApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   //fetch active roles from server
   const [rolesData, fetchRoles] = useRolesList()
 
@@ -238,7 +241,7 @@ export function Users() {
                 await userAPIFactory.usersCreateOrUpdateUser(newUserInput)
                 await loadUsers() // refresh
               } catch (err) {
-                displayErrorSnackbar(err.response?.data.error)
+                displayErrorSnackbar((err as any).response?.data.error)
               } finally {
                 // loading OFF
                 setUserUpdating(false)
@@ -255,7 +258,7 @@ export function Users() {
                 await userAPIFactory.usersCreateOrUpdateUser(newUserInput)
                 await loadUsers() // refresh
               } catch (err) {
-                displayErrorSnackbar(err.response?.data.error)
+                displayErrorSnackbar((err as any).response?.data.error)
               } finally {
                 // loading OFF
                 setUserUpdating(false)

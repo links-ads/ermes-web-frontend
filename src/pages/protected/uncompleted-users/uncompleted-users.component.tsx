@@ -10,6 +10,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 import { ProfileApiFactory } from 'ermes-ts-sdk'
 import { Chip, makeStyles, Typography } from '@material-ui/core'
 import { AdministrationContainer } from '../../../common/common.components'
+import { CreatAxiosInstance } from '../../../utils/axios.utils'
 
 const options: Options<any> = {
   sorting: false,
@@ -43,8 +44,10 @@ const UncompletedUsersComponent = (props) => {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { language } = i18n
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const usersAPIFactory = UsersApiFactory(backendAPIConfig)
-  const profileAPIFactory = ProfileApiFactory(backendAPIConfig)
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const usersAPIFactory = UsersApiFactory(backendAPIConfig, backendUrl, axiosInstance)
+  const profileAPIFactory = ProfileApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const { displaySuccessSnackbar, displayErrorSnackbar } = useSnackbars()
 
   const localizeColumns = useMemo(() => {

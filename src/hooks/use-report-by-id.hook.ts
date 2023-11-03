@@ -1,6 +1,7 @@
 import { useCallback, useReducer, useMemo } from 'react'
 import { ReportsApiFactory, GetEntityByIdOutputOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const initialState = { error: false, isLoading: true, data: {} }
 
@@ -34,7 +35,9 @@ const reducer = (currentState, action) => {
 const useReportById = () => {
   const [annotationsState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)      
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const fetchAnnotations = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {

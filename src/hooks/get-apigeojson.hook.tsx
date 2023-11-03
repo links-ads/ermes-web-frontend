@@ -6,6 +6,7 @@ import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
 import { useTranslation } from 'react-i18next'
 import { FiltersContext } from '../state/filters.context'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const initialState = {
   error: false,
@@ -64,7 +65,9 @@ const reducer = (currentState, action) => {
 export default function GetApiGeoJson() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => GeoJsonApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)
+  const geoJsonApiFactory = useMemo(() => GeoJsonApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
   const { t, i18n } = useTranslation()
@@ -75,10 +78,12 @@ export default function GetApiGeoJson() {
     (teamIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       dispatch({ type: 'FETCH' })
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
-        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      if (
+        (filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)
+      ) {
+        ;(filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
       }
-      repApiFactory
+      geoJsonApiFactory
         .geoJsonGetFeatureCollection(
           (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
           (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
@@ -124,7 +129,7 @@ export default function GetApiGeoJson() {
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, storedFilters]
+    [geoJsonApiFactory, displayErrorSnackbar, storedFilters]
   )
 
   const downloadGeoJson = useCallback(
@@ -137,10 +142,12 @@ export default function GetApiGeoJson() {
       sideEffect = (data) => {}
     ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
-        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      if (
+        (filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)
+      ) {
+        ;(filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
       }
-      repApiFactory
+      geoJsonApiFactory
         .geoJsonDownloadFeatureCollection(
           (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
           (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
@@ -183,7 +190,7 @@ export default function GetApiGeoJson() {
           dispatch({ type: 'ERROR', value: err })
         })
     },
-    [repApiFactory, displayErrorSnackbar, displaySuccessSnackbar, storedFilters]
+    [geoJsonApiFactory, displayErrorSnackbar, displaySuccessSnackbar, storedFilters]
   )
 
   return [dataState, fetchGeoJson, downloadGeoJson] //, filterByDate

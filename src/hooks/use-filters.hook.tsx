@@ -5,6 +5,7 @@ import {
 import {
     useAPIConfiguration
 } from './api-hooks';
+import { CreatAxiosInstance } from '../utils/axios.utils';
 
 const initialState = { error: false, isLoading: true, hazardNames: [], mapHazardsToIds: {}, mapIdsToHazards: {}, infoNames: [], mapInfosToIds: {}, mapIdsToInfos: {} }
 
@@ -35,7 +36,9 @@ const reducer = (currentState, action) => {
 const useFilters = () => {
     const [filtersState, dispatch] = useReducer(reducer, initialState)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig), [backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)    
+    const socialApiFactory = useMemo(() => SocialApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const fetchData = useCallback(() => {
         dispatch({ type: 'FETCH' })
         socialApiFactory.socialGetLabels().then((result) => {

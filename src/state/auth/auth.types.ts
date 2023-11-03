@@ -2,26 +2,30 @@ import { Action } from 'redux'
 import { AUTH_ACTIONS } from './auth.actions'
 import { JWT /* , User */ } from '@fusionauth/typescript-client'
 import { ThunkAction, ThunkDispatch } from 'redux-thunk'
-import { IProfile } from 'ermes-ts-sdk'
+import { IProfile, ProfileDto } from 'ermes-ts-sdk'
 import { AppState } from '../app.state'
 
 // TODO use USER DEFINITION
 export type LocalUser = IProfile | null
 
 export interface AuthState {
-   profile: LocalUser
+   profile: ProfileDto | null
    token: string | null
-   loading: boolean
+   loading: boolean,
+   isAuthenticated: boolean
 }
 
 export interface AuthActionSetUser extends Action<AUTH_ACTIONS.SET_USER_DATA> {
-  profile: IProfile
+  profile: ProfileDto
 }
 export interface AuthActionSetToken extends Action<AUTH_ACTIONS.SET_TOKEN> {
   token: string
 }
 export interface AuthActionSetLoading extends Action<AUTH_ACTIONS.LOADING_USER_DATA> {
   loading: boolean
+}
+export interface AuthActionSetIsAuthenticated extends Action<AUTH_ACTIONS.SET_IS_AUTHENTICATED> {
+  isAuthenticated: boolean
 }
 
 export interface AuthActionClear extends Action<AUTH_ACTIONS.CLEAR_ALL> {}
@@ -31,6 +35,7 @@ export type AuthAction =
   | AuthActionSetToken
   | AuthActionSetLoading
   | AuthActionClear
+  | AuthActionSetIsAuthenticated
 
 export type AuthThunkAction = ThunkAction<void, AppState, unknown, AuthAction>
 
@@ -43,7 +48,7 @@ export interface AuthSelection {
 }
 
 export interface CurrentUserSelection {
-  profile: LocalUser
+  profile: ProfileDto | null
   isAuthenticated: boolean
 }
 

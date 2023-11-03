@@ -13,6 +13,7 @@ export function authReducer(
         break
       case AUTH_ACTIONS.SET_USER_DATA:
         state.profile = action.profile
+        state.isAuthenticated = true
         state.loading = false
         break
       case AUTH_ACTIONS.SET_TOKEN:
@@ -22,6 +23,7 @@ export function authReducer(
         state.profile = defaultState.profile
         state.token = defaultState.token
         state.loading = defaultState.loading
+        state.isAuthenticated = false
         break
       default:
         break

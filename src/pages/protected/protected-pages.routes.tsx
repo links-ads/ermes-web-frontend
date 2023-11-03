@@ -74,20 +74,11 @@ const DeviceAuth = React.lazy(
 );
 
 export function ProtectedPages({ match, location, history }: RouteChildrenProps) {
-  const { profile } = useUser()
+  const { profile, role } = useUser()
   const originalURL =
     match && match.url && match.url !== '/'
       ? qs.stringify({ redirect_to: match.url + location.search })
       : undefined
-
-  console.debug(
-    'ProtectedPages: LOC',
-    location.pathname,
-    profile,
-    match ? match.url : '',
-    originalURL,
-    profile?.defaultLandingPage
-  )
 
   const unAuthorizedContent = (props) => (
     <Container className="full flex container" maxWidth="sm">
@@ -97,11 +88,11 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
 
   return profile ? (
     <Switch location={location}>
-      <Redirect from="/" exact={true} to={profile.defaultLandingPage} />
+      <Redirect from="/" exact={true} to='/map' />
       <Route
         path={'/profile'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -117,7 +108,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/device-auth'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -133,7 +124,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/settings'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -149,7 +140,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/organizations/users'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -165,7 +156,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/organizations/teams'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -181,7 +172,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/administration'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -197,7 +188,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/organizations'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -213,7 +204,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/users'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -229,7 +220,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/import'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -245,7 +236,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/uncompleted-users'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -261,7 +252,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/dashboard'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -277,7 +268,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/map'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -293,7 +284,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/details'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -311,7 +302,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/social'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">
@@ -327,7 +318,7 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <Route
         path={'/events'}
         render={({ location }) => {
-          return controlAccess(location.pathname, profile.role) ? (
+          return controlAccess(location.pathname, role) ? (
             <Suspense
               fallback={
                 <div className="full-screen centered">

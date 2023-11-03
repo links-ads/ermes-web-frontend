@@ -4,6 +4,7 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { CreatAxiosInstance } from '../utils/axios.utils'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedMr: {}, selectedItems: [] }
@@ -116,7 +117,9 @@ export default function useMapRequestList() {
     const { displayErrorSnackbar } = useSnackbars()
     //   const mounted = useRef(false)
     const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-    const maprequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig), [backendAPIConfig])
+    const backendUrl = backendAPIConfig.basePath!
+    const axiosInstance = CreatAxiosInstance(backendUrl)      
+    const maprequestApiFactory = useMemo(() => MapRequestsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
     const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
     const mounted = useRef(false)
     const housePartner = 'links.'

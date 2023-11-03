@@ -21,6 +21,7 @@ import {
 import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
+import { CreatAxiosInstance } from '../../../utils/axios.utils'
 
 const options: Options<any> = {
   sorting: false,
@@ -37,10 +38,12 @@ const options: Options<any> = {
 export function Organizations() {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig)
+  const backendUrl = backendAPIConfig.basePath!
+  const axiosInstance = CreatAxiosInstance(backendUrl)  
+  const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const { displayErrorSnackbar } = useSnackbars()
 
-  const user = useUser();
+  const { profile, role, isAuthenticated } = useUser()
   const { orgData } = useOrgList();
 
   function localizeColumns(): Column<OrganizationDto>[] {
@@ -142,7 +145,7 @@ export function Organizations() {
           }
           editable={{
             onRowAdd:
-              user.isAuthenticated && user.profile?.role === ROLE_ADMIN
+              isAuthenticated && role === ROLE_ADMIN
                 ? async (newData) => {
                     const newOrgInput: CreateOrUpdateOrganizationInput = {
                       organization: {
