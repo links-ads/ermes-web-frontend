@@ -112,6 +112,7 @@
   "creator": "Creator",
   "download_successful": "File downloaded successfully!",
   "downloadButton": "Download",
+  "searchLocationButton": "Search location",
   "alerts": "Alerts",
   "location": "Location",
   "noMeasurements": "No measurements available",
@@ -143,5 +144,6 @@
   "legend_alert": "Alerts",
   "legend_station": "Cameras",
   "legend_selectedposition": "Selected position",
-  "activateFilters": "Enable filters to view the list"
+  "activateFilters": "Enable filters to view the list",
+  "noOptions": "No options"
 }

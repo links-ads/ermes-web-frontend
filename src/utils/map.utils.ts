@@ -67,6 +67,22 @@ export const getFeatureInfoUrl = (geoServerConfig, w, h, layerName, timestamp, m
   return url
 }
 
+export const getGeocodingUrl = (geocodingConfig, languageCode, mapBounds, searchText) => {
+  const baseUrl = geocodingConfig.apiUrl
+  const suffix = geocodingConfig.endpoint
+  const formattedSearchText = encodeURIComponent(searchText.replace(';', ''))
+  const bbox = [...mapBounds.southWest.flat(), ...mapBounds.northEast.flat()].join(',')
+  const params = {
+    bbox: bbox,
+    fuzzyMatch: false,
+    language: languageCode,
+    limit: 5,
+    access_token: geocodingConfig.apiToken
+  }
+  const url = `${baseUrl}/${suffix}/${formattedSearchText}.json?${composeParams(params)}`
+  return url
+}
+
 function composeParams(params) {
   return Object.keys(params)
     .reduce<string[]>((par: string[], key: string) => {
@@ -93,7 +109,7 @@ export function tileJSONIfy(
 ) {
   const bounds = useMapBounds
     ? toBBoxString(mapBounds)
-    : [-19.693427946056346, 34.21573658432659, 56.19336550730233, 66.65996714846395 ] //TODO: move bbox inside config file
+    : [-19.693427946056346, 34.21573658432659, 56.19336550730233, 66.65996714846395] //TODO: move bbox inside config file
   return {
     type: 'raster',
     tilejson: '2.2.0',
