@@ -8,7 +8,7 @@ import {
   makeStyles
 } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search'
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import useMapGeocoderSearch from '../../../hooks/use-map-geocoder-search.hook'
@@ -23,19 +23,19 @@ const GeocoderButtonContainer = styled.div.attrs({
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      height: '100%',
-      '& .MuiPopover-paper': {
-        borderRadius: 21,
-        backgroundColor: '#d5d5d5',
-        color: 'black'
-      }
+      height: '100%'
+    },
+    popoverPaper: {
+      borderRadius: 21,
+      backgroundColor: '#d5d5d5',
+      color: 'black'
     },
     autoComplete: {
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(3),
       flex: 1,
       fontSize: 13,
-      height: '3vh',
+      height: 29,
       width: '36vh',
       backgroundColor: '#d5d5d5',
       color: 'black',
@@ -50,6 +50,12 @@ const useStyles = makeStyles((theme: Theme) =>
       '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
         borderBottom: 'none'
       }
+    },
+    loading: {
+      backgroundColor: '#d5d5d5',
+      fontSize: 13,
+      color: 'black',
+      marginBottom: 0
     },
     input: {
       marginTop: 0,
@@ -77,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const MapGeocoderSearchButton = (props) => {
   const { t } = useTranslation(['maps', 'import'])
   const classes = useStyles()
-  const { markSearchLocation } = props
+  const { getMapBBox, markSearchLocation } = props
   const [searchText, setSearchText] = useState<string>('')
   const [prevSearchText, setPrevSearchText] = useState<string>('')
   const [isResultSelected, setIsResultSelected] = useState<boolean>(false)
@@ -125,12 +131,25 @@ const MapGeocoderSearchButton = (props) => {
       clearSearchResults()
     } else if (reason === 'reset') {
       setSearchText(value)
+      clearSearchResults()
+    }
+  }
+
+  const onCloseHandler = (event: object, reason: string) => {
+    if (reason === 'blur') {
+      clearSearchResults()
+    } else if (reason === 'toggleInput') {
+      clearSearchResults()
+      setIsResultSelected(false)
+    } else if (reason === 'select-option') {
+      setIsResultSelected(true)
     }
   }
 
   useEffect(() => {
     if (searchText && searchText.length > 2 && searchText != prevSearchText && !isResultSelected) {
-      getSearchResults(searchText, [])
+      const bbox = getMapBBox()
+      getSearchResults(searchText, bbox)
       setPrevSearchText(searchText)
     } else if (searchText && searchText.length < 3) {
       clearSearchResults()
@@ -151,6 +170,7 @@ const MapGeocoderSearchButton = (props) => {
           open={open}
           anchorEl={anchorEl}
           className={classes.root}
+          classes={{ paper: classes.popoverPaper }}
           onClose={handleClose}
           anchorOrigin={{
             vertical: 'top',
@@ -163,33 +183,26 @@ const MapGeocoderSearchButton = (props) => {
           TransitionProps={{
             onEntered: () => autocompleteTextFieldRef.current?.focus()
           }}
+          elevation={0}
         >
           <Autocomplete
-            id="free-solo-demo"
+            id="geocoding-search-autocomplete"
             className={classes.autoComplete}
+            classes={{
+              loading: classes.loading,
+              listbox: classes.listBox
+            }}
             freeSolo
             fullWidth
             loading={isLoading}
             loadingText={t('import:loading_label') ?? 'Loading...'}
+            noOptionsText={t('maps:noOptions') ?? 'No options'}
             size="small"
             value={autoCompleteValue}
-            //selectOnFocus
             disableClearable
-            // disableCloseOnSelect
-            //autoSelect
             onChange={onClickHandler}
             onInputChange={onInputChangeHandler}
-            onClose={(event: object, reason: string) => {
-              if (reason === 'blur') {
-                // TODO
-              } else if (reason === 'toggleInput') {
-                clearSearchResults()
-                setIsResultSelected(false)
-              } else if (reason === 'select-option') {
-                setIsResultSelected(true)
-              }
-            }}
-            ListboxProps={{ className: classes.listBox }}
+            onClose={onCloseHandler}
             options={options}
             getOptionLabel={(option) => option.name ?? ''}
             renderOption={(option: any, state: AutocompleteRenderOptionState) => option.name}

@@ -145,5 +145,6 @@
   "legend_alert": "Allerte",
   "legend_station": "Telecamere",
   "legend_selectedposition": "Posizione selezionata",
-  "activateFilters": "Attiva i filtri per consultare la lista"
+  "activateFilters": "Attiva i filtri per consultare la lista",
+  "noOptions": "Nessuna opzione disponibile"
 }

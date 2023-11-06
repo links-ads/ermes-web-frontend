@@ -70,11 +70,11 @@ export const getFeatureInfoUrl = (geoServerConfig, w, h, layerName, timestamp, m
 export const getGeocodingUrl = (geocodingConfig, languageCode, mapBounds, searchText) => {
   const baseUrl = geocodingConfig.apiUrl
   const suffix = geocodingConfig.endpoint
-  const formattedSearchText = encodeURIComponent(searchText.replace(';', '')) // TODO: what happens when more than 20 words? do we get specific error?
-  const bbox = mapBounds.join(',') // TODO: format map bounds
+  const formattedSearchText = encodeURIComponent(searchText.replace(';', ''))
+  const bbox = [...mapBounds.southWest.flat(), ...mapBounds.northEast.flat()].join(',')
   const params = {
-    //bbox: bbox, //'-180,-90,180,90', // TODO: four numbers separated by commas
-    fuzzyMatch: false, // TODO true or false
+    bbox: bbox,
+    fuzzyMatch: false,
     language: languageCode,
     limit: 5,
     access_token: geocodingConfig.apiToken

@@ -2,6 +2,7 @@ import { useCallback, useContext, useReducer } from 'react'
 import { AppConfig, AppConfigContext } from '../config'
 import { getGeocodingUrl } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
+import { useSnackbars } from './use-snackbars.hook'
 
 const initialState = { results: [], isLoading: false, error: false }
 
@@ -38,6 +39,7 @@ const reducer = (state, action) => {
 const useMapGeocoderSearch = () => {
   const [dataState, dispatch] = useReducer(reducer, initialState)
   const { i18n } = useTranslation()
+  const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const mapConfig = appConfig.mapboxgl
   const geocodingConfig = mapConfig?.geocoding!!
@@ -47,10 +49,16 @@ const useMapGeocoderSearch = () => {
     fetch(getGeocodingUrl(geocodingConfig, i18n.language, mapBounds, searchText))
       .then((response) => response.json())
       .then((result) => {
-        const locationSearchResults = result.features.map((item) => {
-          return { id: item.id, name: item.place_name, coordinates: item.center }
-        })
-        dispatch({ type: 'SEARCH', value: locationSearchResults })
+        if (result && result.features) {
+          const locationSearchResults = result.features.map((item) => {
+            return { id: item.id, name: item.place_name, coordinates: item.center }
+          })
+          dispatch({ type: 'SEARCH', value: locationSearchResults })
+        } else {
+          console.error(result.message)
+          displayErrorSnackbar(result.message)
+          dispatch({ type: 'ERROR' })
+        }
       })
       .catch((error) => {
         console.error(error)

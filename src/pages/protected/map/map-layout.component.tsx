@@ -70,7 +70,11 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
-import { highlightClickedPoint, placePositionPin, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import {
+  highlightClickedPoint,
+  placePositionPin,
+  tonedownClickedPoint
+} from './map-event-handlers/map-click.handler'
 import {
   areClickedPointAndSelectedCardEqual,
   findFeatureByTypeAndId
@@ -118,7 +122,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      top: 350,
+      top: 400,
       right: 10
     },
     legend_row: {
@@ -832,6 +836,11 @@ export function MapLayout(props) {
     placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setClickedPoint)
   }
 
+  const getMapBBox = () => {
+    const bounds = getMapBounds(mapViewRef)
+    return bounds
+  }
+
   return (
     <>
       <InteractiveMap
@@ -923,7 +932,10 @@ export function MapLayout(props) {
         <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
         {/* Map controls */}
         <div className="controls-container" style={{ top: 40, height: 206 }}>
-          <MapGeocoderSearchButton markSearchLocation={markSearchLocation}/>
+          <MapGeocoderSearchButton
+            getMapBBox={getMapBBox}
+            markSearchLocation={markSearchLocation}
+          />
           <GeolocateControl
             // ref={geolocationControlsRef}
             label={t('maps:show_my_location')}
