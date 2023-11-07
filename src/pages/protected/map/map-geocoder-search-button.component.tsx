@@ -85,7 +85,6 @@ const MapGeocoderSearchButton = (props) => {
   const classes = useStyles()
   const { getMapBBox, markSearchLocation } = props
   const [searchText, setSearchText] = useState<string>('')
-  const [prevSearchText, setPrevSearchText] = useState<string>('')
   const [isResultSelected, setIsResultSelected] = useState<boolean>(false)
   const [options, setOptions] = useState<any[]>([])
   const autocompleteTextFieldRef = useRef<HTMLInputElement>(null)
@@ -147,10 +146,9 @@ const MapGeocoderSearchButton = (props) => {
   }
 
   useEffect(() => {
-    if (searchText && searchText.length > 2 && searchText != prevSearchText && !isResultSelected) {
+    if (searchText && searchText.length > 2 && !isResultSelected) {
       const bbox = getMapBBox()
       getSearchResults(searchText, bbox)
-      setPrevSearchText(searchText)
     } else if (searchText && searchText.length < 3) {
       clearSearchResults()
     }
