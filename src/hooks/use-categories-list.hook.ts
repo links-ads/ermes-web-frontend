@@ -1,8 +1,9 @@
-import { useCallback, useReducer, useMemo } from 'react'
+import { useCallback, useReducer, useMemo, useContext } from 'react'
 import { CategoryDto, ReportsApiFactory } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useTranslation } from 'react-i18next'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { error: false, isLoading: true, data: [] }
 
@@ -38,7 +39,9 @@ export default function useCategoriesList() {
   const { displayErrorSnackbar } = useSnackbars()
   const { i18n } = useTranslation()
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig]);
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig]);
 
   const fetchCategoriesList = useCallback(
     (transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
@@ -57,7 +60,7 @@ export default function useCategoriesList() {
           })
         })
         .catch((err) => {
-          displayErrorSnackbar(err)
+          if (err?.response?.status !== 401) displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },

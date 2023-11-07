@@ -51,7 +51,7 @@ const MAP_REQUEST_STATUS_DEFAULT = [
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
 export const DashboardFilters = (props) => {
-  const { profile } = useUser()
+  const { profile, role } = useUser()
   const { t, i18n } = useTranslation(['social', 'filters', 'labels'])
   const [filters, dispatch] = useReducer(filterReducer, props.filters)
   const { datestart, dateend } = filters
@@ -138,7 +138,7 @@ export const DashboardFilters = (props) => {
     for (let i = 0; i < contentLength; i++) {
       newFilters.communication.content[i].selected = communicationFilters.content[i].selected
     }
-    if (profile?.role === ROLE_CITIZEN) {
+    if (role === ROLE_CITIZEN) {
       if (
         !newFilters.communication.content[0].selected.includes(CommunicationScopeType.RESTRICTED)
       ) {

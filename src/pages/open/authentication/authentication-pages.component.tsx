@@ -26,7 +26,7 @@ export function AuthenticationPages({ match, location }: RouteChildrenProps) {
     localStorage.removeItem('memstate-social')
     localStorage.removeItem('memstate-event')
   }
-  return isAuthenticated ? (
+  return isAuthenticated && profile ? (
     <Redirect to={destination} from={match ? match.url : undefined} />
   ) : (
     <Route path="/login">

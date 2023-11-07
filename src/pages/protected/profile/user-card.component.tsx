@@ -52,10 +52,10 @@ const isDebug = process.env.NODE_ENV !== 'production'
 export const UserCard = memo(function UserCard() {
   const { t } = useTranslation()
 
-  const { profile } = useUser()
+  const { profile, role } = useUser()
 
   return profile ? (
-    <Card style={profile.role !== 'citizen' ? { margin: 'auto'} : { margin: 'auto', height:'100%', width:'100%' }}
+    <Card style={role !== 'citizen' ? { margin: 'auto'} : { margin: 'auto', height:'100%', width:'100%' }}
     
     >
       <CardHeader title={t('common:authenticated_as', { displayName: profile.user.displayName })} />
@@ -80,7 +80,7 @@ export const UserCard = memo(function UserCard() {
           </Typography>
           </div>
         )}
-        {profile.role !== 'citizen' ? (USER_KEYS.map(([tkey, userField], i) =>
+        {role !== 'citizen' ? (USER_KEYS.map(([tkey, userField], i) =>
           profile[userField] || profile.user[userField] ? (
             <div style={{display:'flex'}}>
               <Typography variant="body2" color="textSecondary" component="p"  style={{ textTransform: 'uppercase', marginRight:'5px', fontWeight:'bold' }}>
@@ -89,7 +89,7 @@ export const UserCard = memo(function UserCard() {
            <Typography variant="body2" color="textSecondary" component="p"  >
            {
                userField === 'role'
-                 ? t('common:role_' + profile.role) : ((userField === 'organization' && typeof profile[userField] !== 'undefined')
+                 ? t('common:role_' + role) : ((userField === 'organization' && typeof profile[userField] !== 'undefined')
                      ? profile?.organization?.name : (userField === 'currentStatus' && typeof profile[userField] !== 'undefined') ? profile.currentStatus 
                  : profile.user[userField]) 
            }
@@ -122,7 +122,7 @@ export const UserCard = memo(function UserCard() {
         </div>
         )}
       </CardContent>
-      {profile.role !== 'citizen' ? (
+      {role !== 'citizen' ? (
       <StyledCardActions>
         <Button
           variant="contained"

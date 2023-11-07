@@ -1,4 +1,4 @@
-import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef, useContext } from 'react'
 import {
   ReportsApiFactory,
   DTResultOfReportDto
@@ -7,6 +7,8 @@ import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
+import { FiltersContext } from '../state/filters.context'
 
 const MAX_RESULT_COUNT = 9
 const initialState = { error: false, isLoading: true, data: [], tot: 0, selectedItems: [] }
@@ -78,7 +80,9 @@ export default function useReportList() {
   const { displayErrorSnackbar } = useSnackbars()
   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)      
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
 
   const fetchReports = useCallback(
@@ -114,7 +118,7 @@ export default function useReportList() {
           })
         })
         .catch((err) => {
-          displayErrorSnackbar(err)
+          if (err?.response?.status !== 401) displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },

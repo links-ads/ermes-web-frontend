@@ -30,6 +30,7 @@ import {
 } from '@material-ui/icons'
 import useMapLayerPlayer from '../../../../hooks/use-map-layer-player.hook'
 import { removeLayerFromMap, paintMapWithLayer } from '../../../../common/map/map-common'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({
   slider: {
@@ -104,7 +105,9 @@ const LayersPlayer: React.FC<{
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const geoServerConfig = appConfig.geoServer
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const importerBaseUrl = appConfig.importerBaseUrl
 
   const defaultPosition = useMemo<PixelPostion>(() => {
@@ -335,6 +338,7 @@ const LayersPlayer: React.FC<{
       resizable={false}
       isPlayer={true}
       playerWidth={selectedLayer.dimension.percW}
+      playerHeight={'100%'} // TODO fix this
     >
       <>
         <AppBar
@@ -431,6 +435,7 @@ const LayersPlayer: React.FC<{
               direction="row"
               justifyContent="space-between"
               alignItems="center"
+              style={{ paddingBottom: 0 }}
             >
               <Grid item xs={3}>
                 <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>

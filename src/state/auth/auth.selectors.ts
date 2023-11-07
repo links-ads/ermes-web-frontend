@@ -4,7 +4,7 @@ import { AppState } from '../app.state'
 export function getUserStateSelector(state: AppState): CurrentUserSelection {
   return {
     profile: state.auth.profile,
-    isAuthenticated: state.auth.token !== null
+    isAuthenticated: state.auth.isAuthenticated
   }
 }
 

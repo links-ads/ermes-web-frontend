@@ -1,6 +1,6 @@
 import { DTOrder, DTOrderDir, UsersApiFactory } from 'ermes-backoffice-ts-sdk'
 import MaterialTable, { Options } from 'material-table'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
@@ -10,6 +10,7 @@ import ClearIcon from '@material-ui/icons/Clear'
 import { ProfileApiFactory } from 'ermes-ts-sdk'
 import { Chip, makeStyles, Typography } from '@material-ui/core'
 import { AdministrationContainer } from '../../../common/common.components'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 const options: Options<any> = {
   sorting: false,
@@ -43,8 +44,10 @@ const UncompletedUsersComponent = (props) => {
   const { t, i18n } = useTranslation(['admin', 'tables'])
   const { language } = i18n
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const usersAPIFactory = UsersApiFactory(backendAPIConfig)
-  const profileAPIFactory = ProfileApiFactory(backendAPIConfig)
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
+  const usersAPIFactory = UsersApiFactory(backendAPIConfig, backendUrl, axiosInstance)
+  const profileAPIFactory = ProfileApiFactory(backendAPIConfig, backendUrl, axiosInstance)
   const { displaySuccessSnackbar, displayErrorSnackbar } = useSnackbars()
 
   const localizeColumns = useMemo(() => {

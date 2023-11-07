@@ -23,7 +23,7 @@ export const FiltersContext = createContext({
 })
 
 const FiltersContextProvider = (props) => {
-  const { profile } = useUser()
+  const { profile, role } = useUser()
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const [filtersObj, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
   const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersObj
@@ -71,7 +71,7 @@ const FiltersContextProvider = (props) => {
         southWest: appConfig?.mapboxgl?.mapBounds?.southWest,
         zoom: appConfig?.mapboxgl?.mapViewport?.zoom
       },
-      isCitizen: profile?.role == ROLE_CITIZEN
+      isCitizen: role == ROLE_CITIZEN
     })
   }, [])
 

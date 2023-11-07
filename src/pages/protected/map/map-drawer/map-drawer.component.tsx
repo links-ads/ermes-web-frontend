@@ -36,6 +36,7 @@ import { useMapStateContext } from '../map.context'
 import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
 import SearchBar from '../../../../common/search-bar.component'
 import { TabPanel } from '../../../../common/common.components'
+import { ErmesAxiosContext } from '../../../../state/ermesaxios.context'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,7 +123,9 @@ export default function MapDrawer(props) {
   ] = useMapStateContext<EmergencyProps>()
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   const filtersCtx = useContext(FiltersContext)
   const { mapDrawerTabVisibility } = filtersCtx

@@ -34,14 +34,15 @@ async function start() {
   // CONFIGURE INSTANCE FOR Axios BE calls
   // See https://github.com/simoneb/axios-hooks#configure-cache-axios-
   const axios = Axios.create({
-    baseURL: appConfig?.backend?.url || '/'
+    baseURL: appConfig?.backend?.url || '/',
+    withCredentials: true
   })
 
   // // Use interceptors for code expiration
   // axios.interceptors.response.use(undefined, function (error) {
   //   // Any status codes that falls outside the range of 2xx cause this function to trigger
   //   // Do something with response error
-  //   if (error.response.status === 401) {
+  //   if (error.response.status !== 401) {
   //     store.dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
   //     localStorage.removeItem(USER_STORAGE_KEY + appConfig.baseUrl)
   //   }
@@ -59,8 +60,8 @@ async function start() {
     axios.interceptors.response.use(undefined, function (error) {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       // Do something with response error
-      if (error?.response?.status === 401) {
-        onSessionExpired(error.response.data.error)
+      if (error?.response?.status !== 401) {
+        //onSessionExpired(error.response.data.error)
         store.dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
         localStorage.clear()
       }

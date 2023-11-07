@@ -10,9 +10,10 @@ import {
   MissionsApiFactory,
   ReportsApiFactory
 } from 'ermes-ts-sdk'
-import { useCallback, useMemo, useReducer } from 'react'
+import { useCallback, useContext, useMemo, useReducer } from 'react'
 import { useAPIConfiguration } from './api-hooks'
 import { EntityType } from 'ermes-backoffice-ts-sdk'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { tabIndex: 0, selectedFeatureId: '', selectedItemsList: [] }
 
@@ -112,17 +113,25 @@ export default function useMapDrawer() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const missionsApiFactory = useMemo(() => MissionsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)  
+  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
+  const missionsApiFactory = useMemo(
+    () => MissionsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
   const commApiFactory = useMemo(
-    () => CommunicationsApiFactory(backendAPIConfig),
+    () => CommunicationsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
     [backendAPIConfig]
   )
   const maprequestApiFactory = useMemo(
-    () => MapRequestsApiFactory(backendAPIConfig),
+    () => MapRequestsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
     [backendAPIConfig]
   )
-  const alertsApiFactory = useMemo(() => AlertsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const alertsApiFactory = useMemo(
+    () => AlertsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
 
   const fetchReportById = useCallback(
     (

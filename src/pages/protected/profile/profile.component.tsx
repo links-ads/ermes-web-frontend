@@ -8,9 +8,9 @@ import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const';
 
 export function Profile() {
-  const { profile } = useUser()
+  const { profile, role } = useUser()
 
-  return profile?.role === ROLE_CITIZEN ? (
+  return role === ROLE_CITIZEN ? (
     <div style={{ height: 'inherit', overflowX: 'hidden', overflowY: 'auto' }}>
       <Grid container spacing={1} style={{ marginTop: '10px',  marginBottom: '32px', justifyContent: 'space-evenly' }}>
       <Grid container spacing={1} style={{ marginTop: '10px', justifyContent: 'space-between', width:'95%' }}>

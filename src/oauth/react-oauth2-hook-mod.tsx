@@ -10,6 +10,7 @@
  import React from 'react'
  import { JWT } from '@fusionauth/typescript-client'
  import jwtDecode from 'jwt-decode'
+ import Cookie from 'js-cookie'
  
  // react-storage-hook.d.ts
  import { useStorage } from 'react-storage-hook'
@@ -20,7 +21,7 @@
  /**
   * @hidden
   */
- const storagePrefix = 'react-oauth2-hook'
+ export const storagePrefix = 'react-oauth2-hook'
  
  /**
   * @public
@@ -219,6 +220,8 @@
   * invalidate all instances of this OAuth token.
   */
  export type setToken = (newValue: OAuthToken | null) => void
+
+ export type setIsAuthenticated = (newValue: boolean) => void
  
  /**
   * @hidden
@@ -296,7 +299,8 @@
  const OAuthCallbackHandler: React.FunctionComponent<{}> = ({ children }) => {
    const [state] = useStorage<string>(oauthStateName)
    const { target } = state ? JSON.parse(atob(state)) : ''
-   const [, /* token */ setToken] = useStorage(storagePrefix + '-' + JSON.stringify(target))
+   //const [, /* token */ setToken] = useStorage(storagePrefix + '-' + JSON.stringify(target))
+   const [, setIsAuthenticated] = useStorage(storagePrefix + '-' + JSON.stringify(target))
    let [hasHandle] = useStorage<boolean>(storagePrefix + 'window-handle', {
      placeholder: false
    })
@@ -308,17 +312,19 @@
        ...urlDecode(window.location.search.slice(1)),
        ...urlDecode(window.location.hash.slice(1))
      ])
- 
-     if (state !== params.get('state')) throw ErrIncorrectStateToken
- 
-     const token: string | undefined = params.get('access_token')
-     if (typeof token === 'undefined') throw ErrNoAccessToken
- 
-     setToken(token)
+
+     if (state !== params.get('state') || params.get('userState') !== 'Authenticated')
+       throw ErrIncorrectStateToken
+
+     // const token: string | undefined = params.get('access_token')
+     //  if (typeof token === 'undefined') throw ErrNoAccessToken
+
+     //setToken('fake-token')
+     setIsAuthenticated(true)
      if (hasHandle) {
        window.close()
      }
-   }, [setToken, state, hasHandle])
+   }, [setIsAuthenticated, state, hasHandle])
  
    return <React.Fragment>{children || 'please wait...'}</React.Fragment>
  }
@@ -400,6 +406,13 @@
    const jwt = typeof token === 'string' ? parseJWT(token) : token
    return jwt && jwt.exp ? new Date(1000 * jwt.exp) < new Date() : true
  }
+
+  export function isTokenExpired(expirationTime: string): boolean {
+    var now = new Date()
+    const expTime = parseFloat(expirationTime)
+    var exp = new Date(now.getTime() + expTime)
+    return exp > now
+  }
  
  /**
   * Call this function at the very page load
@@ -421,22 +434,22 @@
      clientId
    }
    const key = storagePrefix + '-' + JSON.stringify(target)
-   let storedToken = localStorage.getItem(key)
-   if (typeof storedToken === 'string') {
-     try {
-       storedToken = JSON.parse(storedToken)
-     } catch (err) {
-       console.warn('Invalid stored Token', storedToken)
-     }
-   }
-   if (storedToken) {
+   const expTime = Cookie.get('app.at_exp')
+  // let storedToken = localStorage.getItem(key)
+  //  if (typeof storedToken === 'string') {
+  //    try {
+  //      storedToken = JSON.parse(storedToken)
+  //    } catch (err) {
+  //      console.warn('Invalid stored Token', storedToken)
+  //    }
+  //  }
+   if (expTime) {
      // verify validity
-     if (isExpired(storedToken)) {
+     if (isTokenExpired(expTime)) {
        localStorage.removeItem(key)
-       storedToken = null
      }
    }
-   return storedToken
+   return expTime
  }
  
  export default 'this module has no default export.'

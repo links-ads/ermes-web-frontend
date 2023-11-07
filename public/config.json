@@ -53,7 +53,7 @@
     "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
-    "url": "https://api-dev.safers-project.cloud"
+    "url": "http://localhost:62114"
   },
   "userTagsFilter": {
     "filters": ["administrator", "user", "admin"]

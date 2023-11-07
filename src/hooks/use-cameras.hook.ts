@@ -1,9 +1,10 @@
-import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
+import { useCallback, useReducer, useMemo, useState, useEffect, useRef, useContext } from 'react'
 import { StationsApiFactory, StationDto } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
 import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const MAX_RESULT_COUNT = 9
 
@@ -90,7 +91,12 @@ export default function useCameraList() {
   const { displayErrorSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const camerasApiFactory = useMemo(() => StationsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)
+  const camerasApiFactory = useMemo(
+    () => StationsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
   const [textQuery, setSearchQuery] = useState<string | undefined>(undefined)
   const mounted = useRef(false)
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
@@ -137,7 +143,7 @@ export default function useCameraList() {
           }
         })
         .catch((err) => {
-          displayErrorSnackbar(err)
+          if (err?.response?.status !== 401) displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },

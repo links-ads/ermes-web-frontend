@@ -153,7 +153,8 @@ export function DeviceAuth({ searchString }: DeviceAuthProps) {
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const { oauth2CallbackUrl, authorizeUrl, deviceValidateUrl } = getFusionAuthURLs(
     appConfig.rootUrl,
-    appConfig.fusionAuth?.url || ''
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
   )
   const initialParams: any = qs.parse(searchString, {
     ignoreQueryPrefix: true

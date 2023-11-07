@@ -23,6 +23,7 @@ import { geojsonToWKT } from '@terraformer/wkt'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { useTranslation } from 'react-i18next'
 import SwipeableViews from 'react-swipeable-views'
+import { ErmesAxiosContext } from '../../../state/ermesaxios.context'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -88,7 +89,9 @@ export default function MapTimeSeries(props) {
 
   // layer API
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const {axiosInstance} = useContext(ErmesAxiosContext)   
+  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)

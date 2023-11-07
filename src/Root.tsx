@@ -12,6 +12,7 @@ import { useSnackbars } from './hooks/use-snackbars.hook'
 import { ContentRoutes } from './routes/content.routes'
 import { useUser, useUserDataLoading } from './state/auth/auth.hooks'
 import FiltersContextProvider from './state/filters.context'
+import ErmesAxiosContextProvider from './state/ermesaxios.context'
 
 const RoutesWrapper = styled.div<{ leftSidebarCollapsed: boolean }>`
   margin-left: ${(props) => (props.leftSidebarCollapsed ? '64px' : '0px')};
@@ -57,7 +58,7 @@ export default function Root({
   useEffect(
     () => {
       console.debug('Mounting Root')
-      axiosHooksConfiguration(displayWarningSnackbar, displayErrorSnackbar)
+      //axiosHooksConfiguration(displayWarningSnackbar, displayErrorSnackbar)
       return () => {
         console.debug('Unmounting Root')
       }
@@ -70,11 +71,13 @@ export default function Root({
 
   return (
     <>
-      <FiltersContextProvider>
-        <AppBar />
-        <NavDrawer />
-        <MainContent isAuthenticated={isAuthenticated} />
-      </FiltersContextProvider>
+      <ErmesAxiosContextProvider>
+        <FiltersContextProvider>
+          <AppBar />
+          <NavDrawer />
+          <MainContent isAuthenticated={isAuthenticated} />
+        </FiltersContextProvider>
+      </ErmesAxiosContextProvider>
       {/* <GlobalFooter /> */} {/*commented before Shelter Venice Demo, April 2023*/}
     </>
   )
