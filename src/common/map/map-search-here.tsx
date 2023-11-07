@@ -17,7 +17,7 @@ const MapSearchHere: React.FC<{ disabled; onClickHandler }> = ({ disabled, onCli
     <div
       style={{
         position: 'absolute',
-        left: '46%',
+        left: 'calc(50% - 85px)',
         top: '10px',
         backgroundColor: 'black',
         opacity: 0.8,

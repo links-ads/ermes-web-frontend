@@ -47,7 +47,7 @@ type MapFeature = CulturalProps
 
 export function Map({
   dashboardMode = false,
-  height = '110%',
+  height = '100%',
   top
 }: {
   dashboardMode?: boolean
@@ -668,20 +668,24 @@ export function Map({
         <MapContainer initialHeight={window.innerHeight - 112} style={{ height, top }}>
           {selectedLayers &&
             selectedLayers.length > 0 &&
-            selectedLayers.filter(e => e.group !== 'Map Request Layer').map((layer, idx) => (
-              <LayersPlayer
-                key={'layer-player-' + idx}
-                updateLayerSelection={updateSelectedLayers}
-                onPositionChange={updateLayerPlayerPosition}
-                getLegend={manageLayerLegend}
-                getMeta={getLayerMeta}
-                map={map}
-                selectedLayer={layer}
-                toBeRemovedLayers={toBeRemovedLayers}
-                changeLayerOpacity={changeOpacity}
-                updateLayerTimestamp={updateTimestamp}
-              />
-            ))}
+            selectedLayers
+              .filter((e) => e.group !== 'Map Request Layer')
+              .map((layer, idx) => (
+                <LayersPlayer
+                  key={'layer-player-' + idx}
+                  idx={idx}
+                  cnt={selectedLayers.length}
+                  updateLayerSelection={updateSelectedLayers}
+                  onPositionChange={updateLayerPlayerPosition}
+                  getLegend={manageLayerLegend}
+                  getMeta={getLayerMeta}
+                  map={map}
+                  selectedLayer={layer}
+                  toBeRemovedLayers={toBeRemovedLayers}
+                  changeLayerOpacity={changeOpacity}
+                  updateLayerTimestamp={updateTimestamp}
+                />
+              ))}
 
           {layersLegend &&
             layersLegend.length > 0 &&
