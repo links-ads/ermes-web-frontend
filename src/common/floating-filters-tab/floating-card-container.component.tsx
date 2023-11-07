@@ -64,7 +64,8 @@ export default function FloatingCardContainer(props) {
       <div
         style={{
           display: props.toggleActiveFilterTab ? undefined : props.isPlayer ? 'block' : 'none',
-          width: props.isPlayer ? props.playerWidth : undefined
+          width: props.isPlayer ? props.playerWidth : undefined,
+          height: props.isPlayer ? props.playerHeight : undefined // TODO fix this
         }}
         className={(props.isPlayer ? classes.responsivePlayer : '') + ' ' + classes.floatingFilter}
       >

@@ -335,6 +335,7 @@ const LayersPlayer: React.FC<{
       resizable={false}
       isPlayer={true}
       playerWidth={selectedLayer.dimension.percW}
+      playerHeight={'100%'} // TODO fix this
     >
       <>
         <AppBar
@@ -431,6 +432,7 @@ const LayersPlayer: React.FC<{
               direction="row"
               justifyContent="space-between"
               alignItems="center"
+              style={{ paddingBottom: 0 }}
             >
               <Grid item xs={3}>
                 <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>
