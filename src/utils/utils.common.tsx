@@ -99,10 +99,10 @@ export const getSocialDashboardStyle = (theme) => {
 export const getFiltersStyle = (theme) => {
   return {
     filterSection: {
-      padding: '16px 8px',
-      marginLeft: '8px',
-      minWidth: 180,
-      width: '15vw'
+      '@media screen and (max-width: 1827px)': {
+        maxWidth: '93%',
+        flexBasis: '93%'
+      }
     },
     filterContainer: {
       padding: '8px',

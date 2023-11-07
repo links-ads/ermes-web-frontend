@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Mapbox geocoding (#173)
+- Bugfix - General site responsiveness (#172)
 
 Ver. 2.17.0 - 2023-10-27
 -----------------------
