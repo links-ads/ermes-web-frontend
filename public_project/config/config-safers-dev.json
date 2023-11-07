@@ -25,6 +25,11 @@
     "mapBounds": {
       "southWest": [-47.7766,24.9285],
       "northEast": [61.2366,60.3175]
+    },
+    "geocoding": {
+      "apiUrl": "https://api.mapbox.com/geocoding/v5",
+      "endpoint": "mapbox.places",
+      "apiToken": "pk.eyJ1IjoibGI5MSIsImEiOiJjbG9vNzR3aDkwZmVvMnJwcXd3YTNrbWVjIn0.jYf53ll_wx3xWL6vXFoPSA"
     }
   },
   "crs": "EPSG:4326",

@@ -113,6 +113,7 @@
   "creator": "Creatore",
   "download_successful": "Il file è stato scaricato con successo!",
   "downloadButton": "Scarica",
+  "searchLocationButton": "Cerca località",
   "alerts": "Allerte",
   "location": "Zona",
   "noMeasurements": "Nessuna misurazione disponibile",
@@ -144,5 +145,6 @@
   "legend_alert": "Allerte",
   "legend_station": "Telecamere",
   "legend_selectedposition": "Posizione selezionata",
-  "activateFilters": "Attiva i filtri per consultare la lista"
+  "activateFilters": "Attiva i filtri per consultare la lista",
+  "noOptions": "Nessuna opzione disponibile"
 }

@@ -331,11 +331,14 @@ const LayersPlayer: React.FC<{
       onPositionChange={onPositionUpdate}
       toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
-        width: selectedLayer.dimension.w,
+        width: undefined,
         height: selectedLayer.dimension.h
       }}
       onResize={null}
-      resizable={true}
+      resizable={false}
+      isPlayer={true}
+      playerWidth={selectedLayer.dimension.percW}
+      playerHeight={'100%'} // TODO fix this
     >
       <>
         <AppBar
@@ -432,6 +435,7 @@ const LayersPlayer: React.FC<{
               direction="row"
               justifyContent="space-between"
               alignItems="center"
+              style={{ paddingBottom: 0 }}
             >
               <Grid item xs={3}>
                 <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>

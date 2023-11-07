@@ -70,13 +70,18 @@ import { EntityType } from 'ermes-ts-sdk'
 import { geometryCollection, multiPolygon, polygon } from '@turf/helpers'
 import { DownloadButton } from './map-drawer/download-button.component'
 import MapSearchHere from '../../../common/map/map-search-here'
-import { highlightClickedPoint, tonedownClickedPoint } from './map-event-handlers/map-click.handler'
+import {
+  highlightClickedPoint,
+  placePositionPin,
+  tonedownClickedPoint
+} from './map-event-handlers/map-click.handler'
 import {
   areClickedPointAndSelectedCardEqual,
   findFeatureByTypeAndId
 } from '../../../hooks/use-map-drawer.hook'
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
+import MapGeocoderSearchButton from './map-geocoder-search-button.component'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -97,7 +102,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     fab: {
       position: 'absolute',
-      top: 350,
+      top: 400,
       right: '10px',
       zIndex: 99,
       width: 27,
@@ -117,7 +122,7 @@ const useStyles = makeStyles((theme: Theme) =>
     legend_container: {
       zIndex: 98,
       position: 'absolute',
-      top: 350,
+      top: 400,
       right: 10
     },
     legend_row: {
@@ -143,7 +148,7 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: '#333'
     },
     layersAndDownload: {
-      top: 230,
+      top: 270,
       position: 'absolute',
       right: 0,
       margin: 10,
@@ -825,6 +830,17 @@ export function MapLayout(props) {
     }
   }
 
+  const markSearchLocation = (latitude, longitude) => {
+    setGoToCoord({ latitude: latitude, longitude: longitude })
+    const map = mapViewRef.current?.getMap()
+    placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setClickedPoint)
+  }
+
+  const getMapBBox = () => {
+    const bounds = getMapBounds(mapViewRef)
+    return bounds
+  }
+
   return (
     <>
       <InteractiveMap
@@ -915,7 +931,11 @@ export function MapLayout(props) {
         </Source>
         <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
         {/* Map controls */}
-        <div className="controls-container" style={{ top: 40, height: 174 }}>
+        <div className="controls-container" style={{ top: 40, height: 206 }}>
+          <MapGeocoderSearchButton
+            getMapBBox={getMapBBox}
+            markSearchLocation={markSearchLocation}
+          />
           <GeolocateControl
             // ref={geolocationControlsRef}
             label={t('maps:show_my_location')}

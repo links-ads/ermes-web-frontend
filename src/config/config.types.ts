@@ -60,6 +60,12 @@ export interface MapboxGlConfig {
     southWest: [number, number],
     northEast: [number, number]
   }
+  // geocoding
+  geocoding?: {
+    apiUrl: string
+    endpoint: string
+    apiToken: string
+  }
 }
 
 export interface GeoServerConfig {
