@@ -135,7 +135,7 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'inline-block'
     },
     mapCoorZoom: {
-      zIndex: 97,
+      zIndex: 8,
       top: 10,
       right: 10,
       position: 'absolute',

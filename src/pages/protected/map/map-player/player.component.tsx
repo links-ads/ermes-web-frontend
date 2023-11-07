@@ -66,6 +66,8 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const LayersPlayer: React.FC<{
+  idx: number
+  cnt: number
   map: any
   selectedLayer: LayerSettingsState | undefined
   updateLayerSelection: any
@@ -93,7 +95,9 @@ const LayersPlayer: React.FC<{
     map,
     toBeRemovedLayers,
     getMeta,
-    getLegend
+    getLegend,
+    idx,
+    cnt
   } = props
   const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer!!
   const [playing, setPlaying] = useState(false)
@@ -329,13 +333,15 @@ const LayersPlayer: React.FC<{
       toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
         width: undefined,
-        height: selectedLayer.dimension.h
+        height: undefined //selectedLayer.dimension.h
       }}
       onResize={null}
       resizable={false}
       isPlayer={true}
       playerWidth={selectedLayer.dimension.percW}
       playerHeight={'100%'} // TODO fix this
+      idx={idx}
+      cnt={cnt}
     >
       <>
         <AppBar
@@ -424,7 +430,7 @@ const LayersPlayer: React.FC<{
             </Grid>
           </Grid>
         </AppBar>
-        <CardContent>
+        <CardContent style={{ paddingBottom: 2 }}>
           {selectedLayer.availableTimestamps.length > 1 ? (
             <Grid
               container
