@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useContext, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import {
   makeStyles,
   AppBar,
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme) => ({
 
 const LayersPlayer: React.FC<{
   map: any
-  selectedLayer: LayerSettingsState | undefined
+  selectedLayer: LayerSettingsState
   updateLayerSelection: any
   toBeRemovedLayers: string[]
   changeLayerOpacity: any
@@ -78,12 +78,6 @@ const LayersPlayer: React.FC<{
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
-  const dateOptions = {
-    dateStyle: 'short',
-    timeStyle: 'short',
-    hour12: false
-  } as Intl.DateTimeFormatOptions
-  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
 
   const {
     selectedLayer,
@@ -95,7 +89,7 @@ const LayersPlayer: React.FC<{
     getMeta,
     getLegend
   } = props
-  const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer!!
+  const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer
   const [playing, setPlaying] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [playerValue, setPlayerValue] = useState<number>(dateIndex)
@@ -179,15 +173,6 @@ const LayersPlayer: React.FC<{
     setPlaying(!playing)
   }
 
-  function formatDate(date: string) {
-    if (!!date) {
-      const formattedDate = formatter.format(new Date(date as string)) //.toLocaleString(dateFormat)
-      const formatComp = formattedDate.split(',')
-      const onlyHour = formatComp[1].trim()
-      return onlyHour
-    } else return ''
-  }
-
   const onClickNextDateHandler = (event) => {
     event.stopPropagation()
     const nextStep = selectedLayer ? selectedLayer.dateIndex + 1 : 0
@@ -201,11 +186,6 @@ const LayersPlayer: React.FC<{
     const previousStep = dateIndex - 1 > -1 ? dateIndex - 1 : 0
     skipNext(previousStep)
     setPlayerValue(previousStep)
-  }
-
-  const changeDateHandler = (event, value) => {
-    event.stopPropagation()
-    skipNext(value)
   }
 
   useMapLayerPlayer(() => {
@@ -250,73 +230,6 @@ const LayersPlayer: React.FC<{
       selectedLayer.dataTypeId,
       selectedLayer.name
     )
-  }
-
-  const createLayerMarks = (timestamps) => {
-    if (!timestamps || timestamps.length === 0) return []
-
-    const layerDates = [
-      ...new Set(
-        timestamps.map((e) => {
-          const dateValue = new Date(e)
-          return dateValue.getDate()
-        })
-      )
-    ]
-
-    const layerFullDates = [
-      ...new Set(
-        timestamps.map((e) => {
-          const dateValue = new Date(e)
-          return dateValue.getDate() + '/' + (dateValue.getMonth() + 1)
-        })
-      )
-    ]
-
-    const calcHours = (hourValues, upTo) => {
-      let totHours = 0
-      for (let i = 0; i < upTo; i++) {
-        totHours += hourValues[i]
-      }
-      return totHours
-    }
-
-    const lastHour = new Date(timestamps[selectedLayer.availableTimestamps.length - 1]).getHours()
-
-    const additionalLastValue = layerFullDates[layerFullDates.length - 1] + ' - ' + lastHour
-
-    const layerHoursPerDate = layerDates.map(
-      (e) => timestamps.filter((d) => new Date(d).getDate() === e).length
-    )
-
-    const layerMarks = [...layerFullDates].map((e, idx) => {
-      if (idx === 0) {
-        return {
-          value: 0,
-          label: e as string
-        }
-      }
-      const hourValue = calcHours(layerHoursPerDate, idx)
-      // if (idx === layerFullDates.length) {
-      //   return {
-      //     value: hourValue - 1,
-      //     label: e as string
-      //   }
-      // }
-      return {
-        value: hourValue,
-        label: e as string
-      }
-    })
-
-    return layerMarks
-  }
-
-  const layerMarks = createLayerMarks(availableTimestamps)
-
-  const valuetext = (value, index) => {
-    const formatted = formatDate(selectedLayer.availableTimestamps[value])
-    return formatted
   }
 
   return (
@@ -450,23 +363,11 @@ const LayersPlayer: React.FC<{
                 </IconButton>
               </Grid>
               <Grid item xs={8}>
-                <Slider
-                  aria-labelledby="discrete-slider-custom"
-                  className={classes.slider}
-                  defaultValue={0}
-                  getAriaValueText={valuetext}
-                  valueLabelFormat={valuetext}
-                  valueLabelDisplay="on"
-                  //step={1}
-                  value={playerValue}
-                  min={0}
-                  max={selectedLayer.availableTimestamps.length}
-                  color="secondary"
-                  onChange={(event, value) => setPlayerValue(value as number)}
-                  onChangeCommitted={(event, value) => {
-                    changeDateHandler(event, value)
-                  }}
-                  marks={layerMarks}
+                <PlayerSlider
+                  selectedLayer={selectedLayer}
+                  playerValue={playerValue}
+                  setPlayerValue={setPlayerValue}
+                  skipNext={skipNext}
                 />
               </Grid>
               <Grid
@@ -496,3 +397,118 @@ const LayersPlayer: React.FC<{
 }
 
 export default LayersPlayer
+
+const PlayerSlider: React.FC<{
+  selectedLayer: LayerSettingsState
+  playerValue: number
+  setPlayerValue: any
+  skipNext: any
+}> = (props) => {
+  const classes = useStyles()
+  const dateOptions = {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    hour12: false
+  } as Intl.DateTimeFormatOptions
+  const formatter = new Intl.DateTimeFormat('en-GB', dateOptions)
+  const { selectedLayer, skipNext, playerValue, setPlayerValue } = props
+  const { activeLayer: layerName, availableTimestamps } = selectedLayer
+
+  function formatDate(date: string) {
+    if (!!date) {
+      const formattedDate = formatter.format(new Date(date as string))
+      const formatComp = formattedDate.split(',')
+      const onlyHour = formatComp[1].trim()
+      return onlyHour
+    } else return ''
+  }
+
+  const changeDateHandler = (event, value) => {
+    event.stopPropagation()
+    skipNext(value)
+  }
+
+  const valuetext = (value, index) => {
+    const formatted = formatDate(availableTimestamps[value])
+    return formatted
+  }
+
+  const createLayerMarks = useCallback((timestamps) => {
+    if (!timestamps || timestamps.length === 0) return []
+
+    const layerDates = [
+      ...new Set(
+        timestamps.map((e) => {
+          const dateValue = new Date(e)
+          return dateValue.getDate()
+        })
+      )
+    ]
+
+    const layerFullDates: string[] = [
+      ...new Set<string>(
+        timestamps.map((e) => {
+          const dateValue = new Date(e)
+          const dateMonth: string = dateValue.getDate() + '/' + (dateValue.getMonth() + 1)
+          return dateMonth
+        })
+      )
+    ]
+
+    const calcHours = (hourValues, upTo) => {
+      let totHours = 0
+      for (let i = 0; i < upTo; i++) {
+        totHours += hourValues[i]
+      }
+      return totHours
+    }
+
+    const layerHoursPerFullDate = layerFullDates.map(
+      (e) =>
+        timestamps.filter(
+          (d) =>
+            new Date(d).getDate() === Number(e.split('/')[0]) &&
+            new Date(d).getMonth() + 1 === Number(e.split('/')[1])
+        ).length
+    )
+
+    const layerMarks = [...layerFullDates].map((e, idx) => {
+      if (idx === 0) {
+        return {
+          value: 0,
+          label: e as string
+        }
+      }
+      const hourValue = calcHours(layerHoursPerFullDate, idx)
+
+      return {
+        value: hourValue,
+        label: e as string
+      }
+    })
+
+    return layerMarks
+  }, [])
+
+  const layerMarks = useMemo(() => createLayerMarks(availableTimestamps), [availableTimestamps])
+
+  return (
+    <Slider
+      aria-labelledby="discrete-slider-custom"
+      className={classes.slider}
+      defaultValue={0}
+      getAriaValueText={valuetext}
+      valueLabelFormat={valuetext}
+      valueLabelDisplay="on"
+      value={playerValue}
+      min={0}
+      max={availableTimestamps.length}
+      color="secondary"
+      onChange={(event, value) => setPlayerValue(value as number)}
+      onChangeCommitted={(event, value) => {
+        changeDateHandler(event, value)
+      }}
+      marks={layerMarks}
+    />
+  )
+}
