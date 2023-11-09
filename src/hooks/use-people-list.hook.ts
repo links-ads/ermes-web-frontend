@@ -32,7 +32,6 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        data: action.value,
         hasMore: false,
         error: true
       }
@@ -50,25 +49,31 @@ export default function usePeopleList() {
   const actionApiFactory = useMemo(() => ActionsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const { i18n } = useTranslation()
 
-  const [ searchFilter, setSearchFilter] = useState<Number [] | undefined>(undefined)
-  
-  const [storedFilters, , ] = useMemoryState(
-    'memstate-map',
-    null,
-    false
-  )
+  const [searchFilter, setSearchFilter] = useState<Number[] | undefined>(undefined)
+
+  const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
   const mounted = useRef(false)
   const getTeamList = (teamList) => {
-    if(!!searchFilter && (Object.keys(searchFilter).length > 0)){
-       return searchFilter
-    }
-    else {
-      return teamList != undefined ? (Object.keys(teamList).length > 0 ? teamList : undefined) : undefined
+    if (!!searchFilter && Object.keys(searchFilter).length > 0) {
+      return searchFilter
+    } else {
+      return teamList != undefined
+        ? Object.keys(teamList).length > 0
+          ? teamList
+          : undefined
+        : undefined
     }
   }
 
   const fetchPeople = useCallback(
-    (tot, personId, teamList?, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      tot,
+      personId,
+      teamList?,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {}
+    ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       actionApiFactory
         .actionsGetActions(
@@ -97,21 +102,26 @@ export default function usePeopleList() {
           //console.log('httpresult', result)
           let newData: PersonActionDto[] = result.data.data || []
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          if(!!personId){
+          if (!!personId) {
             dispatch({
-            type: 'RESULT',
-            value: newData.filter(e=> e.id === personId),
-            tot: totToDown
-          })}
-          else {
+              type: 'RESULT',
+              value: newData.filter((e) => e.id === personId),
+              tot: totToDown
+            })
+          } else {
             dispatch({
-            type: 'RESULT',
-            value: newData,
-            tot: totToDown
-          })}
+              type: 'RESULT',
+              value: newData,
+              tot: totToDown
+            })
+          }
         })
         .catch((err) => {
-          if (err?.response?.status !== 401) displayErrorSnackbar(err)
+          errorData = err.toJSON()
+          if (err?.response?.status !== 401){
+            console.error('httperror', err, errorData.code, errorData)
+            displayErrorSnackbar(errorData.message)
+          }
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
@@ -123,14 +133,14 @@ export default function usePeopleList() {
   }
   const applySearchFilterReloadData = (query: string, teamList?) => {
     dispatch(initialState)
-   setSearchText(query)
-   setSearchFilter(teamList)
+    setSearchText(query)
+    setSearchFilter(teamList)
   }
   useEffect(() => {
     if (mounted.current) {
       fetchPeople(
         0,
-        undefined, 
+        undefined,
         undefined,
         (data) => {
           return data

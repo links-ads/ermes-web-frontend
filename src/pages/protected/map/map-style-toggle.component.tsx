@@ -20,10 +20,7 @@ const MapStyleButtonContainer = withStyles(
       position: 'absolute',
       top: 218,
       right: 0,
-      [theme.breakpoints.down('sm')]: {
-        top: 340 //TODO fix
-      },
-      [theme.breakpoints.between('sm', 'md')]: {
+      [theme.breakpoints.between('xs', 'md')]: {
         top: 218
       }
     }
@@ -36,7 +33,7 @@ const useStyles = makeStyles((theme: Theme) =>
     speedDialParent: {
       position: 'relative',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'center'
     },
     speedDial: {
       position: 'absolute',
@@ -94,7 +91,8 @@ export function MapStyleToggle({
   const handleClose = (name?: string) => {
     setOpen(false)
     if (name) {
-      if(mapChangeSource==0) //check if the style change comes from main map
+      if (mapChangeSource == 0)
+        //check if the style change comes from main map
         onMapStyleChange()
       if (spiderifierRef.current && mapViewRef.current) {
         //spiderifierRef.current.clearSpiders(mapViewRef.current.getMap())
@@ -113,9 +111,14 @@ export function MapStyleToggle({
         <div className={classes.speedDialParent}>
           <SpeedDial
             ariaLabel={title}
-            className={"map-style " + classes.speedDial}
+            className={'map-style ' + classes.speedDial}
             hidden={hidden}
-            icon={<SpeedDialIcon className={classes.speedDialIconRoot} icon={<Avatar variant="square" src={mapTheme?.preview}></Avatar>} />}
+            icon={
+              <SpeedDialIcon
+                className={classes.speedDialIconRoot}
+                icon={<Avatar variant="square" src={mapTheme?.preview}></Avatar>}
+              />
+            }
             onClose={() => handleClose()}
             onOpen={handleOpen}
             open={open}
@@ -132,7 +135,12 @@ export function MapStyleToggle({
                   className={classes.speedDialAction}
                   key={i}
                   onClick={() => handleClose(mt.name)}
-                  icon={<SpeedDialIcon className={classes.speedDialIconRoot} icon={<Avatar variant="square" src={mt?.preview}></Avatar>}></SpeedDialIcon>}
+                  icon={
+                    <SpeedDialIcon
+                      className={classes.speedDialIconRoot}
+                      icon={<Avatar variant="square" src={mt?.preview}></Avatar>}
+                    ></SpeedDialIcon>
+                  }
                 ></SpeedDialAction>
               ))}
           </SpeedDial>
