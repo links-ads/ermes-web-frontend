@@ -2,6 +2,10 @@ Ver.
 -----------------------
 - Feature - Minor graphic updates (#175)
 
+Ver. 2.18.1- 2023-11-09
+-----------------------
+- Bugfix - Get players bug (#177)
+
 Ver. 2.18.0 - 2023-11-07
 -----------------------
 - Feature - Mapbox geocoding (#173)
