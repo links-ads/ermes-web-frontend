@@ -99,7 +99,7 @@ export const getSocialDashboardStyle = (theme) => {
 export const getFiltersStyle = (theme) => {
   return {
     filterSection: {
-      '@media screen and (max-width: 1827px)': {
+      '@media screen and (max-width: 1868px)': {
         maxWidth: '93%',
         flexBasis: '93%'
       }

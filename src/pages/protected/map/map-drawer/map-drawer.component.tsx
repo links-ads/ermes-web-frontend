@@ -456,6 +456,45 @@ export default function MapDrawer(props) {
               />
             </TabPanel>
 
+            {/* CAMERA */}
+            <TabPanel value={tabValue} index={3} key={'camera-' + props.rerenderKey}>
+              <CamerasPanel
+                setGoToCoord={setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedFeatureId}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
+              />
+            </TabPanel>
+
+            {/* ALERTS */}
+            <TabPanel value={tabValue} index={4} key={'alert-' + props.rerenderKey}>
+              <AlertPanel
+                setGoToCoord={setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedFeatureId}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+                selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
+              />
+            </TabPanel>
+
             {/* COMMUNICATION */}
             <TabPanel value={tabValue} index={5} key={'comm-' + props.rerenderKey}>
               <CommunicationPanel
@@ -500,45 +539,6 @@ export default function MapDrawer(props) {
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
                 selectedItemsList={selectedItemsList}
-                updateIsLoadingStatus={setIsLoading}
-                searchText={searchText}
-                triggerSearch={triggerSearch}
-                updateTriggerSearch={setTriggerSearch}
-                updateItemsCounter={setItemsCounter}
-              />
-            </TabPanel>
-
-            {/* ALERTS */}
-            <TabPanel value={tabValue} index={4} key={'alert-' + props.rerenderKey}>
-              <AlertPanel
-                setGoToCoord={setGoToCoord}
-                map={props.map}
-                setMapHoverState={props.setMapHoverState}
-                spiderLayerIds={props.spiderLayerIds}
-                spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedFeatureId}
-                setSelectedCard={onCardClick}
-                flyToCoords={undefined}
-                selectedItemsList={selectedItemsList}
-                updateIsLoadingStatus={setIsLoading}
-                searchText={searchText}
-                triggerSearch={triggerSearch}
-                updateTriggerSearch={setTriggerSearch}
-                updateItemsCounter={setItemsCounter}
-              />
-            </TabPanel>
-
-            {/* CAMERA */}
-            <TabPanel value={tabValue} index={3} key={'camera-' + props.rerenderKey}>
-              <CamerasPanel
-                setGoToCoord={setGoToCoord}
-                map={props.map}
-                setMapHoverState={props.setMapHoverState}
-                spiderLayerIds={props.spiderLayerIds}
-                spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedFeatureId}
-                setSelectedCard={onCardClick}
-                flyToCoords={undefined}
                 updateIsLoadingStatus={setIsLoading}
                 searchText={searchText}
                 triggerSearch={triggerSearch}
