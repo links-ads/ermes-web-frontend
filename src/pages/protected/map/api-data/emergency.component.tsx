@@ -1121,12 +1121,12 @@ type ColorMapType = {
 export const EmergencyColorMap: ColorMapType = {
   // ReportRequest: green[800],
   Person: '#f9e900', //lightBlue[800],
-  Report: '#0cefff', //brown[800],
-  Mission: '#ff8e1f', //green[400],
-  Communication: '#fbd7b1', //blueGrey[800],
-  MapRequest: '#fe558f', //orange[800],
-  Alert: '#4072f1', //'green[800]',
-  Station: '#f56c5c',
+  Report: '#ffd2cc', //brown[800],
+  Mission: '#f797d2', //green[400],
+  Communication: '#83cfce', //blueGrey[800],
+  MapRequest: '#f56c5c', //orange[800],
+  Alert: '#cc90e8', //'green[800]',
+  Station: '#4072f1',
   SelectedPosition: yellow[800]
 }
 

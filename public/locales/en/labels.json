@@ -151,6 +151,6 @@
   "filter_mission": "Missions",
   "filter_communication": "Updates",
   "filter_maprequest": "Map requests",
-  "filter_alert": "Alerts",
-  "filter_station": "Cameras"
+  "filter_alert": "Automatic Alerts",
+  "filter_station": "Field-Cameras"
 }
