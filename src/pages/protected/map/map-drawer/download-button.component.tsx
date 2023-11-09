@@ -9,10 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 const DownloadButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
-})`
-  position: absolute;
-  top: 29px;
-`
+})``
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 

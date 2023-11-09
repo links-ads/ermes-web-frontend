@@ -6,7 +6,11 @@ import { Layers } from '@material-ui/icons'
 
 const LayersButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
-})``
+})`
+  border-bottom: 1px solid #fff;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+`
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 // Button which enables the filter on the top left part of the map to filter the types
@@ -25,11 +29,6 @@ export function LayersButton(props) {
             onClick={onClickHandler}
             aria-label="toggle-selection"
             className="mapboxgl-ctrl-icon"
-            style={{
-              borderBottom: '1px solid #fff',
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0
-            }}
           >
             <Layers style={ICON_STYLE} color={color} />
           </IconButton>
