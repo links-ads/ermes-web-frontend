@@ -13,6 +13,7 @@ export interface AuthState {
    token: string | null
    loading: boolean,
    isAuthenticated: boolean
+   role: string | null
 }
 
 export interface AuthActionSetUser extends Action<AUTH_ACTIONS.SET_USER_DATA> {
@@ -50,6 +51,7 @@ export interface AuthSelection {
 export interface CurrentUserSelection {
   profile: ProfileDto | null
   isAuthenticated: boolean
+  role: string | null
 }
 
 export interface OauthParams {

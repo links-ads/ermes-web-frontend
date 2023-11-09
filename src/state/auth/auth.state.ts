@@ -4,5 +4,6 @@ export const defaultState: AuthState = {
   profile: null,
   token: null,
   loading: false,
-  isAuthenticated: false
+  isAuthenticated: false,
+  role: ''
 }
