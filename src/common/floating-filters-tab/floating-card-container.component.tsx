@@ -27,18 +27,39 @@ const useStyles = (props) =>
       }
     },
     responsivePlayer: {
+      zIndex: props.cnt < 3 && props.idx == 1 ? 8 : props.cnt > 2 && props.idx > 1 ? 8 : 9,
       transform:
-        props.position && props.position.x
+        props.position !== undefined &&
+        props.position.x !== undefined &&
+        props.idx !== undefined &&
+        props.cnt !== undefined
           ? `translate(${props.position.x !== 0 ? 'calc(100% + 4px)' : props.position.x + 'px'}, ${
-              props.position.y
-            }px)!important`
+              props.idx === 0
+                ? 'calc(100% - 141px)'
+                : props.idx === 1 && props.cnt > 2
+                ? 'calc(100% - 141px)'
+                : props.idx === 1 && props.cnt < 3
+                ? 'calc(100% - 260px)'
+                : 'calc(100% - 260px)'
+            })!important`
           : undefined,
       '& .react-draggable': {
         transform:
-          props.position && props.position.x
+          props.position !== undefined &&
+          props.position.x !== undefined &&
+          props.idx !== undefined &&
+          props.cnt !== undefined
             ? `translate(${
                 props.position.x !== 0 ? 'calc(100% + 4px)' : props.position.x + 'px'
-              }, ${props.position.y}px)!important`
+              }, ${
+                props.idx === 0
+                  ? 'calc(100% - 141px)'
+                  : props.idx === 1 && props.cnt > 2
+                  ? 'calc(100% - 141px)'
+                  : props.idx === 1 && props.cnt < 3
+                  ? 'calc(100% - 260px)'
+                  : 'calc(100% - 260px)'
+              })!important`
             : undefined
       }
     }
