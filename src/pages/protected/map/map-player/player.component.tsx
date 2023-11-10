@@ -8,7 +8,8 @@ import {
   CardContent,
   Slider,
   CircularProgress,
-  Grid
+  Grid,
+  Tooltip
 } from '@material-ui/core'
 import FloatingCardContainer from '../../../../common/floating-filters-tab/floating-card-container.component'
 import CloseIcon from '@material-ui/icons/Close'
@@ -41,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
       width: '8px',
       height: '8px',
       marginTop: 0,
-      marginLeft: 0
+      marginLeft: -4
     },
     '& .MuiSlider-track': {
       height: '8px',
@@ -49,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '& .MuiSlider-rail': {
       opacity: 0.5,
-      backgroundColor: '#fff',
+      backgroundColor: theme.palette.background.default === '#2c2d35' ? '#fff' : undefined,
       height: '8px',
       borderRadius: '4px'
     },
@@ -249,7 +250,7 @@ const LayersPlayer: React.FC<{
       toggleActiveFilterTab={selectedLayer.isChecked}
       dim={{
         width: undefined,
-        height: undefined //selectedLayer.dimension.h
+        height: undefined
       }}
       onResize={null}
       resizable={false}
@@ -346,7 +347,7 @@ const LayersPlayer: React.FC<{
             </Grid>
           </Grid>
         </AppBar>
-        <CardContent style={{ paddingBottom: 2 }}>
+        <CardContent style={{ paddingBottom: 2, backgroundColor: theme.palette.primary.main }}>
           {selectedLayer.availableTimestamps.length > 1 ? (
             <Grid
               container
@@ -354,24 +355,32 @@ const LayersPlayer: React.FC<{
               direction="row"
               justifyContent="space-between"
               alignItems="center"
-              style={{ paddingBottom: 0 }}
+              style={{ padding: 0 }}
             >
-              <Grid item xs={3}>
-                <IconButton aria-label="prev" onClick={onClickPrevDateHandler}>
+              <Grid item style={{ paddingBottom: 20 }}>
+                <IconButton
+                  aria-label="prev"
+                  onClick={onClickPrevDateHandler}
+                  style={{ padding: 0 }}
+                >
                   <SkipPreviousOutlined />
                 </IconButton>
-                <IconButton aria-label="play/pause" onClick={playPause}>
+                <IconButton aria-label="play/pause" onClick={playPause} style={{ padding: 0 }}>
                   {playing ? (
                     <PauseCircleFilled fontSize="large" />
                   ) : (
                     <PlayCircleFilled fontSize="large" />
                   )}
                 </IconButton>
-                <IconButton aria-label="next" onClick={onClickNextDateHandler}>
+                <IconButton
+                  aria-label="next"
+                  onClick={onClickNextDateHandler}
+                  style={{ padding: 0 }}
+                >
                   <SkipNextOutlined />
                 </IconButton>
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={8} lg={cnt > 2 ? 10 : 11}>
                 <PlayerSlider
                   selectedLayer={selectedLayer}
                   playerValue={playerValue}
@@ -379,20 +388,17 @@ const LayersPlayer: React.FC<{
                   skipNext={skipNext}
                 />
               </Grid>
-              <Grid
-                item
-                xs={1}
-                container
-                direction="row"
-                justifyContent="flex-end"
-                alignItems="center"
-              >
+              <Grid item style={{ paddingBottom: 20 }}>
                 {!isLoading ? (
-                  <IconButton aria-label="download" onClick={onDownloadHandler}>
+                  <IconButton
+                    aria-label="download"
+                    onClick={onDownloadHandler}
+                    style={{ padding: 0 }}
+                  >
                     <GetAppIcon />
                   </IconButton>
                 ) : (
-                  <CircularProgress color="secondary" size={20} />
+                  <CircularProgress color="secondary" size={20} style={{ padding: 0 }} />
                 )}
               </Grid>
             </Grid>
@@ -445,11 +451,13 @@ const PlayerSlider: React.FC<{
   const createLayerMarks = useCallback((timestamps) => {
     if (!timestamps || timestamps.length === 0) return []
 
-    const layerDates = [
-      ...new Set(
+    const layerFullDatesTooltip: string[] = [
+      ...new Set<string>(
         timestamps.map((e) => {
           const dateValue = new Date(e)
-          return dateValue.getDate()
+          const dateMonth: string =
+            dateValue.getDate() + '/' + (dateValue.getMonth() + 1) + '/' + dateValue.getFullYear()
+          return dateMonth
         })
       )
     ]
@@ -485,14 +493,37 @@ const PlayerSlider: React.FC<{
       if (idx === 0) {
         return {
           value: 0,
-          label: e as string
+          label: (
+            <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
+              <span>{e}</span>
+            </Tooltip>
+          )
         }
       }
       const hourValue = calcHours(layerHoursPerFullDate, idx)
+      const prevLabel = layerFullDates[idx - 1]
+      const prevLabelMonth = Number(prevLabel.split('/')[1])
+      const currentLabelMonth = Number(e.split('/')[1])
+      if (prevLabelMonth !== currentLabelMonth) {
+        return {
+          value: hourValue,
+          label: (
+            <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
+              <span>{e}</span>
+            </Tooltip>
+          )
+        }
+      }
+
+      const currentLabelDay = e.split('/')[0]
 
       return {
         value: hourValue,
-        label: e as string
+        label: (
+          <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
+            <span>{currentLabelDay}</span>
+          </Tooltip>
+        )
       }
     })
 
@@ -511,7 +542,7 @@ const PlayerSlider: React.FC<{
       valueLabelDisplay="on"
       value={playerValue}
       min={0}
-      max={availableTimestamps.length}
+      max={availableTimestamps.length - 1}
       color="secondary"
       onChange={(event, value) => setPlayerValue(value as number)}
       onChangeCommitted={(event, value) => {
