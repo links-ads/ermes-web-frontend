@@ -35,12 +35,12 @@ const useStyles = (props) =>
         props.cnt !== undefined
           ? `translate(${props.position.x !== 0 ? 'calc(100% + 4px)' : props.position.x + 'px'}, ${
               props.idx === 0
-                ? 'calc(100% - 141px)'
+                ? 'calc(100% - 135px)'
                 : props.idx === 1 && props.cnt > 2
-                ? 'calc(100% - 141px)'
+                ? 'calc(100% - 135px)'
                 : props.idx === 1 && props.cnt < 3
-                ? 'calc(100% - 260px)'
-                : 'calc(100% - 260px)'
+                ? 'calc(100% - 254px)'
+                : 'calc(100% - 254px)'
             })!important`
           : undefined,
       '& .react-draggable': {
@@ -53,12 +53,12 @@ const useStyles = (props) =>
                 props.position.x !== 0 ? 'calc(100% + 4px)' : props.position.x + 'px'
               }, ${
                 props.idx === 0
-                  ? 'calc(100% - 141px)'
+                  ? 'calc(100% - 135px)'
                   : props.idx === 1 && props.cnt > 2
-                  ? 'calc(100% - 141px)'
+                  ? 'calc(100% - 135px)'
                   : props.idx === 1 && props.cnt < 3
-                  ? 'calc(100% - 260px)'
-                  : 'calc(100% - 260px)'
+                  ? 'calc(100% - 254px)'
+                  : 'calc(100% - 254px)'
               })!important`
             : undefined
       }
