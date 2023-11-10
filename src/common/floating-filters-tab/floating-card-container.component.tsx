@@ -10,7 +10,7 @@ const useStyles = (props) =>
   makeStyles((theme) => ({
     floatingFilter: {
       position: 'absolute',
-      zIndex: 9
+      zIndex: props.zIndex ? props.zIndex : 9
     },
     resizable: {
       position: 'relative',
