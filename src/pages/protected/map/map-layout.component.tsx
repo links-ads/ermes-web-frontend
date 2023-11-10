@@ -113,17 +113,17 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: 10,
       background: theme.palette.background.default,
       width: 29,
-      height: 70,
+      height: 75,
       borderRadius: 12
     },
     drawerAndLegend: {
-      top: 350,
+      top: 380,
       position: 'absolute',
       right: 0,
       margin: 10,
       background: theme.palette.background.default,
       width: 29,
-      height: 70,
+      height: 75,
       borderRadius: 12
     }
   })
