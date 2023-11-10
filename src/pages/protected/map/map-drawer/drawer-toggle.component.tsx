@@ -4,6 +4,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip'
 import { SvgIcon } from '@material-ui/core'
 import styled from 'styled-components'
+import { useTranslation } from 'react-i18next'
 
 const DrawerToggleContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
@@ -48,6 +49,7 @@ const DrawerIcon = (props) => {
 }
 
 export function DrawerToggle(props) {
+  const { t } = useTranslation(['maps', 'labels'])
   const color = props.toggleDrawerTab ? 'secondary' : 'inherit'
   function onClick(e: React.MouseEvent) {
     props.setToggleDrawerTab(!props.toggleDrawerTab)
@@ -55,7 +57,7 @@ export function DrawerToggle(props) {
 
   return (
     <DrawerToggleContainer>
-      <Tooltip title={'Open/close drawer'}>
+      <Tooltip title={t('labels:mapDrawer') ?? ''}>
         <span>
           <IconButton
             onClick={onClick}

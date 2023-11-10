@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '& .MuiSlider-rail': {
       opacity: 0.5,
-      backgroundColor: '#fff',
+      backgroundColor: theme.palette.background.default === '#2c2d35' ? '#fff' : undefined,
       height: '8px',
       borderRadius: '4px'
     },
@@ -344,7 +344,7 @@ const LayersPlayer: React.FC<{
             </Grid>
           </Grid>
         </AppBar>
-        <CardContent style={{ paddingBottom: 2 }}>
+        <CardContent style={{ paddingBottom: 2, backgroundColor: theme.palette.primary.main }}>
           {selectedLayer.availableTimestamps.length > 1 ? (
             <Grid
               container
@@ -491,7 +491,7 @@ const PlayerSlider: React.FC<{
         return {
           value: 0,
           label: (
-            <Tooltip title={layerFullDatesTooltip[idx]} placement='left'>
+            <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
               <span>{e}</span>
             </Tooltip>
           )
@@ -505,7 +505,7 @@ const PlayerSlider: React.FC<{
         return {
           value: hourValue,
           label: (
-            <Tooltip title={layerFullDatesTooltip[idx]} placement='left'>
+            <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
               <span>{e}</span>
             </Tooltip>
           )
@@ -517,7 +517,7 @@ const PlayerSlider: React.FC<{
       return {
         value: hourValue,
         label: (
-          <Tooltip title={layerFullDatesTooltip[idx]} placement='left'>
+          <Tooltip title={layerFullDatesTooltip[idx]} placement="left">
             <span>{currentLabelDay}</span>
           </Tooltip>
         )

@@ -91,7 +91,7 @@ const MapLegendButton = () => {
     <>
       <div>
         <LegendButtonContainer>
-          <Tooltip title={'Legenda elementi'}>
+          <Tooltip title={t('labels:mapLegend') ?? ''}>
             <span>
               <IconButton
                 aria-describedby={id}
