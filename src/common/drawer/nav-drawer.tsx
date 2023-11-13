@@ -26,19 +26,40 @@ const useStyles = (props) =>
         }
       },
       '@global': {
-        '.makeStyles-smooth-7': {
-          height: props.filterActive ? '108px!important' : 64,
-          [theme.breakpoints.up('sm')]: {
+        '.EdgeHeaderOffset': {
+          height: props.filterActive ? '107px!important' : 64,
+          // [theme.breakpoints.up('sm')]: {
+          //   height: props.filterActive ? '245px!important' : 64
+          // },
+          // [theme.breakpoints.up('md')]: {
+          //   height: props.filterActive ? '245px!important' : 64
+          // },
+          // [theme.breakpoints.up('lg')]: {
+          //   height: props.filterActive ? '108px!important' : 64
+          // },
+          '@media screen and (min-width: 298px)': {
             height: props.filterActive ? '245px!important' : 64
           },
-          [theme.breakpoints.up('md')]: {
+          '@media screen and (min-width: 320px)': {
             height: props.filterActive ? '245px!important' : 64
           },
-          [theme.breakpoints.up('lg')]: {
-            height: props.filterActive ? '108px!important' : 64
+          '@media screen and (min-width: 365px)': {
+            height: props.filterActive ? '245px!important' : 64
+          },
+          '@media screen and (min-width: 514px)': {
+            height: props.filterActive ? '245px!important' : 64
+          },
+          '@media screen and (min-width: 1075px)': {
+            height: props.filterActive ? '205px!important' : 64
+          },
+          '@media screen and (min-width: 1321px)': {
+            height: props.filterActive ? '146px!important' : 64
+          },
+          '@media screen and (min-width: 1566px)': {
+            height: props.filterActive ? '107px!important' : 64
           }
         }
-      }
+      },
     })
   )
 

@@ -322,11 +322,11 @@ function getLinks(role: UserRole, oid: string = 'unkn'): NavContentLinkConfig[] 
   }
 
   //personal content always visible to each ukind of user
-  linksConfig = linksConfig.concat(personal, [null])
+  linksConfig = linksConfig.concat(personal)
 
   //check which admin and decision making content logged user can see
   const adminContent = admin.filter((i) => controlAccess(i?.to, role))
-  if (adminContent.length > 0) linksConfig = linksConfig.concat(adminContent)
+  if (adminContent.length > 0) linksConfig = linksConfig.concat([null], adminContent)
 
   return [
     ...linksConfig,
@@ -364,7 +364,7 @@ export function NavContent() {
   const list = useMemo(() => getLinks(role as UserRole, organizationId), [role, organizationId])
 
   return (
-    <List>
+    <List dense>
       {list.map((config, i) => {
         if (config === null) {
           return <Divider key={i} className={classes.drawerDividerStyle} />
