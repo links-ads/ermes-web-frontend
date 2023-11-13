@@ -28,24 +28,6 @@ const useStyles = (props) =>
       '@global': {
         '.EdgeHeaderOffset': {
           height: props.filterActive ? '107px!important' : 64,
-          // [theme.breakpoints.up('sm')]: {
-          //   height: props.filterActive ? '245px!important' : 64
-          // },
-          // [theme.breakpoints.up('md')]: {
-          //   height: props.filterActive ? '245px!important' : 64
-          // },
-          // [theme.breakpoints.up('lg')]: {
-          //   height: props.filterActive ? '108px!important' : 64
-          // },
-          '@media screen and (min-width: 298px)': {
-            height: props.filterActive ? '245px!important' : 64
-          },
-          '@media screen and (min-width: 320px)': {
-            height: props.filterActive ? '245px!important' : 64
-          },
-          '@media screen and (min-width: 365px)': {
-            height: props.filterActive ? '245px!important' : 64
-          },
           '@media screen and (min-width: 514px)': {
             height: props.filterActive ? '245px!important' : 64
           },
@@ -59,7 +41,7 @@ const useStyles = (props) =>
             height: props.filterActive ? '107px!important' : 64
           }
         }
-      },
+      }
     })
   )
 

@@ -6,17 +6,9 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import Tooltip from '@material-ui/core/Tooltip'
 import AccountCircle from '@material-ui/icons/AccountCircle'
-import Dashboard from '@material-ui/icons/Dashboard'
-import Map from '@material-ui/icons/Map'
-import People from '@material-ui/icons/People'
 import TwitterIcon from '@material-ui/icons/Twitter'
-import CalendarTodayIcon from '@material-ui/icons/CalendarToday'
 import Info from '@material-ui/icons/Info'
 import Settings from '@material-ui/icons/Settings'
-import SupervisedUserCircle from '@material-ui/icons/SupervisedUserCircle'
-import Watch from '@material-ui/icons/Watch'
-import GroupWorkIcon from '@material-ui/icons/GroupWork'
-import PublishIcon from '@material-ui/icons/Publish'
 import PersonAddDisabledIcon from '@material-ui/icons/PersonAddDisabled'
 import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -222,12 +214,13 @@ const personal: NavContentLinkConfig[] = [
     primaryText: 'common:page_dev_auth',
     icon: <WatchesFrontViewIcon />,
     to: '/device-auth'
-  },
-  {
-    primaryText: 'common:page_settings',
-    icon: <Settings />,
-    to: '/settings'
   }
+  // page is basically empty, not useful
+  // {
+  //   primaryText: 'common:page_settings',
+  //   icon: <Settings />,
+  //   to: '/settings'
+  // }
 ]
 
 // TODO org id, org Name (with support in translation, e.g. Edit {{orgName}})
