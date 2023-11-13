@@ -2,6 +2,10 @@ Ver.
 -----------------------
 
 
+Ver. 2.18.2 - 2023-11-13
+-----------------------
+- Bugfix - Fix chips related to image validation
+
 Ver. 2.18.1- 2023-11-09
 -----------------------
 - Bugfix - Get players bug (#177)
