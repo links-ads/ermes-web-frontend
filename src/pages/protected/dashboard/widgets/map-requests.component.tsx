@@ -4,53 +4,49 @@ import { ResponsiveBar } from '@nivo/bar'
 import { EmergencyColorMap } from '../../map/api-data/emergency.component'
 import { useTranslation } from 'react-i18next'
 
-export function Persons({ persons, activationsByDay }) {
+export function MapRequests({ mapRequests }) {
   const { t } = useTranslation()
 
   const data = useMemo(() => {
-    if (!persons) return []
+    if (!mapRequests) return []
 
-    const total = persons.reduce((acc, curr) => acc + curr.value, 0)
-    const data = persons.map((p) => ({
+    const data = mapRequests.map((p) => ({
       id: t(`labels:${p.id.toLowerCase()}`),
       value: p.value,
-      valueColor: EmergencyColorMap.Person,
-      total: total - p.value,
-      totalColor: '#fafafa'
+      valueColor: EmergencyColorMap.MapRequest
     }))
 
     return data
-  }, [persons])
+  }, [mapRequests])
 
-  if (!persons || !activationsByDay) {
+  if (!mapRequests) {
     return <CircularProgress color="secondary" />
   }
 
-  if (persons?.length === 0) {
+  if (mapRequests?.length === 0) {
     return <Typography variant="body2">{t('labels:no_data')}</Typography>
   }
 
   return (
     <div>
-      <Typography variant="body2">{t('labels:chart_person_status')}</Typography>
       <div style={{ height: 32 * data.length }}>
         <ResponsiveBar
           data={data}
           keys={['value', 'total']}
           indexBy="id"
           layout="horizontal"
-          margin={{ left: 100, right: 60 }}
+          margin={{ left: 150, right: 60 }}
           padding={0.3}
           valueScale={{ type: 'linear' }}
           indexScale={{ type: 'band', round: true }}
           isInteractive={false}
-          labelFormat={(d) => {
-            return (
+          labelFormat={(d) =>
+            (
               <tspan x={10} fill="#000">
                 {d}
               </tspan>
             ) as any
-          }}
+          }
           theme={{
             textColor: '#ffffff',
             tooltip: {

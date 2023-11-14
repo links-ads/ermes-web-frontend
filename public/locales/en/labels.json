@@ -156,5 +156,8 @@
   "filter_maprequest": "Map requests",
   "filter_alert": "Automatic Alerts",
   "filter_station": "Field-Cameras",
-  "chart_person_status": "Person Status"
+  "chart_person_status": "Person Status",
+  "chart_reports": "Hazard",
+  "no_data": "No data available",
+  "total": "Total"
 }

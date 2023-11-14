@@ -157,5 +157,8 @@
   "filter_maprequest": "Richieste Mappatura",
   "filter_alert": "Allerte",
   "filter_station": "Telecamere",
-  "chart_person_status": "Stato Persone"
+  "chart_person_status": "Stato Persone",
+  "chart_reports": "Rischi",
+  "no_data": "Nessun dato disponibile",
+  "total": "Totale"
 }

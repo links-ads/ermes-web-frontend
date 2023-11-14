@@ -4,35 +4,32 @@ import { ResponsiveBar } from '@nivo/bar'
 import { EmergencyColorMap } from '../../map/api-data/emergency.component'
 import { useTranslation } from 'react-i18next'
 
-export function Persons({ persons, activationsByDay }) {
+export function Reports({ reports }) {
   const { t } = useTranslation()
 
   const data = useMemo(() => {
-    if (!persons) return []
+    if (!reports) return []
 
-    const total = persons.reduce((acc, curr) => acc + curr.value, 0)
-    const data = persons.map((p) => ({
+    const data = reports.map((p) => ({
       id: t(`labels:${p.id.toLowerCase()}`),
       value: p.value,
-      valueColor: EmergencyColorMap.Person,
-      total: total - p.value,
-      totalColor: '#fafafa'
+      valueColor: EmergencyColorMap.Report
     }))
 
     return data
-  }, [persons])
+  }, [reports])
 
-  if (!persons || !activationsByDay) {
+  if (!reports) {
     return <CircularProgress color="secondary" />
   }
 
-  if (persons?.length === 0) {
+  if (reports?.length === 0) {
     return <Typography variant="body2">{t('labels:no_data')}</Typography>
   }
 
   return (
     <div>
-      <Typography variant="body2">{t('labels:chart_person_status')}</Typography>
+      <Typography variant="body2">{t('labels:chart_reports')}</Typography>
       <div style={{ height: 32 * data.length }}>
         <ResponsiveBar
           data={data}
