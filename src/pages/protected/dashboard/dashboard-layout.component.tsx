@@ -1,31 +1,31 @@
 import { Card, CardHeader, Grid } from '@material-ui/core'
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { Map } from '../map/map.component'
 import { DashboardWidgetContainer } from './dashboard-widget-container.component'
 import { useTranslation } from 'react-i18next'
 import useSWR from 'swr'
-import { DashboardApiFactory } from 'ermes-backoffice-ts-sdk'
+import { DashboardApiFactory, GetStatisticsOutput } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import { useMemoryState } from '../../../hooks/use-memory-state.hook'
 import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import { Persons } from './widgets/persons.component'
 import { FiltersContext } from '../../../state/filters.context'
+import { MapRequests } from './widgets/map-requests.component'
+import { Reports } from './widgets/reports.component'
 
-export function DashboardLayout() {
-  const { t } = useTranslation()
+function useStats() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const dashboardApiFactory = useMemo(
     () => DashboardApiFactory(backendAPIConfig),
     [backendAPIConfig]
   )
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
-  const filterCtx = useContext(FiltersContext)
-  const activeFilters = filterCtx.mapDrawerTabVisibility
+  const [stats, setStats] = useState<GetStatisticsOutput | null>(null)
 
-  const { data } = useSWR('stats', () => {
+  function fetchStats() {
     const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
 
-    return dashboardApiFactory
+    dashboardApiFactory
       .dashboardGetStatistics(
         (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
         (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
@@ -35,19 +35,37 @@ export function DashboardLayout() {
         (filters?.mapBounds as any).southWest[0]
       )
       .then((r) => r.data)
-  })
+      .then((data) => setStats(data))
+  }
+
+  useEffect(() => {
+    fetchStats()
+  }, [storedFilters])
+
+  return [stats, fetchStats] as const
+}
+
+export function DashboardLayout() {
+  const { t } = useTranslation()
+
+  const filterCtx = useContext(FiltersContext)
+  const activeFilters = filterCtx.mapDrawerTabVisibility
+
+  const [stats, getStats] = useStats()
 
   const totals = useMemo(() => {
-    if (!data) return {}
+    if (!stats) return {}
 
     return {
       persons:
-        data.personsByStatus?.reduce((acc, curr: any) => {
+        stats.personsByStatus?.reduce((acc, curr: any) => {
           console.log(curr)
           return acc + curr.value
-        }, 0) ?? 0
+        }, 0) ?? 0,
+      mapRequests: stats.mapRequestByType?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0
     }
-  }, [data])
+  }, [stats])
 
   return (
     <Grid container style={{ height: '100%', padding: 12 }}>
@@ -59,9 +77,28 @@ export function DashboardLayout() {
           {activeFilters.Person && (
             <DashboardWidgetContainer
               title={t('labels:filter_persons')}
-              info={`Totale: ${totals.persons ?? ''}`}
+              info={`${t('labels:total')}: ${totals.persons ?? ''}`}
             >
-              <Persons persons={data?.personsByStatus} activationsByDay={data?.activationsByDay} />
+              <Persons
+                persons={stats?.personsByStatus}
+                activationsByDay={stats?.activationsByDay}
+              />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.MapRequest && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_maprequest')}
+              info={`${t('labels:total')}: ${totals.mapRequests ?? ''}`}
+            >
+              <MapRequests mapRequests={stats?.mapRequestByType} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Report && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_report')}
+              info={`${t('labels:total')}: ${totals.reports ?? ''}`}
+            >
+              <Reports reports={stats?.reportsByHazard} />
             </DashboardWidgetContainer>
           )}
         </Grid>

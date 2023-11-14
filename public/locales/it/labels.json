@@ -162,5 +162,8 @@
   "valid": "Valido",
   "invalid": "Non valido",
   "photo": "foto",
-  "chart_person_status": "Stato Persone"
+  "chart_person_status": "Stato Persone",
+  "chart_reports": "Rischi",
+  "no_data": "Nessun dato disponibile",
+  "total": "Totale"
 }
