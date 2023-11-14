@@ -16,6 +16,7 @@
     "@material-ui/lab": "4.0.0-alpha.56",
     "@mui-treasury/layout": "4.5.0",
     "@mui-treasury/mockup": "1.2.4",
+    "@nivo/bar": "^0.67.0",
     "@nivo/core": "^0.67.0",
     "@nivo/line": "^0.67.0",
     "@nivo/pie": "^0.67.0",
@@ -96,6 +97,7 @@
     "reselect": "4.0.0",
     "seedrandom": "^3.0.5",
     "styled-components": "5.1.1",
+    "swr": "^2.2.4",
     "three": "^0.128.0",
     "typescript": "3.9.5",
     "zebras": "0.0.18"

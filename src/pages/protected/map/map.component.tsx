@@ -47,12 +47,10 @@ type MapFeature = CulturalProps
 
 export function Map({
   dashboardMode = false,
-  height = '100%',
-  top
+  height = '100%'
 }: {
   dashboardMode?: boolean
   height?: string
-  top?: string
 }) {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])

@@ -161,5 +161,6 @@
   "filter_station": "Field-Cameras",
   "valid": "Valid",
   "invalid": "Invalid",
-  "photo": "photo"
+  "photo": "photo",
+  "chart_person_status": "Person Status"
 }

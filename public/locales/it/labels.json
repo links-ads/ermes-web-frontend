@@ -161,5 +161,6 @@
   "filter_station": "Telecamere",
   "valid": "Valido",
   "invalid": "Non valido",
-  "photo": "foto"
+  "photo": "foto",
+  "chart_person_status": "Stato Persone"
 }
