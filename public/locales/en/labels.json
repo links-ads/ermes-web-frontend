@@ -155,5 +155,6 @@
   "filter_communication": "Updates",
   "filter_maprequest": "Map requests",
   "filter_alert": "Automatic Alerts",
-  "filter_station": "Field-Cameras"
+  "filter_station": "Field-Cameras",
+  "chart_person_status": "Person Status"
 }

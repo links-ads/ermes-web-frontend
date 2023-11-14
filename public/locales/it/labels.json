@@ -156,5 +156,6 @@
   "filter_communication": "Avvisi",
   "filter_maprequest": "Richieste Mappatura",
   "filter_alert": "Allerte",
-  "filter_station": "Telecamere"
+  "filter_station": "Telecamere",
+  "chart_person_status": "Stato Persone"
 }

@@ -354,7 +354,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="persons"
               emergencyLabel={EntityType.PERSON}
-              category={filtersState.persons}
+              category={props.showCategoryFilters ? filtersState.persons : null}
               applyFilters={applyPersonFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={personChecked}
@@ -369,7 +369,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="report"
               emergencyLabel={EntityType.REPORT}
-              category={filtersState.report}
+              category={props.showCategoryFilters ? filtersState.report : null}
               applyFilters={applyReportFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={reportChecked}
@@ -384,7 +384,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="mission"
               emergencyLabel={EntityType.MISSION}
-              category={filtersState.mission}
+              category={props.showCategoryFilters ? filtersState.mission : null}
               applyFilters={applyMissionFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={missionChecked}
@@ -412,7 +412,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.ALERT}
               emergencyLabel={EntityType.ALERT}
-              category={filtersState.alert}
+              category={props.showCategoryFilters ? filtersState.alert : null}
               applyFilters={applyAlertFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={alertChecked}

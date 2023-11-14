@@ -29,7 +29,7 @@
     "geocoding": {
       "apiUrl": "https://api.mapbox.com/geocoding/v5",
       "endpoint": "mapbox.places",
-      "apiToken": "pk.eyJ1IjoibGI5MSIsImEiOiJjbG9vNzR3aDkwZmVvMnJwcXd3YTNrbWVjIn0.jYf53ll_wx3xWL6vXFoPSA"
+      "apiToken": "pk.eyJ1IjoibGI5MSIsImEiOiJjbG9vNzZseGUzODRhMnNyd285cnBpc2I4In0.WX-Zj1su8mU4Cch3khehMQ"
     }
   },
   "crs": "EPSG:4326",
