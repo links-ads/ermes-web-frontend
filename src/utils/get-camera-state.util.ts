@@ -15,13 +15,18 @@ export function getCameraState(type, measurements) {
     )
   })
 
-  const hasAllValidationsDiscarded = measurements
-    ?.filter((m) => {
-      const validation = m.metadata?.validation?.[type]
+  const validatedOrDetectedMeasurements = measurements?.filter((m) => {
+    const validation = m.metadata?.validation?.[type]
+    const detection = m.metadata?.detection?.[type]
 
-      return typeof validation !== 'undefined' && validation !== null
-    })
-    .every(
+    return (typeof validation !== 'undefined' && validation !== null) || detection === true
+  })
+
+  console.log(validatedOrDetectedMeasurements)
+
+  const hasAllValidationsDiscarded =
+    validatedOrDetectedMeasurements.length > 0 &&
+    validatedOrDetectedMeasurements.every(
       (m) =>
         getCameraValidationStatus(type, m.metadata) === CameraValidationStatus.DetectedAndDiscarded
     )

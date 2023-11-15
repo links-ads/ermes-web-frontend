@@ -397,27 +397,10 @@ export const DashboardFilters = (props) => {
             <CategoryFilter
               t={t}
               classes={classes}
-              label={EntityType.COMMUNICATION}
-              emergencyLabel={EntityType.COMMUNICATION}
-              category={filtersState.communication}
-              applyFilters={applyCommunicationFilters}
+              label={EntityType.STATION}
+              emergencyLabel={EntityType.STATION}
               filterCheckedHandler={onFilterChecked}
-              isChecked={communicationChecked}
-              clickCounter={btnClickCounter}
-              setClickCounter={setBtnClickCounter}
-              userProfile={profile}
-            />
-          </Grid>
-          <Grid item>
-            <CategoryFilter
-              t={t}
-              classes={classes}
-              label={EntityType.MAP_REQUEST}
-              emergencyLabel={EntityType.MAP_REQUEST}
-              category={filtersState.mapRequests}
-              applyFilters={applyMapRequestFilters}
-              isChecked={mapRequestChecked}
-              filterCheckedHandler={onFilterChecked}
+              isChecked={cameraChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
               userProfile={profile}
@@ -442,10 +425,27 @@ export const DashboardFilters = (props) => {
             <CategoryFilter
               t={t}
               classes={classes}
-              label={EntityType.STATION}
-              emergencyLabel={EntityType.STATION}
+              label={EntityType.COMMUNICATION}
+              emergencyLabel={EntityType.COMMUNICATION}
+              category={filtersState.communication}
+              applyFilters={applyCommunicationFilters}
               filterCheckedHandler={onFilterChecked}
-              isChecked={cameraChecked}
+              isChecked={communicationChecked}
+              clickCounter={btnClickCounter}
+              setClickCounter={setBtnClickCounter}
+              userProfile={profile}
+            />
+          </Grid>
+          <Grid item>
+            <CategoryFilter
+              t={t}
+              classes={classes}
+              label={EntityType.MAP_REQUEST}
+              emergencyLabel={EntityType.MAP_REQUEST}
+              category={filtersState.mapRequests}
+              applyFilters={applyMapRequestFilters}
+              isChecked={mapRequestChecked}
+              filterCheckedHandler={onFilterChecked}
               clickCounter={btnClickCounter}
               setClickCounter={setBtnClickCounter}
               userProfile={profile}

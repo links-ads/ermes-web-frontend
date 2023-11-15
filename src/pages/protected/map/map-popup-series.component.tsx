@@ -276,9 +276,16 @@ export default function MapTimeSeries(props) {
         resizable={true}
         resizeHandles={['se']}
         maxConstraints={[1600, 800]}
+        zIndex={10}
         style={{ minHeight: 730, minWidth: 800, paddingBottom: 0 }}
       >
-        <Card style={{ minHeight: dim.height, paddingBottom: 0 }}>
+        <Card
+          style={{
+            minHeight: dim.height,
+            paddingBottom: 0,
+            backgroundColor: theme.palette.primary.main
+          }}
+        >
           <AppBar
             position="static"
             color="default"
