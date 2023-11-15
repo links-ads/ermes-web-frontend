@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl":"https://safersblobstoragedev.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://safersblobstoragedev.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -23,8 +23,8 @@
       "zoom": 2.5
     },
     "mapBounds": {
-      "southWest": [-47.7766,24.9285],
-      "northEast": [61.2366,60.3175]
+      "southWest": [-47.7766, 24.9285],
+      "northEast": [61.2366, 60.3175]
     },
     "geocoding": {
       "apiUrl": "https://api.mapbox.com/geocoding/v5",
@@ -42,7 +42,7 @@
       "version": "1.3.0",
       "request": "GetMap",
       "srs": "EPSG:3857",
-      "bbox":"{bbox-epsg-3857}",
+      "bbox": "{bbox-epsg-3857}",
       "format": "image/png",
       "transparent": true
     }
@@ -53,10 +53,10 @@
     "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
   },
   "backend": {
-    "url": "http://localhost:62114"
+    "url": "https://api-dev.safers-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator","user", "admin"]
+    "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl" : "https://geoapi-dev.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-dev.safers-project.cloud"
 }
