@@ -33,7 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
     speedDialParent: {
       position: 'relative',
       display: 'flex',
-      alignItems: 'center'
+      alignItems: 'center',
+      zIndex: 8
     },
     speedDial: {
       position: 'absolute',
