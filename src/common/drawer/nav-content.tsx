@@ -18,7 +18,7 @@ import { UserRole } from 'ermes-ts-sdk'
 import { useSidebarCollapse } from '@mui-treasury/layout/hooks'
 import { controlAccess } from '../../pages/protected/control-access'
 import { SvgIcon, makeStyles } from '@material-ui/core'
-import { Event, Person } from '@material-ui/icons'
+import { Event, Person, Share } from '@material-ui/icons'
 
 interface INavContentLinkConfig {
   primaryText: string
@@ -233,7 +233,7 @@ const orgManagement = (oid: string): NavContentLinkConfig[] => [
   },
   {
     primaryText: 'common:page_teams',
-    icon: <ConnectIcon />,
+    icon: <Share />,
     // to: `/organizations/${oid}/teams`
     to: `/organizations/teams`
   },
