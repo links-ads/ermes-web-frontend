@@ -31,14 +31,14 @@ scheme.configureEdgeSidebar((builder) => {
   builder
     .create('left_sidebar', { anchor: 'left' })
     .registerTemporaryConfig('xs', {
-      width: 'min(360px, 90vw)' // 'auto' is only valid for temporary variant
+      width: 'min(250px, 15vw)' // 'auto' is only valid for temporary variant
     })
     .registerPersistentConfig('sm', {
       collapsible: true,
       collapsedWidth: 64,
       headerMagnetEnabled: false,
       persistentBehavior: 'none',
-      width: 'min(360px, 90vw)' // 'auto' is only valid for temporary variant
+      width: 'min(250px, 15vw)' // 'auto' is only valid for temporary variant
     })
 })
 

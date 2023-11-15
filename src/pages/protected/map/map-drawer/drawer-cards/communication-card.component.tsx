@@ -1,13 +1,20 @@
-import { CardActions, CardContent, Chip, IconButton, makeStyles, Typography } from "@material-ui/core";
-import { CommunicationScopeType, EntityType } from "ermes-ts-sdk";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import CardWithPopup from "./card-with-popup.component";
+import {
+  CardActions,
+  CardContent,
+  Chip,
+  IconButton,
+  makeStyles,
+  Typography
+} from '@material-ui/core'
+import { CommunicationScopeType, EntityType } from 'ermes-ts-sdk'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import CardWithPopup from './card-with-popup.component'
 import classes from './communication-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import { FormatDate } from "../../../../../utils/date.utils";
-import DrawerCardProps from "../../../../../models/DrawerCardProps";
-import { EmergencyColorMap } from "../../api-data/emergency.component";
+import { FormatDate } from '../../../../../utils/date.utils'
+import DrawerCardProps from '../../../../../models/DrawerCardProps'
+import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const useStyles = makeStyles((theme) => ({
   chipStyle: {
@@ -22,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['common', 'maps'])
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
+  const { message } = elem
   const style = useStyles()
 
   const lowerBoundDate = FormatDate(elem.duration?.lowerBound)
@@ -43,9 +51,14 @@ const CommunicationCard: React.FC<DrawerCardProps> = (props) => {
       setSelectedCard={props.setSelectedCard}
     >
       <CardContent>
-        <Typography variant="h5" component="h2" gutterBottom>
-          {elem.message}
-        </Typography>
+        <Typography
+          variant="body2"
+          component="h2"
+          gutterBottom
+          dangerouslySetInnerHTML={{
+            __html: message.length > 200 ? message.substring(0, 200) + '...' : message
+          }}
+        ></Typography>
         <div>
           <>
             <Typography

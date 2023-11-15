@@ -33,7 +33,10 @@ import CamerasPanel from './cameras-panel.component'
 import { DialogResponseType, useMapDialog } from '../map-dialog.hooks'
 import { EmergencyColorMap, EmergencyProps } from '../api-data/emergency.component'
 import { useMapStateContext } from '../map.context'
-import { areClickedPointAndSelectedCardEqual } from '../../../../hooks/use-map-drawer.hook'
+import {
+  TabValuesDict,
+  areClickedPointAndSelectedCardEqual
+} from '../../../../hooks/use-map-drawer.hook'
 import SearchBar from '../../../../common/search-bar.component'
 import { TabPanel } from '../../../../common/common.components'
 
@@ -174,43 +177,43 @@ export default function MapDrawer(props) {
     let tabValueAssigned = false
     if (Person) {
       if (!tabValueAssigned) {
-        updateTabIndex(0)
+        updateTabIndex(TabValuesDict.Person)
         tabValueAssigned = true
       }
     }
     if (Report) {
       if (!tabValueAssigned) {
-        updateTabIndex(1)
+        updateTabIndex(TabValuesDict.Report)
         tabValueAssigned = true
       }
     }
     if (Mission) {
       if (!tabValueAssigned) {
-        updateTabIndex(2)
-        tabValueAssigned = true
-      }
-    }
-    if (Communication) {
-      if (!tabValueAssigned) {
-        updateTabIndex(3)
-        tabValueAssigned = true
-      }
-    }
-    if (MapRequest) {
-      if (!tabValueAssigned) {
-        updateTabIndex(4)
-        tabValueAssigned = true
-      }
-    }
-    if (Alert) {
-      if (!tabValueAssigned) {
-        updateTabIndex(5)
+        updateTabIndex(TabValuesDict.Mission)
         tabValueAssigned = true
       }
     }
     if (Station) {
       if (!tabValueAssigned) {
-        updateTabIndex(6)
+        updateTabIndex(TabValuesDict.Station)
+        tabValueAssigned = true
+      }
+    }
+    if (Alert) {
+      if (!tabValueAssigned) {
+        updateTabIndex(TabValuesDict.Alert)
+        tabValueAssigned = true
+      }
+    }
+    if (Communication) {
+      if (!tabValueAssigned) {
+        updateTabIndex(TabValuesDict.Communication)
+        tabValueAssigned = true
+      }
+    }
+    if (MapRequest) {
+      if (!tabValueAssigned) {
+        updateTabIndex(TabValuesDict.MapRequest)
         tabValueAssigned = true
       }
     }
@@ -253,31 +256,31 @@ export default function MapDrawer(props) {
   const updateSelectText = (value) => {
     let renderedText = ''
     switch (value) {
-      case 0:
+      case TabValuesDict.Person:
         renderedText = t('maps:tab_persons')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 1:
+      case TabValuesDict.Report:
         renderedText = t('maps:tab_reports')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 2:
+      case TabValuesDict.Mission:
         renderedText = t('maps:tab_missions')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 3:
+      case TabValuesDict.Station:
         renderedText = t('maps:tab_stations')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 4:
+      case TabValuesDict.Alert:
         renderedText = t('maps:tab_alerts')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 5:
+      case TabValuesDict.Communication:
         renderedText = t('maps:tab_communications')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case 6:
+      case TabValuesDict.MapRequest:
         renderedText = t('maps:tab_maprequests')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
@@ -296,25 +299,25 @@ export default function MapDrawer(props) {
 
   useEffect(() => {
     switch (tabValue) {
-      case 0:
+      case TabValuesDict.Person:
         setSelectTextColor(EmergencyColorMap[EntityType.PERSON])
         break
-      case 1:
+      case TabValuesDict.Report:
         setSelectTextColor(EmergencyColorMap[EntityType.REPORT])
         break
-      case 2:
+      case TabValuesDict.Mission:
         setSelectTextColor(EmergencyColorMap[EntityType.MISSION])
         break
-      case 3:
+      case TabValuesDict.Station:
         setSelectTextColor(EmergencyColorMap[EntityType.STATION])
         break
-      case 4:
+      case TabValuesDict.Alert:
         setSelectTextColor(EmergencyColorMap[EntityType.ALERT])
         break
-      case 5:
+      case TabValuesDict.Communication:
         setSelectTextColor(EmergencyColorMap[EntityType.COMMUNICATION])
         break
-      case 6:
+      case TabValuesDict.MapRequest:
         setSelectTextColor(EmergencyColorMap[EntityType.MAP_REQUEST])
         break
       default:
@@ -357,13 +360,27 @@ export default function MapDrawer(props) {
                 style={{ color: selectTextColor }}
                 className={classes.customSelect}
               >
-                {Person && <MenuItem value={0}>{t('maps:tab_persons')}</MenuItem>}
-                {Report && <MenuItem value={1}>{t('maps:tab_reports')}</MenuItem>}
-                {Mission && <MenuItem value={2}>{t('maps:tab_missions')}</MenuItem>}
-                {Station && <MenuItem value={3}>{t('maps:tab_stations')}</MenuItem>}
-                {Alert && <MenuItem value={4}>{t('maps:tab_alerts')}</MenuItem>}
-                {Communication && <MenuItem value={5}>{t('maps:tab_communications')}</MenuItem>}
-                {MapRequest && <MenuItem value={6}>{t('maps:tab_maprequests')}</MenuItem>}
+                {Person && (
+                  <MenuItem value={TabValuesDict.Person}>{t('maps:tab_persons')}</MenuItem>
+                )}
+                {Report && (
+                  <MenuItem value={TabValuesDict.Report}>{t('maps:tab_reports')}</MenuItem>
+                )}
+                {Mission && (
+                  <MenuItem value={TabValuesDict.Mission}>{t('maps:tab_missions')}</MenuItem>
+                )}
+                {Station && (
+                  <MenuItem value={TabValuesDict.Station}>{t('maps:tab_stations')}</MenuItem>
+                )}
+                {Alert && <MenuItem value={TabValuesDict.Alert}>{t('maps:tab_alerts')}</MenuItem>}
+                {Communication && (
+                  <MenuItem value={TabValuesDict.Communication}>
+                    {t('maps:tab_communications')}
+                  </MenuItem>
+                )}
+                {MapRequest && (
+                  <MenuItem value={TabValuesDict.MapRequest}>{t('maps:tab_maprequests')}</MenuItem>
+                )}
               </Select>
             </FormControl>
           </Grid>
@@ -396,7 +413,11 @@ export default function MapDrawer(props) {
             component={'span'}
           >
             {/* PEOPLE */}
-            <TabPanel value={tabValue} index={0} key={'people-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Person}
+              key={'people-' + props.rerenderKey}
+            >
               <PeoplePanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -416,7 +437,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* REPORTS */}
-            <TabPanel value={tabValue} index={1} key={'report-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Report}
+              key={'report-' + props.rerenderKey}
+            >
               <ReportPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -436,7 +461,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* MISSIONS */}
-            <TabPanel value={tabValue} index={2} key={'mission-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Mission}
+              key={'mission-' + props.rerenderKey}
+            >
               <MissionsPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -457,7 +486,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* CAMERA */}
-            <TabPanel value={tabValue} index={3} key={'camera-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Station}
+              key={'camera-' + props.rerenderKey}
+            >
               <CamerasPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -476,7 +509,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* ALERTS */}
-            <TabPanel value={tabValue} index={4} key={'alert-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Alert}
+              key={'alert-' + props.rerenderKey}
+            >
               <AlertPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -496,7 +533,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* COMMUNICATION */}
-            <TabPanel value={tabValue} index={5} key={'comm-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.Communication}
+              key={'comm-' + props.rerenderKey}
+            >
               <CommunicationPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -517,7 +558,11 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* MAP REQUESTS */}
-            <TabPanel value={tabValue} index={6} key={'map-request-' + props.rerenderKey}>
+            <TabPanel
+              value={tabValue}
+              index={TabValuesDict.MapRequest}
+              key={'map-request-' + props.rerenderKey}
+            >
               <MapRequestsPanel
                 filters={props.filtersObj.filters.mapRequests}
                 setGoToCoord={setGoToCoord}
