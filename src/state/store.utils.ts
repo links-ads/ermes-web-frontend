@@ -42,7 +42,7 @@ export function getInitialState(appConfig: AppConfig): Promise<Partial<AppState>
       isAuthenticated = !isTokenExpired(expTime)
   const state: Partial<AppState> = {
     selectedCameraState: null,
-    auth: { token, profile: null, loading: false, isAuthenticated },
+    auth: { token, profile: null, loading: false, isAuthenticated, role: '' },
     // preferences will be downloaded from server
     preferences: {
       uiThemeName: defaultConfigThemeName,

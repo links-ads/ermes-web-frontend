@@ -1,18 +1,13 @@
 import React from "react"
 import useStorage from "react-storage-hook"
-import { oauthStateName, storagePrefix } from "./react-oauth2-hook-mod"
 
 
 const OAuthLogoutCallbackHandler: React.FunctionComponent<{}> = ({ children }) => {
-  // const [state] = useStorage<string>(oauthStateName)
-  // const { target } = state ? JSON.parse(atob(state)) : ''
-  // const [, setIsAuthenticated] = useStorage(storagePrefix + '-' + JSON.stringify(target))
   let [hasHandle] = useStorage<boolean>('logout-window-handle', {
     placeholder: false
   })
 
   React.useEffect(() => {
-    //setIsAuthenticated(false)
     if (hasHandle) {
       window.close()
     }

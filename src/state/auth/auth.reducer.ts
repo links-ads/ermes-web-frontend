@@ -14,6 +14,7 @@ export function authReducer(
       case AUTH_ACTIONS.SET_USER_DATA:
         state.profile = action.profile
         state.isAuthenticated = true
+        state.role = action.profile!.user!.roles![0]
         state.loading = false
         break
       case AUTH_ACTIONS.SET_TOKEN:

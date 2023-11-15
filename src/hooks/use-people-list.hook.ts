@@ -117,7 +117,11 @@ export default function usePeopleList() {
           }
         })
         .catch((err) => {
-          if (err?.response?.status !== 401) displayErrorSnackbar(err)
+          errorData = err.toJSON()
+          if (err?.response?.status !== 401){
+            console.error('httperror', err, errorData.code, errorData)
+            displayErrorSnackbar(errorData.message)
+          }
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
