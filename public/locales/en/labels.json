@@ -158,6 +158,7 @@
   "filter_station": "Field-Cameras",
   "chart_person_status": "Person Status",
   "chart_reports": "Hazard",
+  "chart_missions": "Mission Status",
   "no_data": "No data available",
   "total": "Total"
 }

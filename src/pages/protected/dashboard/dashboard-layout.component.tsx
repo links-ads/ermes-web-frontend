@@ -12,6 +12,10 @@ import { Persons } from './widgets/persons.component'
 import { FiltersContext } from '../../../state/filters.context'
 import { MapRequests } from './widgets/map-requests.component'
 import { Reports } from './widgets/reports.component'
+import { Missions } from './widgets/missions.component'
+import { Cameras } from './widgets/cameras.component'
+import { Communications } from './widgets/communications.component'
+import { Alerts } from './widgets/alerts.component'
 
 function useStats() {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
@@ -63,7 +67,12 @@ export function DashboardLayout() {
           return acc + curr.value
         }, 0) ?? 0,
       mapRequests: stats.mapRequestByType?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
-      reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0
+      reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      missions: stats.missionsByStatus?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      cameras: stats.stations?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      communications:
+        stats.communicationsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      alerts: stats.alertsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0
     }
   }, [stats])
 
@@ -99,6 +108,38 @@ export function DashboardLayout() {
               info={`${t('labels:total')}: ${totals.reports ?? ''}`}
             >
               <Reports reports={stats?.reportsByHazard} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Mission && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_mission')}
+              info={`${t('labels:total')}: ${totals.missions ?? ''}`}
+            >
+              <Missions missions={stats?.missionsByStatus} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Station && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_station')}
+              info={`${t('labels:total')}: ${totals.cameras ?? ''}`}
+            >
+              <Cameras cameras={stats?.stations} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Communication && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_communication')}
+              info={`${t('labels:total')}: ${totals.communications ?? ''}`}
+            >
+              <Communications communications={stats?.communicationsByRestriction} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Alert && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_alert')}
+              info={`${t('labels:total')}: ${totals.alerts ?? ''}`}
+            >
+              <Alerts alerts={stats?.alertsByRestriction} />
             </DashboardWidgetContainer>
           )}
         </Grid>
