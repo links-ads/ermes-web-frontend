@@ -29,7 +29,7 @@
   "page_settings": "Impostazioni",
   "page_organization": "Organizzazioni",
   "page_org_users": "Persone",
-  "page_teams": "{{orgName}} gruppi",
+  "page_teams": "Gruppi",
   "page_dashboard": "Grafici",
   "page_map": "Mappa",
   "page_details": "Dettagli {{type}}",
