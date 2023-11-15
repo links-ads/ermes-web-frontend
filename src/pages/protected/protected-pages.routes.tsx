@@ -85,9 +85,10 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
       <UnAuthorizedPage {...props} />
     </Container>
   )
-
-  return profile ? (
-    <Switch location={location}>
+  
+  let toBeRendered = <div/>
+  if(profile){
+    toBeRendered = <Switch location={location}>
       <Redirect from="/" exact={true} to='/map' />
       <Route
         path={'/profile'}
@@ -339,7 +340,9 @@ export function ProtectedPages({ match, location, history }: RouteChildrenProps)
         )}
       />
     </Switch>
-  ) : (
-    <Redirect to={originalURL ? '/login?' + originalURL : '/login'} from={originalURL} />
-  )
+  }
+  else
+    toBeRendered = <Redirect to={originalURL ? '/login?' + originalURL : '/login'} from={originalURL} />
+    
+  return toBeRendered
 }

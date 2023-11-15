@@ -197,7 +197,7 @@ function getLinks(role: UserRole, oid: string = 'unkn'): NavContentLinkConfig[] 
 
 export function NavContent() {
   const { t } = useTranslation()
-  const { profile } = useUser()
+  const { profile, role } = useUser()
   const { state, /* setCollapsed, */ setOpen } = useSidebarCollapse('left_sidebar')
   const classes = useStyles()
   function onClickItem() {
@@ -215,7 +215,6 @@ export function NavContent() {
     } */
   }
 
-  const role = profile?.user?.roles?[0] : ''
   const organizationId: string = profile?.organization?.name || 'unkn'
   const list = useMemo(()=> getLinks(role as UserRole,organizationId), [
     role,
