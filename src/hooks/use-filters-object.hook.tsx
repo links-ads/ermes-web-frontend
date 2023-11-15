@@ -9,10 +9,10 @@ export interface MapDrawerTabVisibility {
   Person: boolean
   Report: boolean
   Mission: boolean
+  Station: boolean
+  Alert: boolean
   Communication: boolean
   MapRequest: boolean
-  Alert: boolean
-  Station: boolean
 }
 
 const filtersInitialState = {
@@ -22,10 +22,10 @@ const filtersInitialState = {
     Person: true,
     Report: true,
     Mission: true,
-    Communication: true,
-    MapRequest: true,
+    Station: true,
     Alert: true,
-    Station: true
+    Communication: true,
+    MapRequest: true
   },
   lastUpdate: new Date().toISOString()
 }

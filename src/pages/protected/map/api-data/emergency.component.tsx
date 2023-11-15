@@ -616,11 +616,14 @@ const commCard = (data, classes, t, formatter, latitude, longitude, commInfo) =>
     return (
       <>
         <Card elevation={0}>
-          <CardContent style={{ paddingTop: '0px' }}>
+          <CardContent>
             <div style={{ marginBottom: 10 }}>
-              <Typography component={'span'} variant="h5">
-                {data.data?.feature?.properties?.message}
-              </Typography>
+              <Typography
+                variant="body2"
+                component="h2"
+                gutterBottom
+                dangerouslySetInnerHTML={{ __html: data.data?.feature?.properties?.message }}
+              />
             </div>
             <div style={{ marginBottom: 10 }}>
               <Typography
@@ -1168,6 +1171,15 @@ export function EmergencyHoverCardContent({
   const { t } = useTranslation(['maps'])
   let detailComponent = <div />
   if (type === EntityType.ALERT)
+    detailComponent = (
+      <Typography
+        variant="body2"
+        component="h2"
+        gutterBottom
+        dangerouslySetInnerHTML={{ __html: details }}
+      />
+    )
+  else if (type === EntityType.COMMUNICATION)
     detailComponent = (
       <Typography
         variant="body2"
