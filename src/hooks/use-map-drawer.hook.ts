@@ -17,14 +17,14 @@ import { ErmesAxiosContext } from '../state/ermesaxios.context'
 
 const initialState = { tabIndex: 0, selectedFeatureId: '', selectedItemsList: [] }
 
-const TabValuesDict = {
+export const TabValuesDict = {
   Person: 0,
   Report: 1,
   Mission: 2,
-  Communication: 3,
-  MapRequest: 4,
-  Alert: 5,
-  Station: 6
+  Station: 3,
+  Alert: 4,
+  Communication: 5,
+  MapRequest: 6
 }
 
 const mergeAndRemoveDuplicates = (a, b) => {
