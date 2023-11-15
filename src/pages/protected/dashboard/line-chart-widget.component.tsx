@@ -74,13 +74,11 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
           grid: { line: { stroke: theme['palette']['text']['primary'] } }
         }}
         axisBottom={{
-          orient: 'bottom',
           tickPadding: 5,
           tickRotation: -75,
           tickValues: xValues.length < 40 ? xValues : xValues.filter((_, i) => i % 2 === 0)
         }}
         axisLeft={{
-          orient: 'left',
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,

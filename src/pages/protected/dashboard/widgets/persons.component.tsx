@@ -3,6 +3,94 @@ import { CircularProgress, Typography } from '@material-ui/core'
 import { ResponsiveBar } from '@nivo/bar'
 import { EmergencyColorMap } from '../../map/api-data/emergency.component'
 import { useTranslation } from 'react-i18next'
+import { ResponsiveLine, Line } from '@nivo/line'
+import moment from 'moment'
+import { ChartTooltip } from '../../../../common/stats-cards.components'
+
+export function Activations({ activations }) {
+  const data = useMemo(() => {
+    return [
+      {
+        id: 'activations',
+        data: activations.Active.map((a) => {
+          return {
+            x: moment(a.timestamp).format('YYYY-MM-DD'),
+            y: a.y
+          }
+        })
+      }
+    ]
+  }, [activations])
+
+  return (
+    <div
+      style={{
+        margin: 20,
+        border: '1px solid #000',
+        backgroundColor: 'rgba(0,0,0,.1)',
+        height: 350,
+        overflowX: 'scroll',
+        overflowY: 'hidden'
+      }}
+    >
+      <Line
+        height={320}
+        width={activations.Active.length * 100}
+        data={data}
+        colors={[EmergencyColorMap.Person]}
+        theme={{
+          textColor: '#ffffff'
+        }}
+        margin={{ top: 50, right: 50, bottom: 40, left: 50 }}
+        xScale={{
+          type: 'time',
+          format: '%Y-%m-%d',
+          precision: 'day'
+        }}
+        yScale={{
+          type: 'linear',
+          min: 'auto',
+          max: 'auto'
+        }}
+        axisBottom={{
+          tickValues: 'every 1 day',
+          renderTick: (tick: any) => {
+            if (tick.tickIndex == 1000) {
+              console.log(tick)
+            }
+
+            return (
+              <g transform={`translate(${tick.x}, ${tick.y})`}>
+                <text
+                  dominantBaseline="middle"
+                  textAnchor="middle"
+                  transform="translate(0,15) rotate(0)"
+                  style={{ fontFamily: 'sans-serif', fontSize: 13, fill: 'rgb(200, 200, 200)' }}
+                >
+                  {moment(tick.value).format('ddd')}
+                </text>
+                <text
+                  dominantBaseline="middle"
+                  textAnchor="middle"
+                  transform="translate(0,30) rotate(0)"
+                  style={{ fontFamily: 'sans-serif', fontSize: 11, fill: 'rgb(200, 200, 200)' }}
+                >
+                  {moment(tick.value).format('DD/MM')}
+                </text>
+              </g>
+            )
+          }
+        }}
+        axisLeft={{
+          tickValues: 5
+        }}
+        axisTop={null}
+        axisRight={null}
+        layers={['axes', 'lines']}
+      />
+    </div>
+  )
+}
 
 export function Persons({ persons, activationsByDay }) {
   const { t } = useTranslation()
@@ -79,6 +167,7 @@ export function Persons({ persons, activationsByDay }) {
           }}
         />
       </div>
+      <Activations activations={activationsByDay} />
     </div>
   )
 }
