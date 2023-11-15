@@ -266,19 +266,19 @@ export default function MapDrawer(props) {
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
       case 3:
-        renderedText = t('maps:tab_communications')
+        renderedText = t('maps:tab_stations')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
       case 4:
-        renderedText = t('maps:tab_maprequests')
-        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
-        break
-      case 5:
         renderedText = t('maps:tab_alerts')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
+      case 5:
+        renderedText = t('maps:tab_communications')
+        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+        break
       case 6:
-        renderedText = t('maps:tab_stations')
+        renderedText = t('maps:tab_maprequests')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
       default:
@@ -306,16 +306,16 @@ export default function MapDrawer(props) {
         setSelectTextColor(EmergencyColorMap[EntityType.MISSION])
         break
       case 3:
-        setSelectTextColor(EmergencyColorMap[EntityType.COMMUNICATION])
+        setSelectTextColor(EmergencyColorMap[EntityType.STATION])
         break
       case 4:
-        setSelectTextColor(EmergencyColorMap[EntityType.MAP_REQUEST])
-        break
-      case 5:
         setSelectTextColor(EmergencyColorMap[EntityType.ALERT])
         break
+      case 5:
+        setSelectTextColor(EmergencyColorMap[EntityType.COMMUNICATION])
+        break
       case 6:
-        setSelectTextColor(EmergencyColorMap[EntityType.STATION])
+        setSelectTextColor(EmergencyColorMap[EntityType.MAP_REQUEST])
         break
       default:
         setSelectTextColor('')
@@ -360,10 +360,10 @@ export default function MapDrawer(props) {
                 {Person && <MenuItem value={0}>{t('maps:tab_persons')}</MenuItem>}
                 {Report && <MenuItem value={1}>{t('maps:tab_reports')}</MenuItem>}
                 {Mission && <MenuItem value={2}>{t('maps:tab_missions')}</MenuItem>}
-                {Communication && <MenuItem value={3}>{t('maps:tab_communications')}</MenuItem>}
-                {MapRequest && <MenuItem value={4}>{t('maps:tab_maprequests')}</MenuItem>}
-                {Alert && <MenuItem value={5}>{t('maps:tab_alerts')}</MenuItem>}
-                {Station && <MenuItem value={6}>{t('maps:tab_stations')}</MenuItem>}
+                {Station && <MenuItem value={3}>{t('maps:tab_stations')}</MenuItem>}
+                {Alert && <MenuItem value={4}>{t('maps:tab_alerts')}</MenuItem>}
+                {Communication && <MenuItem value={5}>{t('maps:tab_communications')}</MenuItem>}
+                {MapRequest && <MenuItem value={6}>{t('maps:tab_maprequests')}</MenuItem>}
               </Select>
             </FormControl>
           </Grid>
@@ -456,8 +456,47 @@ export default function MapDrawer(props) {
               />
             </TabPanel>
 
+            {/* CAMERA */}
+            <TabPanel value={tabValue} index={3} key={'camera-' + props.rerenderKey}>
+              <CamerasPanel
+                setGoToCoord={setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedFeatureId}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
+              />
+            </TabPanel>
+
+            {/* ALERTS */}
+            <TabPanel value={tabValue} index={4} key={'alert-' + props.rerenderKey}>
+              <AlertPanel
+                setGoToCoord={setGoToCoord}
+                map={props.map}
+                setMapHoverState={props.setMapHoverState}
+                spiderLayerIds={props.spiderLayerIds}
+                spiderifierRef={props.spiderifierRef}
+                selectedCard={selectedFeatureId}
+                setSelectedCard={onCardClick}
+                flyToCoords={undefined}
+                selectedItemsList={selectedItemsList}
+                updateIsLoadingStatus={setIsLoading}
+                searchText={searchText}
+                triggerSearch={triggerSearch}
+                updateTriggerSearch={setTriggerSearch}
+                updateItemsCounter={setItemsCounter}
+              />
+            </TabPanel>
+
             {/* COMMUNICATION */}
-            <TabPanel value={tabValue} index={3} key={'comm-' + props.rerenderKey}>
+            <TabPanel value={tabValue} index={5} key={'comm-' + props.rerenderKey}>
               <CommunicationPanel
                 setGoToCoord={setGoToCoord}
                 map={props.map}
@@ -478,7 +517,7 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* MAP REQUESTS */}
-            <TabPanel value={tabValue} index={4} key={'map-request-' + props.rerenderKey}>
+            <TabPanel value={tabValue} index={6} key={'map-request-' + props.rerenderKey}>
               <MapRequestsPanel
                 filters={props.filtersObj.filters.mapRequests}
                 setGoToCoord={setGoToCoord}
@@ -500,45 +539,6 @@ export default function MapDrawer(props) {
                 setSelectedCard={onCardClick}
                 showFeaturesDialog={showFeaturesDialog}
                 selectedItemsList={selectedItemsList}
-                updateIsLoadingStatus={setIsLoading}
-                searchText={searchText}
-                triggerSearch={triggerSearch}
-                updateTriggerSearch={setTriggerSearch}
-                updateItemsCounter={setItemsCounter}
-              />
-            </TabPanel>
-
-            {/* ALERTS */}
-            <TabPanel value={tabValue} index={5} key={'alert-' + props.rerenderKey}>
-              <AlertPanel
-                setGoToCoord={setGoToCoord}
-                map={props.map}
-                setMapHoverState={props.setMapHoverState}
-                spiderLayerIds={props.spiderLayerIds}
-                spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedFeatureId}
-                setSelectedCard={onCardClick}
-                flyToCoords={undefined}
-                selectedItemsList={selectedItemsList}
-                updateIsLoadingStatus={setIsLoading}
-                searchText={searchText}
-                triggerSearch={triggerSearch}
-                updateTriggerSearch={setTriggerSearch}
-                updateItemsCounter={setItemsCounter}
-              />
-            </TabPanel>
-
-            {/* CAMERA */}
-            <TabPanel value={tabValue} index={6} key={'camera-' + props.rerenderKey}>
-              <CamerasPanel
-                setGoToCoord={setGoToCoord}
-                map={props.map}
-                setMapHoverState={props.setMapHoverState}
-                spiderLayerIds={props.spiderLayerIds}
-                spiderifierRef={props.spiderifierRef}
-                selectedCard={selectedFeatureId}
-                setSelectedCard={onCardClick}
-                flyToCoords={undefined}
                 updateIsLoadingStatus={setIsLoading}
                 searchText={searchText}
                 triggerSearch={triggerSearch}

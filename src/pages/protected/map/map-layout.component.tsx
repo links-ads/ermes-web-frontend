@@ -59,11 +59,8 @@ import {
   removePolyToMap
 } from '../../../common/map/map-common'
 import { getMapBounds, getMapZoom } from '../../../common/map/map-common'
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
 import { makeStyles, Theme } from '@material-ui/core/styles'
-import { Chip, Collapse, createStyles, Fab } from '@material-ui/core'
-import InfoIcon from '@material-ui/icons/Info'
+import { Chip, createStyles } from '@material-ui/core'
 import { LayersButton } from './map-layers/layers-button.component'
 import { tileJSONIfy } from '../../../utils/map.utils'
 import { EntityType } from 'ermes-ts-sdk'
@@ -82,6 +79,7 @@ import {
 import { wktToGeoJSON } from '@terraformer/wkt'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 import MapGeocoderSearchButton from './map-geocoder-search-button.component'
+import MapLegendButton from './map-legend-button.component'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -100,61 +98,32 @@ const DEBOUNCE_TIME = 200 // ms
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    fab: {
-      position: 'absolute',
-      top: 400,
-      right: '10px',
-      zIndex: 99,
-      width: 27,
-      height: 27,
-      minHeight: 27,
-      backgroundColor: theme.palette.secondary.main,
-      [theme.breakpoints.up('sm')]: {
-        bottom: 390
-      },
-      [theme.breakpoints.up('md')]: {
-        bottom: 280
-      },
-      [theme.breakpoints.up('lg')]: {
-        bottom: 150
-      }
-    },
-    legend_container: {
-      zIndex: 98,
-      position: 'absolute',
-      top: 400,
-      right: 10
-    },
-    legend_row: {
-      height: 30
-    },
-    legend_dot: {
-      width: 20,
-      height: 20,
-      display: 'inline-block',
-      borderRadius: '50%',
-      verticalAlign: 'middle',
-      marginTop: '-3px'
-    },
-    legend_text: {
-      display: 'inline-block'
-    },
     mapCoorZoom: {
       zIndex: 8,
       top: 10,
       right: 10,
       position: 'absolute',
-      color: '#fff',
-      backgroundColor: '#333'
+      color: theme.palette.text.primary,
+      backgroundColor: theme.palette.background.default
     },
     layersAndDownload: {
       top: 270,
       position: 'absolute',
       right: 0,
       margin: 10,
-      background: '#333',
+      background: theme.palette.background.default,
       width: 29,
-      height: 65,
+      height: 75,
+      borderRadius: 12
+    },
+    drawerAndLegend: {
+      top: 380,
+      position: 'absolute',
+      right: 0,
+      margin: 10,
+      background: theme.palette.background.default,
+      width: 29,
+      height: 75,
       borderRadius: 12
     }
   })
@@ -196,9 +165,6 @@ export function MapLayout(props) {
 
   // Snackbars
   const { displayMessage, displayWarningSnackbar } = useSnackbars()
-
-  // Legend toggle
-  const [legendToggle, setLegendToggle] = useState(false)
 
   // Parse props
   const {
@@ -972,15 +938,12 @@ export function MapLayout(props) {
       {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
       {!isMobileDevice && (
         <>
-          <DrawerToggle
-            toggleDrawerTab={props.toggleDrawerTab}
-            setToggleDrawerTab={props.setToggleDrawerTab}
-          ></DrawerToggle>
+          <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
           {/* <FilterButton
             setToggleActiveFilterTab={props.setToggleActiveFilterTab}
             toggleActiveFilterTab={props.toggleActiveFilterTab}
           ></FilterButton> */}
-          <div className={classes.layersAndDownload}>
+          <div className={"controls-container " + classes.layersAndDownload}>
             <LayersButton
               visibility={props.layersSelectVisibility}
               setVisibility={props.setLayersSelectVisibility}
@@ -989,44 +952,16 @@ export function MapLayout(props) {
               downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
             />
           </div>
-          <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
+          <div className={"controls-container " + classes.drawerAndLegend}>
+            <DrawerToggle
+              toggleDrawerTab={props.toggleDrawerTab}
+              setToggleDrawerTab={props.setToggleDrawerTab}
+            ></DrawerToggle>
+            <MapLegendButton />
+          </div>
         </>
       )}
-      <Collapse in={legendToggle}>
-        <Card className={classes.legend_container}>
-          <CardContent style={{ padding: 12 }}>
-            {Object.keys(EmergencyColorMap).map((key, i) => {
-              return (
-                <div key={i} className={classes.legend_row}>
-                  <div
-                    style={{
-                      backgroundColor: EmergencyColorMap[key]
-                    }}
-                    className={classes.legend_dot}
-                  ></div>
-                  <div className={classes.legend_text}>
-                    &nbsp; {t('maps:legend_' + key.toLocaleLowerCase())}{' '}
-                  </div>
-                </div>
-              )
-            })}
-          </CardContent>
-        </Card>
-      </Collapse>
-      <Fab
-        size="small"
-        color="primary"
-        aria-label="add"
-        className={classes.fab}
-        onMouseEnter={() => {
-          setLegendToggle(true)
-        }}
-        onMouseLeave={() => {
-          setLegendToggle(false)
-        }}
-      >
-        <InfoIcon />
-      </Fab>
+      {isMobileDevice && <MapLegendButton />} {/* TODO position button */}
       {/* Bottom drawer - outside map */}
       <BottomDrawerComponent
         open={clickedPoint !== null}

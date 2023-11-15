@@ -28,26 +28,29 @@ export function AuthenticationCard() {
         </CardContent>
         <CardActions>
           <Grid
-            justifyContent="space-between" // Add it here :)
             container
+            direction="row"
+            alignItems="flex-end"
+            justifyContent="space-between" // Add it here :)
           >
             <Grid item>
-              <div style={{ display: 'inline' }}>
-                <Typography
-                  variant="body2"
-                  style={{
-                    display: 'inline-block',
-                    marginRight: '20px',
-                    marginLeft: '10px',
-                    paddingTop: '15px'
-                  }}
-                >
-                  <Link href="/privacy">{t('privacy:link')}</Link>
-                </Typography>
-                <Typography variant="body2" style={{ display: 'inline-block' }}>
-                  <Link href="/termsofuse">{t('termsofuse:link')}</Link>
-                </Typography>
-              </div>
+              <Typography
+                variant="body2"
+                display="inline"
+                style={{
+                  marginRight: '20px',
+                  marginLeft: '10px'
+                }}
+              >
+                <Link href="/privacy" color="inherit">
+                  {t('privacy:link')}
+                </Link>
+              </Typography>
+              <Typography variant="body2" display="inline">
+                <Link href="/termsofuse" color="inherit">
+                  {t('termsofuse:link')}
+                </Link>
+              </Typography>
             </Grid>
             <Grid item>
               <Button variant="contained" color="secondary" onClick={login}>
