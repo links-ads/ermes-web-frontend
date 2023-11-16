@@ -128,6 +128,7 @@
   "map_request_hazards": "Event",
   "map_request_types": "Map request types",
   "fireandburnedarea": "Fire and Burned Areas",
+  "floodedarea": "Flooded Areas",
   "posteventmonitoring": "Post Event Monitoring",
   "wildfiresimulation": "Wildfire Simulation",
   "mapRequestFrequency": "Frequency",
