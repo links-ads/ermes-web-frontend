@@ -129,6 +129,7 @@
   "map_request_hazards": "Evento",
   "map_request_types": "Tipi di richieste di mappatura",
   "fireandburnedarea": "Aree Bruciate",
+  "floodedarea": "Aree Innondate",
   "posteventmonitoring": "Monitoraggio Post-Event",
   "wildfiresimulation": "Simulazione Incendio",
   "mapRequestFrequency": "Frequenza",

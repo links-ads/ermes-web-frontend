@@ -1,4 +1,9 @@
-import { CommunicationRestrictionType, CommunicationScopeType, MapRequestStatusType } from 'ermes-backoffice-ts-sdk'
+import {
+  CommunicationRestrictionType,
+  CommunicationScopeType,
+  MapRequestStatusType,
+  MapRequestType
+} from 'ermes-backoffice-ts-sdk'
 import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
 import { _MS_PER_DAY } from '../../../utils/utils.common'
 
@@ -103,9 +108,19 @@ export const initObjectState = {
       content: [
         {
           name: 'map_request_types',
-          options: ['FireAndBurnedArea', 'PostEventMonitoring', 'WildfireSimulation'],
+          options: [
+            MapRequestType.FIRE_AND_BURNED_AREA,
+            MapRequestType.FLOODED_AREA,
+            MapRequestType.POST_EVENT_MONITORING,
+            MapRequestType.WILDFIRE_SIMULATION
+          ],
           type: 'multipleselect',
-          selected: ['FireAndBurnedArea', 'PostEventMonitoring', 'WildfireSimulation']
+          selected: [
+            MapRequestType.FIRE_AND_BURNED_AREA,
+            MapRequestType.FLOODED_AREA,
+            MapRequestType.POST_EVENT_MONITORING,
+            MapRequestType.WILDFIRE_SIMULATION
+          ]
         },
         {
           name: 'map_request_status',
@@ -168,7 +183,7 @@ export const initObjectState = {
           ],
           type: 'conditional_multipleselect',
           selected: []
-        }        
+        }
       ]
     },
     alert: {

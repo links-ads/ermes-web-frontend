@@ -4,7 +4,9 @@ import {
 } from './get-camera-validation-status.util'
 
 export function getCameraState(type, measurements) {
-  const hasTypeChip = measurements?.some((m) => m.metadata?.detection?.[type])
+  const hasTypeChip = measurements?.some(
+    (m) => m.metadata?.detection?.[type] || m.metadata?.validation?.[type]
+  )
 
   const hasAtLeastOneValidation = measurements?.some((m) => {
     const status = getCameraValidationStatus(type, m.metadata)
@@ -21,8 +23,6 @@ export function getCameraState(type, measurements) {
 
     return (typeof validation !== 'undefined' && validation !== null) || detection === true
   })
-
-  console.log(validatedOrDetectedMeasurements)
 
   const hasAllValidationsDiscarded =
     validatedOrDetectedMeasurements.length > 0 &&
