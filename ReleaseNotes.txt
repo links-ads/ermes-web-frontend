@@ -1,6 +1,11 @@
-Ver. 
+Ver.
+-----------------------
+
+
+Ver. 2.19.1 - 2013-11-20
 -----------------------
 - Bugfix - Get legend without size (#179)
+- Feature - Mission code in cards (#180)
 
 Ver. 2.19.0 - 2023-11-20
 -----------------------

@@ -1,14 +1,13 @@
-import { CardActions, CardContent, IconButton, Typography } from "@material-ui/core";
-import { EntityType } from "ermes-backoffice-ts-sdk";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { FormatDate } from "../../../../../utils/date.utils";
-import CardWithPopup from "./card-with-popup.component";
+import { CardActions, CardContent, Chip, IconButton, Typography } from '@material-ui/core'
+import { EntityType } from 'ermes-backoffice-ts-sdk'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { FormatDate } from '../../../../../utils/date.utils'
+import CardWithPopup from './card-with-popup.component'
 import classes from './mission-card.module.scss'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
-import DrawerCardProps from "../../../../../models/DrawerCardProps";
-import { EmergencyColorMap } from "../../api-data/emergency.component";
-
+import DrawerCardProps from '../../../../../models/DrawerCardProps'
+import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const ENTITY_TYPE = EntityType.MISSION
 
@@ -33,9 +32,23 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
       setSelectedCard={props.setSelectedCard}
     >
       <CardContent>
-        <Typography variant="h5" component="h2" gutterBottom>
-          {elem.title}
-        </Typography>
+        <div className={classes.hazardRow}>
+          <Typography
+            variant="h5"
+            component="h2"
+            gutterBottom
+            style={{ marginBottom: '0px', width: '89%', display: 'inline-block' }}
+          >
+            {elem.title}
+          </Typography>
+          <Chip
+            label={'#' + elem.id}
+            color="primary"
+            size="small"
+            className={classes.chipStyle}
+            disabled={false}
+          />
+        </div>
         <>
           <Typography
             component={'span'}
