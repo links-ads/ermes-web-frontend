@@ -176,10 +176,11 @@ const mapRequestCard = (
           >
             {t('labels:type')}:&nbsp;
           </Typography>
-          {mapRequestDetails.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ? (
+          {mapRequestDetails.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+          mapRequestDetails.mapRequestType === MapRequestType.FLOODED_AREA ? (
             <>
               <Typography component={'span'} variant="body1">
-                {t('maps:fireAndBurnedAreas')}
+                {t('labels:' + mapRequestDetails.mapRequestType.toLowerCase())}
               </Typography>
               <br />
               <Typography
@@ -1168,7 +1169,7 @@ export function EmergencyHoverCardContent({
   status
 }: EmergencyProps) {
   const classes = useStyles()
-  const { t } = useTranslation(['maps'])
+  const { t } = useTranslation(['maps', 'labels'])
   let detailComponent = <div />
   if (type === EntityType.ALERT)
     detailComponent = (
@@ -1272,11 +1273,7 @@ export function EmergencyHoverCardContent({
           </Typography>
           <br />
           <Typography component={'span'} variant="body1">
-            {mapRequestTypeFilter === MapRequestType.FIRE_AND_BURNED_AREA
-              ? t('maps:fireAndBurnedAreas')
-              : mapRequestTypeFilter === MapRequestType.POST_EVENT_MONITORING
-              ? t('maps:postEventMonitoring')
-              : t('maps:wildfireSimulation')}
+            {t('labels:' + mapRequestTypeFilter.toLowerCase())}
           </Typography>
         </div>
       ) : undefined}
