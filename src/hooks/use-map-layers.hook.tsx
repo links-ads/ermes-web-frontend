@@ -6,6 +6,7 @@ import { getFeatureInfoUrl, getLegendURL } from '../utils/map.utils'
 import { useTranslation } from 'react-i18next'
 import {
   FeatureInfo,
+  ImpactFeatureInfoValue,
   LayerFeatureInfo,
   LayerFeatureInfoState
 } from '../models/layers/LayerFeatureInfo'
@@ -823,15 +824,21 @@ const useMapLayers = () => {
             for (let j = 0; j < featInfo.features.length; j++) {
               const feat = featInfo.features[j]
               const property = feat.properties
+              const parseJSON = (feat.id!! as string).includes('36004') ? true : false
               const featureInfo = Object.keys(property!!).map((e) => {
-                const rounded =
-                  property!![e] !== 0 && property!![e] % 1 > 0
-                    ? property!![e].toFixed(2)
-                    : property!![e]
-                const roundedWithUnitOfMeasure = unitOfMeasures[i]
-                  ? rounded + unitOfMeasures[i]
-                  : rounded
-                return new FeatureInfo(e, roundedWithUnitOfMeasure)
+                if (parseJSON) {
+                  const impact = new ImpactFeatureInfoValue(property!![e])
+                  return new FeatureInfo(e, impact.strAllImpacts)
+                } else {
+                  const rounded =
+                    property!![e] !== 0 && property!![e] % 1 > 0
+                      ? property!![e].toFixed(2)
+                      : property!![e]
+                  const roundedWithUnitOfMeasure = unitOfMeasures[i]
+                    ? rounded + unitOfMeasures[i]
+                    : rounded
+                  return new FeatureInfo(e, roundedWithUnitOfMeasure)
+                }
               })
               allFeat.push(featureInfo)
             }
