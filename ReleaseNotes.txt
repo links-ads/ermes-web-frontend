@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Minor feature info formatting (#163)
 
 Ver. 2.19.1 - 2013-11-20
 -----------------------

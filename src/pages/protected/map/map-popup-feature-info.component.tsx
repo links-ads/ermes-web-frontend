@@ -114,8 +114,9 @@ export const MapFeatureInfo = (props) => {
                             </TableCell>
                             <TableCell
                               key={'feature-value-' + i + '-' + j}
+                              component="td"
                               align="right"
-                              style={{ minWidth: 120 }}
+                              style={{ minWidth: 120, whiteSpace: 'pre' }}
                             >
                               {fInfo.value}
                             </TableCell>

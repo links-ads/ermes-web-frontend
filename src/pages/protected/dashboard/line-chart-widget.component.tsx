@@ -3,6 +3,7 @@ import { CustomLayerProps, ResponsiveLine } from '@nivo/line'
 import { useTheme } from '@material-ui/core'
 import { ChartTooltip } from '../../../common/stats-cards.components'
 import LineChartProps from '../../../models/chart/LineChartProps'
+import { useTranslation } from 'react-i18next'
 
 const DashedSolidLine = ({ series, lineGenerator, xScale, yScale }) => {
   return series.map(({ id, data, color, isAssociatedLayer }, index) => (
@@ -51,12 +52,14 @@ const CustomPoints = ({ series, points }): CustomLayerProps => {
 
 export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
   const theme = useTheme()
+  const { t } = useTranslation(['social'])
   const { chartData, xValues, type: chartDataType } = props.data
-  const unifOfMeasure = chartData[0] && chartData[0].unitOfMeasure
-    ? chartData[0].unitOfMeasure
-    : chartData[1] && chartData[1].unitOfMeasure
-    ? chartData[1].unitOfMeasure
-    : ''
+  const unifOfMeasure =
+    chartData[0] && chartData[0].unitOfMeasure
+      ? chartData[0].unitOfMeasure
+      : chartData[1] && chartData[1].unitOfMeasure
+      ? chartData[1].unitOfMeasure
+      : ''
 
   return (
     <div style={{ height: 600, marginBottom: '0', width: '1200px' }}>
@@ -113,6 +116,10 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
             d.point.serieColor,
             chartDataType === 'Number'
               ? (d.point.data.y as number).toFixed(4) + unifOfMeasure
+              : chartDataType === 'Boolean'
+              ? (d.point.data.y as number) === 1
+                ? (t('social:informative_yes') as string)
+                : (t('social:informative_no') as string)
               : (d.point.data.y as string)
           )
         }}

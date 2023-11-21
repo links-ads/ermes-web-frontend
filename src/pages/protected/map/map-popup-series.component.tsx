@@ -111,6 +111,16 @@ export default function MapTimeSeries(props) {
     }
   }
 
+  const mapBooleanValues = (value: string) => {
+    if (value === 'yes') {
+      return 1
+    } else if (value === 'no') {
+      return 0
+    } else {
+      return 0
+    }
+  }
+
   // map to LineChartData
   const mapToLineChartData = useCallback(
     (timeseries, layerName, isAssociatedLayer, unitOfMeasure, varType) => {
@@ -129,7 +139,11 @@ export default function MapTimeSeries(props) {
             (series) =>
               new PointChartData(
                 formatter.format(new Date((series as any).dateTime)),
-                varType === 'Number' ? parseFloat((series as any).value) : (series as any).value
+                varType === 'Number'
+                  ? parseFloat((series as any).value)
+                  : varType === 'Boolean'
+                  ? mapBooleanValues(series.value)
+                  : (series as any).value
               )
           ),
         isAssociatedLayer,
