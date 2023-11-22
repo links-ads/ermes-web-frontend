@@ -58,11 +58,6 @@ const useStyles = makeStyles((theme) => ({
       height: 8,
       width: 1
     }
-  },
-  oneDatapoint: {
-    width: '100%',
-    textAlign: 'center',
-    color: theme.palette.text.disabled
   }
 }))
 
@@ -322,12 +317,16 @@ const LayersPlayer: React.FC<{
               justifyContent="flex-end"
               alignItems="center"
             >
-              <IconButton onClick={getLayerLegend} size="small">
-                <LegendIcon />
-              </IconButton>
-              <IconButton onClick={getMetadata} size="small">
-                <MetaIcon />
-              </IconButton>
+              <Tooltip title={t('labels:legend') ?? 'Legend'}>
+                <IconButton onClick={getLayerLegend} size="small">
+                  <LegendIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={'Metadata'}>
+                <IconButton onClick={getMetadata} size="small">
+                  <MetaIcon />
+                </IconButton>
+              </Tooltip>
               <IconButton
                 onClick={() => {
                   updateLayerSelection(
@@ -400,7 +399,19 @@ const LayersPlayer: React.FC<{
               </Grid>
             </Grid>
           ) : (
-            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
+            <Grid
+              container
+              spacing={1}
+              direction="row"
+              justifyContent="space-around"
+              alignItems="center"
+            >
+              <Grid item>
+                <Typography color="textSecondary" style={{ paddingBottom: 20, paddingTop: 10 }}>
+                  {t('maps:one_datapoint')}
+                </Typography>
+              </Grid>
+            </Grid>
           )}
         </CardContent>
       </>

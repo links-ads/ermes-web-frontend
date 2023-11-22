@@ -4,6 +4,7 @@ import {
   IconButton,
   makeStyles,
   Slider,
+  Tooltip,
   Typography
 } from '@material-ui/core'
 import { LayersApiFactory } from 'ermes-backoffice-ts-sdk'
@@ -105,17 +106,15 @@ const MapRequestAccordionItem: React.FC<{
 
   const onDownloadHandler = async (event) => {
     event.stopPropagation()
-    if (currentLayer.activeLayer && currentLayer.activeLayer.length > 0){
-        const layerName = currentLayer.activeLayer.split(':')[1]
+    if (currentLayer.activeLayer && currentLayer.activeLayer.length > 0) {
+      const layerName = currentLayer.activeLayer.split(':')[1]
       const response = await layersApiFactory.layersGetFilename(layerName)
-      if(response.status === 200){
-        const { filename } = response.data;
+      if (response.status === 200) {
+        const { filename } = response.data
         if (filename && filename.length > 0)
           window.location.href = importerBaseUrl + '/download?filename=' + filename
       }
-    }
-    else
-      displayErrorSnackbar(t('contentnotavailable'))
+    } else displayErrorSnackbar(t('contentnotavailable'))
   }
 
   const skipNext = (newValue) => {
@@ -207,36 +206,42 @@ const MapRequestAccordionItem: React.FC<{
         />
         <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
           {errorTooltip}
-          <IconButton
-            disabled={!currentLayer.isChecked}
-            onClick={(evt) => {
-              evt.stopPropagation()
-              getMeta(
-                currentLayer.metadataIds[currentLayer.availableTimestamps[currentLayer.dateIndex]],
-                'Map Request Layer',
-                currentLayer.mapRequestCode,
-                currentLayer.dataTypeId,
-                currentLayer.name
-              )
-            }}
-          >
-            <MetaIcon />
-          </IconButton>
-          <IconButton
-            disabled={!currentLayer.isChecked}
-            onClick={(evt) => {
-              evt.stopPropagation()
-              getLegend(
-                currentLayer.activeLayer,
-                'Map Request Layer',
-                currentLayer.mapRequestCode,
-                currentLayer.dataTypeId,
-                currentLayer.name
-              )
-            }}
-          >
-            <LegendIcon />
-          </IconButton>
+          <Tooltip title={t('labels:legend') ?? 'Legend'}>
+            <IconButton
+              disabled={!currentLayer.isChecked}
+              onClick={(evt) => {
+                evt.stopPropagation()
+                getLegend(
+                  currentLayer.activeLayer,
+                  'Map Request Layer',
+                  currentLayer.mapRequestCode,
+                  currentLayer.dataTypeId,
+                  currentLayer.name
+                )
+              }}
+            >
+              <LegendIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title={'Metadata'}>
+            <IconButton
+              disabled={!currentLayer.isChecked}
+              onClick={(evt) => {
+                evt.stopPropagation()
+                getMeta(
+                  currentLayer.metadataIds[
+                    currentLayer.availableTimestamps[currentLayer.dateIndex]
+                  ],
+                  'Map Request Layer',
+                  currentLayer.mapRequestCode,
+                  currentLayer.dataTypeId,
+                  currentLayer.name
+                )
+              }}
+            >
+              <MetaIcon />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
       <div>
@@ -337,7 +342,7 @@ const MapRequestAccordionItem: React.FC<{
                   disabled={!isChecked}
                   onChange={(event, value) => {
                     changeOpacityHandler(event, value)
-                  }}                  
+                  }}
                 />
               </div>
             </div>
