@@ -106,24 +106,24 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.text.primary,
       backgroundColor: theme.palette.background.default
     },
-    layersAndDownload: {
+    layersOnly: {
       top: 270,
       position: 'absolute',
       right: 0,
       margin: 10,
       background: theme.palette.background.default,
       width: 29,
-      height: 75,
+      height: 37,
       borderRadius: 12
     },
-    drawerAndLegend: {
-      top: 380,
+    drawerDownloadAndLegend: {
+      top: 330,
       position: 'absolute',
       right: 0,
       margin: 10,
       background: theme.palette.background.default,
       width: 29,
-      height: 75,
+      height: 112,
       borderRadius: 12
     }
   })
@@ -943,20 +943,20 @@ export function MapLayout(props) {
             setToggleActiveFilterTab={props.setToggleActiveFilterTab}
             toggleActiveFilterTab={props.toggleActiveFilterTab}
           ></FilterButton> */}
-          <div className={"controls-container " + classes.layersAndDownload}>
+          <div className={'controls-container ' + classes.layersOnly}>
             <LayersButton
               visibility={props.layersSelectVisibility}
               setVisibility={props.setLayersSelectVisibility}
             />
-            <DownloadButton
-              downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
-            />
           </div>
-          <div className={"controls-container " + classes.drawerAndLegend}>
+          <div className={'controls-container ' + classes.drawerDownloadAndLegend}>
             <DrawerToggle
               toggleDrawerTab={props.toggleDrawerTab}
               setToggleDrawerTab={props.setToggleDrawerTab}
             ></DrawerToggle>
+            <DownloadButton
+              downloadGeojsonFeatureCollection={props.downloadGeojsonFeatureCollection}
+            />
             <MapLegendButton />
           </div>
         </>

@@ -57,7 +57,7 @@ export function DrawerToggle(props) {
 
   return (
     <DrawerToggleContainer>
-      <Tooltip title={t('labels:mapDrawer') ?? ''}>
+      <Tooltip title={t('labels:mapDrawer') ?? ''} placement="left-start">
         <span>
           <IconButton
             onClick={onClick}
