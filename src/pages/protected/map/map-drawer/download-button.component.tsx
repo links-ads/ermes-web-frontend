@@ -9,7 +9,11 @@ import { useTranslation } from 'react-i18next'
 
 const DownloadButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
-})``
+})`
+  border-bottom: 1px solid #fff;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+`
 
 const ICON_STYLE: React.CSSProperties = { fontSize: 16 }
 
@@ -21,7 +25,7 @@ export function DownloadButton(props) {
 
   return (
     <DownloadButtonContainer>
-      <Tooltip title={t('maps:downloadButton') ?? 'Download'}>
+      <Tooltip title={t('maps:downloadButton') ?? 'Download'} placement="left-start">
         <span>
           <IconButton
             onClick={onClick}

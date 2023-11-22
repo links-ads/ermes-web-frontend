@@ -6,11 +6,7 @@ import { SvgIcon } from '@material-ui/core'
 
 const LayersButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
-})`
-  border-bottom: 1px solid #fff;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-`
+})``
 
 const CustomLayersIcon = (props) => {
   return (
@@ -46,7 +42,7 @@ export function LayersButton(props) {
 
   return (
     <LayersButtonContainer>
-      <Tooltip title={'Map layers'}>
+      <Tooltip title={'Map layers'} placement="left-start">
         <span>
           <IconButton
             onClick={onClickHandler}
