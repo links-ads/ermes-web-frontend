@@ -29,7 +29,15 @@ export function PlayerMetadata(props) {
 
   const { layerData, updateVisibility, onPositionChange } = props
 
-  const { metadata: layerMetaData, visibility, group, subGroup, dataTypeId, layerName, position } = layerData
+  const {
+    metadata: layerMetaData,
+    visibility,
+    group,
+    subGroup,
+    dataTypeId,
+    layerName,
+    position
+  } = layerData
 
   const closeModal = () => {
     updateVisibility(false, group, subGroup, dataTypeId)
@@ -64,53 +72,56 @@ export function PlayerMetadata(props) {
       resizable={true}
       onPositionChange={updatePosition}
     >
-      <AppBar
-        position="static"
-        color="default"
-        style={{
-          backgroundColor: theme.palette.primary.dark,
-          boxShadow: 'none',
-          display: 'flex',
-          flexDirection: 'row'
-        }}
-        className="handle handleResize"
-      >
-        <Grid container direction="row" justifyContent="space-between" alignItems="center">
-          <Typography
-            align="left"
-            variant="h4"
-            style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
+      <>
+        <AppBar
+          position="static"
+          color="default"
+          style={{
+            backgroundColor: theme.palette.primary.dark,
+            boxShadow: 'none',
+            display: 'flex',
+            flexDirection: 'row'
+          }}
+          className="handle handleResize"
+        >
+          <Grid container direction="row" justifyContent="space-between" alignItems="center">
+            <Typography
+              align="left"
+              variant="h4"
+              style={{ fontSize: '0.875rem', paddingLeft: '10px', marginRight: '10px' }}
+            >
+              {'Metadata - ' + group + ' | ' + layerName}
+            </Typography>
+            <IconButton onClick={closeModal} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Grid>
+        </AppBar>
+        <CardContent
+          style={{
+            backgroundColor: theme.palette.primary.dark,
+            paddingTop: '0px',
+            overflow: 'auto',
+            width: '100%',
+            height: 'calc(100% - 30px)'
+          }}
+        >
+          <Table
+            style={{ width: 'fit-content', height: 'fit-content' }}
+            padding="none"
+            size="small"
           >
-            {'Metadata - ' + group + ' | ' + layerName}
-          </Typography>
-          <IconButton
-            onClick={closeModal}
-            size='small'
-          >
-            <CloseIcon />
-          </IconButton>
-        </Grid>
-      </AppBar>
-      <CardContent
-        style={{
-          backgroundColor: theme.palette.primary.dark,
-          paddingTop: '0px',
-          overflow: 'auto',
-          width: '100%',
-          height: 'calc(100% - 30px)'
-        }}
-      >
-        <Table style={{ width: 'fit-content', height: 'fit-content' }} padding='none' size='small'>
-          <TableBody>
-            {layerMetaData.map((row, i) => (
-              <TableRow key={i}>
-                <TableCell>{row[0]}</TableCell>
-                <TableCell style={{ maxWidth: '350px' }}>{makeList(row[1])}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
+            <TableBody>
+              {layerMetaData.map((row, i) => (
+                <TableRow key={i}>
+                  <TableCell>{row[0]}</TableCell>
+                  <TableCell style={{ maxWidth: '350px' }}>{makeList(row[1])}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </>
     </FloatingCardContainer>
   )
 }
