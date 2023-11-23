@@ -73,6 +73,7 @@ const LayersPlayer: React.FC<{
   onPositionChange: any
   getLegend: any
   getMeta: any
+  isDrawerOpen: boolean
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
@@ -87,7 +88,8 @@ const LayersPlayer: React.FC<{
     getMeta,
     getLegend,
     idx,
-    cnt
+    cnt,
+    isDrawerOpen
   } = props
   const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer
   const [playing, setPlaying] = useState(false)
@@ -376,7 +378,7 @@ const LayersPlayer: React.FC<{
                   <SkipNextOutlined />
                 </IconButton>
               </Grid>
-              <Grid item xs={8} lg={cnt > 2 ? 10 : 11}>
+              <Grid item xs={8} lg={isDrawerOpen ? (cnt > 2 ? 9 : 10) : cnt > 2 ? 10 : 11}>
                 <PlayerSlider
                   selectedLayer={selectedLayer}
                   playerValue={playerValue}
@@ -386,13 +388,15 @@ const LayersPlayer: React.FC<{
               </Grid>
               <Grid item style={{ paddingBottom: 20 }}>
                 {!isLoading ? (
-                  <IconButton
-                    aria-label="download"
-                    onClick={onDownloadHandler}
-                    style={{ padding: 0 }}
-                  >
-                    <GetAppIcon />
-                  </IconButton>
+                  <Tooltip title={t('maps:downloadButton') ?? 'Download'}>
+                    <IconButton
+                      aria-label="download"
+                      onClick={onDownloadHandler}
+                      style={{ padding: 0 }}
+                    >
+                      <GetAppIcon />
+                    </IconButton>
+                  </Tooltip>
                 ) : (
                   <CircularProgress color="secondary" size={20} style={{ padding: 0 }} />
                 )}
