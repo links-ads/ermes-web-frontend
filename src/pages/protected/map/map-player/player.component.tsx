@@ -58,11 +58,6 @@ const useStyles = makeStyles((theme) => ({
       height: 8,
       width: 1
     }
-  },
-  oneDatapoint: {
-    width: '100%',
-    textAlign: 'center',
-    color: theme.palette.text.disabled
   }
 }))
 
@@ -78,6 +73,7 @@ const LayersPlayer: React.FC<{
   onPositionChange: any
   getLegend: any
   getMeta: any
+  isDrawerOpen: boolean
 }> = (props) => {
   const classes = useStyles()
   const theme = useTheme()
@@ -92,7 +88,8 @@ const LayersPlayer: React.FC<{
     getMeta,
     getLegend,
     idx,
-    cnt
+    cnt,
+    isDrawerOpen
   } = props
   const { activeLayer: layerName, availableTimestamps, dateIndex } = selectedLayer
   const [playing, setPlaying] = useState(false)
@@ -322,12 +319,16 @@ const LayersPlayer: React.FC<{
               justifyContent="flex-end"
               alignItems="center"
             >
-              <IconButton onClick={getLayerLegend} size="small">
-                <LegendIcon />
-              </IconButton>
-              <IconButton onClick={getMetadata} size="small">
-                <MetaIcon />
-              </IconButton>
+              <Tooltip title={t('labels:legend') ?? 'Legend'}>
+                <IconButton onClick={getLayerLegend} size="small">
+                  <LegendIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title={'Metadata'}>
+                <IconButton onClick={getMetadata} size="small">
+                  <MetaIcon />
+                </IconButton>
+              </Tooltip>
               <IconButton
                 onClick={() => {
                   updateLayerSelection(
@@ -377,7 +378,7 @@ const LayersPlayer: React.FC<{
                   <SkipNextOutlined />
                 </IconButton>
               </Grid>
-              <Grid item xs={8} lg={cnt > 2 ? 10 : 11}>
+              <Grid item xs={8} lg={isDrawerOpen ? (cnt > 2 ? 9 : 10) : cnt > 2 ? 10 : 11}>
                 <PlayerSlider
                   selectedLayer={selectedLayer}
                   playerValue={playerValue}
@@ -387,20 +388,34 @@ const LayersPlayer: React.FC<{
               </Grid>
               <Grid item style={{ paddingBottom: 20 }}>
                 {!isLoading ? (
-                  <IconButton
-                    aria-label="download"
-                    onClick={onDownloadHandler}
-                    style={{ padding: 0 }}
-                  >
-                    <GetAppIcon />
-                  </IconButton>
+                  <Tooltip title={t('maps:downloadButton') ?? 'Download'}>
+                    <IconButton
+                      aria-label="download"
+                      onClick={onDownloadHandler}
+                      style={{ padding: 0 }}
+                    >
+                      <GetAppIcon />
+                    </IconButton>
+                  </Tooltip>
                 ) : (
                   <CircularProgress color="secondary" size={20} style={{ padding: 0 }} />
                 )}
               </Grid>
             </Grid>
           ) : (
-            <div className={classes.oneDatapoint}> {t('maps:one_datapoint')}</div>
+            <Grid
+              container
+              spacing={1}
+              direction="row"
+              justifyContent="space-around"
+              alignItems="center"
+            >
+              <Grid item>
+                <Typography color="textSecondary" style={{ paddingBottom: 20, paddingTop: 10 }}>
+                  {t('maps:one_datapoint')}
+                </Typography>
+              </Grid>
+            </Grid>
           )}
         </CardContent>
       </>
