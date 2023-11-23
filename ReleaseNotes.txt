@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Bugfix - Minor feature info formatting (#163)
+- Bugfix - Order map buttons (#181)
 
 Ver. 2.19.1 - 2013-11-20
 -----------------------
