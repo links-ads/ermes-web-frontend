@@ -66,6 +66,10 @@ export function DashboardLayout() {
           console.log(curr)
           return acc + curr.value
         }, 0) ?? 0,
+      teams:
+        stats.persons
+          ?.map((p) => p.teamId)
+          .filter((value, index, self) => self.indexOf(value) === index).length ?? 0,
       mapRequests: stats.mapRequestByType?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
       reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
       missions: stats.missionsByStatus?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
@@ -86,7 +90,12 @@ export function DashboardLayout() {
           {activeFilters.Person && (
             <DashboardWidgetContainer
               title={t('labels:filter_persons')}
-              info={`${t('labels:total')}: ${totals.persons ?? ''}`}
+              info={
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingRight: 60 }}>
+                  <span>{`${t('labels:total')}: ${totals.persons ?? ''}`}</span>
+                  <span>{`${t('labels:chart_teams')}: ${totals.teams ?? ''}`}</span>
+                </div>
+              }
             >
               <Persons
                 persons={stats?.personsByStatus}
