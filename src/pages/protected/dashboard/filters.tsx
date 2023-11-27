@@ -443,7 +443,7 @@ export const DashboardFilters = (props) => {
                 classes={classes}
                 label={EntityType.MAP_REQUEST}
                 emergencyLabel={EntityType.MAP_REQUEST}
-                category={filtersState.mapRequests}
+                category={props.showCategoryFilters ? filtersState.mapRequests : null}
                 applyFilters={applyMapRequestFilters}
                 isChecked={mapRequestChecked}
                 filterCheckedHandler={onFilterChecked}
