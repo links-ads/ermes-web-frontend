@@ -160,5 +160,7 @@
   "chart_reports": "Hazard",
   "chart_missions": "Mission Status",
   "no_data": "No data available",
+  "camera-offline": "Offline",
+  "camera-online": "Online",
   "total": "Total"
 }

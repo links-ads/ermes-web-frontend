@@ -161,5 +161,7 @@
   "chart_reports": "Rischi",
   "chart_missions": "Stato Missioni",
   "no_data": "Nessun dato disponibile",
+  "camera-offline": "Offline",
+  "camera-online": "Online",
   "total": "Totale"
 }
