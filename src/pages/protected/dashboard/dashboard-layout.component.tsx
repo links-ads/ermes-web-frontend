@@ -69,7 +69,7 @@ export function DashboardLayout() {
       mapRequests: stats.mapRequestByType?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
       reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
       missions: stats.missionsByStatus?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
-      cameras: stats.stations?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      cameras: stats.stations?.length ?? 0,
       communications:
         stats.communicationsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
       alerts: stats.alertsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0
