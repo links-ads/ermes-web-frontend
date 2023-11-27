@@ -15,6 +15,7 @@ import { EmergencyColorMap } from '../../map/api-data/emergency.component'
 
 export function Activations({ activations }) {
   const [granularity, setGranularity] = useState('day')
+  const { t } = useTranslation()
 
   const data = useMemo(() => {
     let data = activations.Active.map((a) => {
@@ -73,16 +74,16 @@ export function Activations({ activations }) {
   return (
     <div>
       <FormControl fullWidth>
-        <InputLabel id="granularity-label">Granularity</InputLabel>
+        <InputLabel id="granularity-label">{t(`labels:granularity`)}</InputLabel>
         <Select
           labelId="granularity-label"
           id="granularity"
           value={granularity}
           onChange={(e) => setGranularity(e.target.value as string)}
         >
-          <MenuItem value={'day'}>Day</MenuItem>
-          <MenuItem value={'week'}>Week</MenuItem>
-          <MenuItem value={'month'}>Month</MenuItem>
+          <MenuItem value={'day'}>{t('labels:day')}</MenuItem>
+          <MenuItem value={'week'}>{t('labels:week')}</MenuItem>
+          <MenuItem value={'month'}>{t('labels:month')}</MenuItem>
         </Select>
       </FormControl>
       <div

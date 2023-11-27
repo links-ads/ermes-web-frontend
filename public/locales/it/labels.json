@@ -164,5 +164,9 @@
   "no_data": "Nessun dato disponibile",
   "camera-offline": "Offline",
   "camera-online": "Online",
-  "total": "Totale"
+  "total": "Totale",
+  "granularity": "Granularità",
+  "day": "Giorno",
+  "week": "Settimana",
+  "month": "Mese"
 }
