@@ -708,7 +708,7 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
 
   function guessMediaType(mediaType) {
     const extension = mediaType.split('.').pop()
-    console.log('MEDIA TYPE', extension)
+    console.debug('MEDIA TYPE', extension)
     if (
       extension === 'jpeg' ||
       extension === 'jpg' ||
@@ -865,7 +865,6 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                     <TableCell align="left">
                       <b>{t('maps:target')}</b>
                     </TableCell>
-
                     <TableCell align="left">
                       <b>{t('maps:value')}</b>
                     </TableCell>
