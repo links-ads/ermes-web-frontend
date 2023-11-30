@@ -1,6 +1,7 @@
 import {
   CommunicationRestrictionType,
   CommunicationScopeType,
+  GeneralStatus,
   MapRequestStatusType,
   MapRequestType
 } from 'ermes-backoffice-ts-sdk'
@@ -51,7 +52,7 @@ export const initObjectState = {
         },
         {
           name: 'hazard_status',
-          options: ['Unknown', 'Notified', 'Managed', 'Closed'],
+          options: [GeneralStatus.NOTIFIED, GeneralStatus.MANAGED, GeneralStatus.CLOSED],
           type: 'multipleselect',
           selected: []
         },
