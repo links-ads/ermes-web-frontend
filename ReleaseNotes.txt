@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+- Feature - Report validation and status change (#184)
+
+Ver. 2.19.3 - 2013-11-24
+-----------------------
 - Bugfix - Map request flood fix (#186)
 
 Ver. 2.19.2 - 2013-11-23

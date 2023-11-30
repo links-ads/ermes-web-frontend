@@ -2,6 +2,8 @@ import { useCallback, useReducer, useMemo, useContext } from 'react'
 import { ReportsApiFactory, GetEntityByIdOutputOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { ErmesAxiosContext } from '../state/ermesaxios.context'
+import { useSnackbars } from './use-snackbars.hook'
+import { useTranslation } from 'react-i18next'
 
 const initialState = { error: false, isLoading: true, data: {} }
 
@@ -36,11 +38,17 @@ const useReportById = () => {
   const [annotationsState, dispatch] = useReducer(reducer, initialState)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const backendUrl = backendAPIConfig.basePath!
-  const {axiosInstance} = useContext(ErmesAxiosContext)      
-  const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
+  const { axiosInstance } = useContext(ErmesAxiosContext)
+  const repApiFactory = useMemo(
+    () => ReportsApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
+  const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
+  const { t } = useTranslation(['maps'])
 
   const fetchAnnotations = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      dispatch({ type: 'FETCH' })
       repApiFactory
         .reportsGetReportById(id, false)
         .then((result) => {
@@ -55,7 +63,47 @@ const useReportById = () => {
     [repApiFactory]
   )
 
-  return [annotationsState, fetchAnnotations]
+  const validateReport = useCallback(
+    (id, isValid, rejectionNote) => {
+      repApiFactory
+        .reportsValidateReport({ reportId: id, isValid: isValid, rejectionNote: rejectionNote })
+        .then((result) => {
+          console.debug(result)
+          if (result.data.response?.success) {
+            displaySuccessSnackbar(t('maps:validateReportSuccess'))
+          } else {
+            displayErrorSnackbar(t('maps:validateReportError'))
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          displayErrorSnackbar(t('maps:validateReportError'))
+        })
+    },
+    [repApiFactory]
+  )
+
+  const updateReportStatus = useCallback(
+    (id, status) => {
+      repApiFactory
+        .reportsUpdateReportStatus({ reportId: id, status: status })
+        .then((result) => {
+          console.debug(result)
+          if (result.data) {
+            displaySuccessSnackbar(t('maps:changeReportStatusSuccess'))
+          } else {
+            displayErrorSnackbar(t('maps:changeReportStatusError'))
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          displayErrorSnackbar(t('maps:changeReportStatusError'))
+        })
+    },
+    [repApiFactory]
+  )
+
+  return [annotationsState, fetchAnnotations, validateReport, updateReportStatus]
 }
 
 export default useReportById

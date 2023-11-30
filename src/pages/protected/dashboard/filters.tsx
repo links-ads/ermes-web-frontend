@@ -611,7 +611,6 @@ const CategoryFilter = (props) => {
                 <MenuList autoFocusItem={open} id="menu-list-grow">
                   {category.content.map((elem, i) => {
                     if (
-                      elem.name === 'hazard_status' ||
                       elem.name === 'hazard_content' ||
                       (elem.name === 'restriction' && userProfile?.role === ROLE_CITIZEN)
                     ) {

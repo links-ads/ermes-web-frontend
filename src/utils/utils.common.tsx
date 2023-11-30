@@ -23,6 +23,7 @@ export const HAZARD_SOCIAL_ICONS = {
   collapse: '⛰️',
   accident: '🚨',
   rain: '⛈️',
+  weather: ' ⛅ ', 
   none: ''
   // NEW 2020!
 }
