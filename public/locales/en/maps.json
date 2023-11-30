@@ -7,6 +7,7 @@
   "Report": "Report",
   "Person": "Person",
   "Off": "Off",
+  "Ready": "Ready",
   "Moving": "Moving",
   "Active": "Active",
   "all": "All",
@@ -146,5 +147,18 @@
   "legend_station": "Field-Cameras",
   "legend_selectedposition": "Selected position",
   "activateFilters": "Enable filters to view the list",
-  "noOptions": "No options"
+  "noOptions": "No options",
+  "validate": "Validate",
+  "changeStatus": "Change status",
+  "noMissionRelated": "No mission related",
+  "reportStatus": "Report status",
+  "changeReportStatus": "Change report status",
+  "validateReport": "Do you want to provide a feedback on this report?",
+  "reportContent": "Report content",
+  "rejectionNote": "Rejection note",
+  "rejectionNotePlaceholder": "You can leave an optional rejection note",
+  "validateReportSuccess": "Report successfully validated",
+  "validateReportError": "Error validating report",
+  "changeReportStatusSuccess": "Report status successfully changed",
+  "changeReportStatusError": "Error changing report status"
 }

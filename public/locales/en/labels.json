@@ -57,6 +57,7 @@
   "report": "Reports",
   "mission": "Missions",
   "mission_chip": "Mission",
+  "peerReviews": "Peer reviews",
   "ReportRequest": "Report request",
   "Communication": "Communication",
   "Mission": "Missions",
@@ -68,6 +69,7 @@
   "Moving": "Moving",
   "Active": "Active",
   "all": "All",
+  "filter_by_type": "Filter by type",
   "tab1": "Lists",
   "tab2": "Map",
   "road": "Road",
@@ -156,5 +158,7 @@
   "filter_communication": "Updates",
   "filter_maprequest": "Map requests",
   "filter_alert": "Automatic Alerts",
-  "filter_station": "Field-Cameras"
+  "filter_station": "Field-Cameras",
+  "valid": "Valid",
+  "invalid": "Invalid"
 }

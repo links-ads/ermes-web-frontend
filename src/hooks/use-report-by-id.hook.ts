@@ -2,6 +2,7 @@ import { useCallback, useReducer, useMemo } from 'react'
 import { ReportsApiFactory, GetEntityByIdOutputOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
+import { useTranslation } from 'react-i18next'
 
 const initialState = { error: false, isLoading: true, data: {} }
 
@@ -37,9 +38,11 @@ const useReportById = () => {
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const repApiFactory = useMemo(() => ReportsApiFactory(backendAPIConfig), [backendAPIConfig])
   const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
+  const { t } = useTranslation(['maps'])
 
   const fetchAnnotations = useCallback(
     (id, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+      dispatch({ type: 'FETCH' })
       repApiFactory
         .reportsGetReportById(id, false)
         .then((result) => {
@@ -60,39 +63,39 @@ const useReportById = () => {
         .reportsValidateReport({ reportId: id, isValid: isValid, rejectionNote: rejectionNote })
         .then((result) => {
           console.debug(result)
-          
           if (result.data.response?.success) {
-            displaySuccessSnackbar("L'annotazione è stata validata con successo")
-          }
-          else{
-            displayErrorSnackbar('Si è verificato un errore durante la validazione dell\'annotazione')
+            displaySuccessSnackbar(t('maps:validateReportSuccess'))
+          } else {
+            displayErrorSnackbar(t('maps:validateReportError'))
           }
         })
         .catch((error) => {
           console.error(error)
-          displayErrorSnackbar('Si è verificato un errore durante la validazione dell\'annotazione')
+          displayErrorSnackbar(t('maps:validateReportError'))
         })
     },
     [repApiFactory]
   )
 
-  const updateReportStatus = useCallback((id, status) => {
-    repApiFactory
-      .reportsUpdateReportStatus({ reportId: id, status: status })
-      .then((result) => {
-        console.debug(result)
-        if (result.data) {
-          displaySuccessSnackbar("Lo stato dell'annotazione è stata aggiornata con successo")
-        }
-        else{
-          displayErrorSnackbar('Si è verificato un errore durante l\'aggiornamento dello stato dell\'annotazione')
-        }
-      })
-      .catch((error) => {
-        console.error(error)
-        displayErrorSnackbar('Si è verificato un errore durante l\'aggiornamento dello stato dell\'annotazione')
-      })
-  }, [repApiFactory])
+  const updateReportStatus = useCallback(
+    (id, status) => {
+      repApiFactory
+        .reportsUpdateReportStatus({ reportId: id, status: status })
+        .then((result) => {
+          console.debug(result)
+          if (result.data) {
+            displaySuccessSnackbar(t('maps:changeReportStatusSuccess'))
+          } else {
+            displayErrorSnackbar(t('maps:changeReportStatusError'))
+          }
+        })
+        .catch((error) => {
+          console.error(error)
+          displayErrorSnackbar(t('maps:changeReportStatusError'))
+        })
+    },
+    [repApiFactory]
+  )
 
   return [annotationsState, fetchAnnotations, validateReport, updateReportStatus]
 }
