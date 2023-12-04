@@ -460,9 +460,15 @@ const ReportPopupCard = (props) => {
                         <TableCell align="left">
                           <b>{t('maps:name')}</b>
                         </TableCell>
-                        <TableCell align="left">
-                          <b>{t('maps:target')}</b>
-                        </TableCell>
+                        {catDetails?.data
+                          ?.filter((x) =>
+                            details!.extensionData.map((e) => e.categoryId).includes(x.categoryId)
+                          )
+                          .filter((e) => e.target !== 'None').length > 0 && (
+                          <TableCell align="left">
+                            <b>{t('maps:target')}</b>
+                          </TableCell>
+                        )}
                         <TableCell align="left">
                           <b>{t('maps:value')}</b>
                         </TableCell>
@@ -481,13 +487,16 @@ const ReportPopupCard = (props) => {
                           <TableCell component="th" align="left" scope="row">
                             {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                           </TableCell>
-                          <TableCell align="center">
-                            {t(
-                              'maps:' +
-                                catDetails?.data?.find((x) => x.categoryId === row.categoryId)
-                                  ?.target
-                            )}
-                          </TableCell>
+                          {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                            ?.target !== 'None' && (
+                            <TableCell align="center">
+                              {t(
+                                'maps:' +
+                                  catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                                    ?.target
+                              )}
+                            </TableCell>
+                          )}
                           <TableCell align="left">
                             {row.value}{' '}
                             {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
