@@ -34,7 +34,7 @@ export function PostEventMonitoringDialog({
   dispatchEditAction,
   editError
 }: React.PropsWithChildren<GenericDialogProps>) {
-  const { t } = useTranslation(['maps', 'labels'])
+  const { t, i18n } = useTranslation(['maps', 'labels'])
   const { mapSelectionCompleted, mapArea, type } = editState
   const [areaSelectionStatus, setAreaSelectionStatus] = useState<Color>('info')
   const [areaSelectionStatusMessage, setAreaSelectionStatusMessage] =
@@ -55,7 +55,13 @@ export function PostEventMonitoringDialog({
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
-    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+    handleAPICall(() =>
+      layersApiFactory.getStaticDefinitionOfLayerList({
+        headers: {
+          'Accept-Language': i18n.language
+        }
+      })
+    )
   }, [])
 
   const setMapSelectionCompleted = () => {
