@@ -57,7 +57,7 @@ const KeyValueTypography = (props) => {
 }
 
 const MediaCarouselWithModal = (props) => {
-  const { mediaURIs, classes, openModal, setOpenModal } = props
+  const { mediaURIs, classes, openModal, setOpenModal, theme } = props
 
   function guessMediaType(mediaType) {
     const extension = mediaType.split('.').pop()
@@ -79,7 +79,18 @@ const MediaCarouselWithModal = (props) => {
 
   return (
     <>
-      <Carousel animation="slide" autoPlay={false} fullHeightHover={false}>
+      <Carousel
+        animation="slide"
+        autoPlay={false}
+        fullHeightHover={false}
+        activeIndicatorIconButtonProps={{
+          className: '',
+          style: {
+            color: theme.palette.secondary.main
+          }
+        }}
+        navButtonsAlwaysInvisible={mediaURIs.length < 2}
+      >
         {mediaURIs.map((media, idx) => {
           return (
             <CardMedia
@@ -112,7 +123,18 @@ const MediaCarouselWithModal = (props) => {
             }}
             className={classes.paper}
           >
-            <Carousel animation="slide" autoPlay={false} fullHeightHover={false}>
+            <Carousel
+              animation="slide"
+              autoPlay={false}
+              fullHeightHover={false}
+              activeIndicatorIconButtonProps={{
+                className: '',
+                style: {
+                  color: theme.palette.secondary.main
+                }
+              }}
+              navButtonsAlwaysInvisible={mediaURIs.length < 2}
+            >
               {mediaURIs.map((media, idx) => {
                 return (
                   <CardMedia
@@ -330,6 +352,7 @@ const ReportPopupCard = (props) => {
                 classes={classes}
                 setOpenModal={setOpenModal}
                 openModal={openModal}
+                theme={theme}
               />
             )}
             <CardContent style={{ paddingTop: '0px' }}>
