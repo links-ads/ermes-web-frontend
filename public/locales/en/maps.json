@@ -160,5 +160,6 @@
   "validateReportSuccess": "Report successfully validated",
   "validateReportError": "Error validating report",
   "changeReportStatusSuccess": "Report status successfully changed",
-  "changeReportStatusError": "Error changing report status"
+  "changeReportStatusError": "Error changing report status",
+  "seeOnMap": "See on map"
 }

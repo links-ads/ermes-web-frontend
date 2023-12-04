@@ -451,7 +451,16 @@ const personCard = (details, classes, formatter, t, description, creator, latitu
   )
 }
 
-const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords) => {
+const missCard = (
+  data,
+  classes,
+  t,
+  formatter,
+  latitude,
+  longitude,
+  flyToCoords,
+  setSelectedCard
+) => {
   const details: {
     title: null | 'coord_person' | 'coord_team' | 'coord_org'
     content: null | string
@@ -544,9 +553,16 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {data.data?.feature?.properties?.reports.map((elem) => {
+                          {data.data?.feature?.properties?.reports.map((elem, idx) => {
                             return (
-                              <TableRow>
+                              <TableRow
+                                key={'associated-report-' + idx}
+                                hover
+                                onClick={() =>
+                                  setSelectedCard(EntityType.REPORT + '-' + String(elem.id))
+                                }
+                                style={{ cursor: 'pointer' }}
+                              >
                                 <TableCell component="th" align="left" scope="row">
                                   {elem.hazard}
                                 </TableCell>
@@ -557,14 +573,15 @@ const missCard = (data, classes, t, formatter, latitude, longitude, flyToCoords)
                                 <TableCell align="center">
                                   <IconButton
                                     size="small"
-                                    onClick={() =>
+                                    onClick={(evt) => {
+                                      evt.stopPropagation()
                                       flyToCoords({
                                         latitude: elem?.location?.latitude as number,
                                         longitude: elem?.location?.longitude as number
                                       })
-                                    }
+                                    }}
                                   >
-                                    <LocationOnIcon />
+                                    <LocationOnIcon htmlColor={EmergencyColorMap.Report} />
                                   </IconButton>
                                 </TableCell>
                               </TableRow>
@@ -1147,14 +1164,7 @@ export function EmergencyContent({
       default:
         break
     }
-  }, [
-    rest.id,
-    fetchCommDetails,
-    fetchMissDetails,
-    fetchMapReqDetails,
-    fetchAlertDetails,
-    type
-  ])
+  }, [rest.id, fetchCommDetails, fetchMissDetails, fetchMapReqDetails, fetchAlertDetails, type])
 
   const dispatch = useDispatch()
 
@@ -1201,16 +1211,19 @@ export function EmergencyContent({
     }
   }, [alertDetails])
 
-  
   switch (type) {
     case 'Report': {
-      todisplay = <ReportPopupCard
-        reportId={rest.id}
-        t={t}
-        classes={classes}
-        formatter={formatter}
-        theme={theme}
-      />
+      todisplay = (
+        <ReportPopupCard
+          reportId={rest.id}
+          t={t}
+          classes={classes}
+          formatter={formatter}
+          theme={theme}
+          setGoToCoord={rest.setGoToCoord}
+          setSelectedCard={rest.setSelectedCard}
+        />
+      )
       break
     }
     case 'Person': {
@@ -1230,7 +1243,8 @@ export function EmergencyContent({
         formatter,
         latitude,
         longitude,
-        rest.setGoToCoord
+        rest.setGoToCoord,
+        rest.setSelectedCard
       )
       break
     case 'MapRequest':
@@ -1273,6 +1287,7 @@ export function EmergencyDrawerDetails(props) {
           longitude={props.longitude}
           setPolyToMap={props.setPolyToMap}
           setGoToCoord={props.setGoToCoord}
+          setSelectedCard={props.setSelectedCard}
           setPersonTeam={props.setPersonTeam}
           teamName={props.teamName}
         />

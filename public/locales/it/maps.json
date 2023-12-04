@@ -154,11 +154,12 @@
   "reportStatus": "Stato della segnalazione",
   "changeReportStatus": "Cambio lo stato della segnalazione",
   "validateReport": "Vuoi lasciare un feedback su questa segnalazione?",
-  "reportContent": "Contenuto della segnalazione", 
+  "reportContent": "Contenuto della segnalazione",
   "rejectionNote": "Nota di rifiuto",
   "rejectionNotePlaceholder": "Puoi lasciare una nota di rifiuto facoltativa",
   "validateReportSuccess": "Segnalazione validata con successo",
   "validateReportError": "Errore durante la validazione della segnalazione",
   "changeReportStatusSuccess": "Stato della segnalazione cambiato con successo",
-  "changeReportStatusError": "Errore durante il cambio dello stato della segnalazione"
+  "changeReportStatusError": "Errore durante il cambio dello stato della segnalazione",
+  "seeOnMap": "Vedi su mappa"
 }

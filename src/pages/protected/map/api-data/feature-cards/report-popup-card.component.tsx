@@ -10,6 +10,7 @@ import {
   FormLabel,
   Grid,
   IconButton,
+  Link,
   Modal,
   Paper,
   Radio,
@@ -29,9 +30,10 @@ import { HAZARD_SOCIAL_ICONS } from '../../../../../utils/utils.common'
 import useReportById from '../../../../../hooks/use-report-by-id.hook'
 import { ConfirmDialog } from '../../../../../common/dialogs/confirm-dialog.component'
 import { useModal } from 'react-modal-hook'
-import { HowToReg, LowPriority } from '@material-ui/icons'
-import { GeneralStatus } from 'ermes-backoffice-ts-sdk'
+import { HowToReg, LocationOn, LowPriority } from '@material-ui/icons'
+import { EntityType, GeneralStatus } from 'ermes-backoffice-ts-sdk'
 import useCategoriesList from '../../../../../hooks/use-categories-list.hook'
+import { EmergencyColorMap } from '../emergency.component'
 
 const KeyValueTypography = (props) => {
   const { keyStr, value, classes, t } = props
@@ -135,7 +137,7 @@ const MediaCarouselWithModal = (props) => {
 }
 
 const ReportPopupCard = (props) => {
-  const { reportId, t, classes, formatter, theme } = props
+  const { reportId, t, classes, formatter, theme, setGoToCoord, setSelectedCard } = props
   const [rejectionNote, setRejectionNote] = useState<string>('')
   const [validationValue, setValidationValue] = React.useState<boolean>(true)
   const [openModal, setOpenModal] = useState(false)
@@ -190,6 +192,17 @@ const ReportPopupCard = (props) => {
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRejectionNote(event.target.value)
+  }
+
+  const showOnMap = () => {
+    setGoToCoord({
+      latitude: details!.location!.latitude as number,
+      longitude: details!.location!.longitude as number
+    })
+  }
+
+  const onMissionClick = () => {
+    setSelectedCard(EntityType.MISSION + '-' + String(details.relativeMissionId))
   }
 
   useEffect(() => {
@@ -250,7 +263,7 @@ const ReportPopupCard = (props) => {
         </ConfirmDialog>
       )
     },
-    [validationValue, details]
+    [validationValue, details, rejectionNote]
   )
 
   const [showStatusChangeDialog, hideStatusChangeDialog] = useModal(
@@ -310,7 +323,7 @@ const ReportPopupCard = (props) => {
     <>
       {!isLoading ? (
         <>
-          <Card elevation={0}>
+          <Card elevation={0} key={'report-popup-card-' + details.id}>
             {details.mediaURIs && details.mediaURIs.length > 0 && (
               <MediaCarouselWithModal
                 mediaURIs={details.mediaURIs}
@@ -321,7 +334,7 @@ const ReportPopupCard = (props) => {
             )}
             <CardContent style={{ paddingTop: '0px' }}>
               <Grid container direction="row" justifyContent="space-between">
-                <Grid item xs={10}>
+                <Grid item xs={9}>
                   <Typography
                     component={'span'}
                     variant="h5"
@@ -330,19 +343,32 @@ const ReportPopupCard = (props) => {
                     {t('labels:' + details.type + 'Type')}
                   </Typography>
                 </Grid>
-                <Grid item xs={2}>
+                <Grid item xs={3}>
                   <Tooltip title={t('maps:validate') ?? 'Validate'}>
-                    <IconButton
-                      onClick={showValidationDialog}
-                      size="small"
-                      disabled={!details.canBeValidated}
-                    >
-                      <HowToReg />
-                    </IconButton>
+                    <span>
+                      <IconButton
+                        onClick={showValidationDialog}
+                        size="small"
+                        disabled={!details.canBeValidated}
+                      >
+                        <HowToReg />
+                      </IconButton>
+                    </span>
                   </Tooltip>
                   <Tooltip title={t('maps:changeStatus') ?? 'Change status'}>
-                    <IconButton onClick={showStatusChangeDialog} size="small">
-                      <LowPriority />
+                    <span>
+                      <IconButton
+                        onClick={showStatusChangeDialog}
+                        size="small"
+                        disabled={!details.isEditable}
+                      >
+                        <LowPriority />
+                      </IconButton>
+                    </span>
+                  </Tooltip>
+                  <Tooltip title={t('maps:seeOnMap') ?? 'See on map'}>
+                    <IconButton size="small" onClick={showOnMap} className={classes.viewInMap}>
+                      <LocationOn htmlColor={EmergencyColorMap.Report} />
                     </IconButton>
                   </Tooltip>
                 </Grid>
@@ -366,9 +392,13 @@ const ReportPopupCard = (props) => {
               <KeyValueTypography
                 keyStr={t('labels:mission_chip')}
                 value={
-                  details.relativeMissionId
-                    ? '#' + details.relativeMissionId
-                    : t('maps:noMissionRelated')
+                  details.relativeMissionId ? (
+                    <Link onClick={onMissionClick} color="inherit" underline="always">
+                      {'#' + details.relativeMissionId}
+                    </Link>
+                  ) : (
+                    t('maps:noMissionRelated')
+                  )
                 }
                 classes={classes}
                 t={t}
@@ -380,7 +410,9 @@ const ReportPopupCard = (props) => {
                   keyStr={t('maps:media')}
                   value={[
                     details.mediaURIs.filter((e) => e.mediaType === 'Image').length > 0
-                      ? details.mediaURIs.filter((e) => e.mediaType === 'Image').length + ' photo'
+                      ? details.mediaURIs.filter((e) => e.mediaType === 'Image').length +
+                        ' ' +
+                        t('labels:photo')
                       : undefined,
                     details.mediaURIs.filter((e) => e.mediaType === 'Audio').length > 0
                       ? details.mediaURIs.filter((e) => e.mediaType === 'Audio').length + ' audio'
@@ -395,10 +427,11 @@ const ReportPopupCard = (props) => {
                   t={t}
                 />
               )}
-              {['organizationName', 'username'].map((elem) => {
+              {['organizationName', 'username'].map((elem, idx) => {
                 if (details[elem]) {
                   return (
                     <KeyValueTypography
+                      key={'report-popup-card-detail-' + idx}
                       keyStr={t('maps:' + elem)}
                       value={details[elem]}
                       classes={classes}
@@ -427,17 +460,23 @@ const ReportPopupCard = (props) => {
                         <TableCell align="left">
                           <b>{t('maps:name')}</b>
                         </TableCell>
-                        <TableCell align="left">
-                          <b>{t('maps:target')}</b>
-                        </TableCell>
+                        {catDetails?.data
+                          ?.filter((x) =>
+                            details!.extensionData.map((e) => e.categoryId).includes(x.categoryId)
+                          )
+                          .filter((e) => e.target !== 'None').length > 0 && (
+                          <TableCell align="left">
+                            <b>{t('maps:target')}</b>
+                          </TableCell>
+                        )}
                         <TableCell align="left">
                           <b>{t('maps:value')}</b>
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {details!.extensionData.map((row) => (
-                        <TableRow key={row.name}>
+                      {details!.extensionData.map((row, idx) => (
+                        <TableRow key={row.name + '-' + idx}>
                           <TableCell align="left" width="35%">
                             {
                               catDetails?.data?.find((x) => x.categoryId === row.categoryId)
@@ -448,13 +487,16 @@ const ReportPopupCard = (props) => {
                           <TableCell component="th" align="left" scope="row">
                             {catDetails?.data?.find((x) => x.categoryId === row.categoryId)?.name}
                           </TableCell>
-                          <TableCell align="center">
-                            {t(
-                              'maps:' +
-                                catDetails?.data?.find((x) => x.categoryId === row.categoryId)
-                                  ?.target
-                            )}
-                          </TableCell>
+                          {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                            ?.target !== 'None' && (
+                            <TableCell align="center">
+                              {t(
+                                'maps:' +
+                                  catDetails?.data?.find((x) => x.categoryId === row.categoryId)
+                                    ?.target
+                              )}
+                            </TableCell>
+                          )}
                           <TableCell align="left">
                             {row.value}{' '}
                             {catDetails?.data?.find((x) => x.categoryId === row.categoryId)
