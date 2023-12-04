@@ -3,6 +3,7 @@ Ver.
 - Feature - Report validation and status change (#184)
 - Bugfix - Map request layers localization (#187)
 - Bugfix - Report carousel (#155)
+- Bugfix - Timeseries for string values (#183)
 
 Ver. 2.19.3 - 2013-11-24
 -----------------------
