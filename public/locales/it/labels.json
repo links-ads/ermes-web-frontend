@@ -160,5 +160,6 @@
   "filter_alert": "Allerte",
   "filter_station": "Telecamere",
   "valid": "Valido",
-  "invalid": "Non valido"
+  "invalid": "Non valido",
+  "photo": "foto"
 }

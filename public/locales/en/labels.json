@@ -160,5 +160,6 @@
   "filter_alert": "Automatic Alerts",
   "filter_station": "Field-Cameras",
   "valid": "Valid",
-  "invalid": "Invalid"
+  "invalid": "Invalid",
+  "photo": "photo"
 }

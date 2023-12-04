@@ -52,7 +52,13 @@ export const EmergencyHoverPopup = memo(
             title={point.item?.details}
             // src={point.item?.image}
             // imageHeight={84}
-            style={{ width: 300, borderRadius: 10, borderStyle: 'solid', borderWidth: 3, borderColor: EmergencyColorMap[point?.item?.type] }}
+            style={{
+              width: 300,
+              borderRadius: 10,
+              borderStyle: 'solid',
+              borderWidth: 3,
+              borderColor: EmergencyColorMap[point?.item?.type]
+            }}
           />
         )}
       </Popup>
@@ -77,6 +83,7 @@ export const EmergencyDetailsCard = function EmergencyClickPopup(props) {
       longitude={props.longitude}
       setPolyToMap={props.setPolyToMap}
       setGoToCoord={props.setGoToCoord}
+      setSelectedCard={props.setSelectedCard}
       setPersonTeam={props.setPersonTeam}
       teamName={props.teamName}
     />

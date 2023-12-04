@@ -19,7 +19,15 @@ import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
-  const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef, flyToCoords, missionActive } = props
+  const {
+    elem,
+    map,
+    setMapHoverState,
+    spiderLayerIds,
+    spiderifierRef,
+    flyToCoords,
+    missionActive
+  } = props
   const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
   const timestamp = FormatDate(elem.timestamp)
   const theme = useTheme()
@@ -49,7 +57,10 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
         image={
           elem.mediaURIs && elem.mediaURIs?.length > 0 && elem.mediaURIs[0].thumbnailURI
             ? elem.mediaURIs[0].thumbnailURI
-            : 'https://via.placeholder.com/400x200.png?text=' + t('common:image_not_available')
+            : `https://via.placeholder.com/123x187/${EmergencyColorMap.Report.replace(
+                '#',
+                ''
+              )}.png?text=${t('common:image_not_available')}`
         }
         title="Report title"
       />
@@ -140,6 +151,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 color: theme.palette.primary.dark
               }}
             />
+            <Chip label={t('labels:' + elem.status.toLowerCase())} color="default" size="small" />
           </div>
           <IconButton
             size="small"
