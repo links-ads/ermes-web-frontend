@@ -734,6 +734,13 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
             autoPlay={false}
             // timeout={800}
             fullHeightHover={false}
+            activeIndicatorIconButtonProps={{
+              className: '',
+              style: {
+                color: theme.palette.secondary.main
+              }
+            }}
+            navButtonsAlwaysInvisible={details.mediaURIs.length < 2}
           >
             {details.mediaURIs.map((media, idx) => {
               return (
@@ -774,6 +781,13 @@ const reportCard = (data, t, classes, catDetails, formatter, openModal, setOpenM
                   // timeout={800}
 
                   fullHeightHover={false}
+                  activeIndicatorIconButtonProps={{
+                    className: '',
+                    style: {
+                      color: theme.palette.secondary.main
+                    }
+                  }}
+                  navButtonsAlwaysInvisible={details.mediaURIs.length < 2}
                 >
                   {details.mediaURIs.map((media, idx) => {
                     return (
