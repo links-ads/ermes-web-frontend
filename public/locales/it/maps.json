@@ -147,5 +147,7 @@
   "legend_station": "Telecamere",
   "legend_selectedposition": "Posizione selezionata",
   "activateFilters": "Attiva i filtri per consultare la lista",
-  "noOptions": "Nessuna opzione disponibile"
+  "noOptions": "Nessuna opzione disponibile",
+  "unburned": "Non bruciato",
+  "burnedarea": "Zona bruciata"
 }

@@ -146,5 +146,7 @@
   "legend_station": "Field-Cameras",
   "legend_selectedposition": "Selected position",
   "activateFilters": "Enable filters to view the list",
-  "noOptions": "No options"
+  "noOptions": "No options",
+  "unburned": "Unburned",
+  "burnedarea": "Burned area"
 }
