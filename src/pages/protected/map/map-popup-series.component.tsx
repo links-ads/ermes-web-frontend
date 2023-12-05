@@ -121,6 +121,16 @@ export default function MapTimeSeries(props) {
     }
   }
 
+  const mapStringValues = (value: string) => {
+    if (value === 'Burned area') {
+      return 1
+    } else if (value === 'Unburned') {
+      return 0
+    } else {
+      return 0
+    }
+  }
+
   // map to LineChartData
   const mapToLineChartData = useCallback(
     (timeseries, layerName, isAssociatedLayer, unitOfMeasure, varType) => {
@@ -143,6 +153,8 @@ export default function MapTimeSeries(props) {
                   ? parseFloat((series as any).value)
                   : varType === 'Boolean'
                   ? mapBooleanValues(series.value)
+                  : varType === 'String'
+                  ? mapStringValues(series.value)
                   : (series as any).value
               )
           ),

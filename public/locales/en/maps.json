@@ -161,5 +161,7 @@
   "validateReportError": "Error validating report",
   "changeReportStatusSuccess": "Report status successfully changed",
   "changeReportStatusError": "Error changing report status",
-  "seeOnMap": "See on map"
+  "seeOnMap": "See on map",
+  "unburned": "Unburned",
+  "burnedarea": "Burned area"
 }
