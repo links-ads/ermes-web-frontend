@@ -20,6 +20,9 @@ import { Color } from '@material-ui/lab'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
 import { Chip, Theme, createStyles, makeStyles } from '@material-ui/core'
 import { featureCollection as createFeatureCollection } from '@turf/helpers'
+import MapGeocoderSearchButton from '../../../map-geocoder-search-button.component'
+import { placePositionPin } from '../../../map-event-handlers/map-click.handler'
+import { getMapBounds } from '../../../../../../common/map/map-common'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -90,6 +93,7 @@ const MapRequestDrawFeature: React.FC<{
       mapSelectedFeatures ?? []
     )
   )
+  const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
 
   // GeoJSON source Ref
   const geoJSONPointsSourceRef = useRef(null)
@@ -114,7 +118,8 @@ const MapRequestDrawFeature: React.FC<{
       setRightClickedPoint,
       setEditingFeature,
       startFeatureEdit,
-      clearFeatureEdit
+      clearFeatureEdit,
+      setGoToCoord
     }
   ] = useMapStateContext<EmergencyProps>()
 
@@ -252,14 +257,33 @@ const MapRequestDrawFeature: React.FC<{
     return lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
   }
 
+  const markSearchLocation = (latitude, longitude) => {
+    setGoToCoord({ latitude: latitude, longitude: longitude })
+    const map = mapViewRef.current?.getMap()
+    placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setClickedPoint)
+  }
+
+  const getMapBBox = () => {
+    const bounds = getMapBounds(mapViewRef)
+    return bounds
+  }
+
   const mapCoordinatesZoom =
-    t('social:map_latitude') +
-    ': ' +
-    viewport.latitude.toFixed(6) +
-    ' | ' +
-    t('social:map_longitude') +
-    ': ' +
-    viewport.longitude.toFixed(6) +
+    (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
+      ? t('social:map_latitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[1].toFixed(6) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[0].toFixed(6)
+      : t('social:map_latitude') +
+        ': ' +
+        viewport.latitude.toFixed(6) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        viewport.longitude.toFixed(6)) +
     ' | ' +
     t('social:map_zoom') +
     ': ' +
@@ -514,6 +538,10 @@ const MapRequestDrawFeature: React.FC<{
           {/* Map controls */}
           <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
           <div className="controls-container" style={{ top: 40 }}>
+            <MapGeocoderSearchButton
+              getMapBBox={getMapBBox}
+              markSearchLocation={markSearchLocation}
+            />
             <GeolocateControl
               label={t('maps:show_my_location')}
               className="mapboxgl-ctrl-geolocate"

@@ -163,5 +163,7 @@
   "changeReportStatusError": "Error changing report status",
   "seeOnMap": "See on map",
   "unburned": "Unburned",
-  "burnedarea": "Burned area"
+  "burnedarea": "Burned area",
+  "mapRequestDeleteSuccess": "Map request successfully deleted",
+  "mapRequestDeleteError": "Error deleting map request"
 }

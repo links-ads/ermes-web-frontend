@@ -36,7 +36,7 @@ const getCardId = (type, id) => {
   return type + '-' + id
 }
 
-const getFeatureTypeAndIdFromCardId = (cardId) => {
+export const getFeatureTypeAndIdFromCardId = (cardId) => {
   const cardDetails = cardId.split('-')
   const featureType = cardDetails[0]
   const featureId = featureType === EntityType.STATION ? cardDetails[1] : Number(cardDetails[1])

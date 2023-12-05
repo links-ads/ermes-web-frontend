@@ -90,7 +90,7 @@ const MapRequestCard: React.FC<{
                 <IconButton
                   onClick={(evt) => {
                     evt.stopPropagation()
-                    props.deleteMR(mapRequestInfo.code)
+                    props.deleteMR(mapRequestInfo.code, mapRequestInfo.id)
                   }}
                 >
                   <DeleteIcon />
@@ -203,19 +203,21 @@ const MapRequestCard: React.FC<{
           {' '}
           {lowerBoundDate} - {upperBoundDate}
         </Typography>
-        <IconButton
-          size="small"
-          onClick={(evt) => {
-            evt.stopPropagation()
-            setGoToCoord({
-              latitude: mapRequestInfo.centroid?.latitude as number,
-              longitude: mapRequestInfo.centroid?.longitude as number
-            })
-          }}
-          className={classes.viewInMap}
-        >
-          <LocationOnIcon htmlColor={EmergencyColorMap.MapRequest} />
-        </IconButton>
+        <Tooltip title={t('maps:seeOnMap') ?? 'See on map'}>
+          <IconButton
+            size="small"
+            onClick={(evt) => {
+              evt.stopPropagation()
+              setGoToCoord({
+                latitude: mapRequestInfo.centroid?.latitude as number,
+                longitude: mapRequestInfo.centroid?.longitude as number
+              })
+            }}
+            className={classes.viewInMap}
+          >
+            <LocationOnIcon htmlColor={EmergencyColorMap.MapRequest} />
+          </IconButton>
+        </Tooltip>
       </CardActions>
     </CardWithPopup>
   )

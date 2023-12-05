@@ -163,5 +163,7 @@
   "changeReportStatusError": "Errore durante il cambio dello stato della segnalazione",
   "seeOnMap": "Vedi su mappa",
   "unburned": "Non bruciato",
-  "burnedarea": "Zona bruciata"
+  "burnedarea": "Zona bruciata",
+  "mapRequestDeleteSuccess": "Richiesta di mappatura eliminata con successo",
+  "mapRequestDeleteError": "Errore durante l'eliminazione della richiesta di mappatura"
 }
