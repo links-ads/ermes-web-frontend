@@ -93,7 +93,13 @@ export function WildFireSimulationDialog({
   const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
-    handleAPICall(() => layersApiFactory.getStaticDefinitionOfLayerList())
+    handleAPICall(() =>
+      layersApiFactory.getStaticDefinitionOfLayerList({
+        headers: {
+          'Accept-Language': i18n.language
+        }
+      })
+    )
   }, [])
 
   const setMapSelectionCompleted = () => {

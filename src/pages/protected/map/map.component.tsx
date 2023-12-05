@@ -766,6 +766,7 @@ export function Map() {
             selectedLayers={selectedLayers}
             mapRequestsSettings={mapRequestsSettings}
             mapDrawerDataState={dataState}
+            updateCardId={updateCardId}
           />
 
           {isGeoDataloading ? loader : undefined}

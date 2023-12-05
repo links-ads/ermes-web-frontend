@@ -207,40 +207,44 @@ const MapRequestAccordionItem: React.FC<{
         <div style={{ flex: 1, display: 'flex', flexDirection: 'row' }}>
           {errorTooltip}
           <Tooltip title={t('labels:legend') ?? 'Legend'}>
-            <IconButton
-              disabled={!currentLayer.isChecked}
-              onClick={(evt) => {
-                evt.stopPropagation()
-                getLegend(
-                  currentLayer.activeLayer,
-                  'Map Request Layer',
-                  currentLayer.mapRequestCode,
-                  currentLayer.dataTypeId,
-                  currentLayer.name
-                )
-              }}
-            >
-              <LegendIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                disabled={!currentLayer.isChecked}
+                onClick={(evt) => {
+                  evt.stopPropagation()
+                  getLegend(
+                    currentLayer.activeLayer,
+                    'Map Request Layer',
+                    currentLayer.mapRequestCode,
+                    currentLayer.dataTypeId,
+                    currentLayer.name
+                  )
+                }}
+              >
+                <LegendIcon />
+              </IconButton>
+            </span>
           </Tooltip>
           <Tooltip title={'Metadata'}>
-            <IconButton
-              disabled={!currentLayer.isChecked}
-              onClick={(evt) => {
-                evt.stopPropagation()
-                getMeta(
-                  currentLayer.metadataIds[
-                    currentLayer.availableTimestamps[currentLayer.dateIndex]
-                  ],
-                  'Map Request Layer',
-                  currentLayer.mapRequestCode,
-                  currentLayer.dataTypeId,
-                  currentLayer.name
-                )
-              }}
-            >
-              <MetaIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                disabled={!currentLayer.isChecked}
+                onClick={(evt) => {
+                  evt.stopPropagation()
+                  getMeta(
+                    currentLayer.metadataIds[
+                      currentLayer.availableTimestamps[currentLayer.dateIndex]
+                    ],
+                    'Map Request Layer',
+                    currentLayer.mapRequestCode,
+                    currentLayer.dataTypeId,
+                    currentLayer.name
+                  )
+                }}
+              >
+                <MetaIcon />
+              </IconButton>
+            </span>
           </Tooltip>
         </div>
       </div>

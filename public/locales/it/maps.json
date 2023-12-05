@@ -147,5 +147,21 @@
   "legend_station": "Telecamere",
   "legend_selectedposition": "Posizione selezionata",
   "activateFilters": "Attiva i filtri per consultare la lista",
-  "noOptions": "Nessuna opzione disponibile"
+  "noOptions": "Nessuna opzione disponibile",
+  "validate": "Valida",
+  "changeStatus": "Cambia stato",
+  "noMissionRelated": "Nessuna missione associata",
+  "reportStatus": "Stato della segnalazione",
+  "changeReportStatus": "Cambio lo stato della segnalazione",
+  "validateReport": "Vuoi lasciare un feedback su questa segnalazione?",
+  "reportContent": "Contenuto della segnalazione",
+  "rejectionNote": "Nota di rifiuto",
+  "rejectionNotePlaceholder": "Puoi lasciare una nota di rifiuto facoltativa",
+  "validateReportSuccess": "Segnalazione validata con successo",
+  "validateReportError": "Errore durante la validazione della segnalazione",
+  "changeReportStatusSuccess": "Stato della segnalazione cambiato con successo",
+  "changeReportStatusError": "Errore durante il cambio dello stato della segnalazione",
+  "seeOnMap": "Vedi su mappa",
+  "unburned": "Non bruciato",
+  "burnedarea": "Zona bruciata"
 }
