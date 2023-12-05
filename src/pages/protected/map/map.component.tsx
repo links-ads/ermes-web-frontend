@@ -655,26 +655,36 @@ export function Map() {
           updateCardId={updateCardId}
         />
         <MapContainer initialHeight={window.innerHeight - 112}>
-          {selectedLayers &&
-            selectedLayers.length > 0 &&
-            selectedLayers
-              .filter((e) => e.group !== 'Map Request Layer')
-              .map((layer, idx) => (
-                <LayersPlayer
-                  key={'layer-player-' + idx}
-                  idx={idx}
-                  cnt={selectedLayers.length}
-                  updateLayerSelection={updateSelectedLayers}
-                  onPositionChange={updateLayerPlayerPosition}
-                  getLegend={manageLayerLegend}
-                  getMeta={getLayerMeta}
-                  map={map}
-                  selectedLayer={layer}
-                  toBeRemovedLayers={toBeRemovedLayers}
-                  changeLayerOpacity={changeOpacity}
-                  updateLayerTimestamp={updateTimestamp}
-                />
-              ))}
+          <div
+            style={{
+              width: toggleSideDrawer ? 'calc(100% - 450px)' : '100%',
+              position: 'absolute',
+              bottom: 0,
+              left: toggleSideDrawer ? '450px' : '1px'
+            }}
+          >
+            {selectedLayers &&
+              selectedLayers.length > 0 &&
+              selectedLayers
+                .filter((e) => e.group !== 'Map Request Layer')
+                .map((layer, idx) => (
+                  <LayersPlayer
+                    key={'layer-player-' + idx}
+                    idx={idx}
+                    cnt={selectedLayers.length}
+                    updateLayerSelection={updateSelectedLayers}
+                    onPositionChange={updateLayerPlayerPosition}
+                    getLegend={manageLayerLegend}
+                    getMeta={getLayerMeta}
+                    map={map}
+                    selectedLayer={layer}
+                    toBeRemovedLayers={toBeRemovedLayers}
+                    changeLayerOpacity={changeOpacity}
+                    updateLayerTimestamp={updateTimestamp}
+                    isDrawerOpen={toggleSideDrawer}
+                  />
+                ))}
+          </div>
 
           {layersLegend &&
             layersLegend.length > 0 &&

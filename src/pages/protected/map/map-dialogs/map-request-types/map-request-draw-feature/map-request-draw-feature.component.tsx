@@ -137,17 +137,17 @@ const MapRequestDrawFeature: React.FC<{
       let featCollection
       if (
         mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+        mapRequestType === MapRequestType.FLOODED_AREA ||
         mapRequestType === MapRequestType.POST_EVENT_MONITORING
       ) {
-        const polygonFeatures = mapSelectedFeatures.filter(e => e.geometry.type === 'Polygon')
+        const polygonFeatures = mapSelectedFeatures.filter((e) => e.geometry.type === 'Polygon')
         setMapFeatures(polygonFeatures)
         featCollection = createFeatureCollection<
           GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
         >(polygonFeatures)
         setFeatureCollection(featCollection)
         updateMap(featCollection)
-      }
-      else {
+      } else {
         setMapFeatures(mapSelectedFeatures)
         featCollection = createFeatureCollection<
           GeoJSON.Point | GeoJSON.LineString | GeoJSON.Polygon
@@ -222,6 +222,7 @@ const MapRequestDrawFeature: React.FC<{
   useEffect(() => {
     if (
       mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+      mapRequestType === MapRequestType.FLOODED_AREA ||
       mapRequestType === MapRequestType.POST_EVENT_MONITORING
     ) {
       if (mapFeatures.find((e) => e.geometry.type === 'Polygon')) {
@@ -297,6 +298,7 @@ const MapRequestDrawFeature: React.FC<{
                 const editingFeatId = 0
                 if (
                   mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA ||
+                  mapRequestType === MapRequestType.FLOODED_AREA ||
                   mapRequestType === MapRequestType.POST_EVENT_MONITORING
                 ) {
                   if (mapMode === 'edit') {
@@ -523,7 +525,7 @@ const MapRequestDrawFeature: React.FC<{
           <div className="controls-container" style={{ bottom: 0 }}>
             <ScaleControl />
           </div>
-        </InteractiveMap>        
+        </InteractiveMap>
       </MapContainer>
     )
   )

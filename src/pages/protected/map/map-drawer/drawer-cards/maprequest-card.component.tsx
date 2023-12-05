@@ -1,16 +1,16 @@
-import { Box, CardActions, CardContent, IconButton, Tooltip, Typography } from "@material-ui/core";
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { FormatDate } from "../../../../../utils/date.utils";
-import CardWithPopup from "./card-with-popup.component";
+import { Box, CardActions, CardContent, IconButton, Tooltip, Typography } from '@material-ui/core'
+import React from 'react'
+import { useTranslation } from 'react-i18next'
+import { FormatDate } from '../../../../../utils/date.utils'
+import CardWithPopup from './card-with-popup.component'
 import LocationOnIcon from '@material-ui/icons/LocationOn'
 import DeleteIcon from '@material-ui/icons/Delete'
 import FileCopyIcon from '@material-ui/icons/FileCopy'
 import classes from './maprequest-card.module.scss'
-import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from "ermes-ts-sdk";
-import MapRequestAccordion from "./maprequest-accordion.component";
-import { MapRequestLayerState } from "../../../../../models/mapRequest/MapRequestState";
-import { EmergencyColorMap } from "../../api-data/emergency.component";
+import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from 'ermes-ts-sdk'
+import MapRequestAccordion from './maprequest-accordion.component'
+import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
+import { EmergencyColorMap } from '../../api-data/emergency.component'
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -28,7 +28,7 @@ const MapRequestCard: React.FC<{
   selectedCard
   setSelectedCard
 }> = (props) => {
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'labels'])
 
   const {
     mapRequestInfo,
@@ -41,7 +41,7 @@ const MapRequestCard: React.FC<{
     getLegend,
     mapRequestSettings,
     updateMapRequestsSettings,
-    selectedCard, 
+    selectedCard,
     setSelectedCard
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
@@ -110,11 +110,7 @@ const MapRequestCard: React.FC<{
               {t('labels:type')}:&nbsp;
             </Typography>
             <Typography component={'span'} variant="body1">
-              {mapRequestInfo.mapRequestType === MapRequestType.FIRE_AND_BURNED_AREA
-                ? t('maps:fireAndBurnedAreas')
-                : mapRequestInfo.mapRequestType === MapRequestType.POST_EVENT_MONITORING
-                ? t('maps:postEventMonitoring')
-                : t('maps:wildfireSimulation')}
+              {t('labels:' + mapRequestInfo.mapRequestType?.toLowerCase())}
             </Typography>
             <br />
           </div>

@@ -7,7 +7,19 @@ import { useTranslation } from 'react-i18next'
 import { CircularProgress, Grid } from '@material-ui/core'
 
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
-import { CommunicationRestrictionType, CommunicationsApiFactory, CommunicationScopeType, CreateOrUpdateCommunicationInput, CreateOrUpdateMapRequestInput, CreateOrUpdateMissionInput, EntityType, MapRequestsApiFactory, MapRequestType, MissionsApiFactory, MissionStatusType } from 'ermes-ts-sdk'
+import {
+  CommunicationRestrictionType,
+  CommunicationsApiFactory,
+  CommunicationScopeType,
+  CreateOrUpdateCommunicationInput,
+  CreateOrUpdateMapRequestInput,
+  CreateOrUpdateMissionInput,
+  EntityType,
+  MapRequestsApiFactory,
+  MapRequestType,
+  MissionsApiFactory,
+  MissionStatusType
+} from 'ermes-ts-sdk'
 import useAPIHandler from '../../../hooks/use-api-handler'
 import { ProvisionalFeatureType } from './map.context'
 import { DialogEdit } from './map-dialog-edit.component'
@@ -72,9 +84,9 @@ export type EditStateType = {
 }
 
 export enum CoordinatorType {
-  ORGANIZATION = "Organization",
-  TEAM = "Team",
-  USER = "User",
+  ORGANIZATION = 'Organization',
+  TEAM = 'Team',
+  USER = 'User',
   NONE = ''
 }
 
@@ -106,13 +118,13 @@ export type EditActionType = {
     | 'ORGANIZATIONRECEIVERIDS'
   value?: Date | string | any
 }
-const getStartDayDate = () =>{
+const getStartDayDate = () => {
   let d = new Date()
-  let d1 = new Date(d.setHours(0,0,0,0))
+  let d1 = new Date(d.setHours(0, 0, 0, 0))
   return d1
 }
 
-export const defaultBoundaryCondition : FireSimulationBoundaryCondition = {
+export const defaultBoundaryCondition: FireSimulationBoundaryCondition = {
   timeOffset: 0,
   windDirection: 0,
   windSpeed: 0,
@@ -323,11 +335,15 @@ const setinitialEditState = (customState) => {
   else return { ...defaultEditState, boundaryConditions: [{ ...defaultBoundaryCondition }] }
 }
 
-export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) => void, customState: any | null) {
+export function useMapDialog(
+  onDialogClose: (data: any, entityType: EntityType) => void,
+  customState: any | null
+) {
   const initialEditState = useMemo(() => {
-    if(!!customState) return customState 
-    else return defaultEditState }, [customState])
-  
+    if (!!customState) return customState
+    else return defaultEditState
+  }, [customState])
+
   const [dialogState, setDialogState] = useState<DialogStateType | null>(null)
   const { t } = useTranslation(['maps'])
 
@@ -345,7 +361,11 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
   )
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler()
   //const [editState, dispatchEditAction] = useReducer(editReducer, initialEditState)
-  const [editState, dispatchEditAction] = useReducer(editReducer, defaultEditState, setinitialEditState)
+  const [editState, dispatchEditAction] = useReducer(
+    editReducer,
+    defaultEditState,
+    setinitialEditState
+  )
   const [editError, setEditError] = useState(false)
 
   //const customState = {coordinatorType: CoordinatorType.ORGANIZATION,dataType: [],description: "",endDate: null,frequency: "5",orgId: -1,resolution: "12",restrictionType: CommunicationRestrictionType.NONE,scope: null,startDate: new Date(),status: MissionStatusType.CREATED,teamId: -1,title: "",userId: -1}
@@ -354,20 +374,22 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
   // and enable "Send" button with onDialogClose("Done",newFeature)
   const [showDialog, hideDialog] = useModal(
     ({ in: open, onExited }) => {
-      return dialogState && (
+      return (
+        dialogState && (
           <ConfirmDialog
             open={open}
             fullWidth={false}
             maxWidth={'xl'}
             onExited={onExited}
-          title={`${t('maps:operation_' + dialogState.operation)} ${t("maps:" + dialogState.itemType)}`}
-          confirmLabel={t("maps:dialog_confirm")}
-          cancelLabel={t("maps:dialog_cancel")}
+            title={`${t('maps:operation_' + dialogState.operation)} ${t(
+              'maps:' + dialogState.itemType
+            )}`}
+            confirmLabel={t('maps:dialog_confirm')}
+            cancelLabel={t('maps:dialog_cancel')}
             onConfirm={() => {
               if (!checkInputForms(editState, dialogState)) {
                 setEditError(true)
-            }
-            else {
+              } else {
                 setEditError(false)
                 applyHandler(editState, dialogState)
               }
@@ -378,16 +400,13 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
               onDialogClose('cancel', EntityType.OTHER)
             }}
           >
-
-          {dialogState.operation === 'create' &&
-            apiHandlerState.loading ?
-            (<Grid container justifyContent='center' alignItems='center'>
+            {dialogState.operation === 'create' && apiHandlerState.loading ? (
+              <Grid container justifyContent="center" alignItems="center">
                 <Grid>
                   <CircularProgress size={100} thickness={4} />
                 </Grid>
               </Grid>
-            ) :
-            (
+            ) : (
               <DialogEdit
                 itemType={dialogState.itemType!}
                 operationType={dialogState.operation}
@@ -405,6 +424,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
             {/* {dialogState.operation !== 'delete' && <Container>Coming soon</Container>} */}
           </ConfirmDialog>
         )
+      )
     },
     [dialogState, onDialogClose, editState, apiHandlerState, editError]
   )
@@ -421,7 +441,13 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
     [dialogState]
   )
 
-  function openDialog(operation?: OperationType, itemType?: ProvisionalFeatureType, itemId?: string, area: any = {}, customState?: any | null) {
+  function openDialog(
+    operation?: OperationType,
+    itemType?: ProvisionalFeatureType,
+    itemId?: string,
+    area: any = {},
+    customState?: any | null
+  ) {
     if (operation) {
       dispatchEditAction({ type: 'RESET', value: customState })
       resetApiHandlerState()
@@ -445,7 +471,12 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
    */
   const checkInputForms = (editState: EditStateType, dialogState: DialogStateType): boolean => {
     if (!editState.endDate) return false
-    if ((dialogState.itemType === EntityType.MISSION || dialogState.itemType === EntityType.COMMUNICATION) && editState.description.length === 0) return false
+    if (
+      (dialogState.itemType === EntityType.MISSION ||
+        dialogState.itemType === EntityType.COMMUNICATION) &&
+      editState.description.length === 0
+    )
+      return false
     if (
       dialogState.itemType === EntityType.MISSION &&
       editState.coordinatorType === CoordinatorType.NONE
@@ -453,7 +484,8 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
       return false
     if (
       dialogState.itemType === EntityType.MAP_REQUEST &&
-      editState.type === MapRequestType.FIRE_AND_BURNED_AREA
+      (editState.type === MapRequestType.FIRE_AND_BURNED_AREA ||
+        editState.type === MapRequestType.FLOODED_AREA)
     ) {
       if (
         isNaN(parseInt(editState.frequency)) ||
@@ -512,13 +544,10 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         return false
     }
 
-    if (dialogState.itemType === EntityType.COMMUNICATION)
-    { 
+    if (dialogState.itemType === EntityType.COMMUNICATION) {
       if (!(!!editState.scope || !!editState.restrictionType)) return false
-      if (editState.scope == CommunicationScopeType.RESTRICTED)
-      {
-        if(editState.restrictionType == CommunicationRestrictionType.NONE)
-          return false;
+      if (editState.scope == CommunicationScopeType.RESTRICTED) {
+        if (editState.restrictionType == CommunicationRestrictionType.NONE) return false
         if (
           editState.restrictionType == CommunicationRestrictionType.ORGANIZATION &&
           (!editState.organizationReceiverIds || editState.organizationReceiverIds.length === 0)
@@ -530,7 +559,7 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
   }
 
   const applyHandler = (editState: EditStateType, dialogState: DialogStateType) => {
-    const successMessage = `${t("maps:" + dialogState.itemType)} created successfully`
+    const successMessage = `${t('maps:' + dialogState.itemType)} created successfully`
     switch (dialogState.itemType) {
       // case 'Report':
       //   console.log("CREATE REPORT")
@@ -539,62 +568,82 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
       //   console.log("CREATE REPORT REQUEST")
       //   break;
       case 'Mission':
-        console.log("CREATE MISSION with ", getFeatureDto(editState, dialogState))
-        handleAPICall(() => {
-          return missionsApiFactory.missionsCreateOrUpdateMission(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMissionInput)
-        },successMessage , () => {
+        console.log('CREATE MISSION with ', getFeatureDto(editState, dialogState))
+        handleAPICall(
+          () => {
+            return missionsApiFactory.missionsCreateOrUpdateMission(
+              getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMissionInput
+            )
+          },
+          successMessage,
+          () => {
             hideDialog()
             onDialogClose('confirm', EntityType.MISSION)
-        }, () => {
+          },
+          () => {
             hideDialog()
             onDialogClose('cancel', EntityType.OTHER)
-        })
-        break;
+          }
+        )
+        break
       case 'MapRequest':
-        console.debug("CREATE MapRequest with ", getFeatureDto(editState, dialogState))
+        console.debug('CREATE MapRequest with ', getFeatureDto(editState, dialogState))
         hideDialog() //hide dialog immediately since success and errors are shown externally
-        handleAPICall(() => {
-        return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput)
-        },successMessage , () => {
+        handleAPICall(
+          () => {
+            return mapRequestApiFactory.mapRequestsCreateOrUpdateMapRequest(
+              getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateMapRequestInput
+            )
+          },
+          successMessage,
+          () => {
             //hideDialog()
             onDialogClose('confirm', EntityType.MAP_REQUEST)
-        }, () => {
+          },
+          () => {
             //hideDialog()
             onDialogClose('cancel', EntityType.OTHER)
-        })
-        break;
+          }
+        )
+        break
       case 'Communication':
-        console.log("CREATE COMMUNICATION with ", getFeatureDto(editState, dialogState))
-        handleAPICall(() => {
-          return commApiFactory.communicationsCreateOrUpdateCommunication(getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateCommunicationInput)
-        }, successMessage, () => {
+        console.log('CREATE COMMUNICATION with ', getFeatureDto(editState, dialogState))
+        handleAPICall(
+          () => {
+            return commApiFactory.communicationsCreateOrUpdateCommunication(
+              getFeatureDto(editState, dialogState) as unknown as CreateOrUpdateCommunicationInput
+            )
+          },
+          successMessage,
+          () => {
             hideDialog()
             onDialogClose('confirm', EntityType.COMMUNICATION)
-        }, () => {
+          },
+          () => {
             hideDialog()
             onDialogClose('cancel', EntityType.OTHER)
-        })
-        break;
+          }
+        )
+        break
     }
-
   }
 
   const getFeatureDto = (editState: EditStateType, dialogState: DialogStateType) => {
     console.debug('getFeatureDto', dialogState)
     let featureDto = {}
     const baseObj = {
-      "feature": {
-        "type": "Feature",
-        "properties": {
-          "id": 0, // solo in creazione
-          "duration": {
-            "lowerBound": editState.startDate.toISOString(),
-            "upperBound": editState.endDate!.toISOString(),
-            "lowerBoundIsInclusive": true,
-            "upperBoundIsInclusive": true
-          },
+      feature: {
+        type: 'Feature',
+        properties: {
+          id: 0, // solo in creazione
+          duration: {
+            lowerBound: editState.startDate.toISOString(),
+            upperBound: editState.endDate!.toISOString(),
+            lowerBoundIsInclusive: true,
+            upperBoundIsInclusive: true
+          }
         },
-        "geometry": JSON.stringify(dialogState.area.geometry)
+        geometry: JSON.stringify(dialogState.area.geometry)
       }
     }
     switch (dialogState.itemType) {
@@ -636,12 +685,13 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
           duration: {
             lowerBound: editState.startDate.toISOString(),
             upperBound: editState.endDate!.toISOString(),
-            lowerBoundIsInclusive: true, 
+            lowerBoundIsInclusive: true,
             upperBoundIsInclusive: true
           },
           mapRequestType: editState.type,
           title: editState.requestTitle,
-          dataTypeIds: editState.dataType.length > 0 ? editState.dataType.map((d) => parseInt(d)) : []
+          dataTypeIds:
+            editState.dataType.length > 0 ? editState.dataType.map((d) => parseInt(d)) : []
         },
         geometry: JSON.stringify(editState.mapArea.geometry)
       }
@@ -652,6 +702,10 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         newMapRequest.feature.properties.frequency = parseInt(editState.frequency)
         newMapRequest.feature.properties.resolution = parseInt(editState.resolution)
         break
+      case MapRequestType.FLOODED_AREA:
+        newMapRequest.feature.properties.frequency = parseInt(editState.frequency)
+        newMapRequest.feature.properties.resolution = parseInt(editState.resolution)
+        break
       case MapRequestType.POST_EVENT_MONITORING:
         break
       case MapRequestType.WILDFIRE_SIMULATION:
@@ -659,38 +713,40 @@ export function useMapDialog(onDialogClose: (data: any, entityType: EntityType) 
         newMapRequest.feature.properties.timeLimit = editState.hoursOfProjection
         newMapRequest.feature.properties.probabilityRange = editState.probabilityRange
         newMapRequest.feature.properties.doSpotting = editState.simulationFireSpotting
-        newMapRequest.feature.properties.boundaryConditions = editState.boundaryConditions.map(e => {
-          return {
-            time: e.timeOffset,
-            windDirection: e.windDirection,
-            windSpeed: e.windSpeed,
-            moisture: e.fuelMoistureContent,
-            fireBreak:
-              e.fireBreakType &&
-              Object.keys(e.fireBreakType).length > 0 &&
-              Object.keys(e.fireBreakType)[0] !== '' &&
-              Object.values(e.fireBreakType).length > 0 &&
-              Object.values(e.fireBreakType)[0]
-                ? {
-                    [Object.keys(e.fireBreakType)[0]]: geojsonToWKT(
-                      (Object.values(e.fireBreakType)[0] as GeoJSON.Feature).geometry
-                    )
-                  }
-                : null,
-            fireBreakFullFeature:
-              e.fireBreakType &&
-              Object.keys(e.fireBreakType).length > 0 &&
-              Object.keys(e.fireBreakType)[0] !== '' &&
-              Object.values(e.fireBreakType).length > 0 &&
-              Object.values(e.fireBreakType)[0]
-                ? {
-                    [Object.keys(e.fireBreakType)[0]]: JSON.stringify(
-                      Object.values(e.fireBreakType)[0]
-                    )
-                  }
-                : null
+        newMapRequest.feature.properties.boundaryConditions = editState.boundaryConditions.map(
+          (e) => {
+            return {
+              time: e.timeOffset,
+              windDirection: e.windDirection,
+              windSpeed: e.windSpeed,
+              moisture: e.fuelMoistureContent,
+              fireBreak:
+                e.fireBreakType &&
+                Object.keys(e.fireBreakType).length > 0 &&
+                Object.keys(e.fireBreakType)[0] !== '' &&
+                Object.values(e.fireBreakType).length > 0 &&
+                Object.values(e.fireBreakType)[0]
+                  ? {
+                      [Object.keys(e.fireBreakType)[0]]: geojsonToWKT(
+                        (Object.values(e.fireBreakType)[0] as GeoJSON.Feature).geometry
+                      )
+                    }
+                  : null,
+              fireBreakFullFeature:
+                e.fireBreakType &&
+                Object.keys(e.fireBreakType).length > 0 &&
+                Object.keys(e.fireBreakType)[0] !== '' &&
+                Object.values(e.fireBreakType).length > 0 &&
+                Object.values(e.fireBreakType)[0]
+                  ? {
+                      [Object.keys(e.fireBreakType)[0]]: JSON.stringify(
+                        Object.values(e.fireBreakType)[0]
+                      )
+                    }
+                  : null
+            }
           }
-        })
+        )
         break
     }
 

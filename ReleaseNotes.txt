@@ -2,6 +2,30 @@ Ver.
 -----------------------
 
 
+Ver. 2.19.3 - 2013-11-24
+-----------------------
+- Bugfix - Map request flood fix (#186)
+
+Ver. 2.19.2 - 2013-11-23
+-----------------------
+- Bugfix - Minor feature info formatting (#163)
+- Bugfix - Order map buttons (#181)
+- Bugfix - Player responsiveness (#182)
+
+Ver. 2.19.1 - 2013-11-20
+-----------------------
+- Bugfix - Get legend without size (#179)
+- Feature - Mission code in cards (#180)
+
+Ver. 2.19.0 - 2023-11-20
+-----------------------
+- Feature - Map request for flood (#178)
+
+Ver. 2.18.4 - 2023-11-15
+-----------------------
+- Feature - Left side buttons (#176)
+- Bugfix - Fix bug on validation related to camera images
+
 Ver. 2.18.3 - 2023-11-15
 -----------------------
 - Feature - Minor graphic updates (#175)

@@ -17,6 +17,7 @@ import { FiredAndBurnedAreasDialog } from './map-request-types/fire-and-burned-a
 import { PostEventMonitoringDialog } from './map-request-types/post-event-monitoring-dialog.component'
 import { WildFireSimulationDialog } from './map-request-types/wildfire-simulation-dialog.component'
 import { MapRequestType } from 'ermes-ts-sdk'
+import { FloodedAreasDialog } from './map-request-types/flooded-areas-dialog.component'
 
 export function MapRequestDialog({
   operationType,
@@ -54,6 +55,11 @@ export function MapRequestDialog({
                 label={t('fireAndBurnedAreas')}
               />
               <FormControlLabel
+                value={MapRequestType.FLOODED_AREA}
+                control={<Radio />}
+                label={t('floodedAreas')}
+              />
+              <FormControlLabel
                 value={MapRequestType.POST_EVENT_MONITORING}
                 control={<Radio />}
                 label={t('postEventMonitoring')}
@@ -72,6 +78,17 @@ export function MapRequestDialog({
             operationType={operationType}
             editError={editError}
             editState={{ ...editState, type: MapRequestType.FIRE_AND_BURNED_AREA }}
+            dispatchEditAction={dispatchEditAction}
+            setEditError={setEditError}
+          />
+        ) : (
+          <></>
+        )}
+        {editState && value === MapRequestType.FLOODED_AREA ? (
+          <FloodedAreasDialog
+            operationType={operationType}
+            editError={editError}
+            editState={{ ...editState, type: MapRequestType.FLOODED_AREA }}
             dispatchEditAction={dispatchEditAction}
             setEditError={setEditError}
           />

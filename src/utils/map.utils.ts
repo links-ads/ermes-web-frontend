@@ -36,8 +36,8 @@ export function getLegendURL(geoServerConfig, w, h, layerName) {
     request: 'GetLegendGraphic',
     version: '1.0.0',
     format: 'image/png',
-    width: w, //w
-    height: h, //h
+    // width: w, //w
+    // height: h, //h
     layer: layerName //layerName
   }
   return `${baseUrl}/${suffix}?${composeParams(params)}`
