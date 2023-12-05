@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.20.0 - 2023-12-05
+-----------------------
 - Bugfix - Report carousel (#155)
 - Feature - Report validation and status change (#184)
 - Bugfix - Map request layers localization (#187)
