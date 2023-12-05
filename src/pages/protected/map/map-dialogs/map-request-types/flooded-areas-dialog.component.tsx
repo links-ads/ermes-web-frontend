@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react'
+import React, { useMemo, useEffect, useState, useContext } from 'react'
 
 import {
   FormControl,
@@ -24,6 +24,7 @@ import { Alert, Color } from '@material-ui/lab'
 import { wktToGeoJSON, geojsonToWKT } from '@terraformer/wkt'
 import { feature } from '@turf/helpers'
 import RangeDatePicker from '../../../../../common/range-date-picker'
+import { ErmesAxiosContext } from '../../../../../state/ermesaxios.context'
 
 type MapFeature = CulturalProps
 
@@ -49,7 +50,12 @@ export function FloodedAreasDialog({
   const [aoiWKTError, setAoiWKTError] = useState<boolean>(false)
 
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const layersApiFactory = useMemo(() => LayersApiFactory(backendAPIConfig), [backendAPIConfig])
+  const backendUrl = backendAPIConfig.basePath!
+  const { axiosInstance } = useContext(ErmesAxiosContext)
+  const layersApiFactory = useMemo(
+    () => LayersApiFactory(backendAPIConfig, backendUrl, axiosInstance),
+    [backendAPIConfig]
+  )
   const [apiHandlerState, handleAPICall, resetApiHandlerState] = useAPIHandler(false)
   useEffect(() => {
     handleAPICall(() =>
