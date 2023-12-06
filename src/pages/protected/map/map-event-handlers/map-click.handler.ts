@@ -36,7 +36,12 @@ export const placePositionPin = (
 // add position pin at click or db click of the user
 // if position pin is placed, map head drawer shows coordinates of pin, else of the center of the map
 // remove pin if user clicks on it
-const manageUserClickedPoint = (map, evt, setMapHeadDrawerCoordinates, setLeftClickedFeature) => {
+export const manageUserClickedPoint = (
+  map,
+  evt,
+  setMapHeadDrawerCoordinates,
+  setLeftClickedFeature
+) => {
   // check if users is clicking on the position point - if so, remove it
   const features = map.queryRenderedFeatures(evt.point)
   if (features && features.length > 0) {

@@ -220,7 +220,7 @@ const MapGeocoderSearchButton = (props) => {
           <span>
             <IconButton
               onClick={searchClickHandler}
-              aria-label="download-button"
+              aria-label="geocoder-search-button"
               className="mapboxgl-ctrl-icon"
               disabled={false}
               aria-describedby={id}
