@@ -23,6 +23,7 @@ import { featureCollection as createFeatureCollection } from '@turf/helpers'
 import MapGeocoderSearchButton from '../../../map-geocoder-search-button.component'
 import { placePositionPin } from '../../../map-event-handlers/map-click.handler'
 import { getMapBounds } from '../../../../../../common/map/map-common'
+import { clickedPointPin } from '../../../api-data/emergency.layers'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -533,6 +534,7 @@ const MapRequestDrawFeature: React.FC<{
                   'fill-opacity': 0.5
                 }}
               />
+              <Layer {...clickedPointPin} />
             </Source>
           )}
           {/* Map controls */}
