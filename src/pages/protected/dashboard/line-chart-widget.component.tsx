@@ -52,7 +52,7 @@ const CustomPoints = ({ series, points }): CustomLayerProps => {
 
 export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
   const theme = useTheme()
-  const { t } = useTranslation(['social'])
+  const { t } = useTranslation(['social', 'maps'])
   const { chartData, xValues, type: chartDataType } = props.data
   const unifOfMeasure =
     chartData[0] && chartData[0].unitOfMeasure
@@ -118,6 +118,10 @@ export const LineChartWidget: React.FC<{ data: LineChartProps }> = (props) => {
               ? (d.point.data.y as number) === 1
                 ? (t('social:informative_yes') as string)
                 : (t('social:informative_no') as string)
+              : chartDataType === 'String'
+              ? (d.point.data.y as number) === 1
+                ? (t('maps:burnedarea') as string)
+                : (t('maps:unburned') as string)
               : (d.point.data.y as string)
           )
         }}

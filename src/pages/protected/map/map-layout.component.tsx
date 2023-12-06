@@ -174,7 +174,8 @@ export function MapLayout(props) {
     selectedLayers,
     mapRequestsSettings,
     mapDrawerDataState,
-    addLayerFeatureInfo
+    addLayerFeatureInfo,
+    updateCardId
   } = props
 
   // Map state
@@ -207,6 +208,10 @@ export function MapLayout(props) {
   const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
   const { selectedFeatureId } = mapDrawerDataState
   const [selectedLayer, setSelectedLayer] = useState(selectedLayers[selectedLayers.length - 1])
+
+  const onCardClick = (selectedItemId) => {
+    updateCardId(selectedFeatureId === selectedItemId ? '' : selectedItemId)
+  }
 
   useEffect(() => {
     if (selectedLayers && selectedLayers.length > 0) {
@@ -980,6 +985,7 @@ export function MapLayout(props) {
             {...(clickedPoint as ItemWithLatLng<EmergencyProps>)}
             setPolyToMap={setPolyToMap}
             setGoToCoord={setGoToCoord}
+            setSelectedCard={onCardClick}
             setPersonTeam={setPersonTeam}
             teamName={teamName}
           />

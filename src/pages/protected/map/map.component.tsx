@@ -773,6 +773,7 @@ export function Map({
             mapRequestsSettings={mapRequestsSettings}
             mapDrawerDataState={dataState}
             dashboardMode={dashboardMode}
+            updateCardId={updateCardId}
           />
 
           {isGeoDataloading ? loader : undefined}
