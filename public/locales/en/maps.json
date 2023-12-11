@@ -165,5 +165,6 @@
   "unburned": "Unburned",
   "burnedarea": "Burned area",
   "mapRequestDeleteSuccess": "Map request successfully deleted",
-  "mapRequestDeleteError": "Error deleting map request"
+  "mapRequestDeleteError": "Error deleting map request",
+  "clearPin": "Clear pin"
 }

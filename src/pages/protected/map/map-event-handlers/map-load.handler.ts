@@ -44,20 +44,19 @@ export async function onMapLoadHandler<T extends object>(
       // Attach listeners for spider and cluster
       const geoJSONSource = map.getSource(geoJSONSourceId)
       if (geoJSONSource && geoJSONSource.type === 'geojson') {
-        
         map.on('move', () => updateMarkers(map))
         map.on('moveend', function (e) {
           updateMarkers(map)
           if (e.how !== undefined && e.how === 'fly') {
-              const center = map.getCenter()
-              setViewport({
-                ...viewport,
-                zoom: map.getZoom(),
-                latitude: center.lat,
-                longitude: center.lng
-              })
+            const center = map.getCenter()
+            setViewport({
+              ...viewport,
+              zoom: map.getZoom(),
+              latitude: center.lat,
+              longitude: center.lng
+            })
           }
-      })
+        })
         updateMarkers(map)
 
         // Simple dots on leafs
@@ -92,6 +91,37 @@ export async function onMapLoadHandler<T extends object>(
       }
     } catch (err) {
       console.error('Map Load Error', err)
+    }
+  }
+}
+
+export async function onMapSoftLoadHandler<T extends object>(
+  mapViewRef: React.RefObject<InteractiveMap>,
+  typeColors: ColorMap,
+  viewport: MapViewportState,
+  containerSize: ContainerSize,
+  setViewport: ViewportStateUpdater,
+  pinStyle: SVGPinPointStyle = 'old-fashioned'
+) {
+  console.debug('Map Soft Loaded')
+  setViewport({ ...viewport, ...containerSize })
+  if (mapViewRef.current) {
+    try {
+      const map = mapViewRef.current.getMap()
+      // Load generated SVG Pin Images
+      const loadImages = async () => {
+        const pinImages = await getPinImages(typeColors, pinStyle, true)
+        pinImages.forEach(([key, img]) => {
+          if (!map.hasImage(key)) {
+            map.addImage(key, img)
+          }
+        })
+      }
+      loadImages()
+      // when switching style, icons are lost
+      map.on('styleimagemissing', loadImages)
+    } catch (err) {
+      console.error('Map Soft Load Error', err)
     }
   }
 }
