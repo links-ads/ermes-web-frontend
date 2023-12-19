@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { MapContainer } from '../../../common.components'
 import InteractiveMap, {
   ExtraState,
@@ -9,7 +9,7 @@ import InteractiveMap, {
   Layer
 } from 'react-map-gl'
 import { useMapPreferences } from '../../../../../../state/preferences/preferences.hooks'
-import { EmergencyProps } from '../../../api-data/emergency.component'
+import { EmergencyColorMap, EmergencyProps } from '../../../api-data/emergency.component'
 import { MapDraw, MapDrawRefProps } from '../../../map-draw.components'
 import { GeoJsonProperties } from 'geojson'
 import React from 'react'
@@ -18,8 +18,22 @@ import { MapMode, useMapStateContext } from '../../../map.context'
 import { blue, cyan, orange, pink, purple, red, yellow } from '@material-ui/core/colors'
 import { Color } from '@material-ui/lab'
 import { MapRequestType } from 'ermes-backoffice-ts-sdk'
-import { Chip, Theme, createStyles, makeStyles } from '@material-ui/core'
+import { Chip, IconButton, Theme, Tooltip, createStyles, makeStyles } from '@material-ui/core'
 import { featureCollection as createFeatureCollection } from '@turf/helpers'
+import MapGeocoderSearchButton from '../../../map-geocoder-search-button.component'
+import {
+  manageUserClickedPoint,
+  placePositionPin
+} from '../../../map-event-handlers/map-click.handler'
+import { getMapBounds } from '../../../../../../common/map/map-common'
+import { getClickedPointPinBySource } from '../../../api-data/emergency.layers'
+import { onMapSoftLoadHandler } from '../../../map-event-handlers/map-load.handler'
+import {
+  ContainerSize,
+  ContainerSizeContext
+} from '../../../../../../common/size-aware-container.component'
+import styled from 'styled-components'
+import { LocationOff } from '@material-ui/icons'
 
 // Click Radius (see react-map-gl)
 const CLICK_RADIUS = 4
@@ -45,6 +59,33 @@ const useStyles = makeStyles((theme: Theme) =>
     }
   })
 )
+
+const ClearPinButtonContainer = styled.div.attrs({
+  className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
+})`
+  width: 100%;
+`
+
+const ClearPinBtn = (props) => {
+  const { t } = useTranslation(['maps', 'labels'])
+  const { clearPinFromMap, disabled } = props
+  return (
+    <ClearPinButtonContainer>
+      <Tooltip title={t('maps:clearPin') ?? 'Clear pin'}>
+        <span>
+          <IconButton
+            onClick={clearPinFromMap}
+            aria-label="clear-pin-button"
+            className="mapboxgl-ctrl-icon"
+            disabled={disabled}
+          >
+            <LocationOff fontSize="small" color={disabled ? 'disabled' : 'inherit'} />
+          </IconButton>
+        </span>
+      </Tooltip>
+    </ClearPinButtonContainer>
+  )
+}
 
 const MapRequestDrawFeature: React.FC<{
   mapRequestType: MapRequestType
@@ -90,6 +131,11 @@ const MapRequestDrawFeature: React.FC<{
       mapSelectedFeatures ?? []
     )
   )
+  const [mapHeadDrawerCoordinates, setMapHeadDrawerCoordinates] = useState([] as any[])
+
+  const containerSize = useContext<ContainerSize>(ContainerSizeContext)
+
+  const [clearActive, setClearActive] = useState<boolean>(false)
 
   // GeoJSON source Ref
   const geoJSONPointsSourceRef = useRef(null)
@@ -114,7 +160,8 @@ const MapRequestDrawFeature: React.FC<{
       setRightClickedPoint,
       setEditingFeature,
       startFeatureEdit,
-      clearFeatureEdit
+      clearFeatureEdit,
+      setGoToCoord
     }
   ] = useMapStateContext<EmergencyProps>()
 
@@ -252,14 +299,50 @@ const MapRequestDrawFeature: React.FC<{
     return lineColors[lineIdx > 5 ? lineIdx % 6 : lineIdx]
   }
 
+  const markSearchLocation = (latitude, longitude) => {
+    setGoToCoord({ latitude: latitude, longitude: longitude })
+    const map = mapViewRef.current?.getMap()
+    placePositionPin(map, longitude, latitude, setMapHeadDrawerCoordinates, setClickedPoint)
+    setClearActive(true)
+  }
+
+  const getMapBBox = () => {
+    const bounds = getMapBounds(mapViewRef)
+    return bounds
+  }
+
+  const onMapLoad = () => {
+    onMapSoftLoadHandler(mapViewRef, EmergencyColorMap, viewport, containerSize, setViewport)
+  }
+
+  const clearPinFromMapHandler = (evt) => {
+    evt.preventDefault()
+    evt.stopPropagation()
+    manageUserClickedPoint(
+      mapViewRef.current?.getMap(),
+      evt,
+      setMapHeadDrawerCoordinates,
+      setClickedPoint
+    )
+    setClearActive(false)
+  }
+
   const mapCoordinatesZoom =
-    t('social:map_latitude') +
-    ': ' +
-    viewport.latitude.toFixed(6) +
-    ' | ' +
-    t('social:map_longitude') +
-    ': ' +
-    viewport.longitude.toFixed(6) +
+    (mapHeadDrawerCoordinates && mapHeadDrawerCoordinates.length > 0
+      ? t('social:map_latitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[1].toFixed(6) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        mapHeadDrawerCoordinates[0].toFixed(6)
+      : t('social:map_latitude') +
+        ': ' +
+        viewport.latitude.toFixed(6) +
+        ' | ' +
+        t('social:map_longitude') +
+        ': ' +
+        viewport.longitude.toFixed(6)) +
     ' | ' +
     t('social:map_zoom') +
     ': ' +
@@ -276,6 +359,7 @@ const MapRequestDrawFeature: React.FC<{
           onViewportChange={(nextViewport) => setViewport(nextViewport)}
           transformRequest={transformRequest}
           clickRadius={CLICK_RADIUS}
+          onLoad={onMapLoad}
           onClick={() => {
             if (!customMapMode) {
               setMapMode('edit')
@@ -475,7 +559,7 @@ const MapRequestDrawFeature: React.FC<{
             <Source
               id="pointSource"
               type="geojson"
-              data={featureCollection as GeoJSON.FeatureCollection<GeoJSON.Geometry>}
+              data={featureCollection}
               ref={geoJSONPointsSourceRef}
             >
               {/* Layers here */}
@@ -509,11 +593,17 @@ const MapRequestDrawFeature: React.FC<{
                   'fill-opacity': 0.5
                 }}
               />
+              <Layer {...getClickedPointPinBySource('pointSource')} />
             </Source>
           )}
           {/* Map controls */}
           <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
           <div className="controls-container" style={{ top: 40 }}>
+            <MapGeocoderSearchButton
+              getMapBBox={getMapBBox}
+              markSearchLocation={markSearchLocation}
+            />
+            <ClearPinBtn clearPinFromMap={clearPinFromMapHandler} disabled={!clearActive} />
             <GeolocateControl
               label={t('maps:show_my_location')}
               className="mapboxgl-ctrl-geolocate"

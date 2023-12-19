@@ -21,6 +21,7 @@ import MapRequestState, {
 import { LayerDto, LayerGroupDto, LayerSubGroupDto } from 'ermes-backoffice-ts-sdk'
 import LayerDefinition from '../../../../models/layers/LayerDefinition'
 import { wktToGeoJSON } from '@terraformer/wkt'
+import { getFeatureTypeAndIdFromCardId } from '../../../../hooks/use-map-drawer.hook'
 
 const MapRequestsPanel: React.FC<{
   filters
@@ -57,6 +58,8 @@ const MapRequestsPanel: React.FC<{
     setMapRequestsSettings,
     availableLayers,
     layersDefinition,
+    selectedCard,
+    setSelectedCard,
     showFeaturesDialog,
     selectedItemsList,
     updateIsLoadingStatus,
@@ -169,8 +172,13 @@ const MapRequestsPanel: React.FC<{
     return () => window.removeEventListener('resize', resizeHeight)
   })
 
-  const deleteMR = (id: string) => {
-    deleteMapRequest([id])
+  const deleteMR = (code: string, id: string) => {
+    deleteMapRequest([code])
+    // close popup card if the deleted map request is the one currently opened
+    const [type, selectedId] = getFeatureTypeAndIdFromCardId(selectedCard)
+    if (type === EntityType.MAP_REQUEST && selectedId === id) {
+      setSelectedCard('')
+    }
   }
 
   const fetchRequest = (id: string) => {
@@ -337,8 +345,8 @@ const MapRequestsPanel: React.FC<{
                   fetchRequestById={fetchRequest}
                   mapRequestSettings={mapRequestsSettings[elem.code]}
                   updateMapRequestsSettings={updateMapRequestsSettings}
-                  selectedCard={props.selectedCard}
-                  setSelectedCard={props.setSelectedCard}
+                  selectedCard={selectedCard}
+                  setSelectedCard={setSelectedCard}
                 />
               ))}
             </InfiniteScroll>

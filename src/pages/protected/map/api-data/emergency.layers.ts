@@ -85,6 +85,12 @@ export const hoveredPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' |
   }
 }
 
+export const getClickedPointPinBySource = (source: string) => {
+  const pin = clickedPointPin
+  pin.source = source
+  return pin
+}
+
 export const clickedPointPin: Required<Omit<LayerProps, 'beforeId' | 'minzoom' | 'maxzoom'>> = {
   id: 'unclustered-point-clicked',
   type: 'symbol',

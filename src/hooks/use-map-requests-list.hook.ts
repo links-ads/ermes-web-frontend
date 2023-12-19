@@ -68,7 +68,7 @@ const reducer = (currentState, action) => {
       return {
         ...currentState,
         isLoading: false,
-        data: action.value,
+        // data: action.value,
         hasMore: false,
         error: true,
         selectedMr: {}
@@ -126,8 +126,8 @@ const reducer = (currentState, action) => {
 
 export default function useMapRequestList() {
   const [dataState, dispatch] = useReducer(reducer, initialState)
-  const { i18n } = useTranslation()
-  const { displayErrorSnackbar } = useSnackbars()
+  const { i18n, t } = useTranslation(['maps'])
+  const { displayErrorSnackbar, displaySuccessSnackbar } = useSnackbars()
   //   const mounted = useRef(false)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const maprequestApiFactory = useMemo(
@@ -222,9 +222,13 @@ export default function useMapRequestList() {
           item.split(housePartner).length >= 1 ? item.split(housePartner)[1] : item
         )
         dispatch({ type: 'DELETE', value: deletedCodes })
+        displaySuccessSnackbar(t('maps:mapRequestDeleteSuccess'))
       })
       .catch((error) => {
-        dispatch({ type: 'ERROR', value: error.message })
+        console.error(error)
+        displayErrorSnackbar(t('maps:mapRequestDeleteError'))
+        // do not empty list for this kind of error
+        // dispatch({ type: 'ERROR', value: error.message })
       })
   }
 
