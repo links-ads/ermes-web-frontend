@@ -9,6 +9,7 @@ import { PrivacyPage } from '../pages/open/privacy/privacy.page'
 import { WaitOrRedirect } from './wait-or-redirect.component'
 import { Container } from '@material-ui/core'
 import { TermsOfUsePage} from '../pages/open/termsofuse/termsofuse.page'
+import { OAuthLogoutCallback } from '../oauth/logout-handler'
 
 // http://localhost:3000/device-verification?user_code=JTXHXS
 export function ContentRoutes() {
@@ -18,13 +19,24 @@ export function ContentRoutes() {
       {/* route and component for retrieving OAuth2 params - public */}
       <Route
         exact={true}
-        path="/callback"
+        path="/login-callback"
         render={({ location }) => (
           <OAuthCallback errorBoundary={true}>
             <Container className="full flex container" maxWidth="sm">
               <WaitOrRedirect hashString={location.hash} searchString={location.search} />
             </Container>
           </OAuthCallback>
+        )}
+      />
+      <Route
+        exact={true}
+        path="/logout-callback"
+        render={({ location }) => (
+          <OAuthLogoutCallback errorBoundary={true}>
+            <Container className="full flex container" maxWidth="sm">
+              <WaitOrRedirect hashString={location.hash} searchString={location.search} />
+            </Container>
+          </OAuthLogoutCallback>
         )}
       />
       {/* route and component for login, require not being logged in */}
@@ -43,12 +55,12 @@ export function ContentRoutes() {
         </Container>
       </Route>
       <Route path="/privacy" exact={true}>
-        <Container className="full flex container" >
+        <Container className="full flex container">
           <PrivacyPage />
         </Container>
       </Route>
       <Route path="/termsofuse" exact={true}>
-        <Container className="full flex container" >
+        <Container className="full flex container">
           <TermsOfUsePage />
         </Container>
       </Route>
