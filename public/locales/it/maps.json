@@ -166,5 +166,11 @@
   "burnedarea": "Zona bruciata",
   "mapRequestDeleteSuccess": "Richiesta di mappatura eliminata con successo",
   "mapRequestDeleteError": "Errore durante l'eliminazione della richiesta di mappatura",
-  "clearPin": "Cancella il segnaposto"
+  "clearPin": "Cancella il segnaposto",
+  "orientations": "orientamenti",
+  "degrees": "gradi",
+  "add": "Aggiungi",
+  "remove": "Rimuovi",
+  "confirm": "Conferma",
+  "discard": "Scarta"
 }

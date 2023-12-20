@@ -811,7 +811,7 @@ function StationCard({ data, latitude, longitude }) {
         </CardContent>
         <CardActions className={ccmClasses.cardAction}>
           <Typography color="textSecondary" variant="caption">
-            Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
+            {t('labels:timestamp')}: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
           </Typography>
         </CardActions>
         <CardActions className={ccmClasses.cardAction}>

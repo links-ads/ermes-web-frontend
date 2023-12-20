@@ -166,5 +166,11 @@
   "burnedarea": "Burned area",
   "mapRequestDeleteSuccess": "Map request successfully deleted",
   "mapRequestDeleteError": "Error deleting map request",
-  "clearPin": "Clear pin"
+  "clearPin": "Clear pin",
+  "orientations": "orientamenti",
+  "degrees": "degrees",
+  "add": "Add",
+  "remove": "Remove",
+  "confirm": "Confirm",
+  "discard": "Discard"
 }

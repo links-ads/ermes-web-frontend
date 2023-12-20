@@ -289,7 +289,7 @@ export function CameraDetails({}: CameraDetailsProps) {
         <div style={localStyles.titleBar}>
           <div>
             <div>
-              {elem?.name} {t('common:details')}
+              {t('common:details', { 'name': elem?.name } )}
             </div>
             <FormGroup>
               <FormControlLabel
