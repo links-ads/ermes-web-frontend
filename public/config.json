@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl":"https://safersblobstoragedev.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://safersblobstoragetest.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -23,40 +23,40 @@
       "zoom": 2.5
     },
     "mapBounds": {
-      "southWest": [-47.7766,24.9285],
-      "northEast": [61.2366,60.3175]
+      "southWest": [-47.7766, 24.9285],
+      "northEast": [61.2366, 60.3175]
     },
     "geocoding": {
       "apiUrl": "https://api.mapbox.com/geocoding/v5",
       "endpoint": "mapbox.places",
-      "apiToken": "pk.eyJ1IjoibGI5MSIsImEiOiJjbG9vNzR3aDkwZmVvMnJwcXd3YTNrbWVjIn0.jYf53ll_wx3xWL6vXFoPSA"
+      "apiToken": "pk.eyJ1IjoibGI5MSIsImEiOiJjbG9vNzZseGUzODRhMnNyd285cnBpc2I4In0.WX-Zj1su8mU4Cch3khehMQ"
     }
   },
   "crs": "EPSG:4326",
   "mapPollingInterval": 60,
   "geoServer": {
-    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
       "version": "1.3.0",
       "request": "GetMap",
       "srs": "EPSG:3857",
-      "bbox":"{bbox-epsg-3857}",
+      "bbox": "{bbox-epsg-3857}",
       "format": "image/png",
       "transparent": true
     }
   },
   "fusionAuth": {
     "url": "https://auth.safers-project.cloud/",
-    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
-    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
+    "clientId": "e9aedcd7-8649-4a5d-84cf-ffacad91396d",
+    "tenantId": "b9aad113-087c-4f81-a263-434119b10185"
   },
   "backend": {
-    "url": "https://api-dev.safers-project.cloud"
+    "url": "https://api-test.safers-project.cloud"
   },
   "userTagsFilter": {
-    "filters": ["administrator","user", "admin"]
+    "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl" : "https://geoapi-dev.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
 }

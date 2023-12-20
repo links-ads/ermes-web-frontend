@@ -31,6 +31,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   path.shift()
 
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
+  const showCategoryFilters = path[0] !== 'dashboard' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
   const {
@@ -95,6 +96,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
             onDateFilterApply={applyDate}
             onFilterApply={applyFilters}
             onFilterChecked={updateMapDrawerTabs}
+            showCategoryFilters={showCategoryFilters}
           />
         ) : (
           <TitleWidget />

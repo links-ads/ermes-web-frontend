@@ -900,7 +900,9 @@ export function MapLayout(props) {
           <Layer {...hoveredPointPin} />
           <Layer {...clickedPointPin} />
         </Source>
-        <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
+        {!props.dashboardMode && (
+          <Chip className={classes.mapCoorZoom} label={mapCoordinatesZoom} />
+        )}
         {/* Map controls */}
         <div className="controls-container" style={{ top: 40, height: 206 }}>
           <MapGeocoderSearchButton
@@ -941,7 +943,7 @@ export function MapLayout(props) {
         )}
       </InteractiveMap>
       {/* {!isMobileDevice && <SelectionToggle></SelectionToggle>} */}
-      {!isMobileDevice && (
+      {!isMobileDevice && !props.dashboardMode && (
         <>
           <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
           {/* <FilterButton
@@ -965,6 +967,9 @@ export function MapLayout(props) {
             <MapLegendButton />
           </div>
         </>
+      )}
+      {props.dashboardMode && (
+        <MapSearchHere disabled={!searchHereActive} onClickHandler={filterApplyBoundsHandler} />
       )}
       {isMobileDevice && <MapLegendButton />} {/* TODO position button */}
       {/* Bottom drawer - outside map */}

@@ -41,7 +41,13 @@ import { removeLayerFromMap } from '../../../common/map/map-common'
 import { CameraDetails } from './map-drawer/camera-details.component'
 type MapFeature = CulturalProps
 
-export function Map() {
+export function Map({
+  dashboardMode = false,
+  height = '110%'
+}: {
+  dashboardMode?: boolean
+  height?: string
+}) {
   // translate library
   // const { t } = useTranslation(['common', 'labels'])
   const [fakeKey, forceUpdate] = useReducer((x) => x + 1, 0)
@@ -766,6 +772,7 @@ export function Map() {
             selectedLayers={selectedLayers}
             mapRequestsSettings={mapRequestsSettings}
             mapDrawerDataState={dataState}
+            dashboardMode={dashboardMode}
             updateCardId={updateCardId}
           />
 

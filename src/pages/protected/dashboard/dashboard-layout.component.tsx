@@ -1,168 +1,158 @@
-import { CircularProgress, useTheme } from '@material-ui/core'
-import React, { useCallback, useState, useEffect, useContext, useMemo } from 'react'
-import { Responsive as ResponsiveReactGridLayout } from 'react-grid-layout'
-import { getBreakpointFromWidth } from 'react-grid-layout/build/responsiveUtils'
-// import { AddWidgetComponent } from './add-widget.component'
-import {
-  // WidgetType,
-  IDashboardWidgetLayoutConfig,
-  // addDashboardWidget,
-  // removeDashboardWidget,
-  computeLayoutsForDashboardWigetConfig,
-  LayoutCols,
-  EmptyLayouts,
-  getInitialConfig
-} from './dashboard.config'
-import { Widget } from './widget.component'
-import hash from 'object-hash'
-import { DashboardProps } from './dashboard.component'
-import { ContainerSizeContext, ContainerSize } from '../../../common/size-aware-container.component'
-
-import useDashboardStats from '../../../hooks/use-dashboard-statistics.hook'
-import { _MS_PER_DAY } from '../../../utils/utils.common'
+import { Card, CardHeader, Grid } from '@material-ui/core'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { Map } from '../map/map.component'
+import { DashboardWidgetContainer } from './dashboard-widget-container.component'
+import { useTranslation } from 'react-i18next'
+import useSWR from 'swr'
+import { DashboardApiFactory, GetStatisticsOutput } from 'ermes-backoffice-ts-sdk'
+import { useAPIConfiguration } from '../../../hooks/api-hooks'
+import { useMemoryState } from '../../../hooks/use-memory-state.hook'
+import { FiltersDescriptorType } from '../../../common/floating-filters-tab/floating-filter.interface'
+import { Persons } from './widgets/persons.component'
 import { FiltersContext } from '../../../state/filters.context'
+import { MapRequests } from './widgets/map-requests.component'
+import { Reports } from './widgets/reports.component'
+import { Missions } from './widgets/missions.component'
+import { Cameras } from './widgets/cameras.component'
+import { Communications } from './widgets/communications.component'
+import { Alerts } from './widgets/alerts.component'
 
-export function DashboardLayout({
-  className = 'dashboard',
-  rowHeight = 150,
-  initialConfig = getInitialConfig()
-}: React.PropsWithChildren<DashboardProps>) {
-  const { width } = useContext<ContainerSize>(ContainerSizeContext)
-
-  const theme = useTheme()
-
-  const { statsState, fetchStatistics } = useDashboardStats()
-
-  // const [dashboardWidgetsConfig, setDashboardWidgetsConfig] = useState<
-  //   IDashboardWidgetLayoutConfig[]
-  // >(initialConfig)
-  const [dashboardWidgetsConfig] = useState<IDashboardWidgetLayoutConfig[]>(initialConfig)
-  const [breakpoint, setBreakpoint] = useState<string>(
-    getBreakpointFromWidth(theme.breakpoints.values, width)
+function useStats() {
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const dashboardApiFactory = useMemo(
+    () => DashboardApiFactory(backendAPIConfig),
+    [backendAPIConfig]
   )
-  const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>(EmptyLayouts) // TODO load from context/redux/storage
-  const [elements, setElements] = useState<JSX.Element[]>([])
-  const dashboardWidgetsConfigHash = useMemo(
-    () => hash(dashboardWidgetsConfig, { algorithm: 'md5' }),
-    [dashboardWidgetsConfig]
-  )
+  const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
+  const [stats, setStats] = useState<GetStatisticsOutput | null>(null)
 
-  const filtersCtx = useContext(FiltersContext)
+  function fetchStats() {
+    const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
 
-  const { filters: filters } = filtersCtx
-
-  // const addWidget = useCallback(
-  //   (type: WidgetType) => {
-  //     setDashboardWidgetsConfig(addDashboardWidget({ type }, dashboardWidgetsConfig))
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [dashboardWidgetsConfigHash]
-  // )
-
-  useEffect(() => {
-    fetchStatistics({
-      startDate: filters.datestart,
-      endDate: filters.dateend
-    })
-  }, [filters, fetchStatistics])
-
-  // const removeWidget = useCallback(
-  //   (wid: string) => {
-  //     setDashboardWidgetsConfig(removeDashboardWidget(wid, dashboardWidgetsConfig))
-  //   },
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   [dashboardWidgetsConfigHash]
-  // )
-
-  // function onLayoutChange(l: ReactGridLayout.Layout[], all: ReactGridLayout.Layouts) {
-  // }
-
-  const onDragWidgetStop = useCallback<ReactGridLayout.ItemCallback>(
-    (newLayout, oldItem, newItem, placeholder) => {
-      console.debug('onDragWidgetStop', newLayout, oldItem, newItem, placeholder)
-      const nextLayouts = { ...layouts }
-      if (breakpoint && nextLayouts[breakpoint]) {
-        nextLayouts[breakpoint] = newLayout
-      }
-      // Object.keys(nextLayouts).forEach(key => {
-      //   const values = nextLayouts[key]
-      //   const index = values.findIndex(l => l.i === newItem.i)
-      //   values.splice(index, 1, newItem)
-      //   nextLayouts[key] = values
-      // })
-      setLayouts(nextLayouts)
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash, breakpoint]
-  )
-
-  function onBreakpointChange(newb: string, newCols: number) {
-    setBreakpoint(newb)
+    dashboardApiFactory
+      .dashboardGetStatistics(
+        (filters?.datestart as any)?.selected ? (filters?.datestart as any)?.selected : undefined,
+        (filters?.dateend as any)?.selected ? (filters?.dateend as any)?.selected : undefined,
+        (filters?.mapBounds as any).northEast[1],
+        (filters?.mapBounds as any).northEast[0],
+        (filters?.mapBounds as any).southWest[1],
+        (filters?.mapBounds as any).southWest[0]
+      )
+      .then((r) => r.data)
+      .then((data) => setStats(data))
   }
 
-  useEffect(
-    () => {
-      // widget configuration has been updated
-      const nextLayouts = computeLayoutsForDashboardWigetConfig(layouts, dashboardWidgetsConfig)
-      setLayouts(nextLayouts)
-      setElements(
-        dashboardWidgetsConfig.map((dwc) => {
-          return (
-            <div key={dwc.wid}>
-              {
-                <Widget
-                  wid={dwc.wid}
-                  // removeWidget={removeWidget}
-                  removeWidget={(wid) => {}}
-                  type={dwc.type}
-                  title={dwc.title}
-                  description={dwc.description}
-                  data={statsState.data[dwc.data]}
-                  isLoading={statsState.isLoading}
-                  isError={statsState.isError}
-                />
-              }
-            </div>
-          )
-        })
-      )
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dashboardWidgetsConfigHash, statsState.data]
-  )
+  useEffect(() => {
+    fetchStats()
+  }, [storedFilters])
 
-  const loader = (
-    <div className="full-screen centered">
-      <CircularProgress color="secondary" size={120} />
-    </div>
-  )
+  return [stats, fetchStats] as const
+}
+
+export function DashboardLayout() {
+  const { t } = useTranslation()
+
+  const filterCtx = useContext(FiltersContext)
+  const activeFilters = filterCtx.mapDrawerTabVisibility
+
+  const [stats, getStats] = useStats()
+
+  const totals = useMemo(() => {
+    if (!stats) return {}
+
+    return {
+      persons:
+        stats.personsByStatus?.reduce((acc, curr: any) => {
+          console.log(curr)
+          return acc + curr.value
+        }, 0) ?? 0,
+      teams:
+        stats.persons
+          ?.map((p) => p.teamId)
+          .filter((value, index, self) => self.indexOf(value) === index).length ?? 0,
+      mapRequests: stats.mapRequestByType?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      reports: stats.reportsByHazard?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      missions: stats.missionsByStatus?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      cameras: stats.stations?.length ?? 0,
+      communications:
+        stats.communicationsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0,
+      alerts: stats.alertsByRestriction?.reduce((acc, curr: any) => acc + curr.value, 0) ?? 0
+    }
+  }, [stats])
 
   return (
-    <>
-      {statsState.isLoading ? (
-        loader
-      ) : (
-        <ResponsiveReactGridLayout
-          width={width}
-          containerPadding={[16, 16]}
-          className={className + ' layout'}
-          layouts={layouts}
-          rowHeight={rowHeight}
-          cols={LayoutCols}
-          compactType={'vertical'}
-          onBreakpointChange={onBreakpointChange}
-          // onLayoutChange={onLayoutChange}
-          onDragStop={onDragWidgetStop}
-          breakpoints={theme.breakpoints.values}
-          useCSSTransforms={true}
-          preventCollision={false}
-          resizeHandles={['se', 'sw', 'ne', 'nw']}
-          // onWidthChange={(args) => console.debug('Grid layout width change', args)}
-        >
-          {elements}
-        </ResponsiveReactGridLayout>
-      )}
-      {/* <AddWidgetComponent addWidget={addWidget} /> */}
-    </>
+    <Grid container style={{ height: '100%', padding: 12 }}>
+      <Grid item sm={12} md={4}>
+        <Map dashboardMode height="95%" />
+      </Grid>
+      <Grid item sm={12} md={8} style={{ marginTop: 44, paddingLeft: 12 }}>
+        <Grid container spacing={2}>
+          {activeFilters.Person && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_persons')}
+              info={
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingRight: 60 }}>
+                  <span>{`${t('labels:total')}: ${totals.persons ?? ''}`}</span>
+                  <span>{`${t('labels:chart_teams')}: ${totals.teams ?? ''}`}</span>
+                </div>
+              }
+            >
+              <Persons
+                persons={stats?.personsByStatus}
+                activationsByDay={stats?.activationsByDay}
+              />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.MapRequest && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_maprequest')}
+              info={`${t('labels:total')}: ${totals.mapRequests ?? ''}`}
+            >
+              <MapRequests mapRequests={stats?.mapRequestByType} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Report && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_report')}
+              info={`${t('labels:total')}: ${totals.reports ?? ''}`}
+            >
+              <Reports reports={stats?.reportsByHazard} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Mission && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_mission')}
+              info={`${t('labels:total')}: ${totals.missions ?? ''}`}
+            >
+              <Missions missions={stats?.missionsByStatus} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Station && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_station')}
+              info={`${t('labels:total')}: ${totals.cameras ?? ''}`}
+            >
+              <Cameras cameras={stats?.stations} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Communication && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_communication')}
+              info={`${t('labels:total')}: ${totals.communications ?? ''}`}
+            >
+              <Communications communications={stats?.communicationsByRestriction} />
+            </DashboardWidgetContainer>
+          )}
+          {activeFilters.Alert && (
+            <DashboardWidgetContainer
+              title={t('labels:filter_alert')}
+              info={`${t('labels:total')}: ${totals.alerts ?? ''}`}
+            >
+              <Alerts alerts={stats?.alertsByRestriction} />
+            </DashboardWidgetContainer>
+          )}
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }
