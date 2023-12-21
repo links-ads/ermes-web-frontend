@@ -101,5 +101,6 @@
   "Resolution": "Risoluzione",
   "coordinates_copied_to_clipboard": "Coordinate copiate in clipboard",
   "validationSuccess": "Validazione Effettuata",
-  "validationError": "Errore di validazione"
+  "validationError": "Errore di validazione",
+  "details": "Dettagli {{name}}"
 }

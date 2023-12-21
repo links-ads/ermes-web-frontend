@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Map request improvements (#185)
+- Bugfix - Typo and localization fixes (#190)
 
 Ver. 2.20.0 - 2023-12-05
 -----------------------

@@ -73,10 +73,10 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
             color="textSecondary"
             style={{ textTransform: 'uppercase' }}
           >
-            {'status'}:&nbsp;
+            {t('maps:mission_state')}:&nbsp;
           </Typography>
           <Typography component={'span'} variant="body1">
-            {elem.currentStatus == null ? '' : elem.currentStatus}
+            {elem.currentStatus == null ? '' : t('labels:' + elem.currentStatus.toLowerCase())}
           </Typography>
         </>
       </CardContent>
