@@ -172,5 +172,6 @@
   "add": "Aggiungi",
   "remove": "Rimuovi",
   "confirm": "Conferma",
-  "discard": "Scarta"
+  "discard": "Scarta",
+  "hazard": "Evento"
 }

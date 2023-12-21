@@ -517,7 +517,7 @@ const missCard = (
                 {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
               </Typography>
               <Typography component={'span'} variant="body1">
-                {t('labels:' + data.data.feature.properties.currentStatus)}
+                {t('labels:' + data.data.feature.properties.currentStatus.toLowerCase())}
               </Typography>
               <br />
             </div>
@@ -564,7 +564,7 @@ const missCard = (
                                 style={{ cursor: 'pointer' }}
                               >
                                 <TableCell component="th" align="left" scope="row">
-                                  {elem.hazard}
+                                  {t('maps:' + elem.hazard.toLowerCase())}
                                 </TableCell>
                                 <TableCell align="center">{elem.organizationName}</TableCell>
                                 <TableCell align="center">
