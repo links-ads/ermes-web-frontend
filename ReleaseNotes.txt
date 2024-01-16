@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Map request improvements (#185)
+- Feature - Profile permissions (#170)
 
 Ver. 2.20.0 - 2023-12-05
 -----------------------

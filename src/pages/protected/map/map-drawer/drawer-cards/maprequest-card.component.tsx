@@ -11,6 +11,7 @@ import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from 
 import MapRequestAccordion from './maprequest-accordion.component'
 import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
+import { getUserPermissions, useUser } from '../../../../../state/auth/auth.hooks'
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -46,7 +47,8 @@ const MapRequestCard: React.FC<{
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
   const upperBoundDate = FormatDate(mapRequestInfo.duration?.upperBound!)
-
+  const { profile } = useUser()
+  const { canCreateMapRequest } = getUserPermissions(profile)
   return (
     <CardWithPopup
       keyID={EntityType.MAP_REQUEST + '-' + String(mapRequestInfo.id)}
@@ -75,16 +77,20 @@ const MapRequestCard: React.FC<{
             </Box>
           </div>
           <div>
-            <Tooltip title={t('maps:operation_duplicate') ?? ''}>
-              <IconButton
-                onClick={(evt) => {
-                  evt.stopPropagation()
-                  props.fetchRequestById(mapRequestInfo.id)
-                }}
-              >
-                <FileCopyIcon />
-              </IconButton>
-            </Tooltip>
+            {canCreateMapRequest ? (
+              <Tooltip title={t('maps:operation_duplicate') ?? ''}>
+                <IconButton
+                  onClick={(evt) => {
+                    evt.stopPropagation()
+                    props.fetchRequestById(mapRequestInfo.id)
+                  }}
+                >
+                  <FileCopyIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <></>
+            )}
             {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
               <Tooltip title={t('maps:operation_delete') ?? ''}>
                 <IconButton

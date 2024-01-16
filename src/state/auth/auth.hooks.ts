@@ -166,6 +166,29 @@ export function useUser() {
   }
 }
 
+const defaultPermissions = {
+  canCreateMission: false,
+  canCreateCommunication: false,
+  canCreateMapRequest: false,
+  canCreateTeam: false,
+  canUpdateTeam: false
+}
+
+export const getUserPermissions = (profile: Profile | null) => {
+  if (!profile || profile === null) return defaultPermissions
+  const permissions = profile.toProfileDto().permissions
+  if (permissions && permissions.length > 0) {
+    return {
+      canCreateMission: permissions.includes('Missions.CanCreate'),
+      canCreateCommunication: permissions.includes('Communications.CanCreate'),
+      canCreateMapRequest: permissions.includes('MapRequests.CanCreate'),
+      canCreateTeam: permissions.includes('Teams.CanCreate'),
+      canUpdateTeam: permissions.includes('Teams.CanUpdate')
+    }
+  }
+  return defaultPermissions
+}
+
 export function useToken() {
   const stateSelection = useSelector(getTokenStateSelector, shallowEqual)
   return stateSelection

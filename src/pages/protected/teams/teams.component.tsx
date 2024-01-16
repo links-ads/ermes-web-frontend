@@ -33,6 +33,7 @@ import { useSnackbars } from '../../../hooks/use-snackbars.hook'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
 import useUsersList from '../../../hooks/use-users-list.hook'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
+import { getUserPermissions, useUser } from '../../../state/auth/auth.hooks';
 
 const MAX_RESULT_COUNT = 100
 type TmsApiPC = typeof TeamsApiAxiosParamCreator
@@ -235,6 +236,9 @@ export function Teams() {
   // Documents involved in translation
   const { t } = useTranslation(['admin', 'tables'])
 
+  const { profile } = useUser()
+  const { canCreateTeam, canUpdateTeam } = getUserPermissions(profile)
+
   // Load api to get the data needed for Teams, set it to backoffice (not public) and load load the configurations
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const teamAPIFactory = TeamsApiFactory(backendAPIConfig)
@@ -321,6 +325,8 @@ export function Teams() {
               setSelectedRow(rowData.id!)
             }}
             editable={{
+              isEditable: (rowData) => canUpdateTeam,
+              isEditHidden: (rowData) => !canUpdateTeam,
               onRowAdd: async (newData) => {
                 const newTeamInput: CreateUpdateTeamInput = {
                   team: {
