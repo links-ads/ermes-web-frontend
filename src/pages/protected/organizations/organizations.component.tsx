@@ -12,12 +12,9 @@ import {
   DTOrderDir
 } from 'ermes-backoffice-ts-sdk'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
-import { useUser } from '../../../state/auth/auth.hooks'
+import { getUserPermissions, useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_ADMIN } from '../../../App.const'
-import {
-  Select,
-  MenuItem,
-} from '@material-ui/core'
+import { Select, MenuItem } from '@material-ui/core'
 import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
@@ -40,8 +37,10 @@ export function Organizations() {
   const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig)
   const { displayErrorSnackbar } = useSnackbars()
 
-  const user = useUser();
-  const { orgData } = useOrgList();
+  const user = useUser()
+  const { orgData } = useOrgList()
+
+  const { canCreateOrganization, canUpdateOrganization, canUpdateAllOrganizations } = getUserPermissions(user.profile)
 
   function localizeColumns(): Column<OrganizationDto>[] {
     return [
@@ -60,7 +59,7 @@ export function Organizations() {
       { title: t('org_short_name'), field: 'shortName' },
       { title: t('org_name'), field: 'name' },
       { title: t('org_description'), field: 'description' },
-      { title: t('org_members_tax_code'), field: 'membersHaveTaxCode', type:'boolean' },
+      { title: t('org_members_tax_code'), field: 'membersHaveTaxCode', type: 'boolean' },
       {
         title: t('org_parent'),
         field: 'parentId',
@@ -141,8 +140,10 @@ export function Organizations() {
             })
           }
           editable={{
+            isEditable: (rowData) => (canUpdateOrganization || (user.isAuthenticated && user.profile?.role === ROLE_ADMIN && canUpdateAllOrganizations)),
+            isEditHidden: (rowData) => !(canUpdateOrganization || (user.isAuthenticated && user.profile?.role === ROLE_ADMIN && canUpdateAllOrganizations)),
             onRowAdd:
-              user.isAuthenticated && user.profile?.role === ROLE_ADMIN
+              canCreateOrganization && user.isAuthenticated && user.profile?.role === ROLE_ADMIN
                 ? async (newData) => {
                     const newOrgInput: CreateOrUpdateOrganizationInput = {
                       organization: {
@@ -162,16 +163,18 @@ export function Organizations() {
                     }
                   }
                 : undefined,
-            onRowUpdate: async (newData: OrganizationDto, oldData?: OrganizationDto) => {
-              const newOrgInput: CreateOrUpdateOrganizationInput = {
-                organization: { ...newData }
-              }
-              try {
-                await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
-              } catch (err) {
-                displayErrorSnackbar((err as any)?.response?.data.error as String)
-              }
-            }
+            onRowUpdate: canUpdateOrganization
+              ? async (newData: OrganizationDto, oldData?: OrganizationDto) => {
+                  const newOrgInput: CreateOrUpdateOrganizationInput = {
+                    organization: { ...newData }
+                  }
+                  try {
+                    await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
+                  } catch (err) {
+                    displayErrorSnackbar((err as any)?.response?.data.error as String)
+                  }
+                }
+              : undefined
           }}
           onRowClick={(e, rowData: any) => {
             return (window.location.href = window.location.href + '/teams')
