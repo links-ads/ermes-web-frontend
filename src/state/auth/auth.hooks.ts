@@ -7,9 +7,10 @@ import {
   getUserStateSelector,
   userEqualityFn,
   getTokenStateSelector,
-  loadingUserDataSelector
+  loadingUserDataSelector,
+  getUserPermissionsSelector
 } from './auth.selectors'
-import { SCOPE } from './auth.consts'
+import { PermissionAction, PermissionEntity, PermissionGranularity, SCOPE } from './auth.consts'
 import { useTranslation } from 'react-i18next'
 import { AppConfigContext, AppConfig } from '../../config'
 import { getFusionAuthURLs } from './auth.utils'
@@ -167,6 +168,19 @@ export function useUser() {
     isAuthenticated,
     profile: profile ? Profile.fromPlainObjcet(profile) : null
   }
+}
+
+export const useUserPermission = (
+  entity: PermissionEntity,
+  action: PermissionAction,
+  granularity?: PermissionGranularity | null
+): boolean => {
+  const permissions = useSelector(getUserPermissionsSelector)
+  if (permissions && permissions.length > 0) {
+    const permissionName = `${entity}.${action}` + (granularity ? `.${granularity}` : '')
+    return permissions.includes(permissionName)
+  }
+  return false
 }
 
 export function useToken() {

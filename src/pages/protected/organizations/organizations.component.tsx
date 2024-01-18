@@ -12,15 +12,17 @@ import {
   DTOrderDir
 } from 'ermes-backoffice-ts-sdk'
 import useOrgList from '../../../hooks/use-organization-list.hooks'
-import { useUser } from '../../../state/auth/auth.hooks'
+import { useUserPermission, useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_ADMIN } from '../../../App.const'
-import {
-  Select,
-  MenuItem,
-} from '@material-ui/core'
+import { Select, MenuItem } from '@material-ui/core'
 import customClasses from './organization.module.css'
 import { DTOrder } from 'ermes-ts-sdk'
 import { localizeMaterialTable } from '../../../common/localize-material-table'
+import {
+  PermissionAction,
+  PermissionEntity,
+  PermissionGranularity
+} from '../../../state/auth/auth.consts'
 
 const options: Options<any> = {
   sorting: false,
@@ -40,8 +42,27 @@ export function Organizations() {
   const orgAPIFactory = OrganizationsApiFactory(backendAPIConfig)
   const { displayErrorSnackbar } = useSnackbars()
 
-  const user = useUser();
-  const { orgData } = useOrgList();
+  const user = useUser()
+  const { orgData } = useOrgList()
+
+  const canCreateParentOrganization = useUserPermission(
+    PermissionEntity.ORGANIZATION,
+    PermissionAction.CREATE,
+    PermissionGranularity.PARENT
+  )
+  const canCreateChildOrganization = useUserPermission(
+    PermissionEntity.ORGANIZATION,
+    PermissionAction.CREATE,
+    PermissionGranularity.CHILD
+  )
+  const canUpdateOrganization = useUserPermission(
+    PermissionEntity.ORGANIZATION,
+    PermissionAction.UPDATE
+  )
+  const canUpdateAllOrganizations = useUserPermission(
+    PermissionEntity.ORGANIZATION,
+    PermissionAction.UPDATE_ALL
+  )
 
   function localizeColumns(): Column<OrganizationDto>[] {
     return [
@@ -60,7 +81,7 @@ export function Organizations() {
       { title: t('org_short_name'), field: 'shortName' },
       { title: t('org_name'), field: 'name' },
       { title: t('org_description'), field: 'description' },
-      { title: t('org_members_tax_code'), field: 'membersHaveTaxCode', type:'boolean' },
+      { title: t('org_members_tax_code'), field: 'membersHaveTaxCode', type: 'boolean' },
       {
         title: t('org_parent'),
         field: 'parentId',
@@ -69,21 +90,31 @@ export function Organizations() {
           return (
             <Select
               displayEmpty={true}
-              value={props.value || ''}
+              value={props.value}
               onChange={(e) => {
                 props.onChange(e.target.value)
               }}
             >
-              <MenuItem value={undefined}>
-                <em>{t('org_no_parent')}</em>
-              </MenuItem>
-              {orgData
-                .filter((entry) => entry.parentId === null && entry.id !== props.rowData.id)
-                .map((entry) => (
-                  <MenuItem key={entry.id} value={entry.id}>
-                    {entry.name}
-                  </MenuItem>
-                ))}
+              {canCreateParentOrganization && (
+                <MenuItem value={undefined}>
+                  <em>{t('org_no_parent')}</em>
+                </MenuItem>
+              )}
+              {(canCreateParentOrganization || canCreateChildOrganization) &&
+                orgData
+                  .filter((entry) =>
+                    canCreateParentOrganization
+                      ? entry.parentId === null && entry.id !== props.rowData.id
+                      : entry.parentId !== null
+                  )
+                  .map((entry) => (
+                    <MenuItem
+                      key={entry.id}
+                      value={canCreateParentOrganization ? entry.id : entry.parentId!!}
+                    >
+                      {canCreateParentOrganization ? entry.name : entry.parentName}
+                    </MenuItem>
+                  ))}
             </Select>
           )
         }
@@ -141,8 +172,10 @@ export function Organizations() {
             })
           }
           editable={{
+            isEditable: (rowData) => canUpdateOrganization || canUpdateAllOrganizations,
+            isEditHidden: (rowData) => !(canUpdateOrganization || canUpdateAllOrganizations),
             onRowAdd:
-              user.isAuthenticated && user.profile?.role === ROLE_ADMIN
+              canCreateParentOrganization || canCreateChildOrganization
                 ? async (newData) => {
                     const newOrgInput: CreateOrUpdateOrganizationInput = {
                       organization: {
@@ -154,6 +187,12 @@ export function Organizations() {
                         membersHaveTaxCode: newData.membersHaveTaxCode
                       }
                     }
+
+                    if (!canCreateParentOrganization && !newData.parentId) {
+                      displayErrorSnackbar(t('org_parent_required'))
+                      return
+                    }
+
                     try {
                       await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
                       orgData.push(newOrgInput.organization)
@@ -162,16 +201,25 @@ export function Organizations() {
                     }
                   }
                 : undefined,
-            onRowUpdate: async (newData: OrganizationDto, oldData?: OrganizationDto) => {
-              const newOrgInput: CreateOrUpdateOrganizationInput = {
-                organization: { ...newData }
-              }
-              try {
-                await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
-              } catch (err) {
-                displayErrorSnackbar((err as any)?.response?.data.error as String)
-              }
-            }
+            onRowUpdate:
+              canUpdateOrganization || canUpdateAllOrganizations
+                ? async (newData: OrganizationDto, oldData?: OrganizationDto) => {
+                    const newOrgInput: CreateOrUpdateOrganizationInput = {
+                      organization: { ...newData }
+                    }
+
+                    if (!canCreateParentOrganization && !newData.parentId) {
+                      displayErrorSnackbar(t('org_parent_required'))
+                      return
+                    }
+
+                    try {
+                      await orgAPIFactory.organizationsCreateOrUpdateOrganization(newOrgInput)
+                    } catch (err) {
+                      displayErrorSnackbar((err as any)?.response?.data.error as String)
+                    }
+                  }
+                : undefined
           }}
           onRowClick={(e, rowData: any) => {
             return (window.location.href = window.location.href + '/teams')

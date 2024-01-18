@@ -10,6 +10,7 @@
   "org_name": "Name",
   "org_description": "Description",
   "org_parent": "Root Org.",
+  "org_parent_required": "Root Org. is required",
   "org_no_parent": "No Root Org.",
   "org_website": "Web Site",
   "user": "User",

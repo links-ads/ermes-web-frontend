@@ -11,6 +11,8 @@ import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from 
 import MapRequestAccordion from './maprequest-accordion.component'
 import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
+import { useUserPermission } from '../../../../../state/auth/auth.hooks'
+import { PermissionAction, PermissionEntity } from '../../../../../state/auth/auth.consts'
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -46,7 +48,14 @@ const MapRequestCard: React.FC<{
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
   const upperBoundDate = FormatDate(mapRequestInfo.duration?.upperBound!)
-
+  const canCreateMapRequest = useUserPermission(
+    PermissionEntity.MAP_REQUEST,
+    PermissionAction.CREATE
+  )
+  const canDeleteMapRequest = useUserPermission(
+    PermissionEntity.MAP_REQUEST,
+    PermissionAction.DELETE
+  )
   return (
     <CardWithPopup
       keyID={EntityType.MAP_REQUEST + '-' + String(mapRequestInfo.id)}
@@ -75,17 +84,21 @@ const MapRequestCard: React.FC<{
             </Box>
           </div>
           <div>
-            <Tooltip title={t('maps:operation_duplicate') ?? ''}>
-              <IconButton
-                onClick={(evt) => {
-                  evt.stopPropagation()
-                  props.fetchRequestById(mapRequestInfo.id)
-                }}
-              >
-                <FileCopyIcon />
-              </IconButton>
-            </Tooltip>
-            {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
+            {canCreateMapRequest ? (
+              <Tooltip title={t('maps:operation_duplicate') ?? ''}>
+                <IconButton
+                  onClick={(evt) => {
+                    evt.stopPropagation()
+                    props.fetchRequestById(mapRequestInfo.id)
+                  }}
+                >
+                  <FileCopyIcon />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <></>
+            )}
+            {canDeleteMapRequest && mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
               <Tooltip title={t('maps:operation_delete') ?? ''}>
                 <IconButton
                   onClick={(evt) => {

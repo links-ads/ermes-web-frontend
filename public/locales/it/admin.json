@@ -10,6 +10,7 @@
   "org_name": "Nome",
   "org_description": "Descrizione",
   "org_parent": "Org. Padre",
+  "org_parent_required": "Org. Padre obbligatoria",
   "org_no_parent": "No Org. Padre",
   "org_website": "Sito Web",
   "user": "Utente",
