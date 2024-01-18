@@ -7,9 +7,10 @@ import {
   getUserStateSelector,
   userEqualityFn,
   getTokenStateSelector,
-  loadingUserDataSelector
+  loadingUserDataSelector,
+  getUserPermissionsSelector
 } from './auth.selectors'
-import { SCOPE } from './auth.consts'
+import { PermissionAction, PermissionEntity, PermissionGranularity, SCOPE } from './auth.consts'
 import { useTranslation } from 'react-i18next'
 import { AppConfigContext, AppConfig } from '../../config'
 import { getFusionAuthURLs } from './auth.utils'
@@ -166,33 +167,17 @@ export function useUser() {
   }
 }
 
-const defaultPermissions = {
-  canCreateMission: false,
-  canCreateCommunication: false,
-  canCreateMapRequest: false,
-  canCreateTeam: false,
-  canUpdateTeam: false,
-  canCreateOrganization: false, 
-  canUpdateOrganization: false,
-  canUpdateAllOrganizations: false
-}
-
-export const getUserPermissions = (profile: Profile | null) => {
-  if (!profile || profile === null) return defaultPermissions
-  const permissions = profile.toProfileDto().permissions
+export const useUserPermission = (
+  entity: PermissionEntity,
+  action: PermissionAction,
+  granularity?: PermissionGranularity | null
+): boolean => {
+  const permissions = useSelector(getUserPermissionsSelector)
   if (permissions && permissions.length > 0) {
-    return {
-      canCreateMission: permissions.includes('Missions.CanCreate'),
-      canCreateCommunication: permissions.includes('Communications.CanCreate'),
-      canCreateMapRequest: permissions.includes('MapRequests.CanCreate'),
-      canCreateTeam: permissions.includes('Teams.CanCreate'),
-      canUpdateTeam: permissions.includes('Teams.CanUpdate'),
-      canCreateOrganization: permissions.includes('Organizations.CanCreate'),
-      canUpdateOrganization: permissions.includes('Organizations.CanUpdate'),
-      canUpdateAllOrganizations: permissions.includes('Organizations.CanUpdateAll')
-    }
+    const permissionName = `${entity}.${action}` + (granularity ? `.${granularity}` : '')
+    return permissions.includes(permissionName)
   }
-  return defaultPermissions
+  return false
 }
 
 export function useToken() {

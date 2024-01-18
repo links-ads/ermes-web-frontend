@@ -11,7 +11,8 @@ import { EntityType, MapRequestDto, MapRequestStatusType, MapRequestType } from 
 import MapRequestAccordion from './maprequest-accordion.component'
 import { MapRequestLayerState } from '../../../../../models/mapRequest/MapRequestState'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
-import { getUserPermissions, useUser } from '../../../../../state/auth/auth.hooks'
+import { useUserPermission } from '../../../../../state/auth/auth.hooks'
+import { PermissionAction, PermissionEntity } from '../../../../../state/auth/auth.consts'
 
 const MapRequestCard: React.FC<{
   mapRequestInfo: MapRequestDto
@@ -47,8 +48,14 @@ const MapRequestCard: React.FC<{
   } = props
   const lowerBoundDate = FormatDate(mapRequestInfo.duration?.lowerBound!)
   const upperBoundDate = FormatDate(mapRequestInfo.duration?.upperBound!)
-  const { profile } = useUser()
-  const { canCreateMapRequest } = getUserPermissions(profile)
+  const canCreateMapRequest = useUserPermission(
+    PermissionEntity.MAP_REQUEST,
+    PermissionAction.CREATE
+  )
+  const canDeleteMapRequest = useUserPermission(
+    PermissionEntity.MAP_REQUEST,
+    PermissionAction.DELETE
+  )
   return (
     <CardWithPopup
       keyID={EntityType.MAP_REQUEST + '-' + String(mapRequestInfo.id)}
@@ -91,7 +98,7 @@ const MapRequestCard: React.FC<{
             ) : (
               <></>
             )}
-            {mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
+            {canDeleteMapRequest && mapRequestInfo.status != MapRequestStatusType.CANCELED ? (
               <Tooltip title={t('maps:operation_delete') ?? ''}>
                 <IconButton
                   onClick={(evt) => {

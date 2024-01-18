@@ -14,7 +14,9 @@ import CloseOutlined from '@material-ui/icons/CloseOutlined'
 import { ProvisionalFeatureType, ProvisionalOperationType } from './map.context'
 import { useTranslation } from 'react-i18next'
 import { Info } from '@material-ui/icons'
-import { getUserPermissions, useUser } from '../../../state/auth/auth.hooks'
+import { useUserPermission } from '../../../state/auth/auth.hooks'
+import { PermissionAction, PermissionEntity } from '../../../state/auth/auth.consts'
+import { EntityType } from 'ermes-backoffice-ts-sdk'
 
 export type ItemWithType<T = any> = T & { type: string }
 
@@ -53,8 +55,19 @@ export const ContextMenu = memo(
     selectedLayer
   }: ContextMenuProps) {
     const { t } = useTranslation(['maps'])
-    const { profile } = useUser()
-    const { canCreateMission, canCreateCommunication, canCreateMapRequest } = getUserPermissions(profile)
+    const canCreateMission = useUserPermission(PermissionEntity.MISSION, PermissionAction.CREATE)
+    const canCreateCommunication = useUserPermission(
+      PermissionEntity.COMMUNICATION,
+      PermissionAction.CREATE
+    )
+    const canCreateMapRequest = useUserPermission(
+      PermissionEntity.MAP_REQUEST,
+      PermissionAction.CREATE
+    )
+    const canDeleteMapRequest = useUserPermission(
+      PermissionEntity.MAP_REQUEST,
+      PermissionAction.DELETE
+    )
     const coordInfo = latitude + ', ' + longitude
     return typeof latitude === 'number' && typeof longitude === 'number' ? (
       <Popup
@@ -67,7 +80,7 @@ export const ContextMenu = memo(
       >
         <Paper>
           <List id="map-menu-list" dense>
-            {item
+            {item && item.type === EntityType.MAP_REQUEST && canDeleteMapRequest
               ? [
                   // <ListItem
                   //   key="upd"
@@ -174,7 +187,11 @@ export const ContextMenu = memo(
                     itemIcon={<Info fontSize="small" />}
                     itemText={coordInfo}
                   />,
-                  <Divider key="div-0" />,
+                  !canCreateCommunication && !canCreateMapRequest && !canCreateMission ? (
+                    <></>
+                  ) : (
+                    <Divider key="div-0" />
+                  ),
                   canCreateCommunication ? (
                     <ContextMenuOption
                       key={'cc'}
