@@ -325,78 +325,143 @@ const useMapLayers = () => {
   )
 
   const changePlayersPositionAndDimension = useCallback((players, defaultPos, defaultDim) => {
-    const cnt = players.length
+    const tot = players.length
+    // both map and map request layers are present in the players list
+    // but map request players are shown in the elements list
+    // and we need to manage only the position and dimension of the map layers players
+    const mapPlayers = players.filter((p) => p.group !== 'Map Request Layer')
+    const cnt = mapPlayers.length
     let updatedPlayers = [...players]
     if (cnt === 1) {
       // set default position and width
-      let onlyPlayer = { ...updatedPlayers[0] }
+      const idx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[0].group &&
+          p.subGroup === mapPlayers[0].subGroup &&
+          p.dataTypeId === mapPlayers[0].dataTypeId
+      )
+      let onlyPlayer = { ...updatedPlayers[idx] }
       onlyPlayer.position = defaultPos
       onlyPlayer.dimension = defaultDim
-      updatedPlayers[0] = onlyPlayer
+      updatedPlayers[idx] = { ...onlyPlayer }
     } else if (cnt === 2) {
       // change y position of second element
-      let first = players[0]
+      const firstIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[0].group &&
+          p.subGroup === mapPlayers[0].subGroup &&
+          p.dataTypeId === mapPlayers[0].dataTypeId
+      )
+      let first = { ...updatedPlayers[firstIdx] }
       first.dimension.w = defaultDim.w
       first.dimension.percW = defaultDim.percW
       first.position = defaultPos
-      updatedPlayers[0] = first
-      let lastPlayer = { ...updatedPlayers[cnt - 1] }
+      updatedPlayers[firstIdx] = { ...first }
+      const lastIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[1].group &&
+          p.subGroup === mapPlayers[1].subGroup &&
+          p.dataTypeId === mapPlayers[1].dataTypeId
+      )
+      let lastPlayer = { ...updatedPlayers[lastIdx] }
       lastPlayer.position.x = defaultPos.x
       lastPlayer.dimension.percW = defaultDim.percW
       lastPlayer.position.y = defaultPos.y - defaultDim.h - 2
       lastPlayer.dimension.w = defaultDim.w
-      updatedPlayers[cnt - 1] = lastPlayer
+      updatedPlayers[lastIdx] = { ...lastPlayer }
     } else if (cnt === 3) {
       // change x and y position of second element
       // change 7 position of third element
       // change dimension of all three elements
       let percWidth = 'calc(50% - 3px)'
       let midWidth = defaultDim.w / 2 - 2
-      let first = players[0]
+      const firstIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[0].group &&
+          p.subGroup === mapPlayers[0].subGroup &&
+          p.dataTypeId === mapPlayers[0].dataTypeId
+      )
+      let first = { ...updatedPlayers[firstIdx] }
       first.dimension.w = midWidth
       first.dimension.percW = percWidth
       first.position = defaultPos
-      updatedPlayers[0] = first
-      let second = players[1]
+      updatedPlayers[firstIdx] = first
+      const secondIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[1].group &&
+          p.subGroup === mapPlayers[1].subGroup &&
+          p.dataTypeId === mapPlayers[1].dataTypeId
+      )
+      let second = { ...updatedPlayers[secondIdx] }
       second.dimension.w = midWidth
       second.dimension.percW = percWidth
       second.position.x = defaultPos.x + midWidth + 4
       second.position.y = defaultPos.y
-      updatedPlayers[1] = second
-      let third = players[2]
+      updatedPlayers[secondIdx] = second
+      const thirdIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[2].group &&
+          p.subGroup === mapPlayers[2].subGroup &&
+          p.dataTypeId === mapPlayers[2].dataTypeId
+      )
+      let third = { ...updatedPlayers[thirdIdx] }
       third.dimension.w = midWidth
       third.dimension.percW = percWidth
       third.position.x = defaultPos.x
       third.position.y = defaultPos.y - defaultDim.h - 2
-      updatedPlayers[2] = third
+      updatedPlayers[thirdIdx] = third
     } else if (cnt === 4) {
       // change x and y position of forth  element
       // change dimension of forth elements
       let percWidth = 'calc(50% - 3px)'
       let midWidth = defaultDim.w / 2 - 2
-      let first = players[0]
+      const firstIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[0].group &&
+          p.subGroup === mapPlayers[0].subGroup &&
+          p.dataTypeId === mapPlayers[0].dataTypeId
+      )
+      let first = { ...updatedPlayers[firstIdx] }
       first.dimension.w = midWidth
       first.dimension.percW = percWidth
       first.position = defaultPos
-      updatedPlayers[0] = first
-      let second = players[1]
+      updatedPlayers[firstIdx] = first
+      const secondIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[1].group &&
+          p.subGroup === mapPlayers[1].subGroup &&
+          p.dataTypeId === mapPlayers[1].dataTypeId
+      )
+      let second = { ...updatedPlayers[secondIdx] }
       second.dimension.w = midWidth
       second.dimension.percW = percWidth
       second.position.x = defaultPos.x + midWidth + 4
       second.position.y = defaultPos.y
-      updatedPlayers[1] = second
-      let third = players[2]
+      updatedPlayers[secondIdx] = second
+      const thirdIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[2].group &&
+          p.subGroup === mapPlayers[2].subGroup &&
+          p.dataTypeId === mapPlayers[2].dataTypeId
+      )
+      let third = { ...updatedPlayers[thirdIdx] }
       third.dimension.w = midWidth
       third.dimension.percW = percWidth
       third.position.x = defaultPos.x
       third.position.y = defaultPos.y - defaultDim.h - 2
-      updatedPlayers[2] = third
-      let forth = players[3]
+      updatedPlayers[thirdIdx] = third
+      const forthIdx = updatedPlayers.findIndex(
+        (p) =>
+          p.group === mapPlayers[3].group &&
+          p.subGroup === mapPlayers[3].subGroup &&
+          p.dataTypeId === mapPlayers[3].dataTypeId
+      )
+      let forth = { ...updatedPlayers[forthIdx] }
       forth.dimension.w = midWidth
       forth.dimension.percW = percWidth
       forth.position.x = defaultPos.x + midWidth + 4
       forth.position.y = defaultPos.y - defaultDim.h - 2
-      updatedPlayers[3] = forth
+      updatedPlayers[forthIdx] = forth
     }
 
     return updatedPlayers

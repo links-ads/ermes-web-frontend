@@ -4,6 +4,7 @@ Ver.
 - Feature - Profile permissions (#170)
 - Bugfix - Typo and localization fixes (#190)
 - Bugfix - Unauthorized Get Teams (#191)
+- Bugfix - Layer visualization (#192)
 
 Ver. 2.20.0 - 2023-12-05
 -----------------------
