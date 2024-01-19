@@ -30,7 +30,11 @@ export function restoreUserProfileInSTate(baseUrl: string, token: string | null)
 
 export function getInitialState(appConfig: AppConfig): Promise<Partial<AppState>> {
   // Rehydrate token
-  const { authorizeUrl } = getFusionAuthURLs(appConfig.rootUrl, appConfig.fusionAuth?.url || '')
+  const { authorizeUrl } = getFusionAuthURLs(
+    appConfig.rootUrl,
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
+  )
   const token = restoreTokenInState(authorizeUrl, SCOPE, appConfig.fusionAuth?.clientId || '')
   const profile = restoreUserProfileInSTate(appConfig.baseUrl, token)
   const defaultConfigThemeName = appConfig.ui.defaultTheme || appConfig.ui.availableThemes[0]
