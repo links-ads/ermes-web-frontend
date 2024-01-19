@@ -57,7 +57,7 @@ const CameraCard: React.FC<{
   selectedCard: any
   setSelectedCard: any
 }> = (props) => {
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'labels'])
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
   const dispatch = useDispatch()
 
@@ -137,7 +137,7 @@ const CameraCard: React.FC<{
         </CardContent>
         <CardActions className={classes.cardAction}>
           <Typography color="textSecondary" variant="caption">
-            Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
+            {t('labels:timestamp')}: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
           </Typography>
           <IconButton
             size="small"
