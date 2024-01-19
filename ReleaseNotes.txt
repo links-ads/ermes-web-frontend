@@ -1,5 +1,9 @@
 Ver.
 -----------------------
+
+
+Ver. 2.21.0 - 2024-01-19
+-----------------------
 - Feature - Map request improvements (#185)
 - Feature - Profile permissions (#170)
 - Bugfix - Typo and localization fixes (#190)
