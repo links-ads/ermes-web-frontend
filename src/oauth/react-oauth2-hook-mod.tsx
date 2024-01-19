@@ -16,11 +16,13 @@
  
  import { Map } from 'immutable'
  import * as PropTypes from 'prop-types'
+import axios from 'axios'
+import { useAPIConfiguration } from '../hooks/api-hooks'
  
  /**
   * @hidden
   */
- const storagePrefix = 'react-oauth2-hook'
+ export const storagePrefix = 'react-oauth2-hook'
  
  /**
   * @public
@@ -297,28 +299,35 @@
    const [state] = useStorage<string>(oauthStateName)
    const { target } = state ? JSON.parse(atob(state)) : ''
    const [, /* token */ setToken] = useStorage(storagePrefix + '-' + JSON.stringify(target))
+   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+   const backendUrl = backendAPIConfig.basePath!
    let [hasHandle] = useStorage<boolean>(storagePrefix + 'window-handle', {
      placeholder: false
    })
  
-   console.debug('rendering OAuthCallbackHandler')
- 
-   React.useEffect(() => {
-     const params: Map<string, string> = Map([
-       ...urlDecode(window.location.search.slice(1)),
-       ...urlDecode(window.location.hash.slice(1))
-     ])
- 
-     if (state !== params.get('state')) throw ErrIncorrectStateToken
- 
-     const token: string | undefined = params.get('access_token')
-     if (typeof token === 'undefined') throw ErrNoAccessToken
- 
-     setToken(token)
-     if (hasHandle) {
-       window.close()
-     }
-   }, [setToken, state, hasHandle])
+    React.useEffect(() => {
+      const params: Map<string, string> = Map([
+        ...urlDecode(window.location.search.slice(1)),
+        ...urlDecode(window.location.hash.slice(1))
+      ])
+
+      if (state !== params.get('state') || params.get('userState') !== 'Authenticated')
+        throw ErrIncorrectStateToken
+
+      const code = params.get('code')
+      async function exchangeCodeForToken(code, backendUrl) {
+        const response = await axios.get(
+          `${backendUrl}/api/services/app/auth/oauth-callback?code=${code}`
+        )
+        if (response.status === 200) {
+          setToken(response.data.access_token)
+          if (hasHandle) {
+            window.close()
+          }
+        }
+      }
+      exchangeCodeForToken(code, backendUrl)
+    }, [setToken, state, hasHandle])
  
    return <React.Fragment>{children || 'please wait...'}</React.Fragment>
  }

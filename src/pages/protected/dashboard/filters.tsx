@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -37,10 +37,13 @@ import {
   CommunicationRestrictionType,
   CommunicationScopeType,
   EntityType,
-  MapRequestStatusType
+  MapRequestStatusType,
+  TeamsApiFactory
 } from 'ermes-ts-sdk'
 import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
+import { useAPIConfiguration } from '../../../hooks/api-hooks'
+import useAPIHandler from '../../../hooks/use-api-handler'
 
 const MAP_REQUEST_STATUS_DEFAULT = [
   MapRequestStatusType.REQUEST_SUBMITTED,
@@ -59,7 +62,13 @@ export const DashboardFilters = (props) => {
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
-  const { localStorageFilters, mapDrawerTabVisibility, lastUpdate, onFilterChecked } = props
+  const {
+    localStorageFilters,
+    mapDrawerTabVisibility,
+    lastUpdate,
+    onFilterChecked,
+    onTeamListUpdate
+  } = props
   const { filters: allFilters } = localStorageFilters
   const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
@@ -78,6 +87,28 @@ export const DashboardFilters = (props) => {
   const { RangePicker } = DatePicker
 
   const classes = useStyles()
+
+  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
+  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
+  const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
+
+  useEffect(() => {
+    handleTeamsAPICall(() => {
+      return teamsApiFactory.teamsGetTeams(1000)
+    })
+  }, [teamsApiFactory, handleTeamsAPICall])
+
+  useEffect(() => {
+    if (
+      !teamsApiHandlerState.loading &&
+      !!teamsApiHandlerState.result &&
+      teamsApiHandlerState.result.data
+    ) {
+      //update starting filter object with actual team names from http
+      const teamNamesList = teamsApiHandlerState.result.data.data.map((t) => t.name)
+      onTeamListUpdate(teamNamesList)
+    }
+  }, [teamsApiHandlerState])
 
   useEffect(() => {
     setPersonChecked(Person)
