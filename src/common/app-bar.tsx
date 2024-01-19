@@ -16,9 +16,6 @@ import { useUser } from '../state/auth/auth.hooks'
 import { DashboardFilters } from '../pages/protected/dashboard/filters'
 import { useLocation } from 'react-router'
 import { FiltersContext } from '../state/filters.context'
-import { TeamsApiFactory } from 'ermes-ts-sdk'
-import { useAPIConfiguration } from '../hooks/api-hooks'
-import useAPIHandler from '../hooks/use-api-handler'
 
 const Header = getHeader(styled)
 const SidebarTrigger = getSidebarTrigger(styled)
@@ -44,28 +41,6 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
     updateMapDrawerTabs
   } = filtersCtx
 
-  const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
-  const teamsApiFactory = useMemo(() => TeamsApiFactory(backendAPIConfig), [backendAPIConfig])
-  const [teamsApiHandlerState, handleTeamsAPICall] = useAPIHandler(false)
-
-  useEffect(() => {
-    handleTeamsAPICall(() => {
-      return teamsApiFactory.teamsGetTeams(1000)
-    })
-  }, [teamsApiFactory, handleTeamsAPICall])
-
-  useEffect(() => {
-    if (
-      !teamsApiHandlerState.loading &&
-      !!teamsApiHandlerState.result &&
-      teamsApiHandlerState.result.data
-    ) {
-      //update starting filter object with actual team names from http
-      const teamNamesList = teamsApiHandlerState.result.data.data.map((t) => t.name)
-      updateTeamList(teamNamesList)
-    }
-  }, [teamsApiHandlerState])
-
   return (
     <Header
       color="primary"
@@ -86,7 +61,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
         )}
         <BrandLogo />
         <Spacer />
-        {filterActive ? (
+        {isAuthenticated && filterActive ? (
           <DashboardFilters
             filters={filters}
             localStorageFilters={localStorageFilters}
@@ -95,6 +70,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
             onDateFilterApply={applyDate}
             onFilterApply={applyFilters}
             onFilterChecked={updateMapDrawerTabs}
+            onTeamListUpdate={updateTeamList}
           />
         ) : (
           <TitleWidget />
