@@ -222,21 +222,13 @@ export const ContextMenu = memo(
                   ) : (
                     <></>
                   ),
-                  !canCreateCommunication && !canCreateMapRequest && !canCreateMission ? (
-                    <></>
-                  ) : (
-                    <Divider key="div-2" />
-                  ),
-                  !canCreateCommunication && !canCreateMapRequest && !canCreateMission ? (
-                    <></>
-                  ) : (
-                    <ContextMenuOption
-                      key={'cls'}
-                      onClickHandler={(evt) => onListItemClick(evt)}
-                      itemIcon={<CloseOutlined fontSize="small" />}
-                      itemText={t('maps:operation_close') + ' Menu'}
-                    />
-                  )
+                  <Divider key="div-2" />,
+                  <ContextMenuOption
+                    key={'cls'}
+                    onClickHandler={(evt) => onListItemClick(evt)}
+                    itemIcon={<CloseOutlined fontSize="small" />}
+                    itemText={t('maps:operation_close') + ' Menu'}
+                  />
                 ]}
           </List>
         </Paper>
