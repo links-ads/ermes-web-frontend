@@ -675,7 +675,7 @@ export function Map({
                   <LayersPlayer
                     key={'layer-player-' + idx}
                     idx={idx}
-                    cnt={selectedLayers.length}
+                    cnt={selectedLayers.filter((e) => e.group !== 'Map Request Layer').length}
                     updateLayerSelection={updateSelectedLayers}
                     onPositionChange={updateLayerPlayerPosition}
                     getLegend={manageLayerLegend}
