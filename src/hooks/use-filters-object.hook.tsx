@@ -32,11 +32,11 @@ const filtersInitialState = {
 
 const localStorageKey = 'memstate-map'
 
-const updateFiltersLocalStorage = (filtersObj) => {
+export const updateFiltersLocalStorage = (filtersObj) => {
   localStorage.setItem(localStorageKey, JSON.stringify(JSON.parse(JSON.stringify(filtersObj))))
 }
 
-const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
+const getDefaultFiltersFromLocalStorageObject = (filtersObj, isReset: boolean = false) => {
   const defaultStartDate = filtersObj
     ? filtersObj.filters
       ? filtersObj.filters.datestart
@@ -53,12 +53,14 @@ const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
     : undefined
 
   const filtersArgs = {
-    datestart: defaultStartDate
-      ? new Date(Date.parse(defaultStartDate))
-      : new Date(new Date().valueOf() - _MS_PER_DAY * 3),
-    dateend: defaultEndDate
-      ? new Date(Date.parse(defaultEndDate))
-      : new Date(new Date().valueOf() + _MS_PER_DAY * 45)
+    datestart:
+      defaultStartDate && !isReset
+        ? new Date(Date.parse(defaultStartDate))
+        : new Date(new Date().valueOf() - _MS_PER_DAY * 3),
+    dateend:
+      defaultEndDate && !isReset
+        ? new Date(Date.parse(defaultEndDate))
+        : new Date(new Date().valueOf() + _MS_PER_DAY * 45)
   }
   return filtersArgs
 }
@@ -171,27 +173,14 @@ export const filtersReducer = (currentState, action) => {
   let newMapDrawerTabVisibility = currentMapDrawerTabVisibility
   switch (action.type) {
     case 'APPLY_DATE':
-      const newFilters = action.filters
-      const updatedFiltersObject = getFilterObjFromFilters(newFilters, {}, {}, false)
-      if (
-        newFiltersObject &&
-        newFiltersObject.filters &&
-        updatedFiltersObject &&
-        updatedFiltersObject.filters
-      ) {
-        ;(newFiltersObject.filters.datestart as any).selected = (
-          updatedFiltersObject.filters.datestart as any
-        ).selected as string
-        ;(newFiltersObject.filters.dateend as any).selected = (
-          updatedFiltersObject.filters.dateend as any
-        ).selected as string
-        updateFiltersLocalStorage(newFiltersObject)
-      }
+      const updatedFiltersObj = { ...currentState.filtersLocalStorageObject }
+      updatedFiltersObj.filters.datestart.selected = action.filters.datestart.toISOString()
+      updatedFiltersObj.filters.dateend.selected = action.filters.dateend.toISOString()
+      updateFiltersLocalStorage(updatedFiltersObj)
       return {
-        filtersLocalStorageObject: newFiltersObject,
+        filtersLocalStorageObject: { ...updatedFiltersObj },
         filters: action.filters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        ...currentState
       }
     case 'APPLY_FILTERS':
       newFiltersObject = action.filtersObject
@@ -264,7 +253,7 @@ export const filtersReducer = (currentState, action) => {
         }
         newFiltersObject.filters.report.content[2] = citizenHazardContent
       }
-      const resetFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
+      const resetFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject, true)
       updateFiltersLocalStorage(newFiltersObject)
       return {
         filtersLocalStorageObject: newFiltersObject,

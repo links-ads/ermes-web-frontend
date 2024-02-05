@@ -56,7 +56,7 @@ interface DateSelector {
   clear?: boolean
 }
 
-interface Accordion {
+export interface Accordion {
   title: string
   type: FilterType
   content: Array<Select | MultipleSelect>

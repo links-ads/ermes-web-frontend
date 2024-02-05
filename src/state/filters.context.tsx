@@ -1,5 +1,10 @@
 import React, { createContext, useCallback, useReducer, useContext } from 'react'
-import { MapDrawerTabVisibility, filtersReducer, initializer } from '../hooks/use-filters-object.hook'
+import {
+  MapDrawerTabVisibility,
+  filtersReducer,
+  initializer,
+  updateFiltersLocalStorage
+} from '../hooks/use-filters-object.hook'
 import { useUser } from './auth/auth.hooks'
 import { AppConfigContext } from '../config/config.context'
 import { AppConfig } from '../config/config.types'
@@ -17,8 +22,8 @@ export const FiltersContext = createContext({
   updateMapBounds: (mapBounds) => {},
   applyFilters: (filtersObj) => {},
   updateTeamList: (teamList) => {},
-  resetFilters: (appConfigMapBounds, isCitizen) => {},
-  updateMapDrawerTabs: (tabName, tabVisibility, clickCounter) => {}, 
+  resetFilters: () => {},
+  updateMapDrawerTabs: (tabName, tabVisibility, clickCounter) => {},
   setLastUpdate: (lastUpdate) => {}
 })
 
@@ -77,16 +82,16 @@ const FiltersContextProvider = (props) => {
 
   const updateMapDrawerTabs = useCallback((tabName, tabVisibility, clickCounter) => {
     dispatch({
-      type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY', 
+      type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY',
       name: tabName,
       visibility: tabVisibility,
       clickCnt: clickCounter
     })
-  },[])
+  }, [])
 
-  const setLastUpdate = useCallback((lastUpdate) =>{
+  const setLastUpdate = useCallback((lastUpdate) => {
     dispatch({
-      type: 'SET_LAST_UPDATE', 
+      type: 'SET_LAST_UPDATE',
       lastUpdate: lastUpdate
     })
   }, [])
@@ -96,7 +101,7 @@ const FiltersContextProvider = (props) => {
       value={{
         filters: filters,
         localStorageFilters: filtersLocalStorageObject,
-        mapDrawerTabVisibility: mapDrawerTabVisibility, 
+        mapDrawerTabVisibility: mapDrawerTabVisibility,
         lastUpdate: lastUpdate,
         applyDate: applyDateFilters,
         updateActivities: updateActivities,
@@ -104,7 +109,7 @@ const FiltersContextProvider = (props) => {
         applyFilters: applyFilters,
         updateTeamList: updateTeamList,
         resetFilters: resetFilters,
-        updateMapDrawerTabs: updateMapDrawerTabs, 
+        updateMapDrawerTabs: updateMapDrawerTabs,
         setLastUpdate: setLastUpdate
       }}
     >
