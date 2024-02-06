@@ -26,6 +26,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-        ssh-private-key: ${{ secrets.ADSADMIN_PRIVATE_SSH }}
-    - run: npm ci
+    - name: Build the solution
+      run: npm ci
+      env:
+        private_ssh_key: ${{ secrets.ADSADMIN_PRIVATE_SSH }}
     - run: npm run build-safers-dev
