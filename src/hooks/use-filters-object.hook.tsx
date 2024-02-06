@@ -36,7 +36,7 @@ export const updateFiltersLocalStorage = (filtersObj) => {
   localStorage.setItem(localStorageKey, JSON.stringify(JSON.parse(JSON.stringify(filtersObj))))
 }
 
-const getDefaultFiltersFromLocalStorageObject = (filtersObj, isReset: boolean = false) => {
+export const getDefaultFiltersFromLocalStorageObject = (filtersObj, isReset: boolean = false) => {
   const defaultStartDate = filtersObj
     ? filtersObj.filters
       ? filtersObj.filters.datestart
@@ -173,37 +173,17 @@ export const filtersReducer = (currentState, action) => {
   let newMapDrawerTabVisibility = currentMapDrawerTabVisibility
   switch (action.type) {
     case 'APPLY_DATE':
-      const updatedFiltersObj = { ...currentState.filtersLocalStorageObject }
-      updatedFiltersObj.filters.datestart.selected = action.filters.datestart.toISOString()
-      updatedFiltersObj.filters.dateend.selected = action.filters.dateend.toISOString()
-      updateFiltersLocalStorage(updatedFiltersObj)
       return {
-        filtersLocalStorageObject: { ...updatedFiltersObj },
+        filtersLocalStorageObject: action.filters.filtersObj,
         filters: action.filters,
         ...currentState
       }
     case 'APPLY_FILTERS':
-      newFiltersObject = action.filtersObject
-      updateFiltersLocalStorage(newFiltersObject)
-      const updatedFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
-      newMapDrawerTabVisibility.Communication =
-        newFiltersObject.filters.multicheckCategories.options.Communication
-      newMapDrawerTabVisibility.MapRequest =
-        newFiltersObject.filters.multicheckCategories.options.MapRequest
-      newMapDrawerTabVisibility.Mission =
-        newFiltersObject.filters.multicheckCategories.options.Mission
-      newMapDrawerTabVisibility.Report =
-        newFiltersObject.filters.multicheckCategories.options.Report
-      newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
-      newMapDrawerTabVisibility.Alert = newFiltersObject.filters.multicheckCategories.options.Alert
-      newMapDrawerTabVisibility.Station =
-        newFiltersObject.filters.multicheckCategories.options.Station
-
       return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: updatedFilters,
-        mapDrawerTabVisibility: newMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        filtersLocalStorageObject: action.filtersObject,
+        filters: action.filters,
+        mapDrawerTabVisibility: action.mapDrawerTabVisibility,
+        ...currentState
       }
     case 'UPDATE_ACTIVITIES':
       const newActivities = action.activities

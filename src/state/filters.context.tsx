@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useReducer, useContext } from 'react
 import {
   MapDrawerTabVisibility,
   filtersReducer,
+  getDefaultFiltersFromLocalStorageObject,
   initializer,
   updateFiltersLocalStorage
 } from '../hooks/use-filters-object.hook'
@@ -34,9 +35,17 @@ const FiltersContextProvider = (props) => {
   const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersObj
 
   const applyDateFilters = useCallback((filters) => {
+    const updatedFiltersObj = { ...filtersLocalStorageObject }
+    updatedFiltersObj.filters.datestart.selected = filters.datestart.toISOString()
+    updatedFiltersObj.filters.dateend.selected = filters.dateend.toISOString()
+    updateFiltersLocalStorage(updatedFiltersObj)
     dispatch({
       type: 'APPLY_DATE',
-      filters: { datestart: filters.datestart, dateend: filters.dateend }
+      filters: {
+        datestart: filters.datestart,
+        dateend: filters.dateend,
+        filtersObj: updatedFiltersObj
+      }
     })
   }, [])
 
@@ -62,9 +71,24 @@ const FiltersContextProvider = (props) => {
   }, [])
 
   const applyFilters = useCallback((filtersObj) => {
+    //ewFiltersObject = action.filtersObject
+    updateFiltersLocalStorage(filtersObj)
+    const updatedFilters = getDefaultFiltersFromLocalStorageObject(filtersObj)
+    const newMapDrawerTabVisibility = { ...mapDrawerTabVisibility }
+    newMapDrawerTabVisibility.Communication =
+      filtersObj.filters.multicheckCategories.options.Communication
+    newMapDrawerTabVisibility.MapRequest =
+      filtersObj.filters.multicheckCategories.options.MapRequest
+    newMapDrawerTabVisibility.Mission = filtersObj.filters.multicheckCategories.options.Mission
+    newMapDrawerTabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
+    newMapDrawerTabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
+    newMapDrawerTabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
+    newMapDrawerTabVisibility.Station = filtersObj.filters.multicheckCategories.options.Station
     dispatch({
       type: 'APPLY_FILTERS',
-      filtersObject: filtersObj
+      filtersObject: filtersObj,
+      filters: updatedFilters,
+      mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
   }, [])
 
