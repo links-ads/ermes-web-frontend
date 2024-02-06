@@ -21,13 +21,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: webfactory/ssh-agent@v0.9.0
+      with:
+          ssh-private-key: ${{ secrets.ADSADMIN_PRIVATE_SSH }}
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    - name: Build the solution
-      run: npm ci
-      env:
-        private_ssh_key: ${{ secrets.ADSADMIN_PRIVATE_SSH }}
+    - run: npm ci
     - run: npm run build-safers-dev
