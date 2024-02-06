@@ -6,7 +6,7 @@
   "homepage": "",
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/mobilesolutionsismb/ermes-web-frontend/src/master/"
+    "url": "https://github.com/links-ads/ermes-web-frontend/src/master/"
   },
   "dependencies": {
     "@fusionauth/typescript-client": "1.17.3",

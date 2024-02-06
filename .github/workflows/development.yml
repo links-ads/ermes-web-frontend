@@ -5,9 +5,9 @@ name: Dev CI
 
 on:
   push:
-    branches: [ "validation" ]
+    branches: [ "feature/ci-cd" ]
   pull_request:
-    branches: [ "validation" ]
+    branches: [ "feature/ci-cd" ]
 
 jobs:
   build:
@@ -26,5 +26,6 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        ssh-private-key: ${{ secrets.ADSADMIN_PRIVATE_SSH }}
     - run: npm ci
     - run: npm run build-safers-dev
