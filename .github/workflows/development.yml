@@ -40,4 +40,5 @@ jobs:
         port: ${{ secrets.SAFERS_VM_PORT }}
         command_timeout: 30m
         script: | 
-          echo "Nice Job!!!"    
+          scp ./build/build.tar ${{ secrets.SAFERS_VM_USERNAME }}@${{ secrets.SAFERS_VM_IP_ADDRESS }}:/var/www/html/safers-frontend/dev/build.tar
+          ssh ${{ secrets.SAFERS_VM_USERNAME }}@${{ secrets.SAFERS_VM_IP_ADDRESS }} "tar -xof ../../var/www/html/safers-frontend/dev/build.tar -C ../../var/www/html/safers-frontend/dev/ && rm -rf ../../var/www/html/safers-frontend/dev/build.tar && sudo systemctl restart nginx"
