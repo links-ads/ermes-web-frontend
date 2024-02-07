@@ -29,9 +29,18 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
-    # - run: npm ci
-    # - run: npm run build-safers-dev-linux
-    - name: print out example job
+    - run: npm ci
+    - run: npm run build-safers-dev-linux
+    - name: Copy to remote VM
+      uses: nogsantos/scp-deploy@master
+      with:
+        src: ./build/build.tar
+        host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
+        remote: /var/www/html/safers-frontend/dev/build.tar
+        port: ${{ secrets.SAFERS_VM_PORT }}
+        user: ${{ secrets.SAFERS_VM_USERNAME }}
+        key: ${{ secrets.ADSADMIN_SSH_PRIVATE_KEY }}
+    - name: Publish
       uses: appleboy/ssh-action@v0.1.10
       with:
         host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
@@ -40,5 +49,4 @@ jobs:
         port: ${{ secrets.SAFERS_VM_PORT }}
         command_timeout: 30m
         script: | 
-          scp ./build/build.tar ${{ secrets.SAFERS_VM_USERNAME }}@${{ secrets.SAFERS_VM_IP_ADDRESS }}:/var/www/html/safers-frontend/dev/build.tar
-          ssh ${{ secrets.SAFERS_VM_USERNAME }}@${{ secrets.SAFERS_VM_IP_ADDRESS }} "tar -xof ../../var/www/html/safers-frontend/dev/build.tar -C ../../var/www/html/safers-frontend/dev/ && rm -rf ../../var/www/html/safers-frontend/dev/build.tar && sudo systemctl restart nginx"
+          tar -xof ../../var/www/html/safers-frontend/dev/build.tar -C ../../var/www/html/safers-frontend/dev/ && rm -rf ../../var/www/html/safers-frontend/dev/build.tar && sudo systemctl restart nginx
