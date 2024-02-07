@@ -34,7 +34,7 @@ jobs:
     - name: print out example job
       uses: appleboy/ssh-action@v0.1.10
       with:
-        host: ${{ inputs.hostname }}
+        host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
         username: ${{ secrets.SAFERS_VM_USERNAME }}
         key: ${{ secrets.SAFERS_VM_SSH_PEM_KEY }}
         port: ${{ secrets.SAFERS_VM_PORT }}
