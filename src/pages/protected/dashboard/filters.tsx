@@ -129,7 +129,7 @@ export const DashboardFilters: React.FC<{
     }
   }, [teamsApiHandlerState])
 
-  useEffect(() => {
+    useEffect(() => {
     setPersonChecked(Person)
     setReportChecked(Report)
     setMissionChecked(Mission)
@@ -313,8 +313,11 @@ export const DashboardFilters: React.FC<{
 
   useEffect(() => {
     if (hasReset) {
-      applyFilters()
+      //applyFilters()
       setHasReset(false)
+      setStartDate(datestart)
+      setEndDate(dateend)
+      //setBtnClickCounter(0)
     }
   }, [hasReset])
 

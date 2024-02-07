@@ -29,20 +29,20 @@ export interface FiltersDescriptorType {
   | undefined
 }
 
-interface MapBounds {
+export interface MapBounds {
   northEast: [number, number]
   southWest: [number, number]
   zoom: number
 }
 
-interface MultipleSelect {
+export interface MultipleSelect {
   name: string
   options: Array<string | null>
   type: FilterType
   selected: Array<string>
 }
 
-interface Select {
+export interface Select {
   name: string
   options: Array<string | null>
   type: FilterType

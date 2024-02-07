@@ -1,8 +1,11 @@
 import React, { createContext, useCallback, useReducer, useContext } from 'react'
 import {
   MapDrawerTabVisibility,
+  changeFeatureStatus,
   filtersReducer,
   getDefaultFiltersFromLocalStorageObject,
+  getDefaultMapDrawerTabVisibility,
+  getMapDrawerTabVisibility,
   initializer,
   updateFiltersLocalStorage
 } from '../hooks/use-filters-object.hook'
@@ -10,8 +13,16 @@ import { useUser } from './auth/auth.hooks'
 import { AppConfigContext } from '../config/config.context'
 import { AppConfig } from '../config/config.types'
 import { ROLE_CITIZEN } from '../App.const'
-import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import {
+  Accordion,
+  FiltersDescriptorType,
+  MapBounds,
+  MultipleSelect,
+  Select
+} from '../common/floating-filters-tab/floating-filter.interface'
 import { FiltersType } from '../common/filters/reducer'
+import { initObjectState } from '../pages/protected/map/map-filters-init.state'
+import { EntityType } from 'ermes-backoffice-ts-sdk'
 
 export const FiltersContext = createContext({
   filters: {} as FiltersType,
@@ -31,8 +42,8 @@ export const FiltersContext = createContext({
 const FiltersContextProvider = (props) => {
   const { profile } = useUser()
   const appConfig = useContext<AppConfig>(AppConfigContext)
-  const [filtersObj, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
-  const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersObj
+  const [filtersState, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
+  const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersState
 
   const applyDateFilters = useCallback((filters) => {
     const updatedFiltersObj = { ...filtersLocalStorageObject }
@@ -43,73 +54,170 @@ const FiltersContextProvider = (props) => {
       type: 'APPLY_DATE',
       filters: {
         datestart: filters.datestart,
-        dateend: filters.dateend,
-        filtersObj: updatedFiltersObj
-      }
+        dateend: filters.dateend
+      },
+      filtersObj: updatedFiltersObj
     })
   }, [])
 
   const updateTeamList = useCallback((teamList) => {
+    const updatedFiltersObj = { ...filtersLocalStorageObject }
+    updatedFiltersObj.filters.persons.content[1].options = teamList
+    updateFiltersLocalStorage(updatedFiltersObj) // TODO ?? it seems to be updated by itself
     dispatch({
-      type: 'UPDATE_TEAM_LIST',
-      teamList: teamList
+      type: 'UPDATE_FILTERS_OBJECT',
+      filtersObj: updatedFiltersObj
     })
   }, [])
 
   const updateActivities = useCallback((activities) => {
+    const updatedFiltersObj = { ...filtersLocalStorageObject }
+    updatedFiltersObj.filters.multicheckActivities = {
+      title: 'multicheck_activities',
+      type: 'checkboxlist',
+      options: activities,
+      tab: 2
+    }
+    updateFiltersLocalStorage(updatedFiltersObj)
     dispatch({
-      type: 'UPDATE_ACTIVITIES',
-      activities: activities
+      type: 'UPDATE_FILTERS_OBJECT',
+      filtersObj: updatedFiltersObj
     })
   }, [])
 
   const updateMapBounds = useCallback((mapBounds) => {
+    const updatedFiltersObj = { ...filtersLocalStorageObject }
+    updatedFiltersObj.filters.mapBounds = mapBounds
+    updateFiltersLocalStorage(updatedFiltersObj)
     dispatch({
-      type: 'UPDATE_MAP_BOUNDS',
-      mapBounds: mapBounds
+      type: 'UPDATE_FILTERS_OBJECT',
+      filtersObj: updatedFiltersObj
     })
   }, [])
 
-  const applyFilters = useCallback((filtersObj) => {
-    //ewFiltersObject = action.filtersObject
-    updateFiltersLocalStorage(filtersObj)
-    const updatedFilters = getDefaultFiltersFromLocalStorageObject(filtersObj)
-    const newMapDrawerTabVisibility = { ...mapDrawerTabVisibility }
-    newMapDrawerTabVisibility.Communication =
-      filtersObj.filters.multicheckCategories.options.Communication
-    newMapDrawerTabVisibility.MapRequest =
-      filtersObj.filters.multicheckCategories.options.MapRequest
-    newMapDrawerTabVisibility.Mission = filtersObj.filters.multicheckCategories.options.Mission
-    newMapDrawerTabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
-    newMapDrawerTabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
-    newMapDrawerTabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
-    newMapDrawerTabVisibility.Station = filtersObj.filters.multicheckCategories.options.Station
+  const applyFilters = useCallback((filtersObject) => {
+    updateFiltersLocalStorage(filtersObject)
+    const updatedFilters = getDefaultFiltersFromLocalStorageObject(filtersObject)
+    const newMapDrawerTabVisibility = getMapDrawerTabVisibility(filtersObject)
     dispatch({
       type: 'APPLY_FILTERS',
-      filtersObject: filtersObj,
+      filtersObj: filtersObject,
       filters: updatedFilters,
       mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
   }, [])
 
   const resetFilters = useCallback(() => {
+    const appConfigMapBounds: MapBounds = {
+      northEast: appConfig?.mapboxgl?.mapBounds?.northEast!,
+      southWest: appConfig?.mapboxgl?.mapBounds?.southWest!,
+      zoom: appConfig?.mapboxgl?.mapViewport?.zoom!
+    }
+    const isCitizen = profile?.role === ROLE_CITIZEN
+    const updatedFiltersObj = { ...initObjectState }
+    updatedFiltersObj.filters!.mapBounds = appConfigMapBounds
+    if (isCitizen) {
+      const citizenHazardContent: Select | MultipleSelect = {
+        name: 'hazard_visibility',
+        options: ['Public'],
+        type: 'select',
+        selected: 'Public'
+      }
+      ;(updatedFiltersObj.filters!.report! as Accordion).content[2] = citizenHazardContent
+    }
+    const resetFilters = getDefaultFiltersFromLocalStorageObject(updatedFiltersObj, true)
+    updateFiltersLocalStorage(updatedFiltersObj)
+    const newMapDrawerTabVisibility = getDefaultMapDrawerTabVisibility()
     dispatch({
       type: 'RESET',
-      appConfigMapBounds: {
-        northEast: appConfig?.mapboxgl?.mapBounds?.northEast,
-        southWest: appConfig?.mapboxgl?.mapBounds?.southWest,
-        zoom: appConfig?.mapboxgl?.mapViewport?.zoom
-      },
-      isCitizen: profile?.role == ROLE_CITIZEN
+      filtersObj: updatedFiltersObj,
+      filters: resetFilters,
+      // mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
-  }, [])
+  }, [initObjectState])
 
   const updateMapDrawerTabs = useCallback((tabName, tabVisibility, clickCounter) => {
+    let updatedFiltersObj = { ...filtersLocalStorageObject }
+    let newMapDrawerTabVisibility = { ...mapDrawerTabVisibility }
+    newMapDrawerTabVisibility[tabName] = tabVisibility
+    if (tabName === EntityType.PERSON) {
+      for (let key in updatedFiltersObj.filters.multicheckPersons.options) {
+        updatedFiltersObj.filters.multicheckPersons.options[key] = tabVisibility
+      }
+
+      for (let key in updatedFiltersObj.filters.multicheckActivities.options) {
+        updatedFiltersObj.filters.multicheckActivities.options[key] = tabVisibility
+      }
+    } else {
+      updatedFiltersObj.filters.multicheckCategories.options[tabName] = tabVisibility
+    }
+
+    // deactivate the others if one feature is selected and if it is the first click
+    if (clickCounter === 1 && tabVisibility) {
+      if (tabName !== EntityType.COMMUNICATION) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.COMMUNICATION,
+          !tabVisibility
+        )
+      }
+      if (tabName !== EntityType.MAP_REQUEST) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.MAP_REQUEST,
+          !tabVisibility
+        )
+      }
+      if (tabName !== EntityType.MISSION) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.MISSION,
+          !tabVisibility
+        )
+      }
+      if (tabName !== EntityType.REPORT) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.REPORT,
+          !tabVisibility
+        )
+      }
+      if (tabName !== EntityType.PERSON) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.PERSON,
+          !tabVisibility
+        )
+      }
+      if (tabName !== EntityType.ALERT) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.ALERT,
+          !tabVisibility
+        )
+      }
+
+      if (tabName !== EntityType.STATION) {
+        changeFeatureStatus(
+          updatedFiltersObj,
+          newMapDrawerTabVisibility,
+          EntityType.STATION,
+          !tabVisibility
+        )
+      }
+    }
+
+    updateFiltersLocalStorage(updatedFiltersObj)
     dispatch({
       type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY',
-      name: tabName,
-      visibility: tabVisibility,
-      clickCnt: clickCounter
+      filtersObj: updatedFiltersObj,
+      mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
   }, [])
 
