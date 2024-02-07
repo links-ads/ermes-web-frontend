@@ -36,7 +36,7 @@ jobs:
       with:
         host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
         username: ${{ secrets.SAFERS_VM_USERNAME }}
-        key: ${{ secrets.SAFERS_VM_SSH_PEM_KEY }}
+        key: ${{ secrets.ADSADMIN_SSH_PRIVATE_KEY }}
         port: ${{ secrets.SAFERS_VM_PORT }}
         command_timeout: 30m
         script: | 
