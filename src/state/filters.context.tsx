@@ -45,55 +45,67 @@ const FiltersContextProvider = (props) => {
   const [filtersState, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
   const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersState
 
-  const applyDateFilters = useCallback((filters) => {
-    const updatedFiltersObj = { ...filtersLocalStorageObject }
-    updatedFiltersObj.filters.datestart.selected = filters.datestart.toISOString()
-    updatedFiltersObj.filters.dateend.selected = filters.dateend.toISOString()
-    updateFiltersLocalStorage(updatedFiltersObj)
-    dispatch({
-      type: 'APPLY_DATE',
-      filters: {
-        datestart: filters.datestart,
-        dateend: filters.dateend
-      },
-      filtersObj: updatedFiltersObj
-    })
-  }, [])
+  const applyDateFilters = useCallback(
+    (filters) => {
+      const updatedFiltersObj = { ...filtersLocalStorageObject }
+      updatedFiltersObj.filters.datestart.selected = filters.datestart.toISOString()
+      updatedFiltersObj.filters.dateend.selected = filters.dateend.toISOString()
+      updateFiltersLocalStorage(updatedFiltersObj)
+      dispatch({
+        type: 'APPLY_DATE',
+        filters: {
+          datestart: filters.datestart,
+          dateend: filters.dateend
+        },
+        filtersObj: updatedFiltersObj
+      })
+    },
+    [filtersLocalStorageObject]
+  )
 
-  const updateTeamList = useCallback((teamList) => {
-    const updatedFiltersObj = { ...filtersLocalStorageObject }
-    updatedFiltersObj.filters.persons.content[1].options = teamList
-    updateFiltersLocalStorage(updatedFiltersObj) // TODO ?? it seems to be updated by itself
-    dispatch({
-      type: 'UPDATE_FILTERS_OBJECT',
-      filtersObj: updatedFiltersObj
-    })
-  }, [])
+  const updateTeamList = useCallback(
+    (teamList) => {
+      const updatedFiltersObj = { ...filtersLocalStorageObject }
+      updatedFiltersObj.filters.persons.content[1].options = teamList
+      updateFiltersLocalStorage(updatedFiltersObj) // TODO ?? it seems to be updated by itself
+      dispatch({
+        type: 'UPDATE_FILTERS_OBJECT',
+        filtersObj: updatedFiltersObj
+      })
+    },
+    [filtersLocalStorageObject]
+  )
 
-  const updateActivities = useCallback((activities) => {
-    const updatedFiltersObj = { ...filtersLocalStorageObject }
-    updatedFiltersObj.filters.multicheckActivities = {
-      title: 'multicheck_activities',
-      type: 'checkboxlist',
-      options: activities,
-      tab: 2
-    }
-    updateFiltersLocalStorage(updatedFiltersObj)
-    dispatch({
-      type: 'UPDATE_FILTERS_OBJECT',
-      filtersObj: updatedFiltersObj
-    })
-  }, [])
+  const updateActivities = useCallback(
+    (activities) => {
+      const updatedFiltersObj = { ...filtersLocalStorageObject }
+      updatedFiltersObj.filters.multicheckActivities = {
+        title: 'multicheck_activities',
+        type: 'checkboxlist',
+        options: activities,
+        tab: 2
+      }
+      updateFiltersLocalStorage(updatedFiltersObj)
+      dispatch({
+        type: 'UPDATE_FILTERS_OBJECT',
+        filtersObj: updatedFiltersObj
+      })
+    },
+    [filtersLocalStorageObject]
+  )
 
-  const updateMapBounds = useCallback((mapBounds) => {
-    const updatedFiltersObj = { ...filtersLocalStorageObject }
-    updatedFiltersObj.filters.mapBounds = mapBounds
-    updateFiltersLocalStorage(updatedFiltersObj)
-    dispatch({
-      type: 'UPDATE_FILTERS_OBJECT',
-      filtersObj: updatedFiltersObj
-    })
-  }, [])
+  const updateMapBounds = useCallback(
+    (mapBounds) => {
+      const updatedFiltersObj = { ...filtersLocalStorageObject }
+      updatedFiltersObj.filters.mapBounds = mapBounds
+      updateFiltersLocalStorage(updatedFiltersObj)
+      dispatch({
+        type: 'UPDATE_FILTERS_OBJECT',
+        filtersObj: updatedFiltersObj
+      })
+    },
+    [filtersLocalStorageObject]
+  )
 
   const applyFilters = useCallback((filtersObject) => {
     updateFiltersLocalStorage(filtersObject)
@@ -127,99 +139,102 @@ const FiltersContextProvider = (props) => {
     }
     const resetFilters = getDefaultFiltersFromLocalStorageObject(updatedFiltersObj, true)
     updateFiltersLocalStorage(updatedFiltersObj)
-    const newMapDrawerTabVisibility = getDefaultMapDrawerTabVisibility()
+    const newMapDrawerTabVisibility = { ...getDefaultMapDrawerTabVisibility() }
     dispatch({
       type: 'RESET',
       filtersObj: updatedFiltersObj,
       filters: resetFilters,
-      // mapDrawerTabVisibility: newMapDrawerTabVisibility
-    })
-  }, [initObjectState])
-
-  const updateMapDrawerTabs = useCallback((tabName, tabVisibility, clickCounter) => {
-    let updatedFiltersObj = { ...filtersLocalStorageObject }
-    let newMapDrawerTabVisibility = { ...mapDrawerTabVisibility }
-    newMapDrawerTabVisibility[tabName] = tabVisibility
-    if (tabName === EntityType.PERSON) {
-      for (let key in updatedFiltersObj.filters.multicheckPersons.options) {
-        updatedFiltersObj.filters.multicheckPersons.options[key] = tabVisibility
-      }
-
-      for (let key in updatedFiltersObj.filters.multicheckActivities.options) {
-        updatedFiltersObj.filters.multicheckActivities.options[key] = tabVisibility
-      }
-    } else {
-      updatedFiltersObj.filters.multicheckCategories.options[tabName] = tabVisibility
-    }
-
-    // deactivate the others if one feature is selected and if it is the first click
-    if (clickCounter === 1 && tabVisibility) {
-      if (tabName !== EntityType.COMMUNICATION) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.COMMUNICATION,
-          !tabVisibility
-        )
-      }
-      if (tabName !== EntityType.MAP_REQUEST) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.MAP_REQUEST,
-          !tabVisibility
-        )
-      }
-      if (tabName !== EntityType.MISSION) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.MISSION,
-          !tabVisibility
-        )
-      }
-      if (tabName !== EntityType.REPORT) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.REPORT,
-          !tabVisibility
-        )
-      }
-      if (tabName !== EntityType.PERSON) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.PERSON,
-          !tabVisibility
-        )
-      }
-      if (tabName !== EntityType.ALERT) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.ALERT,
-          !tabVisibility
-        )
-      }
-
-      if (tabName !== EntityType.STATION) {
-        changeFeatureStatus(
-          updatedFiltersObj,
-          newMapDrawerTabVisibility,
-          EntityType.STATION,
-          !tabVisibility
-        )
-      }
-    }
-
-    updateFiltersLocalStorage(updatedFiltersObj)
-    dispatch({
-      type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY',
-      filtersObj: updatedFiltersObj,
       mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
-  }, [])
+  }, [appConfig, profile, initObjectState, getDefaultMapDrawerTabVisibility])
+
+  const updateMapDrawerTabs = useCallback(
+    (tabName, tabVisibility, clickCounter) => {
+      let newFiltersObject = filtersLocalStorageObject
+      let newMapDrawerTabVisibility = mapDrawerTabVisibility
+      newMapDrawerTabVisibility[tabName] = tabVisibility
+      if (tabName === EntityType.PERSON) {
+        for (let key in newFiltersObject.filters.multicheckPersons.options) {
+          newFiltersObject.filters.multicheckPersons.options[key] = tabVisibility
+        }
+        // TODO: check if this is necessary. It seems to not be used anymore
+        for (let key in newFiltersObject.filters.multicheckActivities.options) {
+          newFiltersObject.filters.multicheckActivities.options[key] = tabVisibility
+        }
+      } else {
+        newFiltersObject.filters.multicheckCategories.options[tabName] = tabVisibility
+      }
+
+      // deactivate the others if one feature is selected and if it is the first click
+      if (clickCounter === 1 && tabVisibility) {
+        if (tabName !== EntityType.COMMUNICATION) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.COMMUNICATION,
+            !tabVisibility
+          )
+        }
+        if (tabName !== EntityType.MAP_REQUEST) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.MAP_REQUEST,
+            !tabVisibility
+          )
+        }
+        if (tabName !== EntityType.MISSION) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.MISSION,
+            !tabVisibility
+          )
+        }
+        if (tabName !== EntityType.REPORT) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.REPORT,
+            !tabVisibility
+          )
+        }
+        if (tabName !== EntityType.PERSON) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.PERSON,
+            !tabVisibility
+          )
+        }
+        if (tabName !== EntityType.ALERT) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.ALERT,
+            !tabVisibility
+          )
+        }
+
+        if (tabName !== EntityType.STATION) {
+          changeFeatureStatus(
+            newFiltersObject,
+            newMapDrawerTabVisibility,
+            EntityType.STATION,
+            !tabVisibility
+          )
+        }
+      }
+
+      updateFiltersLocalStorage(newFiltersObject)
+      dispatch({
+        type: 'UPDATE_MAP_DRAWER_TAB_VISIBILITY',
+        filtersObj: newFiltersObject,
+        mapDrawerTabVisibility: newMapDrawerTabVisibility
+      })
+    },
+    [filtersLocalStorageObject, mapDrawerTabVisibility]
+  )
 
   const setLastUpdate = useCallback((lastUpdate) => {
     dispatch({
