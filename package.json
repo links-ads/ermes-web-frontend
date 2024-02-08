@@ -6,7 +6,7 @@
   "homepage": "",
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.org/mobilesolutionsismb/ermes-web-frontend/src/master/"
+    "url": "https://github.com/links-ads/ermes-web-frontend/src/master/"
   },
   "dependencies": {
     "@fusionauth/typescript-client": "1.17.3",
@@ -49,8 +49,8 @@
     "axios-hooks": "2.0.0",
     "d3": "6.3.1",
     "dotenv": "8.2.0",
-    "ermes-backoffice-ts-sdk": "git+ssh://git@bitbucket.org/mobilesolutionsismb/ermes-backoffice-ts-sdk.git#v4.18.0",
-    "ermes-ts-sdk": "git+ssh://git@bitbucket.org/mobilesolutionsismb/ermes-ts-sdk.git#v4.18.0",
+    "ermes-backoffice-ts-sdk": "git+ssh://git@github.com/links-ads/ermes-backoffice-ts-sdk.git#v4.18.0",
+    "ermes-ts-sdk": "git+ssh://git@github.com/links-ads/ermes-ts-sdk.git#v4.18.0",
     "fast-deep-equal": "3.1.3",
     "i18next": "19.5.1",
     "i18next-browser-languagedetector": "5.0.0",
@@ -109,8 +109,11 @@
     "build-faster-test": "node ./runWithEnv.js build faster-test",
     "build-faster-prod": "node ./runWithEnv.js build faster-prod",
     "build-safers-dev": "node ./runWithEnv.js build safers-dev",
+    "build-safers-dev-linux": "CI=false && node ./runWithEnv.js build safers-dev",
     "deploy-safers-dev": "node ./runWithEnv.js build safers-dev && sh deploy-to-azure.sh safers-dev",
+    "deploy-safers-dev-linux": "CI=false && node ./runWithEnv.js build safers-dev",
     "build-safers-test": "node ./runWithEnv.js build safers-test",
+    "build-safers-test-linux": "CI=false && node ./runWithEnv.js build safers-test",
     "deploy-safers-test": "node ./runWithEnv.js build safers-test && sh deploy-to-azure.sh safers-test",
     "build-shelter-dev": "node ./runWithEnv.js build shelter-dev",
     "deploy-shelter-dev": "node ./runWithEnv.js build shelter-dev && sh deploy-to-azure.sh shelter-dev",

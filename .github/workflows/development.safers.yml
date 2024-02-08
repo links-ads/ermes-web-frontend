@@ -1,0 +1,52 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# FInally, it will publish build folder in the remote Azure VM
+
+name: Development build and deploy
+
+on:
+  push:
+    branches: [ "validation" ]
+  pull_request:
+    branches: [ "validation" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.10.0]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: webfactory/ssh-agent@v0.9.0
+      with:
+          ssh-private-key: ${{ secrets.ADSADMIN_SSH_PRIVATE_KEY }}
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build-safers-dev-linux
+    - name: Copy to remote VM
+      uses: nogsantos/scp-deploy@master
+      with:
+        src: ./build/build.tar
+        host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
+        remote: /var/www/html/safers-frontend/dev/build.tar
+        port: ${{ secrets.SAFERS_VM_PORT }}
+        user: ${{ secrets.SAFERS_VM_USERNAME }}
+        key: ${{ secrets.ADSADMIN_SSH_PRIVATE_KEY }}
+    - name: Publish
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.SAFERS_VM_IP_ADDRESS }}
+        username: ${{ secrets.SAFERS_VM_USERNAME }}
+        key: ${{ secrets.ADSADMIN_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.SAFERS_VM_PORT }}
+        command_timeout: 30m
+        script: | 
+          tar -xof ../../var/www/html/safers-frontend/dev/build.tar -C ../../var/www/html/safers-frontend/dev/ && rm -rf ../../var/www/html/safers-frontend/dev/build.tar && sudo systemctl restart nginx
