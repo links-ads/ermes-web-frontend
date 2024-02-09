@@ -39,7 +39,8 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
     applyDate,
     applyFilters,
     updateTeamList,
-    updateMapDrawerTabs
+    updateMapDrawerTabs,
+    resetFilters
   } = filtersCtx
 
   return (
@@ -73,6 +74,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
             onFilterChecked={updateMapDrawerTabs}
             showCategoryFilters={showCategoryFilters}
             onTeamListUpdate={updateTeamList}
+            onFilterReset={resetFilters}
           />
         ) : (
           <TitleWidget />

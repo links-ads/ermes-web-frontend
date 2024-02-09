@@ -1,6 +1,10 @@
 Ver.
 -----------------------
 - Feature - Dashboard refactoring (#151)
+- Feature - Added file for GitHub action
+
+Ver. 2.21.0 - 2024-01-19
+-----------------------
 - Feature - Map request improvements (#185)
 - Bugfix - Layer visualization (#192)
 - Bugfix - Typo and localization fixes (#190)
