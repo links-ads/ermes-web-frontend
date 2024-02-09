@@ -15,16 +15,6 @@ export interface MapDrawerTabVisibility {
   MapRequest: boolean
 }
 
-const defaultMapDrawerTabVisibility: MapDrawerTabVisibility = {
-  Person: true,
-  Report: true,
-  Mission: true,
-  Station: true,
-  Alert: true,
-  Communication: true,
-  MapRequest: true
-}
-
 const filtersInitialState = {
   filtersLocalStorageObject: {},
   filters: {},
@@ -101,10 +91,6 @@ export const getMapDrawerTabVisibility = (filtersObj) => {
     MapRequest: filtersObj.filters.multicheckCategories.options.MapRequest
   }
   return tabVisibility
-}
-
-export const getDefaultMapDrawerTabVisibility = () => {
-  return { ...defaultMapDrawerTabVisibility }
 }
 
 export const initializer = (userProfile, appConfig) => {

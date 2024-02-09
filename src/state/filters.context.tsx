@@ -4,7 +4,6 @@ import {
   changeFeatureStatus,
   filtersReducer,
   getDefaultFiltersFromLocalStorageObject,
-  getDefaultMapDrawerTabVisibility,
   getMapDrawerTabVisibility,
   initializer,
   updateFiltersLocalStorage
@@ -15,6 +14,7 @@ import { AppConfig } from '../config/config.types'
 import { ROLE_CITIZEN } from '../App.const'
 import {
   Accordion,
+  CheckboxList,
   FiltersDescriptorType,
   MapBounds,
   MultipleSelect,
@@ -126,8 +126,33 @@ const FiltersContextProvider = (props) => {
       zoom: appConfig?.mapboxgl?.mapViewport?.zoom!
     }
     const isCitizen = profile?.role === ROLE_CITIZEN
-    const updatedFiltersObj = { ...initObjectState }
+    let updatedFiltersObj = { ...filtersLocalStorageObject }
     updatedFiltersObj.filters!.mapBounds = appConfigMapBounds
+    ;(updatedFiltersObj.filters!.report! as Accordion).content[0].selected = []
+    ;(updatedFiltersObj.filters!.report! as Accordion).content[1].selected = []
+    ;(updatedFiltersObj.filters!.report! as Accordion).content[2].selected = (
+      initObjectState.filters!.report! as Accordion
+    ).content[2].selected
+    ;(updatedFiltersObj.filters!.report! as Accordion).content[3].selected = []
+    ;(updatedFiltersObj.filters!.mission! as Accordion).content[0].selected = []
+    ;(updatedFiltersObj.filters!.persons! as Accordion).content[0].selected = []
+    ;(updatedFiltersObj.filters!.persons! as Accordion).content[1].selected = []
+    ;(updatedFiltersObj.filters!.mapRequests! as Accordion).content[0].selected = (
+      initObjectState.filters!.mapRequests! as Accordion
+    ).content[0].selected
+    ;(updatedFiltersObj.filters!.mapRequests! as Accordion).content[1].selected = (
+      initObjectState.filters!.mapRequests! as Accordion
+    ).content[1].selected
+    ;(updatedFiltersObj.filters!.communication! as Accordion).content[0].selected = []
+    ;(updatedFiltersObj.filters!.communication! as Accordion).content[1].selected = []
+    ;(updatedFiltersObj.filters!.alert! as Accordion).content[0].selected = []
+    ;(updatedFiltersObj.filters!.multicheckCategories! as CheckboxList).options = (
+      initObjectState.filters!.multicheckCategories! as CheckboxList
+    ).options
+    ;(updatedFiltersObj.filters!.multicheckPersons! as CheckboxList).options = (
+      initObjectState.filters!.multicheckPersons! as CheckboxList
+    ).options
+
     if (isCitizen) {
       const citizenHazardContent: Select | MultipleSelect = {
         name: 'hazard_visibility',
@@ -139,14 +164,23 @@ const FiltersContextProvider = (props) => {
     }
     const resetFilters = getDefaultFiltersFromLocalStorageObject(updatedFiltersObj, true)
     updateFiltersLocalStorage(updatedFiltersObj)
-    const newMapDrawerTabVisibility = { ...getDefaultMapDrawerTabVisibility() }
+
+    let newMapDrawerTabVisibility = mapDrawerTabVisibility
+    newMapDrawerTabVisibility[EntityType.PERSON] = true
+    newMapDrawerTabVisibility[EntityType.COMMUNICATION] = true
+    newMapDrawerTabVisibility[EntityType.MAP_REQUEST] = true
+    newMapDrawerTabVisibility[EntityType.MISSION] = true
+    newMapDrawerTabVisibility[EntityType.REPORT] = true
+    newMapDrawerTabVisibility[EntityType.ALERT] = true
+    newMapDrawerTabVisibility[EntityType.STATION] = true
+
     dispatch({
       type: 'RESET',
       filtersObj: updatedFiltersObj,
       filters: resetFilters,
       mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
-  }, [appConfig, profile, initObjectState, getDefaultMapDrawerTabVisibility])
+  }, [filtersLocalStorageObject, appConfig, profile, initObjectState, mapDrawerTabVisibility])
 
   const updateMapDrawerTabs = useCallback(
     (tabName, tabVisibility, clickCounter) => {

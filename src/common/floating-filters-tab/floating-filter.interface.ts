@@ -14,19 +14,21 @@ export interface FiltersDescriptorType {
   // - An object with `left, top, right, and bottom` properties.
   //   These indicate how far in each direction the draggable
   //   can be moved.
-  bounds?: {
-    left?: number
-    top?: number
-    right?: number
-    bottom?: number
-  } | string
+  bounds?:
+    | {
+        left?: number
+        top?: number
+        right?: number
+        bottom?: number
+      }
+    | string
 
   filters:
-  | {
-    [key: string]: MultipleSelect | Select | DateSelector | Accordion | CheckboxList | MapBounds
-  }
-  | null
-  | undefined
+    | {
+        [key: string]: MultipleSelect | Select | DateSelector | Accordion | CheckboxList | MapBounds
+      }
+    | null
+    | undefined
 }
 
 export interface MapBounds {
@@ -63,7 +65,7 @@ export interface Accordion {
   tab: AvailableTabs
 }
 
-interface CheckboxList {
+export interface CheckboxList {
   title: string
   type: FilterType
   options: { [key: string]: boolean }

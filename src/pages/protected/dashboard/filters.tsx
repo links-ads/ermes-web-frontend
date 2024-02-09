@@ -313,7 +313,6 @@ export const DashboardFilters: React.FC<{
 
   useEffect(() => {
     if (hasReset) {
-      //applyFilters()
       setHasReset(false)
       setStartDate(datestart)
       setEndDate(dateend)
