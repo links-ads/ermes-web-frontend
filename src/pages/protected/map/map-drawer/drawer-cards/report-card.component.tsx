@@ -151,7 +151,6 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 color: theme.palette.primary.dark
               }}
             />
-            <Chip label={t('labels:' + elem.status.toLowerCase())} color="default" size="small" />
           </div>
           <IconButton
             size="small"

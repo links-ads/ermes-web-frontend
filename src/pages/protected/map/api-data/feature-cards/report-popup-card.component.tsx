@@ -30,8 +30,8 @@ import { HAZARD_SOCIAL_ICONS } from '../../../../../utils/utils.common'
 import useReportById from '../../../../../hooks/use-report-by-id.hook'
 import { ConfirmDialog } from '../../../../../common/dialogs/confirm-dialog.component'
 import { useModal } from 'react-modal-hook'
-import { HowToReg, LocationOn, LowPriority } from '@material-ui/icons'
-import { EntityType, GeneralStatus } from 'ermes-backoffice-ts-sdk'
+import { HowToReg, LocationOn } from '@material-ui/icons'
+import { EntityType } from 'ermes-backoffice-ts-sdk'
 import useCategoriesList from '../../../../../hooks/use-categories-list.hook'
 import { EmergencyColorMap } from '../emergency.component'
 
@@ -160,16 +160,13 @@ const MediaCarouselWithModal = (props) => {
 
 const ReportPopupCard = (props) => {
   const { reportId, t, classes, formatter, theme, setGoToCoord, setSelectedCard } = props
-  const [rejectionNote, setRejectionNote] = useState<string>('')
+  const [validationNote, setValidationNote] = useState<string>('')
   const [validationValue, setValidationValue] = React.useState<boolean>(true)
   const [openModal, setOpenModal] = useState(false)
 
-  const [repDetails, fetchRepDetails, validateReport, updateReportStatus] = useReportById()
+  const [repDetails, fetchRepDetails, validateReport] = useReportById()
   const { isLoading, data, error } = repDetails
   const details = data?.feature?.properties
-  const [statusChangeValue, setStatusChangeValue] = React.useState<string>(
-    !isLoading ? details?.status : GeneralStatus.NOTIFIED
-  )
   const [catDetails, fetchCategoriesList] = useCategoriesList()
 
   const loadReportInfo = useCallback((id) => {
@@ -207,13 +204,8 @@ const ReportPopupCard = (props) => {
     setValidationValue(value)
   }
 
-  const handleStatusRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = (event.target as HTMLInputElement).value
-    setStatusChangeValue(value)
-  }
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRejectionNote(event.target.value)
+    setValidationNote(event.target.value)
   }
 
   const showOnMap = () => {
@@ -227,11 +219,10 @@ const ReportPopupCard = (props) => {
     setSelectedCard(EntityType.MISSION + '-' + String(details.relativeMissionId))
   }
 
-  useEffect(() => {
-    if (details !== undefined) {
-      setStatusChangeValue(details.status)
-    }
-  }, [details])
+  const resetValidationForm = () => {
+    setValidationNote('')
+    setValidationValue(true)
+  }
 
   const [showValidationDialog, hideValidationDialog] = useModal(
     ({ in: open, onExited }) => {
@@ -245,18 +236,16 @@ const ReportPopupCard = (props) => {
           confirmLabel={t('maps:dialog_confirm')}
           cancelLabel={t('maps:dialog_cancel')}
           onConfirm={() => {
-            if (validationValue === true) {
-              validateReport(details.id, true)
-            } else {
-              validateReport(details.id, false, rejectionNote)
-            }
+            validateReport(details.id, validationValue, validationNote)
             setTimeout(() => {
               loadReportInfo(details.id)
             }, 1000)
             hideValidationDialog()
+            resetValidationForm()
           }}
           onCancel={() => {
             hideValidationDialog()
+            resetValidationForm()
           }}
         >
           <FormControl component="fieldset">
@@ -271,74 +260,19 @@ const ReportPopupCard = (props) => {
               <FormControlLabel value={false} control={<Radio />} label={t('labels:invalid')} />
             </RadioGroup>
           </FormControl>
-          {validationValue === false && (
-            <TextField
-              id="rejection-note"
-              label={t('maps:rejectionNote')}
-              value={rejectionNote}
-              onChange={handleChange}
-              fullWidth
-              variant="outlined"
-              placeholder={t('maps:rejectionNotePlaceholder')}
-            />
-          )}
+          <TextField
+            id="validation-note"
+            label={t('maps:validationNote')}
+            value={validationNote}
+            onChange={handleChange}
+            fullWidth
+            variant="outlined"
+            placeholder={t('maps:validationNotePlaceholder')}
+          />
         </ConfirmDialog>
       )
     },
-    [validationValue, details, rejectionNote]
-  )
-
-  const [showStatusChangeDialog, hideStatusChangeDialog] = useModal(
-    ({ in: open, onExited }) => {
-      return (
-        <ConfirmDialog
-          open={open}
-          fullWidth={false}
-          maxWidth={'xl'}
-          onExited={onExited}
-          title={t('maps:changeReportStatus')}
-          confirmLabel={t('maps:dialog_confirm')}
-          cancelLabel={t('maps:dialog_cancel')}
-          onConfirm={() => {
-            updateReportStatus(details.id, statusChangeValue)
-            setTimeout(() => {
-              loadReportInfo(details.id)
-            }, 1000)
-            hideStatusChangeDialog()
-          }}
-          onCancel={() => {
-            hideStatusChangeDialog()
-          }}
-        >
-          <FormControl component="fieldset">
-            <FormLabel component="legend">{t('maps:reportStatus')}</FormLabel>
-            <RadioGroup
-              aria-label="reportStatus"
-              name="reportStatus"
-              value={statusChangeValue}
-              onChange={handleStatusRadioChange}
-            >
-              <FormControlLabel
-                value={GeneralStatus.NOTIFIED}
-                control={<Radio />}
-                label={t('labels:' + GeneralStatus.NOTIFIED.toLowerCase())}
-              />
-              <FormControlLabel
-                value={GeneralStatus.MANAGED}
-                control={<Radio />}
-                label={t('labels:' + GeneralStatus.MANAGED.toLowerCase())}
-              />
-              <FormControlLabel
-                value={GeneralStatus.CLOSED}
-                control={<Radio />}
-                label={t('labels:' + GeneralStatus.CLOSED.toLowerCase())}
-              />
-            </RadioGroup>
-          </FormControl>
-        </ConfirmDialog>
-      )
-    },
-    [statusChangeValue, details]
+    [validationValue, details, validationNote]
   )
 
   return (
@@ -357,7 +291,7 @@ const ReportPopupCard = (props) => {
             )}
             <CardContent style={{ paddingTop: '0px' }}>
               <Grid container direction="row" justifyContent="space-between">
-                <Grid item xs={9}>
+                <Grid item xs={10}>
                   <Typography
                     component={'span'}
                     variant="h5"
@@ -366,7 +300,7 @@ const ReportPopupCard = (props) => {
                     {t('labels:' + details.type + 'Type')}
                   </Typography>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={2}>
                   <Tooltip title={t('maps:validate') ?? 'Validate'}>
                     <span>
                       <IconButton
@@ -375,17 +309,6 @@ const ReportPopupCard = (props) => {
                         disabled={!details.canBeValidated}
                       >
                         <HowToReg />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
-                  <Tooltip title={t('maps:changeStatus') ?? 'Change status'}>
-                    <span>
-                      <IconButton
-                        onClick={showStatusChangeDialog}
-                        size="small"
-                        disabled={!details.isEditable}
-                      >
-                        <LowPriority />
                       </IconButton>
                     </span>
                   </Tooltip>
@@ -403,12 +326,6 @@ const ReportPopupCard = (props) => {
                   ' ' +
                   t('maps:' + details.hazard.toLowerCase())
                 }
-                classes={classes}
-                t={t}
-              />
-              <KeyValueTypography
-                keyStr={t('maps:status')}
-                value={t('labels:' + details.status.toLowerCase())}
                 classes={classes}
                 t={t}
               />
