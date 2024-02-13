@@ -30,7 +30,7 @@ import { HAZARD_SOCIAL_ICONS } from '../../../../../utils/utils.common'
 import useReportById from '../../../../../hooks/use-report-by-id.hook'
 import { ConfirmDialog } from '../../../../../common/dialogs/confirm-dialog.component'
 import { useModal } from 'react-modal-hook'
-import { HowToReg, LocationOn } from '@material-ui/icons'
+import { Drafts, HowToReg, LocationOn, Markunread } from '@material-ui/icons'
 import { EntityType } from 'ermes-backoffice-ts-sdk'
 import useCategoriesList from '../../../../../hooks/use-categories-list.hook'
 import { EmergencyColorMap } from '../emergency.component'
@@ -484,6 +484,13 @@ const ReportPopupCard = (props) => {
                     borderColor: theme.palette.primary.dark,
                     color: theme.palette.primary.dark
                   }}
+                />
+                <Chip
+                  label={details.read ? t('maps:read') : t('maps:unread')}
+                  color="primary"
+                  size="small"
+                  icon={details.read ? <Drafts /> : <Markunread />}
+                  className={classes.chipStyle}
                 />
               </div>
               <br />

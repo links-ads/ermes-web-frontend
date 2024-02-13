@@ -162,6 +162,8 @@
   "changeReportStatusSuccess": "Stato della segnalazione cambiato con successo",
   "changeReportStatusError": "Errore durante il cambio dello stato della segnalazione",
   "seeOnMap": "Vedi su mappa",
+  "read": "Letto",
+  "unread": "Non letto",
   "unburned": "Non bruciato",
   "burnedarea": "Zona bruciata",
   "mapRequestDeleteSuccess": "Richiesta di mappatura eliminata con successo",

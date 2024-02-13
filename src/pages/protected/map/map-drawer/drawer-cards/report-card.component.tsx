@@ -17,6 +17,7 @@ import LocationOnIcon from '@material-ui/icons/LocationOn'
 import { FormatDate } from '../../../../../utils/date.utils'
 import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
+import { Drafts, Markunread } from '@material-ui/icons'
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const {
@@ -150,6 +151,13 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
                 borderColor: theme.palette.primary.dark,
                 color: theme.palette.primary.dark
               }}
+            />
+            <Chip
+              label={elem.read ? t('maps:read') : t('maps:unread')}
+              color="primary"
+              size="small"
+              icon={elem.read ? <Drafts /> : <Markunread />}
+              className={classes.chipStyle}
             />
           </div>
           <IconButton
