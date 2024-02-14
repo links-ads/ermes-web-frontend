@@ -186,13 +186,6 @@ export const filtersReducer = (currentState, action) => {
         filtersLocalStorageObject: action.filtersObj,
         ...currentState
       }
-    case 'RESET':
-      return {
-        filtersLocalStorageObject: action.filtersObj,
-        filters: action.filters,
-        mapDrawerTabVisibility: action.mapDrawerTabVisibility,
-        ...currentState
-      }
     case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
       return {
         filtersLocalStorageObject: action.filtersObj,
