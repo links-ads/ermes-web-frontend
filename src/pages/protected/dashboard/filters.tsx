@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Button,
   ButtonGroup,
@@ -22,7 +22,7 @@ import en_GB from 'antd/es/locale/en_GB'
 
 import { useTranslation } from 'react-i18next'
 
-import filterReducer from '../../../common/filters/reducer'
+import { FiltersType } from '../../../common/filters/reducer'
 
 import { getFiltersStyle, _MS_PER_DAY } from '../../../utils/utils.common'
 
@@ -44,6 +44,11 @@ import { useUser } from '../../../state/auth/auth.hooks'
 import { ROLE_CITIZEN } from '../../../App.const'
 import { useAPIConfiguration } from '../../../hooks/api-hooks'
 import useAPIHandler from '../../../hooks/use-api-handler'
+import {
+  Accordion,
+  FiltersDescriptorType
+} from '../../../common/floating-filters-tab/floating-filter.interface'
+import { MapDrawerTabVisibility } from '../../../hooks/use-filters-object.hook'
 
 const MAP_REQUEST_STATUS_DEFAULT = [
   MapRequestStatusType.REQUEST_SUBMITTED,
@@ -53,23 +58,38 @@ const MAP_REQUEST_STATUS_DEFAULT = [
 ]
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
 
-export const DashboardFilters = (props) => {
+export const DashboardFilters: React.FC<{
+  filters: FiltersType
+  localStorageFilters: FiltersDescriptorType | undefined
+  mapDrawerTabVisibility: MapDrawerTabVisibility
+  lastUpdate: string
+  onDateFilterApply: (filters) => void
+  onFilterApply: (filtersObj) => void
+  onFilterChecked: (tabName, tabVisibility, clickCounter) => void
+  onTeamListUpdate: (teamList) => void
+  onFilterReset: () => void
+}> = (props) => {
   const { profile } = useUser()
   const { t, i18n } = useTranslation(['social', 'filters', 'labels'])
-  const [filters, dispatch] = useReducer(filterReducer, props.filters)
+  const {
+    filters,
+    localStorageFilters,
+    mapDrawerTabVisibility,
+    lastUpdate,
+    onDateFilterApply,
+    onFilterApply,
+    onFilterChecked,
+    onTeamListUpdate,
+    onFilterReset
+  } = props
   const { datestart, dateend } = filters
+  const [startDate, setStartDate] = useState<Date>(datestart)
+  const [endDate, setEndDate] = useState<Date>(dateend)
   const useStyles = makeStyles((theme: Theme) => createStyles(getFiltersStyle(theme)))
   const [hasReset, setHasReset] = useState(false)
   const { language } = i18n
   const [locale, setLocale] = useState<Locale>(language === it_IT.locale ? it_IT : en_GB)
-  const {
-    localStorageFilters,
-    mapDrawerTabVisibility,
-    lastUpdate,
-    onFilterChecked,
-    onTeamListUpdate
-  } = props
-  const { filters: allFilters } = localStorageFilters
+  const { filters: allFilters } = localStorageFilters!!
   const { Person, Report, Mission, Communication, MapRequest, Alert, Station } =
     mapDrawerTabVisibility
   const [personChecked, setPersonChecked] = useState<boolean>(Person)
@@ -79,7 +99,6 @@ export const DashboardFilters = (props) => {
   const [mapRequestChecked, setMapRequestChecked] = useState<boolean>(MapRequest)
   const [alertChecked, setAlertChecked] = useState<boolean>(Alert)
   const [cameraChecked, setCameraChecked] = useState<boolean>(Station)
-  const [filtersState, setFiltersState] = useState(allFilters)
   const [dateErrorStatus, setDateErrorStatus] = useState<boolean>(false)
   const [dateErrorMessage, setDateErrorMessage] = useState<string>('')
   const [lastUpdateState, setLastUpdateState] = useState<string>(lastUpdate)
@@ -125,104 +144,113 @@ export const DashboardFilters = (props) => {
   }, [lastUpdate])
 
   const applyPersonFilters = (personFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.persons.content.length
+    const newFilters = allFilters!!
+    const newPersonFilters = newFilters.persons as Accordion
+    const contentLength = newPersonFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.persons.content[i].selected = personFilters.content[i].selected
+      newPersonFilters.content[i].selected = personFilters.content[i].selected
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.persons = newPersonFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyReportFilters = (reportFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.report.content.length
+    const newFilters = allFilters!!
+    const newReportFilters = newFilters.report as Accordion
+    const contentLength = newReportFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.report.content[i].selected = reportFilters.content[i].selected
+      newReportFilters.content[i].selected = reportFilters.content[i].selected
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.report = newReportFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyMissionFilters = (missionFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.mission.content.length
+    const newFilters = allFilters!!
+    const newMissionFilters = newFilters.mission as Accordion
+    const contentLength = newMissionFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.mission.content[i].selected = missionFilters.content[i].selected
+      newMissionFilters.content[i].selected = missionFilters.content[i].selected
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.mission = newMissionFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyCommunicationFilters = (communicationFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.communication.content.length
+    const newFilters = allFilters!!
+    const newCommunicationFilters = newFilters.communication as Accordion
+    const contentLength = newCommunicationFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.communication.content[i].selected = communicationFilters.content[i].selected
+      newCommunicationFilters.content[i].selected = communicationFilters.content[i].selected
     }
     if (profile?.role === ROLE_CITIZEN) {
       if (
-        !newFilters.communication.content[0].selected.includes(CommunicationScopeType.RESTRICTED)
+        !newCommunicationFilters.content[0].selected!!.includes(CommunicationScopeType.RESTRICTED)
       ) {
-        const citizenRestrictionIdx = newFilters.communication.content[1].selected.findIndex(
-          (e) => e === CommunicationRestrictionType.CITIZEN
-        )
+        const citizenRestrictionIdx = (
+          newCommunicationFilters.content[1].selected!! as string[]
+        ).findIndex((e) => e === CommunicationRestrictionType.CITIZEN)
         if (citizenRestrictionIdx >= 0) {
-          newFilters.communication.content[1].selected.splice(citizenRestrictionIdx, 1)
+          ;(newCommunicationFilters.content[1].selected!! as string[]).splice(
+            citizenRestrictionIdx,
+            1
+          )
         }
       }
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.communication = newCommunicationFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyMapRequestFilters = (mapRequestFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.mapRequests.content.length
+    const newFilters = allFilters!!
+    const newMapRequestFilters = newFilters.mapRequests as Accordion
+    const contentLength = newMapRequestFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.mapRequests.content[i].selected = mapRequestFilters.content[i].selected
+      newMapRequestFilters.content[i].selected = mapRequestFilters.content[i].selected
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.mapRequests = newMapRequestFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyAlertFilters = (alertFilters) => {
-    const newFilters = filtersState
-    const contentLength = newFilters.alert.content.length
+    const newFilters = allFilters!!
+    const newAlertFilters = newFilters.alert as Accordion
+    const contentLength = newAlertFilters.content.length
     for (let i = 0; i < contentLength; i++) {
-      newFilters.alert.content[i].selected = alertFilters.content[i].selected
+      newAlertFilters.content[i].selected = alertFilters.content[i].selected
     }
-    setFiltersState({ ...newFilters })
-    props.onFilterApply({
+    newFilters.alert = newAlertFilters
+    onFilterApply({
       ...localStorageFilters,
-      filters: filtersState
+      filters: newFilters
     })
   }
 
   const applyFilters = () => {
-    props.onDateFilterApply({
-      datestart: filters.datestart,
-      dateend: filters.dateend
+    onDateFilterApply({
+      datestart: startDate,
+      dateend: endDate
     })
   }
 
   const resetFilters = () => {
-    dispatch({ type: 'RESET' })
+    onFilterReset()
     setHasReset(true)
     setDateErrorStatus(false)
     setDateErrorMessage('')
@@ -274,7 +302,8 @@ export const DashboardFilters = (props) => {
   const updateRangeDate = (dates) => {
     const startDate = dates[0]
     const endDate = dates[1]
-    dispatch({ type: 'DATES', start: startDate?.toDate(), end: endDate?.toDate() })
+    setStartDate(startDate.toDate())
+    setEndDate(endDate.toDate())
     setHasReset(false)
   }
 
@@ -284,8 +313,10 @@ export const DashboardFilters = (props) => {
 
   useEffect(() => {
     if (hasReset) {
-      applyFilters()
       setHasReset(false)
+      setStartDate(datestart)
+      setEndDate(dateend)
+      setBtnClickCounter(0)
     }
   }, [hasReset])
 
@@ -333,13 +364,13 @@ export const DashboardFilters = (props) => {
                   onChange={updateRangeDate}
                   showTime={{
                     defaultValue: [
-                      moment(moment(filters.datestart), 'HH:mm'),
-                      moment(moment(filters.dateend), 'HH:mm')
+                      moment(moment(startDate), 'HH:mm'),
+                      moment(moment(endDate), 'HH:mm')
                     ],
                     format: 'HH:mm'
                   }}
-                  defaultValue={[moment(filters.datestart), moment(filters.dateend)]}
-                  value={[moment(filters.datestart), moment(filters.dateend)]}
+                  defaultValue={[moment(startDate), moment(endDate)]}
+                  value={[moment(startDate), moment(endDate)]}
                   allowClear
                   format="ddd DD MMMM YYYY - HH:mm"
                   style={{ width: '560px' }}
@@ -392,7 +423,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="persons"
               emergencyLabel={EntityType.PERSON}
-              category={filtersState.persons}
+              category={allFilters!.persons}
               applyFilters={applyPersonFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={personChecked}
@@ -407,7 +438,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="report"
               emergencyLabel={EntityType.REPORT}
-              category={filtersState.report}
+              category={allFilters!.report}
               applyFilters={applyReportFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={reportChecked}
@@ -422,7 +453,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label="mission"
               emergencyLabel={EntityType.MISSION}
-              category={filtersState.mission}
+              category={allFilters!.mission}
               applyFilters={applyMissionFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={missionChecked}
@@ -450,7 +481,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.ALERT}
               emergencyLabel={EntityType.ALERT}
-              category={filtersState.alert}
+              category={allFilters!.alert}
               applyFilters={applyAlertFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={alertChecked}
@@ -465,7 +496,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.COMMUNICATION}
               emergencyLabel={EntityType.COMMUNICATION}
-              category={filtersState.communication}
+              category={allFilters!.communication}
               applyFilters={applyCommunicationFilters}
               filterCheckedHandler={onFilterChecked}
               isChecked={communicationChecked}
@@ -480,7 +511,7 @@ export const DashboardFilters = (props) => {
               classes={classes}
               label={EntityType.MAP_REQUEST}
               emergencyLabel={EntityType.MAP_REQUEST}
-              category={filtersState.mapRequests}
+              category={allFilters!.mapRequests}
               applyFilters={applyMapRequestFilters}
               isChecked={mapRequestChecked}
               filterCheckedHandler={onFilterChecked}
