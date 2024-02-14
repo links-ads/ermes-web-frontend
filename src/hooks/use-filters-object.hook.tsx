@@ -30,6 +30,52 @@ const filtersInitialState = {
   lastUpdate: new Date().toISOString()
 }
 
+const citizenAlertRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN],
+  type: 'multipleselect',
+  selected: [CommunicationRestrictionType.CITIZEN]
+}
+
+const citizenReportHazardVisibility = {
+  name: 'hazard_visibility',
+  options: ['Public'],
+  type: 'select',
+  selected: 'Public'
+}
+
+const citizenCommunicationRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN],
+  type: 'conditional_multipleselect',
+  selected: [CommunicationRestrictionType.CITIZEN]
+}
+
+const notCitizenAlertRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN, CommunicationRestrictionType.PROFESSIONAL],
+  type: 'multipleselect',
+  selected: []
+}
+
+const notCitizenReportHazardVisibility = {
+  name: 'hazard_visibility',
+  options: ['Private', 'Public', 'All'],
+  type: 'select',
+  selected: 'Private'
+}
+
+const notCitizenCommunicationRestricition = {
+  name: 'restriction',
+  options: [
+    CommunicationRestrictionType.CITIZEN,
+    CommunicationRestrictionType.ORGANIZATION,
+    CommunicationRestrictionType.PROFESSIONAL
+  ],
+  type: 'conditional_multipleselect',
+  selected: []
+}
+
 const localStorageKey = 'memstate-map'
 
 const updateFiltersLocalStorage = (filtersObj) => {
@@ -89,55 +135,28 @@ export const initializer = (userProfile, appConfig) => {
     filtersObj.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
     filtersObj.filters.report.content[2] =
       userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'hazard_visibility',
-            options: ['Public'],
-            type: 'select',
-            selected: 'Public'
-          }
-        : {
-            name: 'hazard_visibility',
-            options: ['Private', 'Public', 'All'],
-            type: 'select',
-            selected: 'Private'
-          }
+        ? { ...citizenReportHazardVisibility }
+        : { ...notCitizenReportHazardVisibility }
     filtersObj.filters.communication.content[1] =
       userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'restriction',
-            options: [CommunicationRestrictionType.CITIZEN],
-            type: 'conditional_multipleselect',
-            selected: [CommunicationRestrictionType.CITIZEN]
-          }
-        : {
-            name: 'restriction',
-            options: [
-              CommunicationRestrictionType.CITIZEN,
-              CommunicationRestrictionType.ORGANIZATION,
-              CommunicationRestrictionType.PROFESSIONAL
-            ],
-            type: 'conditional_multipleselect',
-            selected: []
-          }
+        ? { ...citizenCommunicationRestricition }
+        : { ...notCitizenCommunicationRestricition }
     filtersObj.filters.alert.content[0] =
       userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'restriction',
-            options: [CommunicationRestrictionType.CITIZEN],
-            type: 'multipleselect',
-            selected: [CommunicationRestrictionType.CITIZEN]
-          }
-        : {
-            name: 'restriction',
-            options: [
-              CommunicationRestrictionType.CITIZEN,
-              CommunicationRestrictionType.PROFESSIONAL
-            ],
-            type: 'multipleselect',
-            selected: []
-          }
+        ? { ...citizenAlertRestricition }
+        : { ...notCitizenAlertRestricition }
   } else {
     filtersObj = JSON.parse(storedFilters)
+
+    if (userProfile?.role === ROLE_CITIZEN) {
+      filtersObj.filters.report.content[2] = { ...citizenReportHazardVisibility }
+      filtersObj.filters.communication.content[1] = { ...citizenCommunicationRestricition }
+      filtersObj.filters.alert.content[0] = { ...citizenAlertRestricition }
+    } else {
+      filtersObj.filters.report.content[2] = { ...notCitizenReportHazardVisibility }
+      filtersObj.filters.communication.content[1] = { ...notCitizenCommunicationRestricition }
+      filtersObj.filters.alert.content[0] = { ...notCitizenAlertRestricition }
+    }
   }
 
   filtersArgs = getDefaultFiltersFromLocalStorageObject(filtersObj)
@@ -256,13 +275,13 @@ export const filtersReducer = (currentState, action) => {
       newFiltersObject = initObjectState
       newFiltersObject.filters.mapBounds = appConfigMapBounds
       if (isCitizen) {
-        const citizenHazardContent = {
-          name: 'hazard_visibility',
-          options: ['Public'],
-          type: 'select',
-          selected: 'Public'
-        }
-        newFiltersObject.filters.report.content[2] = citizenHazardContent
+        newFiltersObject.filters.report.content[2] = citizenReportHazardVisibility
+        newFiltersObject.filters.communication.content[1] = citizenCommunicationRestricition
+        newFiltersObject.filters.alert.content[0] = citizenAlertRestricition
+      } else {
+        newFiltersObject.filters.report.content[2] = notCitizenReportHazardVisibility
+        newFiltersObject.filters.communication.content[1] = notCitizenCommunicationRestricition
+        newFiltersObject.filters.alert.content[0] = notCitizenAlertRestricition
       }
       const resetFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
       updateFiltersLocalStorage(newFiltersObject)
