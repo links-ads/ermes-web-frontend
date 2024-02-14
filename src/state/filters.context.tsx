@@ -15,6 +15,7 @@ import { ROLE_CITIZEN } from '../App.const'
 import {
   Accordion,
   CheckboxList,
+  DateSelector,
   FiltersDescriptorType,
   MapBounds,
   MultipleSelect,
@@ -120,11 +121,13 @@ const FiltersContextProvider = (props) => {
   }, [])
 
   const resetFilters = useCallback(() => {
+    // reset map bounds - TODO: check if this is necessary
     const appConfigMapBounds: MapBounds = {
       northEast: appConfig?.mapboxgl?.mapBounds?.northEast!,
       southWest: appConfig?.mapboxgl?.mapBounds?.southWest!,
       zoom: appConfig?.mapboxgl?.mapViewport?.zoom!
     }
+    // reset filters
     const isCitizen = profile?.role === ROLE_CITIZEN
     let updatedFiltersObj = { ...filtersLocalStorageObject }
     updatedFiltersObj.filters!.mapBounds = appConfigMapBounds
@@ -162,9 +165,27 @@ const FiltersContextProvider = (props) => {
       }
       ;(updatedFiltersObj.filters!.report! as Accordion).content[2] = citizenHazardContent
     }
-    const resetFilters = getDefaultFiltersFromLocalStorageObject(updatedFiltersObj, true)
-    updateFiltersLocalStorage(updatedFiltersObj)
 
+    // reset dates
+    updatedFiltersObj.filters!.datestart.selected = (
+      initObjectState.filters!.datestart as DateSelector
+    ).selected
+    updatedFiltersObj.filters!.dateend.selected = (
+      initObjectState.filters!.dateend as DateSelector
+    ).selected
+
+    // update dates with reset values
+    let resetFilters = { ...filters }
+    const updatedFilters = getDefaultFiltersFromLocalStorageObject(updatedFiltersObj, true)
+    resetFilters = {
+      datestart: updatedFilters.datestart,
+      dateend: updatedFilters.dateend
+    }
+
+    // update local storage
+    updateFiltersLocalStorage({ ...updatedFiltersObj })
+
+    // reset map drawer tabs
     let newMapDrawerTabVisibility = mapDrawerTabVisibility
     newMapDrawerTabVisibility[EntityType.PERSON] = true
     newMapDrawerTabVisibility[EntityType.COMMUNICATION] = true
@@ -175,12 +196,19 @@ const FiltersContextProvider = (props) => {
     newMapDrawerTabVisibility[EntityType.STATION] = true
 
     dispatch({
-      type: 'RESET',
+      type: 'APPLY_FILTERS',
       filtersObj: updatedFiltersObj,
       filters: resetFilters,
       mapDrawerTabVisibility: newMapDrawerTabVisibility
     })
-  }, [filtersLocalStorageObject, appConfig, profile, initObjectState, mapDrawerTabVisibility])
+  }, [
+    filtersLocalStorageObject,
+    appConfig,
+    profile,
+    initObjectState,
+    mapDrawerTabVisibility,
+    filters
+  ])
 
   const updateMapDrawerTabs = useCallback(
     (tabName, tabVisibility, clickCounter) => {

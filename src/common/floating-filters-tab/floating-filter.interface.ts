@@ -51,7 +51,7 @@ export interface Select {
   selected: string | undefined | null
 }
 
-interface DateSelector {
+export interface DateSelector {
   selected: string | null | undefined
   type: FilterType
   tab: AvailableTabs
