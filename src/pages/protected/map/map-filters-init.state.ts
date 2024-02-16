@@ -1,7 +1,6 @@
 import {
   CommunicationRestrictionType,
   CommunicationScopeType,
-  GeneralStatus,
   MapRequestStatusType,
   MapRequestType
 } from 'ermes-backoffice-ts-sdk'
@@ -47,12 +46,6 @@ export const initObjectState = {
             'Weather',
             'Subsidence'
           ],
-          type: 'multipleselect',
-          selected: []
-        },
-        {
-          name: 'hazard_status',
-          options: [GeneralStatus.NOTIFIED, GeneralStatus.MANAGED, GeneralStatus.CLOSED],
           type: 'multipleselect',
           selected: []
         },

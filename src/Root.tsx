@@ -68,7 +68,7 @@ export default function Root({
   // eslint-enable-next-line react-hooks/exhaustive-deps
   const { /* profile,  */ isAuthenticated } = useUser()
 
-  return (
+  return isAuthenticated ? (
     <>
       <FiltersContextProvider>
         <AppBar />
@@ -76,6 +76,11 @@ export default function Root({
         <MainContent isAuthenticated={isAuthenticated} />
       </FiltersContextProvider>
       {/* <GlobalFooter /> */} {/*commented before Shelter Venice Demo, April 2023*/}
+    </>
+  ) : (
+    <>
+      <AppBar />
+      <MainContent isAuthenticated={isAuthenticated} />
     </>
   )
 }

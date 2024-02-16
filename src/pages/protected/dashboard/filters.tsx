@@ -326,6 +326,13 @@ export const DashboardFilters: React.FC<{
     setLocale(language === it_IT.locale ? it_IT : en_GB)
   }, [language])
 
+  // TODO
+  // useEffect(() => {
+  //   if (profile && profile.role) {
+  //     resetFilters()
+  //   }
+  // }, [])
+
   return (
     <Grid
       container

@@ -58,9 +58,9 @@ const useReportById = () => {
   )
 
   const validateReport = useCallback(
-    (id, isValid, rejectionNote) => {
+    (id, isValid, validationNote) => {
       repApiFactory
-        .reportsValidateReport({ reportId: id, isValid: isValid, rejectionNote: rejectionNote })
+        .reportsValidateReport({ reportId: id, isValid: isValid, rejectionNote: validationNote })
         .then((result) => {
           console.debug(result)
           if (result.data.response?.success) {
