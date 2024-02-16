@@ -1,7 +1,11 @@
 import { FiltersType } from '../common/filters/reducer'
-import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import {
+  FiltersDescriptorType,
+  MapBounds,
+  Select
+} from '../common/floating-filters-tab/floating-filter.interface'
 import { initObjectState } from '../pages/protected/map/map-filters-init.state'
-import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
+import { _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
 import { CommunicationRestrictionType, EntityType } from 'ermes-ts-sdk'
 
@@ -30,42 +34,42 @@ const filtersInitialState = {
   lastUpdate: new Date().toISOString()
 }
 
-const citizenAlertRestricition = {
+export const citizenAlertRestricition = {
   name: 'restriction',
   options: [CommunicationRestrictionType.CITIZEN],
   type: 'multipleselect',
   selected: [CommunicationRestrictionType.CITIZEN]
 }
 
-const citizenReportHazardVisibility = {
+export const citizenReportHazardVisibility: Select = {
   name: 'hazard_visibility',
   options: ['Public'],
   type: 'select',
   selected: 'Public'
 }
 
-const citizenCommunicationRestricition = {
+export const citizenCommunicationRestricition = {
   name: 'restriction',
   options: [CommunicationRestrictionType.CITIZEN],
   type: 'conditional_multipleselect',
   selected: [CommunicationRestrictionType.CITIZEN]
 }
 
-const notCitizenAlertRestricition = {
+export const notCitizenAlertRestricition = {
   name: 'restriction',
   options: [CommunicationRestrictionType.CITIZEN, CommunicationRestrictionType.PROFESSIONAL],
   type: 'multipleselect',
   selected: []
 }
 
-const notCitizenReportHazardVisibility = {
+export const notCitizenReportHazardVisibility = {
   name: 'hazard_visibility',
   options: ['Private', 'Public', 'All'],
   type: 'select',
   selected: 'Private'
 }
 
-const notCitizenCommunicationRestricition = {
+export const notCitizenCommunicationRestricition = {
   name: 'restriction',
   options: [
     CommunicationRestrictionType.CITIZEN,
@@ -139,38 +143,58 @@ export const getMapDrawerTabVisibility = (filtersObj) => {
   return tabVisibility
 }
 
-export const initializer = (userProfile, appConfig) => {
+export const initializer = (configuration): any => {
   let filtersArgs = {}
   let filtersObj = {} as any
+  const appConfig = configuration?.appConfig
+  const userProfile = configuration?.userProfile
   let storedFilters = localStorage.getItem(localStorageKey)
   if (storedFilters === null || storedFilters === 'null') {
     filtersObj = { ...initObjectState }
-    filtersObj.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
-    filtersObj.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
-    filtersObj.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
-    filtersObj.filters.report.content[2] =
-      userProfile?.role === ROLE_CITIZEN
-        ? { ...citizenReportHazardVisibility }
-        : { ...notCitizenReportHazardVisibility }
+    filtersObj.filters.mapBounds.northEast =
+      appConfig?.mapboxgl?.mapBounds?.northEast ??
+      (initObjectState?.filters?.mapBounds as MapBounds).northEast
+    filtersObj.filters.mapBounds.southWest =
+      appConfig?.mapboxgl?.mapBounds?.southWest ??
+      (initObjectState?.filters?.mapBounds as MapBounds).southWest
+    filtersObj.filters.mapBounds.zoom =
+      appConfig?.mapboxgl?.mapViewport?.zoom ??
+      (initObjectState?.filters?.mapBounds as MapBounds).zoom
+    filtersObj.filters.report.content[1] =
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenReportHazardVisibility }
+        : { ...citizenReportHazardVisibility }
     filtersObj.filters.communication.content[1] =
-      userProfile?.role === ROLE_CITIZEN
-        ? { ...citizenCommunicationRestricition }
-        : { ...notCitizenCommunicationRestricition }
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenCommunicationRestricition }
+        : { ...citizenCommunicationRestricition }
     filtersObj.filters.alert.content[0] =
-      userProfile?.role === ROLE_CITIZEN
-        ? { ...citizenAlertRestricition }
-        : { ...notCitizenAlertRestricition }
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenAlertRestricition }
+        : { ...citizenAlertRestricition }
   } else {
     filtersObj = JSON.parse(storedFilters)
 
-    if (userProfile?.role === ROLE_CITIZEN) {
-      filtersObj.filters.report.content[2] = { ...citizenReportHazardVisibility }
+    if (userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN) {
+      const selectedReportHazardVisibility = filtersObj.filters.report.content[1].selected
+      filtersObj.filters.report.content[1] = {
+        ...notCitizenReportHazardVisibility,
+        selected: selectedReportHazardVisibility
+      }
+      const selectedCommunicationRestriction = filtersObj.filters.communication.content[1].selected
+      filtersObj.filters.communication.content[1] = {
+        ...notCitizenCommunicationRestricition,
+        selected: selectedCommunicationRestriction
+      }
+      const selectedAlertRestriction = filtersObj.filters.alert.content[0].selected
+      filtersObj.filters.alert.content[0] = {
+        ...notCitizenAlertRestricition,
+        selected: selectedAlertRestriction
+      }
+    } else {
+      filtersObj.filters.report.content[1] = { ...citizenReportHazardVisibility }
       filtersObj.filters.communication.content[1] = { ...citizenCommunicationRestricition }
       filtersObj.filters.alert.content[0] = { ...citizenAlertRestricition }
-    } else {
-      filtersObj.filters.report.content[2] = { ...notCitizenReportHazardVisibility }
-      filtersObj.filters.communication.content[1] = { ...notCitizenCommunicationRestricition }
-      filtersObj.filters.alert.content[0] = { ...notCitizenAlertRestricition }
     }
   }
 
