@@ -172,6 +172,8 @@
   "add": "Add",
   "remove": "Remove",
   "confirm": "Confirm",
-  "discard": "Discard",
+  "confirmed": "Confirmed",
+  "disprove": "Disprove",
+  "disproved": "Disproved",
   "hazard": "Hazard"
 }

@@ -45,6 +45,7 @@ import {
 import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
 import classes from './drawer-cards/communication-card.module.scss'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
+import { CameraChip } from './drawer-cards/camera-chip.component'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -76,6 +77,8 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
     <Button
       variant="contained"
       style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         backgroundColor:
           (validationStatus === CameraValidationStatus.DetectedAndValidated && value) ||
           (validationStatus === CameraValidationStatus.DetectedAndDiscarded && !value) ||
@@ -88,49 +91,49 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
     >
       {validationStatus === CameraValidationStatus.DetectedAndValidated && value && (
         <>
-          <CheckCircle /> {t(`maps:${type}`)}
+          {t(`maps:${type}`)} {t('maps:confirmed')} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value === false && (
         <>
-          <Cancel /> {t(`maps:${type}`)}
+          {t(`maps:${type}`)} {t('maps:disproved')} <Cancel />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.UndetectedAndAdded && (
         <>
-          <RemoveCircle /> {t(`maps:remove`)} {t(`maps:${type}`)}
+          {t(`maps:remove`)} {t(`maps:${type}`)} <RemoveCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Undetected && (
         <>
-          <AddCircle /> {t(`maps:add`)} {t(`maps:${type}`)}
+          {t(`maps:add`)} {t(`maps:${type}`)} <AddCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Detected && value && (
         <>
-          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
+          {t(`maps:confirm`)} {t(`maps:${type}`)} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value && (
         <>
-          <Check /> {t(`maps:confirm`)} {t(`maps:${type}`)}
+          {t(`maps:confirm`)} {t(`maps:${type}`)} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Detected && value === false && (
         <>
-          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
+          {t(`maps:disprove`)} {t(`maps:${type}`)} <Cancel />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndValidated && value === false && (
         <>
-          <Close /> {t(`maps:discard`)} {t(`maps:${type}`)}
+          {t(`maps:disprove`)} {t(`maps:${type}`)} <Cancel />
         </>
       )}
     </Button>
@@ -288,9 +291,7 @@ export function CameraDetails({}: CameraDetailsProps) {
       <DialogTitle>
         <div style={localStyles.titleBar}>
           <div>
-            <div>
-              {t('common:details', { 'name': elem?.name } )}
-            </div>
+            <div>{t('common:details', { name: elem?.name })}</div>
             <FormGroup>
               <FormControlLabel
                 control={
@@ -340,46 +341,8 @@ export function CameraDetails({}: CameraDetailsProps) {
                   label={
                     <div>
                       <div style={localStyles.badgeContainer}>
-                        {hasFire && (
-                          <Chip
-                            avatar={
-                              hasAllFireValidationsDiscarded ? (
-                                <DiscardedIcon type="fire" avatar />
-                              ) : hasAtLeastOneFireValidation ? (
-                                <ValidatedIcon type="fire" avatar />
-                              ) : undefined
-                            }
-                            color="primary"
-                            size="small"
-                            style={{
-                              backgroundColor: theme.palette.error.dark,
-                              borderColor: theme.palette.error.dark,
-                              color: theme.palette.error.contrastText
-                            }}
-                            className={classes.chipStyle}
-                            label={t('maps:fire')}
-                          />
-                        )}
-                        {hasSmoke && (
-                          <Chip
-                            avatar={
-                              hasAllSmokeValidationsDiscarded ? (
-                                <DiscardedIcon type="smoke" avatar />
-                              ) : hasAtLeastOneSmokeValidation ? (
-                                <ValidatedIcon type="smoke" avatar />
-                              ) : undefined
-                            }
-                            color="primary"
-                            size="small"
-                            style={{
-                              backgroundColor: theme.palette.primary.contrastText,
-                              borderColor: theme.palette.primary.dark,
-                              color: theme.palette.primary.dark
-                            }}
-                            className={classes.chipStyle}
-                            label={t('maps:smoke')}
-                          />
-                        )}
+                        <CameraChip status={hasFire} label={t('maps:fire')} />
+                        <CameraChip status={hasSmoke} label={t('maps:smoke')} />
                       </div>
                       <img
                         style={{ width: 200, height: 100, objectFit: 'cover' }}

@@ -38,6 +38,7 @@ import {
 import { DiscardedIcon, ValidatedIcon } from '../map-drawer/camera-chip-icons.component'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
 import ReportPopupCard from './feature-cards/report-popup-card.component'
+import { CameraChip } from '../map-drawer/drawer-cards/camera-chip.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -816,46 +817,8 @@ function StationCard({ data, latitude, longitude }) {
         </CardActions>
         <CardActions className={ccmClasses.cardAction}>
           <div className={ccmClasses.chipContainer}>
-            {hasFire && (
-              <Chip
-                avatar={
-                  hasAllFireValidationsDiscarded ? (
-                    <DiscardedIcon type="fire" avatar />
-                  ) : hasAtLeastOneFireValidation ? (
-                    <ValidatedIcon type="fire" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.error.dark,
-                  borderColor: theme.palette.error.dark,
-                  color: theme.palette.error.contrastText
-                }}
-                className={ccmClasses.chipStyle}
-                label={t('maps:fire')}
-              />
-            )}
-            {hasSmoke && (
-              <Chip
-                avatar={
-                  hasAllSmokeValidationsDiscarded ? (
-                    <DiscardedIcon type="smoke" avatar />
-                  ) : hasAtLeastOneSmokeValidation ? (
-                    <ValidatedIcon type="smoke" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.primary.contrastText,
-                  borderColor: theme.palette.primary.dark,
-                  color: theme.palette.primary.dark
-                }}
-                className={ccmClasses.chipStyle}
-                label={t('maps:smoke')}
-              />
-            )}
+            <CameraChip status={hasFire} label={t('maps:fire')} />
+            <CameraChip status={hasSmoke} label={t('maps:smoke')} />
           </div>
           <Button variant="contained" color="primary" size="small" onClick={handleShowDetails}>
             {t('common:details')}

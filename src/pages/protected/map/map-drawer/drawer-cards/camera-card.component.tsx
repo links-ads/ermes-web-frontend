@@ -33,6 +33,7 @@ import {
 import { Cancel, CheckCircle } from '@material-ui/icons'
 import { DiscardedIcon, ValidatedIcon } from '../camera-chip-icons.component'
 import { getCameraState } from '../../../../../utils/get-camera-state.util'
+import { CameraChip } from './camera-chip.component'
 
 const MAX_DESCRIPTION_LENGTH = 500
 
@@ -156,46 +157,8 @@ const CameraCard: React.FC<{
         </CardActions>
         <CardActions className={classes.cardAction}>
           <div className={classes.chipContainer}>
-            {hasFire && (
-              <Chip
-                avatar={
-                  hasAllFireValidationsDiscarded ? (
-                    <DiscardedIcon type="fire" avatar />
-                  ) : hasAtLeastOneFireValidation ? (
-                    <ValidatedIcon type="fire" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.error.dark,
-                  borderColor: theme.palette.error.dark,
-                  color: theme.palette.error.contrastText
-                }}
-                className={classes.chipStyle}
-                label={t('maps:fire')}
-              />
-            )}
-            {hasSmoke && (
-              <Chip
-                avatar={
-                  hasAllSmokeValidationsDiscarded ? (
-                    <DiscardedIcon type="smoke" avatar />
-                  ) : hasAtLeastOneSmokeValidation ? (
-                    <ValidatedIcon type="smoke" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.primary.contrastText,
-                  borderColor: theme.palette.primary.dark,
-                  color: theme.palette.primary.dark
-                }}
-                className={classes.chipStyle}
-                label={t('maps:smoke')}
-              />
-            )}
+            <CameraChip status={hasFire} label={t('maps:fire')} />
+            <CameraChip status={hasSmoke} label={t('maps:smoke')} />
           </div>
           <Button
             variant="contained"
