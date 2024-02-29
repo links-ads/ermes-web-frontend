@@ -877,7 +877,7 @@ export type EmergencyType =
   | 'Report'
   | 'Person'
   | 'SelectedPosition'
-  | 'Alert'
+  //| 'Alert'
   | 'Station'
 
 type ColorMapType = {
@@ -890,7 +890,7 @@ export const EmergencyColorMap: ColorMapType = {
   Report: '#0befff', //brown[800],
   Mission: '#f797d2', //green[400],
   Station: '#4072f1',
-  Alert: '#cc90e8', //'green[800]',
+  //Alert: '#cc90e8', //'green[800]',
   Communication: '#0afa93', //blueGrey[800],
   MapRequest: '#f56c5c', //orange[800],
   SelectedPosition: yellow[800]
@@ -937,16 +937,17 @@ export function EmergencyHoverCardContent({
   const classes = useStyles()
   const { t } = useTranslation(['maps', 'labels'])
   let detailComponent = <div />
-  if (type === EntityType.ALERT)
-    detailComponent = (
-      <Typography
-        variant="body2"
-        component="h2"
-        gutterBottom
-        dangerouslySetInnerHTML={{ __html: details }}
-      />
-    )
-  else if (type === EntityType.COMMUNICATION)
+  // if (type === EntityType.ALERT)
+  //   detailComponent = (
+  //     <Typography
+  //       variant="body2"
+  //       component="h2"
+  //       gutterBottom
+  //       dangerouslySetInnerHTML={{ __html: details }}
+  //     />
+  //   )
+  // else 
+  if (type === EntityType.COMMUNICATION)
     detailComponent = (
       <Typography
         variant="body2"
@@ -1146,18 +1147,18 @@ export function EmergencyContent({
           }
         )
         break
-      case 'Alert':
-        fetchAlertDetails(
-          rest.id,
-          (data) => {
-            return data
-          },
-          {},
-          (data) => {
-            return data
-          }
-        )
-        break
+      // case 'Alert':
+      //   fetchAlertDetails(
+      //     rest.id,
+      //     (data) => {
+      //       return data
+      //     },
+      //     {},
+      //     (data) => {
+      //       return data
+      //     }
+      //   )
+      //   break
       case 'Station':
         fetchCameras()
         break
@@ -1260,9 +1261,9 @@ export function EmergencyContent({
         longitude
       )
       break
-    case 'Alert':
-      todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
-      break
+    // case 'Alert':
+    //   todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
+    //   break
     case 'Station':
       const camera = cameras.data?.find((e) => e.id === rest.details)
       todisplay = <StationCard data={camera} latitude={latitude} longitude={longitude} />

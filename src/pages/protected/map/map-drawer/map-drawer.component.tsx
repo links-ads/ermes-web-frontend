@@ -199,12 +199,12 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
-    if (Alert) {
-      if (!tabValueAssigned) {
-        updateTabIndex(TabValuesDict.Alert)
-        tabValueAssigned = true
-      }
-    }
+    // if (Alert) {
+    //   if (!tabValueAssigned) {
+    //     updateTabIndex(TabValuesDict.Alert)
+    //     tabValueAssigned = true
+    //   }
+    // }
     if (Communication) {
       if (!tabValueAssigned) {
         updateTabIndex(TabValuesDict.Communication)
@@ -217,11 +217,11 @@ export default function MapDrawer(props) {
         tabValueAssigned = true
       }
     }
-    if (!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station) {
+    if (!Person && !Report && !Mission && !Communication && !MapRequest && !Station) { //!Alert && 
       setIsLoading(false)
       setSelectRenderedText('')
     }
-  }, [Person, Report, Mission, Communication, MapRequest, Alert, Station, mapDrawerTabVisibility])
+  }, [Person, Report, Mission, Communication, MapRequest, Station, mapDrawerTabVisibility]) //Alert, 
 
   const layersDefinition = useMemo(() => {
     if (Object.entries(apiHandlerState.result).length === 0) return {}
@@ -272,10 +272,10 @@ export default function MapDrawer(props) {
         renderedText = t('maps:tab_stations')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
         break
-      case TabValuesDict.Alert:
-        renderedText = t('maps:tab_alerts')
-        renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
-        break
+      // case TabValuesDict.Alert:
+      //   renderedText = t('maps:tab_alerts')
+      //   renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
+      //   break
       case TabValuesDict.Communication:
         renderedText = t('maps:tab_communications')
         renderedText += itemsCounter !== undefined ? ` (${itemsCounter})` : ''
@@ -311,9 +311,9 @@ export default function MapDrawer(props) {
       case TabValuesDict.Station:
         setSelectTextColor(EmergencyColorMap[EntityType.STATION])
         break
-      case TabValuesDict.Alert:
-        setSelectTextColor(EmergencyColorMap[EntityType.ALERT])
-        break
+      // case TabValuesDict.Alert:
+      //   setSelectTextColor(EmergencyColorMap[EntityType.ALERT])
+      //   break
       case TabValuesDict.Communication:
         setSelectTextColor(EmergencyColorMap[EntityType.COMMUNICATION])
         break
@@ -372,7 +372,7 @@ export default function MapDrawer(props) {
                 {Station && (
                   <MenuItem value={TabValuesDict.Station}>{t('maps:tab_stations')}</MenuItem>
                 )}
-                {Alert && <MenuItem value={TabValuesDict.Alert}>{t('maps:tab_alerts')}</MenuItem>}
+                {/* {Alert && <MenuItem value={TabValuesDict.Alert}>{t('maps:tab_alerts')}</MenuItem>} */}
                 {Communication && (
                   <MenuItem value={TabValuesDict.Communication}>
                     {t('maps:tab_communications')}
@@ -403,7 +403,7 @@ export default function MapDrawer(props) {
           </Grid>
         </Grid>
 
-        {!Person && !Report && !Mission && !Communication && !MapRequest && !Alert && !Station ? (
+        {!Person && !Report && !Mission && !Communication && !MapRequest && !Station ? ( //!Alert && 
           noData
         ) : (
           <SwipeableViews
@@ -509,7 +509,7 @@ export default function MapDrawer(props) {
             </TabPanel>
 
             {/* ALERTS */}
-            <TabPanel
+            {/* <TabPanel
               value={tabValue}
               index={TabValuesDict.Alert}
               key={'alert-' + props.rerenderKey}
@@ -530,7 +530,7 @@ export default function MapDrawer(props) {
                 updateTriggerSearch={setTriggerSearch}
                 updateItemsCounter={setItemsCounter}
               />
-            </TabPanel>
+            </TabPanel> */}
 
             {/* COMMUNICATION */}
             <TabPanel

@@ -594,6 +594,9 @@ export function Map() {
         break
       }
     }
+    // remove alerts from the map
+    selectedEntityTypes = selectedEntityTypes.filter((e) => e !== EntityType.ALERT)
+
     // activities - get ids if any activity has been selected
     let selectedActivityIds: number[] = []
     let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options
