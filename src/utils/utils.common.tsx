@@ -145,12 +145,12 @@ export const getFiltersStyle = (theme) => {
       fontSize: '15px',
       margin: '8px'
     },
-    alertApplyButton: {
-      color: '#000000',
-      backgroundColor: EmergencyColorMap['Alert'],
-      fontSize: '15px',
-      margin: '8px'
-    },
+    // alertApplyButton: {
+    //   color: '#000000',
+    //   backgroundColor: EmergencyColorMap['Alert'],
+    //   fontSize: '15px',
+    //   margin: '8px'
+    // },
     cameraApplyButton: {
       color: '#000000',
       backgroundColor: EmergencyColorMap['Station'],

@@ -1,6 +1,10 @@
 Ver.
 -----------------------
 - Feature - Dashboard refactoring (#151)
+- Feature - Hide alerts button (#197)
+
+Ver. 2.22.0 - 2024-02-29
+-----------------------
 - Feature - Added file for GitHub action
 - Bugfix - Filter behaviour (#193)
 - Bugfix - Updates for reports (#194)

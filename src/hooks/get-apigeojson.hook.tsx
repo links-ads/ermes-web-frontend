@@ -2,6 +2,7 @@ import { useCallback, useReducer, useMemo, useContext } from 'react'
 import {
   CommunicationRestrictionType,
   CommunicationScopeType,
+  EntityType,
   GeoJsonApiFactory
 } from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
@@ -117,9 +118,11 @@ export default function GetApiGeoJson() {
             type: 'RESULT',
             value: {
               type: 'FeatureCollection',
-              features: (result?.data.features || []).map((e, i) => {
-                return e as unknown as GeoJSON.Feature
-              }),
+              features: (result?.data.features || [])
+                .filter((e) => e.properties.type !== EntityType.ALERT) // remove alerts from the map
+                .map((e, i) => {
+                  return e as unknown as GeoJSON.Feature
+                }),
               downloadUrl: ''
             }
           })

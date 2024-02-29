@@ -477,7 +477,7 @@ export const DashboardFilters: React.FC<{
               userProfile={profile}
             />
           </Grid>
-          <Grid item>
+          {/* <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -491,7 +491,7 @@ export const DashboardFilters: React.FC<{
               setClickCounter={setBtnClickCounter}
               userProfile={profile}
             />
-          </Grid>
+          </Grid> */}
           <Grid item>
             <CategoryFilter
               t={t}
@@ -563,7 +563,7 @@ const CategoryFilter = (props) => {
     if (label === EntityType.MISSION) return classes.missionApplyButton
     if (label === EntityType.PERSON) return classes.personApplyButton
     if (label === EntityType.REPORT) return classes.reportApplyButton
-    if (label === EntityType.ALERT) return classes.alertApplyButton
+    // if (label === EntityType.ALERT) return classes.alertApplyButton
     if (label === EntityType.STATION) return classes.cameraApplyButton
     return classes.applyButton
   }
