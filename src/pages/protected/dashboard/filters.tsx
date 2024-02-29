@@ -57,6 +57,7 @@ const MAP_REQUEST_STATUS_DEFAULT = [
   MapRequestStatusType.CONTENT_NOT_AVAILABLE
 ]
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
+const CITIZEN_HAZARD_VISIBILITY_DEFAULT = 'Public'
 
 export const DashboardFilters: React.FC<{
   filters: FiltersType
@@ -607,7 +608,10 @@ const CategoryFilter = (props) => {
     const newCategoryFilters = categoryFilters
     newCategoryFilters.content.forEach((c) => {
       if (c.name === 'hazard_visibility') {
-        c.selected = HAZARD_VISIBILITY_DEFAULT
+        c.selected =
+          userProfile?.role === ROLE_CITIZEN
+            ? CITIZEN_HAZARD_VISIBILITY_DEFAULT
+            : HAZARD_VISIBILITY_DEFAULT
       } else if (c.name === 'map_request_status') {
         c.selected = MAP_REQUEST_STATUS_DEFAULT
       } else {
