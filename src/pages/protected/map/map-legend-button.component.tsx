@@ -14,6 +14,7 @@ import { EmergencyColorMap } from './api-data/emergency.component'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { FiberManualRecord } from '@material-ui/icons'
+import { EntityType } from 'ermes-backoffice-ts-sdk'
 
 const LegendButtonContainer = styled.div.attrs({
   className: 'mapboxgl-ctrl mapboxgl-ctrl-group'
@@ -126,19 +127,21 @@ const MapLegendButton = () => {
           disableRestoreFocus
         >
           <Paper elevation={0}>
-            {Object.keys(EmergencyColorMap).map((key, i) => {
-              return (
-                <Typography key={i} className={classes.legendText}>
-                  <FiberManualRecord
-                    style={{
-                      color: EmergencyColorMap[key],
-                      marginRight: 2
-                    }}
-                  />
-                  {t('maps:legend_' + key.toLocaleLowerCase())}{' '}
-                </Typography>
-              )
-            })}
+            {Object.keys(EmergencyColorMap)
+              .filter((e) => e !== EntityType.ALERT)
+              .map((key, i) => {
+                return (
+                  <Typography key={i} className={classes.legendText}>
+                    <FiberManualRecord
+                      style={{
+                        color: EmergencyColorMap[key],
+                        marginRight: 2
+                      }}
+                    />
+                    {t('maps:legend_' + key.toLocaleLowerCase())}{' '}
+                  </Typography>
+                )
+              })}
           </Paper>
         </Popover>
       </div>

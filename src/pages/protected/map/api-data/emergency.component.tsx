@@ -877,7 +877,7 @@ export type EmergencyType =
   | 'Report'
   | 'Person'
   | 'SelectedPosition'
-  //| 'Alert'
+  | 'Alert'
   | 'Station'
 
 type ColorMapType = {
@@ -890,7 +890,7 @@ export const EmergencyColorMap: ColorMapType = {
   Report: '#0befff', //brown[800],
   Mission: '#f797d2', //green[400],
   Station: '#4072f1',
-  //Alert: '#cc90e8', //'green[800]',
+  Alert: '#cc90e8', //'green[800]',
   Communication: '#0afa93', //blueGrey[800],
   MapRequest: '#f56c5c', //orange[800],
   SelectedPosition: yellow[800]
@@ -946,7 +946,7 @@ export function EmergencyHoverCardContent({
   //       dangerouslySetInnerHTML={{ __html: details }}
   //     />
   //   )
-  // else 
+  // else
   if (type === EntityType.COMMUNICATION)
     detailComponent = (
       <Typography
