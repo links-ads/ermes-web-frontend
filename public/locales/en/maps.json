@@ -13,7 +13,7 @@
   "all": "All",
   "filter_by_type": "Filter by type",
   "flood": "Flood",
-  "fire": "Fire",
+  "fire": "Flames",
   "landslide": "Landslide",
   "wind": "Wind",
   "storm": "Storm",
@@ -173,7 +173,10 @@
   "remove": "Remove",
   "confirm": "Confirm",
   "confirmed": "Confirmed",
-  "disprove": "Disprove",
-  "disproved": "Disproved",
-  "hazard": "Hazard"
+  "disprove": "Discard",
+  "disproved": "Discarded",
+  "hazard": "Hazard",
+  "desc-detected": "Automatically Detected",
+  "desc-validated": "Validated / Manually Added",
+  "desc-discarded": "Discarded"
 }

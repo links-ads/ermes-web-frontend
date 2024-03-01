@@ -10,14 +10,18 @@ type CameraChipProps = {
 export function CameraChip({ status, label }: CameraChipProps) {
   const theme = useTheme()
 
+  if (!status) {
+    return null
+  }
+
   return (
     <Chip
       color="primary"
       size="small"
       style={{
-        backgroundColor: status ? theme.palette.error.dark : theme.palette.grey[600],
-        borderColor: status ? theme.palette.error.dark : theme.palette.grey[600],
-        color: status ? theme.palette.error.contrastText : '#fff',
+        backgroundColor: theme.palette.grey[100],
+        borderColor: theme.palette.grey[100],
+        color: theme.palette.grey[900],
         marginRight: 4
       }}
       className={classes.chipStyle}

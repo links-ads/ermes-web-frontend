@@ -39,6 +39,7 @@
     top: 5px;
     left: 5px;
     display: flex;
+    width: 210px;
     flex-direction: column;
 
     button {
@@ -48,5 +49,21 @@
         margin-right: 4px;
       }
     }
+  }
+}
+
+.legendContainer {
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 70%;
+  gap: 10%;
+  padding: 40px;
+
+  @media screen and (max-width: 1280px) {
+    width: 600px;
+    flex-direction: column;
+    gap: 10px;
   }
 }

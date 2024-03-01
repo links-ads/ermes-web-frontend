@@ -42,7 +42,7 @@ import {
   CameraValidationStatus,
   getCameraValidationStatus
 } from '../../../../utils/get-camera-validation-status.util'
-import { DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
+import { DetectedIcon, DiscardedIcon, ValidatedIcon } from './camera-chip-icons.component'
 import classes from './drawer-cards/communication-card.module.scss'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
 import { CameraChip } from './drawer-cards/camera-chip.component'
@@ -54,7 +54,7 @@ function getCardinalDirection(angle) {
 
 type CameraDetailsProps = {}
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 3
 
 function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
   const theme = useTheme()
@@ -73,19 +73,19 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
       ? null
       : value
 
+  const isOn =
+    (validationStatus === CameraValidationStatus.DetectedAndValidated && value) ||
+    (validationStatus === CameraValidationStatus.DetectedAndDiscarded && !value) ||
+    validationStatus === CameraValidationStatus.UndetectedAndAdded
+
   return (
     <Button
       variant="contained"
       style={{
         display: 'flex',
         justifyContent: 'space-between',
-        backgroundColor:
-          (validationStatus === CameraValidationStatus.DetectedAndValidated && value) ||
-          (validationStatus === CameraValidationStatus.DetectedAndDiscarded && !value) ||
-          validationStatus === CameraValidationStatus.UndetectedAndAdded
-            ? '#005500'
-            : baseColor,
-        color: theme.palette.primary.contrastText
+        backgroundColor: isOn ? theme.palette.grey[100] : baseColor,
+        color: isOn ? theme.palette.grey[900] : theme.palette.primary.contrastText
       }}
       onClick={() => onClick(type, _value)}
     >
@@ -443,109 +443,121 @@ export function CameraDetails({}: CameraDetailsProps) {
           </div>
         )}
         {sensorData && filteredMeasurements?.length > 0 && (
-          <div style={localStyles.thumbnailContainer}>
-            <div>
-              <IconButton disabled={page === 0} onClick={() => setPage(0)}>
-                <ArrowLeft />
-              </IconButton>
-            </div>
-            <div>
-              <IconButton disabled={page === 0} onClick={() => setPage(page - 1)}>
-                <KeyboardArrowLeft />
-              </IconButton>
-            </div>
-            {pageItems.map((measurement: MeasureDto) => {
-              const hasFire = measurement.metadata?.detection?.fire
-              const hasSmoke = measurement.metadata?.detection?.smoke
-              const thumbnail = measurement.metadata?.thumbnail_uri ?? measurement.measure
-              const fireValidationStatus = getCameraValidationStatus('fire', measurement.metadata)
-              const smokeValidationStatus = getCameraValidationStatus('smoke', measurement.metadata)
+          <div>
+            <div style={localStyles.thumbnailContainer}>
+              <div>
+                <IconButton disabled={page === 0} onClick={() => setPage(0)}>
+                  <ArrowLeft />
+                </IconButton>
+              </div>
+              <div>
+                <IconButton disabled={page === 0} onClick={() => setPage(page - 1)}>
+                  <KeyboardArrowLeft />
+                </IconButton>
+              </div>
+              {pageItems.map((measurement: MeasureDto) => {
+                const hasFire = measurement.metadata?.detection?.fire
+                const hasSmoke = measurement.metadata?.detection?.smoke
+                const thumbnail = measurement.metadata?.thumbnail_uri ?? measurement.measure
+                const fireValidationStatus = getCameraValidationStatus('fire', measurement.metadata)
+                const smokeValidationStatus = getCameraValidationStatus(
+                  'smoke',
+                  measurement.metadata
+                )
 
-              const style = { ...localStyles.thumbnail }
-              if (selectedSensorMeasurementId === measurement.id) {
-                style.borderBottom = `3px solid ${theme.palette.secondary.main}`
-              }
+                const style = { ...localStyles.thumbnail }
+                if (selectedSensorMeasurementId === measurement.id) {
+                  style.borderBottom = `3px solid ${theme.palette.secondary.main}`
+                }
 
-              return (
-                <div key={measurement.id as any}>
-                  <div style={style} onClick={() => setSelectedSensorMeasurement(measurement.id)}>
-                    <div style={localStyles.smallBadgeContainer}>
-                      {hasFire && fireValidationStatus === CameraValidationStatus.Detected && (
-                        <Chip
-                          color="primary"
-                          size="small"
-                          style={{
-                            backgroundColor: theme.palette.error.dark,
-                            borderColor: theme.palette.error.dark,
-                            color: theme.palette.error.contrastText,
-                            width: 16,
-                            height: 16
-                          }}
-                          className={classes.chipStyle}
-                        />
-                      )}
-                      {((hasFire &&
-                        fireValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
-                        fireValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
-                        <ValidatedIcon type="fire" />
-                      )}
-                      {hasFire &&
-                        fireValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
-                          <DiscardedIcon type="fire" />
+                return (
+                  <div key={measurement.id as any}>
+                    <div style={style} onClick={() => setSelectedSensorMeasurement(measurement.id)}>
+                      <div style={localStyles.smallBadgeContainer}>
+                        {hasFire && fireValidationStatus === CameraValidationStatus.Detected && (
+                          // <Chip
+                          //   color="primary"
+                          //   size="small"
+                          //   style={{
+                          //     backgroundColor: theme.palette.error.dark,
+                          //     borderColor: theme.palette.error.dark,
+                          //     color: theme.palette.error.contrastText,
+                          //     width: 16,
+                          //     height: 16
+                          //   }}
+                          //   className={classes.chipStyle}
+                          // />
+                          <DetectedIcon type="fire" />
                         )}
-                      {hasSmoke && smokeValidationStatus === CameraValidationStatus.Detected && (
-                        <Chip
-                          color="primary"
-                          size="small"
-                          style={{
-                            backgroundColor: theme.palette.primary.contrastText,
-                            borderColor: theme.palette.primary.dark,
-                            color: theme.palette.primary.dark,
-                            width: 16,
-                            height: 16
-                          }}
-                          className={classes.chipStyle}
-                        />
-                      )}
-                      {((hasSmoke &&
-                        smokeValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
-                        smokeValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
-                        <ValidatedIcon type="smoke" />
-                      )}
-                      {hasSmoke &&
-                        smokeValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
-                          <DiscardedIcon type="smoke" />
+                        {((hasFire &&
+                          fireValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
+                          fireValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
+                          <ValidatedIcon type="fire" />
                         )}
+                        {hasFire &&
+                          fireValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
+                            <DiscardedIcon type="fire" />
+                          )}
+                        {hasSmoke && smokeValidationStatus === CameraValidationStatus.Detected && (
+                          // <Chip
+                          //   color="primary"
+                          //   size="small"
+                          //   style={{
+                          //     backgroundColor: theme.palette.primary.contrastText,
+                          //     borderColor: theme.palette.primary.dark,
+                          //     color: theme.palette.primary.dark,
+                          //     width: 16,
+                          //     height: 16
+                          //   }}
+                          //   className={classes.chipStyle}
+                          // />
+                          <DetectedIcon type="smoke" />
+                        )}
+                        {((hasSmoke &&
+                          smokeValidationStatus === CameraValidationStatus.DetectedAndValidated) ||
+                          smokeValidationStatus === CameraValidationStatus.UndetectedAndAdded) && (
+                          <ValidatedIcon type="smoke" />
+                        )}
+                        {hasSmoke &&
+                          smokeValidationStatus === CameraValidationStatus.DetectedAndDiscarded && (
+                            <DiscardedIcon type="smoke" />
+                          )}
+                      </div>
+                      <img
+                        style={{ width: 200, height: 125, objectFit: 'cover' }}
+                        src={thumbnail}
+                        alt={measurement.measure!}
+                      />
+                      {measurement.timestamp && (
+                        <Typography variant="body2" style={{ fontSize: '0.7rem' }}>
+                          {moment(measurement.timestamp).format('YYYY/MM/DD HH:mm')}
+                        </Typography>
+                      )}
                     </div>
-                    <img
-                      style={{ width: 100, height: 75, objectFit: 'cover' }}
-                      src={thumbnail}
-                      alt={measurement.measure!}
-                    />
-                    {measurement.timestamp && (
-                      <Typography variant="body2" style={{ fontSize: '0.7rem' }}>
-                        {moment(measurement.timestamp).format('YYYY/MM/DD HH:mm')}
-                      </Typography>
-                    )}
                   </div>
-                </div>
-              )
-            })}
-            <div>
-              <IconButton
-                disabled={page === Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1}
-                onClick={() => setPage(page + 1)}
-              >
-                <KeyboardArrowRight />
-              </IconButton>
+                )
+              })}
+              <div>
+                <IconButton
+                  disabled={page === Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1}
+                  onClick={() => setPage(page + 1)}
+                >
+                  <KeyboardArrowRight />
+                </IconButton>
+              </div>
+              <div>
+                <IconButton
+                  disabled={page === Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1}
+                  onClick={() => setPage(Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1)}
+                >
+                  <ArrowRight />
+                </IconButton>
+              </div>
             </div>
-            <div>
-              <IconButton
-                disabled={page === Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1}
-                onClick={() => setPage(Math.ceil(filteredMeasurements.length / PAGE_SIZE) - 1)}
-              >
-                <ArrowRight />
-              </IconButton>
+            <div className={classes.legendContainer}>
+              <DetectedIcon type="desc-detected" />
+              <DiscardedIcon type="desc-discarded" />
+              <ValidatedIcon type="desc-validated" />
             </div>
           </div>
         )}
@@ -595,10 +607,11 @@ const localStyles: Record<string, CSSProperties> = {
   smallBadgeContainer: {
     position: 'absolute',
     display: 'flex',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
     bottom: 20,
     left: 0,
-    right: 4
+    right: 4,
+    padding: 5
   }
 }
