@@ -238,18 +238,18 @@ export const PieChartStats = (props) => {
       endAngle={-360}
       colors={{ scheme: 'nivo' }}
       // radialLabelsSkipAngle={0}
-      radialLabelsTextXOffset={1}
-      radialLabelsLinkOffset={0}
-      radialLabelsLinkDiagonalLength={8}
-      radialLabelsLinkHorizontalLength={12}
-      radialLabelsLinkStrokeWidth={1}
-      radialLabel={
-        function (d) {
-          return t(props.prefix + d.label.toLowerCase())
-        } as unknown as undefined
-      }
-      radialLabelsTextColor={theme['palette']['text']['primary']}
-      radialLabelsLinkColor={theme['palette']['text']['primary']}
+      //   radialLabelsTextXOffset={1}
+      //   radialLabelsLinkOffset={0}
+      //   radialLabelsLinkDiagonalLength={8}
+      //   radialLabelsLinkHorizontalLength={12}
+      //   radialLabelsLinkStrokeWidth={1}
+      //   radialLabel={
+      //     function (d) {
+      //       return t(props.prefix + d.label.toLowerCase())
+      //     } as unknown as undefined
+      //   }
+      //   radialLabelsTextColor={theme['palette']['text']['primary']}
+      //   radialLabelsLinkColor={theme['palette']['text']['primary']}
       theme={{ textColor: 'inherit' }}
       tooltip={(d) => {
         let item = d.datum
@@ -259,7 +259,7 @@ export const PieChartStats = (props) => {
           item.value
         )
       }}
-      enableSliceLabels={false}
+      //   enableSliceLabels={false}
       defs={defs}
       legends={[
         {
