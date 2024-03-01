@@ -21,9 +21,9 @@ export const TabValuesDict = {
   Report: 1,
   Mission: 2,
   Station: 3,
-  Alert: 4,
-  Communication: 5,
-  MapRequest: 6
+  // Alert: 4,
+  Communication: 4,
+  MapRequest: 5
 }
 
 const mergeAndRemoveDuplicates = (a, b) => {

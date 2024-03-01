@@ -1,8 +1,5 @@
 import { useCallback, useReducer, useMemo, useState, useEffect, useRef } from 'react'
-import {
-  ReportsApiFactory,
-  DTResultOfReportDto
-} from 'ermes-ts-sdk'
+import { ReportsApiFactory, DTResultOfReportDto } from 'ermes-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -40,17 +37,22 @@ const reducer = (currentState, action) => {
         error: false,
         tot: action.tot
       }
+    case 'FIRST_RESULT':
+      return {
+        isLoading: false,
+        data: [...action.value],
+        error: false,
+        tot: action.tot,
+        selectedItems: []
+      }
     case 'RESULT':
       return {
         ...currentState,
         isLoading: false,
-        data: mergeAndRemoveDuplicates(
-          [...currentState.selectedItems],
-          [...mergeAndRemoveDuplicates([...currentState.data], [...action.value])]
-        ),
+        data: [...action.value],
         error: false,
         tot: action.tot,
-        selectedItems: removeDuplicates([...currentState.selectedItems], [...action.value])
+        selectedItems: [...action.selectedItems]
       }
     case 'APPEND_SELECTED':
       return {
@@ -82,13 +84,19 @@ export default function useReportList() {
   const [storedFilters, ,] = useMemoryState('memstate-map', null, false)
 
   const fetchReports = useCallback(
-    (tot, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
+    (
+      tot,
+      transformData = (data) => {},
+      errorData = {},
+      sideEffect = (data) => {},
+      firstResult = false
+    ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
       repApiFactory
         .reportsGetReports(
           (filters?.report as any).content[0].selected,
-          (filters?.report as any).content[1].selected,
-          (filters?.report as any).content[3].selected,
+          undefined,
+          (filters?.report as any).content[2].selected,
           (filters?.datestart as any)?.selected,
           (filters?.dateend as any)?.selected,
           undefined,
@@ -97,7 +105,7 @@ export default function useReportList() {
           (filters?.mapBounds as any).northEast[0],
           (filters?.mapBounds as any).southWest[1],
           (filters?.mapBounds as any).southWest[0],
-          (filters?.report as any).content[2].selected,
+          (filters?.report as any).content[1].selected,
           MAX_RESULT_COUNT,
           tot,
           undefined,
@@ -107,18 +115,31 @@ export default function useReportList() {
           let newData: DTResultOfReportDto[] = transformData(result.data.data) || []
 
           let totToDown: number = result?.data?.recordsTotal ? result?.data?.recordsTotal : -1
-          dispatch({
-            type: 'RESULT',
-            value: newData,
-            tot: totToDown
-          })
+
+          if (firstResult) {
+            dispatch({
+              type: 'FIRST_RESULT',
+              value: [...newData],
+              tot: totToDown
+            })
+          } else {
+            dispatch({
+              type: 'RESULT',
+              value: mergeAndRemoveDuplicates(
+                [...dataState.selectedItems],
+                [...mergeAndRemoveDuplicates([...dataState.data], [...newData])]
+              ),
+              tot: totToDown,
+              selectedItems: removeDuplicates([...dataState.selectedItems], [...newData])
+            })
+          }
         })
         .catch((err) => {
           displayErrorSnackbar(err)
           dispatch({ type: 'ERROR', value: errorData })
         })
     },
-    [repApiFactory, displayErrorSnackbar, querySearch]
+    [repApiFactory, displayErrorSnackbar, querySearch, dataState]
   )
 
   const applyFilterReloadData = (newFilters) => {

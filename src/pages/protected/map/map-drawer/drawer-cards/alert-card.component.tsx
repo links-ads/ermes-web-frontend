@@ -120,7 +120,7 @@ const AlertCard: React.FC<{
           }
           className={classes.viewInMap}
         >
-          <LocationOnIcon htmlColor={EmergencyColorMap.Alert} />
+          {/* <LocationOnIcon htmlColor={EmergencyColorMap.Alert} /> */}
         </IconButton>
       </CardActions>
     </CardWithPopup>

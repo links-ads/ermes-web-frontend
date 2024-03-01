@@ -1,7 +1,17 @@
 Ver.
 -----------------------
+
+
+Ver. 2.22.1 - 2024-03-01
+-----------------------
+- Feature - Hide alerts button (#197)
+
+Ver. 2.22.0 - 2024-02-29
+-----------------------
 - Feature - Added file for GitHub action
 - Bugfix - Filter behaviour (#193)
+- Bugfix - Updates for reports (#194)
+- Feature - Layers' legend position (#196)
 
 Ver. 2.21.0 - 2024-01-19
 -----------------------

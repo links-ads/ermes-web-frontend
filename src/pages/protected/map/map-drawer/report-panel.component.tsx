@@ -41,7 +41,8 @@ export default function ReportPanel(props) {
       {},
       (data) => {
         return data
-      }
+      },
+      true
     )
   }, [])
 

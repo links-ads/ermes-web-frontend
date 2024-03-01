@@ -57,6 +57,7 @@ const MAP_REQUEST_STATUS_DEFAULT = [
   MapRequestStatusType.CONTENT_NOT_AVAILABLE
 ]
 const HAZARD_VISIBILITY_DEFAULT = 'Private'
+const CITIZEN_HAZARD_VISIBILITY_DEFAULT = 'Public'
 
 export const DashboardFilters: React.FC<{
   filters: FiltersType
@@ -325,6 +326,13 @@ export const DashboardFilters: React.FC<{
     setLocale(language === it_IT.locale ? it_IT : en_GB)
   }, [language])
 
+  // TODO
+  // useEffect(() => {
+  //   if (profile && profile.role) {
+  //     resetFilters()
+  //   }
+  // }, [])
+
   return (
     <Grid
       container
@@ -468,7 +476,7 @@ export const DashboardFilters: React.FC<{
               userProfile={profile}
             />
           </Grid>
-          <Grid item>
+          {/* <Grid item>
             <CategoryFilter
               t={t}
               classes={classes}
@@ -482,7 +490,7 @@ export const DashboardFilters: React.FC<{
               setClickCounter={setBtnClickCounter}
               userProfile={profile}
             />
-          </Grid>
+          </Grid> */}
           <Grid item>
             <CategoryFilter
               t={t}
@@ -554,7 +562,7 @@ const CategoryFilter = (props) => {
     if (label === EntityType.MISSION) return classes.missionApplyButton
     if (label === EntityType.PERSON) return classes.personApplyButton
     if (label === EntityType.REPORT) return classes.reportApplyButton
-    if (label === EntityType.ALERT) return classes.alertApplyButton
+    // if (label === EntityType.ALERT) return classes.alertApplyButton
     if (label === EntityType.STATION) return classes.cameraApplyButton
     return classes.applyButton
   }
@@ -600,7 +608,10 @@ const CategoryFilter = (props) => {
     const newCategoryFilters = categoryFilters
     newCategoryFilters.content.forEach((c) => {
       if (c.name === 'hazard_visibility') {
-        c.selected = HAZARD_VISIBILITY_DEFAULT
+        c.selected =
+          userProfile?.role === ROLE_CITIZEN
+            ? CITIZEN_HAZARD_VISIBILITY_DEFAULT
+            : HAZARD_VISIBILITY_DEFAULT
       } else if (c.name === 'map_request_status') {
         c.selected = MAP_REQUEST_STATUS_DEFAULT
       } else {

@@ -2,10 +2,16 @@ import React, { createContext, useCallback, useReducer, useContext } from 'react
 import {
   MapDrawerTabVisibility,
   changeFeatureStatus,
+  citizenAlertRestricition,
+  citizenCommunicationRestricition,
+  citizenReportHazardVisibility,
   filtersReducer,
   getDefaultFiltersFromLocalStorageObject,
   getMapDrawerTabVisibility,
   initializer,
+  notCitizenAlertRestricition,
+  notCitizenCommunicationRestricition,
+  notCitizenReportHazardVisibility,
   updateFiltersLocalStorage
 } from '../hooks/use-filters-object.hook'
 import { useUser } from './auth/auth.hooks'
@@ -43,7 +49,11 @@ export const FiltersContext = createContext({
 const FiltersContextProvider = (props) => {
   const { profile } = useUser()
   const appConfig = useContext<AppConfig>(AppConfigContext)
-  const [filtersState, dispatch] = useReducer(filtersReducer, initializer(profile, appConfig))
+  const [filtersState, dispatch] = useReducer(
+    filtersReducer,
+    { userProfile: profile, appConfig: appConfig },
+    initializer
+  )
   const { filtersLocalStorageObject, filters, mapDrawerTabVisibility, lastUpdate } = filtersState
 
   const applyDateFilters = useCallback(
@@ -127,16 +137,15 @@ const FiltersContextProvider = (props) => {
       southWest: appConfig?.mapboxgl?.mapBounds?.southWest!,
       zoom: appConfig?.mapboxgl?.mapViewport?.zoom!
     }
+    const initObject = { ...initObjectState }
     // reset filters
     const isCitizen = profile?.role === ROLE_CITIZEN
     let updatedFiltersObj = { ...filtersLocalStorageObject }
     updatedFiltersObj.filters!.mapBounds = appConfigMapBounds
     ;(updatedFiltersObj.filters!.report! as Accordion).content[0].selected = []
-    ;(updatedFiltersObj.filters!.report! as Accordion).content[1].selected = []
-    ;(updatedFiltersObj.filters!.report! as Accordion).content[2].selected = (
+    ;(updatedFiltersObj.filters!.report! as Accordion).content[1].selected = (
       initObjectState.filters!.report! as Accordion
     ).content[2].selected
-    ;(updatedFiltersObj.filters!.report! as Accordion).content[3].selected = []
     ;(updatedFiltersObj.filters!.mission! as Accordion).content[0].selected = []
     ;(updatedFiltersObj.filters!.persons! as Accordion).content[0].selected = []
     ;(updatedFiltersObj.filters!.persons! as Accordion).content[1].selected = []
@@ -157,21 +166,25 @@ const FiltersContextProvider = (props) => {
     ).options
 
     if (isCitizen) {
-      const citizenHazardContent: Select | MultipleSelect = {
-        name: 'hazard_visibility',
-        options: ['Public'],
-        type: 'select',
-        selected: 'Public'
+      ;(updatedFiltersObj.filters!.report! as Accordion).content[1] = {
+        ...citizenReportHazardVisibility
       }
-      ;(updatedFiltersObj.filters!.report! as Accordion).content[2] = citizenHazardContent
+      updatedFiltersObj.filters.communication.content[1] = { ...citizenCommunicationRestricition }
+      updatedFiltersObj.filters.alert.content[0] = { ...citizenAlertRestricition }
+    } else {
+      updatedFiltersObj.filters.report.content[1] = { ...notCitizenReportHazardVisibility }
+      updatedFiltersObj.filters.communication.content[1] = {
+        ...notCitizenCommunicationRestricition
+      }
+      updatedFiltersObj.filters.alert.content[0] = { ...notCitizenAlertRestricition }
     }
 
     // reset dates
     updatedFiltersObj.filters!.datestart.selected = (
-      initObjectState.filters!.datestart as DateSelector
+      initObject.filters!.datestart as DateSelector
     ).selected
     updatedFiltersObj.filters!.dateend.selected = (
-      initObjectState.filters!.dateend as DateSelector
+      initObject.filters!.dateend as DateSelector
     ).selected
 
     // update dates with reset values

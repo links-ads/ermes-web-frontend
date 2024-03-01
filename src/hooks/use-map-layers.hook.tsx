@@ -703,7 +703,7 @@ const useMapLayers = () => {
                 metadataId: metaId,
                 metadata: formattedres,
                 visibility: true,
-                position: { x: windowInnerWidth - 500 - 230, y: 60 }
+                position: { x: windowInnerWidth - 680, y: 50 }
               })
             }
             dispatch({ type: 'UPDATE_LAYERS_METADATA', value: updatedMetadata })
@@ -765,7 +765,7 @@ const useMapLayers = () => {
               layerName: layerName,
               legend: imgUrl,
               visibility: true,
-              position: { x: windowInnerWidth - 109 - 741, y: 60 }
+              position: { x: windowInnerWidth - 175, y: 50 }
             })
             dispatch({ type: 'UPDATE_LAYERS_LEGEND', value: updatedLegends })
           })

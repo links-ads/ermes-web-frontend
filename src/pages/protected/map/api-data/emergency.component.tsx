@@ -326,8 +326,8 @@ const mapRequestCard = (
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
-  console.log('DETTAGLI', details)
-  //console.log('DESCRIPTION', description)
+  console.debug('DETTAGLI', details)
+  //console.debug('DESCRIPTION', description)
   return (
     <>
       <Card elevation={0}>
@@ -850,11 +850,11 @@ type ColorMapType = {
 export const EmergencyColorMap: ColorMapType = {
   // ReportRequest: green[800],
   Person: '#f9e900', //lightBlue[800],
-  Report: '#ffd2cc', //brown[800],
+  Report: '#0befff', //brown[800],
   Mission: '#f797d2', //green[400],
   Station: '#4072f1',
   Alert: '#cc90e8', //'green[800]',
-  Communication: '#83cfce', //blueGrey[800],
+  Communication: '#0afa93', //blueGrey[800],
   MapRequest: '#f56c5c', //orange[800],
   SelectedPosition: yellow[800]
 }
@@ -900,16 +900,17 @@ export function EmergencyHoverCardContent({
   const classes = useStyles()
   const { t } = useTranslation(['maps', 'labels'])
   let detailComponent = <div />
-  if (type === EntityType.ALERT)
-    detailComponent = (
-      <Typography
-        variant="body2"
-        component="h2"
-        gutterBottom
-        dangerouslySetInnerHTML={{ __html: details }}
-      />
-    )
-  else if (type === EntityType.COMMUNICATION)
+  // if (type === EntityType.ALERT)
+  //   detailComponent = (
+  //     <Typography
+  //       variant="body2"
+  //       component="h2"
+  //       gutterBottom
+  //       dangerouslySetInnerHTML={{ __html: details }}
+  //     />
+  //   )
+  // else
+  if (type === EntityType.COMMUNICATION)
     detailComponent = (
       <Typography
         variant="body2"
@@ -1006,7 +1007,7 @@ export function EmergencyHoverCardContent({
           </Typography>
         </div>
       ) : undefined}
-      {status && status !== 'null' ? (
+      {status && status !== 'null' && type !== EntityType.REPORT ? (
         <div>
           <Typography
             component={'span'}
@@ -1109,18 +1110,18 @@ export function EmergencyContent({
           }
         )
         break
-      case 'Alert':
-        fetchAlertDetails(
-          rest.id,
-          (data) => {
-            return data
-          },
-          {},
-          (data) => {
-            return data
-          }
-        )
-        break
+      // case 'Alert':
+      //   fetchAlertDetails(
+      //     rest.id,
+      //     (data) => {
+      //       return data
+      //     },
+      //     {},
+      //     (data) => {
+      //       return data
+      //     }
+      //   )
+      //   break
       case 'Station':
         fetchCameras()
         break
@@ -1132,7 +1133,7 @@ export function EmergencyContent({
   const dispatch = useDispatch()
 
   // useEffect(() => {
-  //   console.log('REP DETAILS', repDetails)
+  //   console.debug('REP DETAILS', repDetails)
   // }, [repDetails])
   useEffect(() => {
     if (!missDetails.isLoading) {
@@ -1223,9 +1224,9 @@ export function EmergencyContent({
         longitude
       )
       break
-    case 'Alert':
-      todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
-      break
+    // case 'Alert':
+    //   todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
+    //   break
     case 'Station':
       const camera = cameras.data?.find((e) => e.id === rest.details)
       todisplay = <StationCard data={camera} latitude={latitude} longitude={longitude} />
