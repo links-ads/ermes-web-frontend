@@ -1,6 +1,7 @@
 Ver.
 -----------------------
 - Feature - Dashboard refactoring (#151)
+- Bugfix - Camera images validation fix
 
 
 Ver. 2.22.1 - 2024-03-01
