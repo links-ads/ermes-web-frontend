@@ -2,6 +2,10 @@ Ver.
 -----------------------
 
 
+Ver. 2.22.2 - 2024-03-08
+-----------------------
+- Bugfix - Image validation procedure update
+
 Ver. 2.22.1 - 2024-03-01
 -----------------------
 - Feature - Hide alerts button (#197)
