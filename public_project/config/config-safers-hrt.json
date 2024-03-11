@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl": "https://safersblobstoragedev.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://safersblobstoragetest.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -35,7 +35,7 @@
   "crs": "EPSG:4326",
   "mapPollingInterval": 60,
   "geoServer": {
-    "baseUrl": "https://geoserver-dev.safers-project.cloud/geoserver/ermes",
+    "baseUrl": "https://geoserver-test.safers-project.cloud/geoserver/ermes",
     "suffix": "wms",
     "params": {
       "service": "WMS",
@@ -49,14 +49,14 @@
   },
   "fusionAuth": {
     "url": "https://auth.safers-project.cloud/",
-    "clientId": "c3679b91-9cac-48a9-8214-141b76f1e284",
-    "tenantId": "a8f6ca60-7de2-432f-ad77-f4c2900cf867"
+    "clientId": "c52464d5-25d1-4c0b-865a-ad29123f345a",
+    "tenantId": "0f85bcca-287f-4a25-9346-b2776f3524c8"
   },
   "backend": {
-    "url": "https://api-dev.safers-project.cloud"
+    "url": "https://api.hrt.org.gr"
   },
   "userTagsFilter": {
     "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl": "https://geoapi-dev.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
 }

@@ -233,8 +233,13 @@ const FiltersContextProvider = (props) => {
           newFiltersObject.filters.multicheckPersons.options[key] = tabVisibility
         }
         // TODO: check if this is necessary. It seems to not be used anymore
-        for (let key in newFiltersObject.filters.multicheckActivities.options) {
-          newFiltersObject.filters.multicheckActivities.options[key] = tabVisibility
+        if (
+          newFiltersObject.filters.multicheckActivities &&
+          newFiltersObject.filters.multicheckActivities.options
+        ) {
+          for (let key in newFiltersObject.filters.multicheckActivities.options) {
+            newFiltersObject.filters.multicheckActivities.options[key] = tabVisibility
+          }
         }
       } else {
         newFiltersObject.filters.multicheckCategories.options[tabName] = tabVisibility

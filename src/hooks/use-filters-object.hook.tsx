@@ -121,9 +121,14 @@ export const changeFeatureStatus = (filtersObj, mapDrawerTabVisibility, featureN
     for (let key in filtersObj.filters.multicheckPersons.options) {
       filtersObj.filters.multicheckPersons.options[key] = newStatus
     }
-
-    for (let key in filtersObj.filters.multicheckActivities.options) {
-      filtersObj.filters.multicheckActivities.options[key] = newStatus
+    // TODO: check if this is necessary. It seems to not be used anymore
+    if (
+      filtersObj.filters.multicheckActivities &&
+      filtersObj.filters.multicheckActivities.options
+    ) {
+      for (let key in filtersObj.filters.multicheckActivities.options) {
+        filtersObj.filters.multicheckActivities.options[key] = newStatus
+      }
     }
   } else {
     filtersObj.filters.multicheckCategories.options[featureName] = newStatus

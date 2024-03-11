@@ -117,6 +117,7 @@
     "build-safers-test": "node ./runWithEnv.js build safers-test",
     "build-safers-test-linux": "CI=false && node ./runWithEnv.js build safers-test",
     "deploy-safers-test": "node ./runWithEnv.js build safers-test && sh deploy-to-azure.sh safers-test",
+    "deploy-safers-hrt": "node ./runWithEnv.js build safers-hrt && sh deploy-to-azure.sh safers-hrt",
     "build-shelter-dev": "node ./runWithEnv.js build shelter-dev",
     "deploy-shelter-dev": "node ./runWithEnv.js build shelter-dev && sh deploy-to-azure.sh shelter-dev",
     "build-shelter-test": "node ./runWithEnv.js build shelter-test",

@@ -2,7 +2,16 @@ Ver.
 -----------------------
 - Feature - Dashboard refactoring (#151)
 - Bugfix - Camera images validation fix, chips update
+- Bugfix - Filter object for new instance (#199)
 
+
+Ver. 2.22.3 - 2024-03-11
+-----------------------
+- Feature - HRT instance added (#198)
+
+Ver. 2.22.2 - 2024-03-08
+-----------------------
+- Bugfix - Image validation procedure update
 
 Ver. 2.22.1 - 2024-03-01
 -----------------------

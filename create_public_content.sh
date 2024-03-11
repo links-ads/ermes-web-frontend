@@ -34,6 +34,13 @@ case $1 in
         cp -a public_project/config/config-safers-test.json build/config.json
         sed -i "s/PROJECT_NAME/SAFERS/" build/index.html
         ;;
+
+    safers-hrt)
+        echo "safers-hrt"
+        cp -a public_project/safers-hrt/* build/
+        cp -a public_project/config/config-safers-hrt.json build/config.json
+        sed -i "s/PROJECT_NAME/SAFERS/" build/index.html
+        ;;
         
     shelter-dev)
         echo "shelter-dev"
