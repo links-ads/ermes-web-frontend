@@ -1,6 +1,6 @@
 Ver.
 -----------------------
-
+- Bugfix - Filter object for new instance (#199)
 
 
 Ver. 2.22.3 - 2024-03-11
