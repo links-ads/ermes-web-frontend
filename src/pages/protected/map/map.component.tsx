@@ -600,6 +600,9 @@ export function Map({
         break
       }
     }
+    // remove alerts from the map
+    selectedEntityTypes = selectedEntityTypes.filter((e) => e !== EntityType.ALERT)
+
     // activities - get ids if any activity has been selected
     let selectedActivityIds: number[] = []
     let entityActiviyOptions = (filtersObj?.filters?.multicheckActivities as any).options
@@ -675,7 +678,7 @@ export function Map({
                   <LayersPlayer
                     key={'layer-player-' + idx}
                     idx={idx}
-                    cnt={selectedLayers.length}
+                    cnt={selectedLayers.filter((e) => e.group !== 'Map Request Layer').length}
                     updateLayerSelection={updateSelectedLayers}
                     onPositionChange={updateLayerPlayerPosition}
                     getLegend={manageLayerLegend}

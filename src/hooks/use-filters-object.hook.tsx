@@ -1,7 +1,11 @@
 import { FiltersType } from '../common/filters/reducer'
-import { FiltersDescriptorType } from '../common/floating-filters-tab/floating-filter.interface'
+import {
+  FiltersDescriptorType,
+  MapBounds,
+  Select
+} from '../common/floating-filters-tab/floating-filter.interface'
 import { initObjectState } from '../pages/protected/map/map-filters-init.state'
-import { getFilterObjFromFilters, _MS_PER_DAY } from '../utils/utils.common'
+import { _MS_PER_DAY } from '../utils/utils.common'
 import { ROLE_CITIZEN } from '../App.const'
 import { CommunicationRestrictionType, EntityType } from 'ermes-ts-sdk'
 
@@ -26,17 +30,63 @@ const filtersInitialState = {
     Alert: true,
     Communication: true,
     MapRequest: true
-  },
+  } as MapDrawerTabVisibility,
   lastUpdate: new Date().toISOString()
+}
+
+export const citizenAlertRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN],
+  type: 'multipleselect',
+  selected: [CommunicationRestrictionType.CITIZEN]
+}
+
+export const citizenReportHazardVisibility: Select = {
+  name: 'hazard_visibility',
+  options: ['Public'],
+  type: 'select',
+  selected: 'Public'
+}
+
+export const citizenCommunicationRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN],
+  type: 'conditional_multipleselect',
+  selected: [CommunicationRestrictionType.CITIZEN]
+}
+
+export const notCitizenAlertRestricition = {
+  name: 'restriction',
+  options: [CommunicationRestrictionType.CITIZEN, CommunicationRestrictionType.PROFESSIONAL],
+  type: 'multipleselect',
+  selected: []
+}
+
+export const notCitizenReportHazardVisibility = {
+  name: 'hazard_visibility',
+  options: ['Private', 'Public', 'All'],
+  type: 'select',
+  selected: 'Private'
+}
+
+export const notCitizenCommunicationRestricition = {
+  name: 'restriction',
+  options: [
+    CommunicationRestrictionType.CITIZEN,
+    CommunicationRestrictionType.ORGANIZATION,
+    CommunicationRestrictionType.PROFESSIONAL
+  ],
+  type: 'conditional_multipleselect',
+  selected: []
 }
 
 const localStorageKey = 'memstate-map'
 
-const updateFiltersLocalStorage = (filtersObj) => {
+export const updateFiltersLocalStorage = (filtersObj) => {
   localStorage.setItem(localStorageKey, JSON.stringify(JSON.parse(JSON.stringify(filtersObj))))
 }
 
-const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
+export const getDefaultFiltersFromLocalStorageObject = (filtersObj, isReset: boolean = false) => {
   const defaultStartDate = filtersObj
     ? filtersObj.filters
       ? filtersObj.filters.datestart
@@ -53,104 +103,108 @@ const getDefaultFiltersFromLocalStorageObject = (filtersObj) => {
     : undefined
 
   const filtersArgs = {
-    datestart: defaultStartDate
-      ? new Date(Date.parse(defaultStartDate))
-      : new Date(new Date().valueOf() - _MS_PER_DAY * 3),
-    dateend: defaultEndDate
-      ? new Date(Date.parse(defaultEndDate))
-      : new Date(new Date().valueOf() + _MS_PER_DAY * 45)
+    datestart:
+      defaultStartDate && !isReset
+        ? new Date(Date.parse(defaultStartDate))
+        : new Date(new Date().valueOf() - _MS_PER_DAY * 3),
+    dateend:
+      defaultEndDate && !isReset
+        ? new Date(Date.parse(defaultEndDate))
+        : new Date(new Date().valueOf() + _MS_PER_DAY * 45)
   }
   return filtersArgs
 }
 
-const changeFeatureStatus = (filtersObj, mapDrawerTabVisibility, featureName, newStatus) => {
+export const changeFeatureStatus = (filtersObj, mapDrawerTabVisibility, featureName, newStatus) => {
   mapDrawerTabVisibility[featureName] = newStatus
   if (featureName === EntityType.PERSON) {
     for (let key in filtersObj.filters.multicheckPersons.options) {
       filtersObj.filters.multicheckPersons.options[key] = newStatus
     }
-
-    for (let key in filtersObj.filters.multicheckActivities.options) {
-      filtersObj.filters.multicheckActivities.options[key] = newStatus
+    // TODO: check if this is necessary. It seems to not be used anymore
+    if (
+      filtersObj.filters.multicheckActivities &&
+      filtersObj.filters.multicheckActivities.options
+    ) {
+      for (let key in filtersObj.filters.multicheckActivities.options) {
+        filtersObj.filters.multicheckActivities.options[key] = newStatus
+      }
     }
   } else {
     filtersObj.filters.multicheckCategories.options[featureName] = newStatus
   }
 }
 
-export const initializer = (userProfile, appConfig) => {
+export const getMapDrawerTabVisibility = (filtersObj) => {
+  const tabVisibility: MapDrawerTabVisibility = {
+    Person: filtersObj.filters.multicheckPersons.options.Active,
+    Report: filtersObj.filters.multicheckCategories.options.Report,
+    Mission: filtersObj.filters.multicheckCategories.options.Mission,
+    Station: filtersObj.filters.multicheckCategories.options.Station,
+    Alert: filtersObj.filters.multicheckCategories.options.Alert,
+    Communication: filtersObj.filters.multicheckCategories.options.Communication,
+    MapRequest: filtersObj.filters.multicheckCategories.options.MapRequest
+  }
+  return tabVisibility
+}
+
+export const initializer = (configuration): any => {
   let filtersArgs = {}
   let filtersObj = {} as any
+  const appConfig = configuration?.appConfig
+  const userProfile = configuration?.userProfile
   let storedFilters = localStorage.getItem(localStorageKey)
   if (storedFilters === null || storedFilters === 'null') {
-    filtersObj = initObjectState
-    filtersObj.filters.mapBounds.northEast = appConfig?.mapboxgl?.mapBounds?.northEast
-    filtersObj.filters.mapBounds.southWest = appConfig?.mapboxgl?.mapBounds?.southWest
-    filtersObj.filters.mapBounds.zoom = appConfig?.mapboxgl?.mapViewport?.zoom
-    filtersObj.filters.report.content[2] =
-      userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'hazard_visibility',
-            options: ['Public'],
-            type: 'select',
-            selected: 'Public'
-          }
-        : {
-            name: 'hazard_visibility',
-            options: ['Private', 'Public', 'All'],
-            type: 'select',
-            selected: 'Private'
-          }
+    filtersObj = { ...initObjectState }
+    filtersObj.filters.mapBounds.northEast =
+      appConfig?.mapboxgl?.mapBounds?.northEast ??
+      (initObjectState?.filters?.mapBounds as MapBounds).northEast
+    filtersObj.filters.mapBounds.southWest =
+      appConfig?.mapboxgl?.mapBounds?.southWest ??
+      (initObjectState?.filters?.mapBounds as MapBounds).southWest
+    filtersObj.filters.mapBounds.zoom =
+      appConfig?.mapboxgl?.mapViewport?.zoom ??
+      (initObjectState?.filters?.mapBounds as MapBounds).zoom
+    filtersObj.filters.report.content[1] =
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenReportHazardVisibility }
+        : { ...citizenReportHazardVisibility }
     filtersObj.filters.communication.content[1] =
-      userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'restriction',
-            options: [CommunicationRestrictionType.CITIZEN],
-            type: 'conditional_multipleselect',
-            selected: [CommunicationRestrictionType.CITIZEN]
-          }
-        : {
-            name: 'restriction',
-            options: [
-              CommunicationRestrictionType.CITIZEN,
-              CommunicationRestrictionType.ORGANIZATION,
-              CommunicationRestrictionType.PROFESSIONAL
-            ],
-            type: 'conditional_multipleselect',
-            selected: []
-          }
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenCommunicationRestricition }
+        : { ...citizenCommunicationRestricition }
     filtersObj.filters.alert.content[0] =
-      userProfile?.role === ROLE_CITIZEN
-        ? {
-            name: 'restriction',
-            options: [CommunicationRestrictionType.CITIZEN],
-            type: 'multipleselect',
-            selected: [CommunicationRestrictionType.CITIZEN]
-          }
-        : {
-            name: 'restriction',
-            options: [
-              CommunicationRestrictionType.CITIZEN,
-              CommunicationRestrictionType.PROFESSIONAL
-            ],
-            type: 'multipleselect',
-            selected: []
-          }
+      userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN
+        ? { ...notCitizenAlertRestricition }
+        : { ...citizenAlertRestricition }
   } else {
     filtersObj = JSON.parse(storedFilters)
+
+    if (userProfile && userProfile.role && userProfile.role !== ROLE_CITIZEN) {
+      const selectedReportHazardVisibility = filtersObj.filters.report.content[1].selected
+      filtersObj.filters.report.content[1] = {
+        ...notCitizenReportHazardVisibility,
+        selected: selectedReportHazardVisibility
+      }
+      const selectedCommunicationRestriction = filtersObj.filters.communication.content[1].selected
+      filtersObj.filters.communication.content[1] = {
+        ...notCitizenCommunicationRestricition,
+        selected: selectedCommunicationRestriction
+      }
+      const selectedAlertRestriction = filtersObj.filters.alert.content[0].selected
+      filtersObj.filters.alert.content[0] = {
+        ...notCitizenAlertRestricition,
+        selected: selectedAlertRestriction
+      }
+    } else {
+      filtersObj.filters.report.content[1] = { ...citizenReportHazardVisibility }
+      filtersObj.filters.communication.content[1] = { ...citizenCommunicationRestricition }
+      filtersObj.filters.alert.content[0] = { ...citizenAlertRestricition }
+    }
   }
 
   filtersArgs = getDefaultFiltersFromLocalStorageObject(filtersObj)
   updateFiltersLocalStorage(filtersObj)
-
-  let tabVisibility = filtersInitialState.mapDrawerTabVisibility
-  tabVisibility.Communication = filtersObj.filters.multicheckCategories.options.Communication
-  tabVisibility.MapRequest = filtersObj.filters.multicheckCategories.options.MapRequest
-  tabVisibility.Mission = filtersObj.filters.multicheckCategories.options.Mission
-  tabVisibility.Report = filtersObj.filters.multicheckCategories.options.Report
-  tabVisibility.Person = filtersObj.filters.multicheckPersons.options.Active
-  tabVisibility.Alert = filtersObj.filters.multicheckCategories.options.Alert
-  tabVisibility.Station = filtersObj.filters.multicheckCategories.options.Station
 
   return {
     filtersLocalStorageObject: filtersObj as FiltersDescriptorType,
@@ -161,205 +215,35 @@ export const initializer = (userProfile, appConfig) => {
 }
 
 export const filtersReducer = (currentState, action) => {
-  const {
-    filtersLocalStorageObject: currentFiltersObject,
-    filters: currentFilters,
-    mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-    lastUpdate: currentLastUpdate
-  } = currentState
-  let newFiltersObject = currentFiltersObject
-  let newMapDrawerTabVisibility = currentMapDrawerTabVisibility
   switch (action.type) {
     case 'APPLY_DATE':
-      const newFilters = action.filters
-      const updatedFiltersObject = getFilterObjFromFilters(newFilters, {}, {}, false)
-      if (
-        newFiltersObject &&
-        newFiltersObject.filters &&
-        updatedFiltersObject &&
-        updatedFiltersObject.filters
-      ) {
-        ;(newFiltersObject.filters.datestart as any).selected = (
-          updatedFiltersObject.filters.datestart as any
-        ).selected as string
-        ;(newFiltersObject.filters.dateend as any).selected = (
-          updatedFiltersObject.filters.dateend as any
-        ).selected as string
-        updateFiltersLocalStorage(newFiltersObject)
-      }
       return {
-        filtersLocalStorageObject: newFiltersObject,
+        filtersLocalStorageObject: action.filtersObj,
         filters: action.filters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        ...currentState
       }
     case 'APPLY_FILTERS':
-      newFiltersObject = action.filtersObject
-      updateFiltersLocalStorage(newFiltersObject)
-      const updatedFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
-      newMapDrawerTabVisibility.Communication =
-        newFiltersObject.filters.multicheckCategories.options.Communication
-      newMapDrawerTabVisibility.MapRequest =
-        newFiltersObject.filters.multicheckCategories.options.MapRequest
-      newMapDrawerTabVisibility.Mission =
-        newFiltersObject.filters.multicheckCategories.options.Mission
-      newMapDrawerTabVisibility.Report =
-        newFiltersObject.filters.multicheckCategories.options.Report
-      newMapDrawerTabVisibility.Person = newFiltersObject.filters.multicheckPersons.options.Active
-      newMapDrawerTabVisibility.Alert = newFiltersObject.filters.multicheckCategories.options.Alert
-      newMapDrawerTabVisibility.Station =
-        newFiltersObject.filters.multicheckCategories.options.Station
-
       return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: updatedFilters,
-        mapDrawerTabVisibility: newMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        filtersLocalStorageObject: action.filtersObj,
+        filters: action.filters,
+        mapDrawerTabVisibility: action.mapDrawerTabVisibility,
+        ...currentState
       }
-    case 'UPDATE_ACTIVITIES':
-      const newActivities = action.activities
-      newFiltersObject.filters.multicheckActivities = {
-        title: 'multicheck_activities',
-        type: 'checkboxlist',
-        options: newActivities,
-        tab: 2
-      }
-      updateFiltersLocalStorage(newFiltersObject)
+    case 'UPDATE_FILTERS_OBJECT':
       return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
-      }
-    case 'UPDATE_TEAM_LIST':
-      const teamList = action.teamList
-      newFiltersObject.filters.persons.content[1].options = teamList
-      return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
-      }
-    case 'UPDATE_MAP_BOUNDS':
-      const newMapBounds = action.mapBounds
-      newFiltersObject.filters.mapBounds = newMapBounds
-      updateFiltersLocalStorage(newFiltersObject)
-      return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
-      }
-    case 'RESET':
-      const appConfigMapBounds = action.appConfigMapBounds
-      const isCitizen = action.isCitizen
-      newFiltersObject = initObjectState
-      newFiltersObject.filters.mapBounds = appConfigMapBounds
-      if (isCitizen) {
-        const citizenHazardContent = {
-          name: 'hazard_visibility',
-          options: ['Public'],
-          type: 'select',
-          selected: 'Public'
-        }
-        newFiltersObject.filters.report.content[2] = citizenHazardContent
-      }
-      const resetFilters = getDefaultFiltersFromLocalStorageObject(newFiltersObject)
-      updateFiltersLocalStorage(newFiltersObject)
-      return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: resetFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        filtersLocalStorageObject: action.filtersObj,
+        ...currentState
       }
     case 'UPDATE_MAP_DRAWER_TAB_VISIBILITY':
-      newMapDrawerTabVisibility[action.name] = action.visibility
-      if (action.name === EntityType.PERSON) {
-        for (let key in newFiltersObject.filters.multicheckPersons.options) {
-          newFiltersObject.filters.multicheckPersons.options[key] = action.visibility
-        }
-
-        for (let key in newFiltersObject.filters.multicheckActivities.options) {
-          newFiltersObject.filters.multicheckActivities.options[key] = action.visibility
-        }
-      } else {
-        newFiltersObject.filters.multicheckCategories.options[action.name] = action.visibility
-      }
-
-      // deactivate the others if one feature is selected and if it is the first click
-      if (action.clickCnt === 1 && action.visibility) {
-        if (action.name !== EntityType.COMMUNICATION) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.COMMUNICATION,
-            !action.visibility
-          )
-        }
-        if (action.name !== EntityType.MAP_REQUEST) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.MAP_REQUEST,
-            !action.visibility
-          )
-        }
-        if (action.name !== EntityType.MISSION) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.MISSION,
-            !action.visibility
-          )
-        }
-        if (action.name !== EntityType.REPORT) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.REPORT,
-            !action.visibility
-          )
-        }
-        if (action.name !== EntityType.PERSON) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.PERSON,
-            !action.visibility
-          )
-        }
-        if (action.name !== EntityType.ALERT) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.ALERT,
-            !action.visibility
-          )
-        }
-
-        if (action.name !== EntityType.STATION) {
-          changeFeatureStatus(
-            newFiltersObject,
-            newMapDrawerTabVisibility,
-            EntityType.STATION,
-            !action.visibility
-          )
-        }
-      }
-
-      updateFiltersLocalStorage(newFiltersObject)
       return {
-        filtersLocalStorageObject: newFiltersObject,
-        filters: currentFilters,
-        mapDrawerTabVisibility: newMapDrawerTabVisibility,
-        lastUpdate: currentLastUpdate
+        filtersLocalStorageObject: action.filtersObj,
+        mapDrawerTabVisibility: action.mapDrawerTabVisibility,
+        ...currentState
       }
     case 'SET_LAST_UPDATE':
       return {
-        filtersLocalStorageObject: currentFiltersObject,
-        filters: currentFilters,
-        mapDrawerTabVisibility: currentMapDrawerTabVisibility,
-        lastUpdate: action.lastUpdate
+        lastUpdate: action.lastUpdate,
+        ...currentState
       }
     default:
       return currentState

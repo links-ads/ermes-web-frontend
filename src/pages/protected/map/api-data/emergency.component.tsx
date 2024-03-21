@@ -38,6 +38,7 @@ import {
 import { DiscardedIcon, ValidatedIcon } from '../map-drawer/camera-chip-icons.component'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
 import ReportPopupCard from './feature-cards/report-popup-card.component'
+import { CameraChip } from '../map-drawer/drawer-cards/camera-chip.component'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -325,8 +326,8 @@ const mapRequestCard = (
 }
 const personCard = (details, classes, formatter, t, description, creator, latitude, longitude) => {
   let extensionData = details['extensionData'] ? JSON.parse(details['extensionData']) : undefined
-  console.log('DETTAGLI', details)
-  //console.log('DESCRIPTION', description)
+  console.debug('DETTAGLI', details)
+  //console.debug('DESCRIPTION', description)
   return (
     <>
       <Card elevation={0}>
@@ -517,7 +518,7 @@ const missCard = (
                 {/* {elem.replace(/([A-Z])/g, ' $1').trim()}: &nbsp; */}
               </Typography>
               <Typography component={'span'} variant="body1">
-                {t('labels:' + data.data.feature.properties.currentStatus)}
+                {t('labels:' + data.data.feature.properties.currentStatus.toLowerCase())}
               </Typography>
               <br />
             </div>
@@ -564,7 +565,7 @@ const missCard = (
                                 style={{ cursor: 'pointer' }}
                               >
                                 <TableCell component="th" align="left" scope="row">
-                                  {elem.hazard}
+                                  {t('maps:' + elem.hazard.toLowerCase())}
                                 </TableCell>
                                 <TableCell align="center">{elem.organizationName}</TableCell>
                                 <TableCell align="center">
@@ -811,51 +812,13 @@ function StationCard({ data, latitude, longitude }) {
         </CardContent>
         <CardActions className={ccmClasses.cardAction}>
           <Typography color="textSecondary" variant="caption">
-            Last update: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
+            {t('labels:timestamp')}: {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'N/A'}
           </Typography>
         </CardActions>
         <CardActions className={ccmClasses.cardAction}>
           <div className={ccmClasses.chipContainer}>
-            {hasFire && (
-              <Chip
-                avatar={
-                  hasAllFireValidationsDiscarded ? (
-                    <DiscardedIcon type="fire" avatar />
-                  ) : hasAtLeastOneFireValidation ? (
-                    <ValidatedIcon type="fire" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.error.dark,
-                  borderColor: theme.palette.error.dark,
-                  color: theme.palette.error.contrastText
-                }}
-                className={ccmClasses.chipStyle}
-                label={t('maps:fire')}
-              />
-            )}
-            {hasSmoke && (
-              <Chip
-                avatar={
-                  hasAllSmokeValidationsDiscarded ? (
-                    <DiscardedIcon type="smoke" avatar />
-                  ) : hasAtLeastOneSmokeValidation ? (
-                    <ValidatedIcon type="smoke" avatar />
-                  ) : undefined
-                }
-                color="primary"
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.primary.contrastText,
-                  borderColor: theme.palette.primary.dark,
-                  color: theme.palette.primary.dark
-                }}
-                className={ccmClasses.chipStyle}
-                label={t('maps:smoke')}
-              />
-            )}
+            <CameraChip status={hasFire} label={t('maps:fire')} />
+            <CameraChip status={hasSmoke} label={t('maps:smoke')} />
           </div>
           <Button variant="contained" color="primary" size="small" onClick={handleShowDetails}>
             {t('common:details')}
@@ -887,11 +850,11 @@ type ColorMapType = {
 export const EmergencyColorMap: ColorMapType = {
   // ReportRequest: green[800],
   Person: '#f9e900', //lightBlue[800],
-  Report: '#ffd2cc', //brown[800],
+  Report: '#0befff', //brown[800],
   Mission: '#f797d2', //green[400],
   Station: '#4072f1',
   Alert: '#cc90e8', //'green[800]',
-  Communication: '#83cfce', //blueGrey[800],
+  Communication: '#0afa93', //blueGrey[800],
   MapRequest: '#f56c5c', //orange[800],
   SelectedPosition: yellow[800]
 }
@@ -937,16 +900,17 @@ export function EmergencyHoverCardContent({
   const classes = useStyles()
   const { t } = useTranslation(['maps', 'labels'])
   let detailComponent = <div />
-  if (type === EntityType.ALERT)
-    detailComponent = (
-      <Typography
-        variant="body2"
-        component="h2"
-        gutterBottom
-        dangerouslySetInnerHTML={{ __html: details }}
-      />
-    )
-  else if (type === EntityType.COMMUNICATION)
+  // if (type === EntityType.ALERT)
+  //   detailComponent = (
+  //     <Typography
+  //       variant="body2"
+  //       component="h2"
+  //       gutterBottom
+  //       dangerouslySetInnerHTML={{ __html: details }}
+  //     />
+  //   )
+  // else
+  if (type === EntityType.COMMUNICATION)
     detailComponent = (
       <Typography
         variant="body2"
@@ -1043,7 +1007,7 @@ export function EmergencyHoverCardContent({
           </Typography>
         </div>
       ) : undefined}
-      {status && status !== 'null' ? (
+      {status && status !== 'null' && type !== EntityType.REPORT ? (
         <div>
           <Typography
             component={'span'}
@@ -1146,18 +1110,18 @@ export function EmergencyContent({
           }
         )
         break
-      case 'Alert':
-        fetchAlertDetails(
-          rest.id,
-          (data) => {
-            return data
-          },
-          {},
-          (data) => {
-            return data
-          }
-        )
-        break
+      // case 'Alert':
+      //   fetchAlertDetails(
+      //     rest.id,
+      //     (data) => {
+      //       return data
+      //     },
+      //     {},
+      //     (data) => {
+      //       return data
+      //     }
+      //   )
+      //   break
       case 'Station':
         fetchCameras()
         break
@@ -1169,7 +1133,7 @@ export function EmergencyContent({
   const dispatch = useDispatch()
 
   // useEffect(() => {
-  //   console.log('REP DETAILS', repDetails)
+  //   console.debug('REP DETAILS', repDetails)
   // }, [repDetails])
   useEffect(() => {
     if (!missDetails.isLoading) {
@@ -1260,9 +1224,9 @@ export function EmergencyContent({
         longitude
       )
       break
-    case 'Alert':
-      todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
-      break
+    // case 'Alert':
+    //   todisplay = alertCard(alertDetails, classes, t, formatter, latitude, longitude, rest)
+    //   break
     case 'Station':
       const camera = cameras.data?.find((e) => e.id === rest.details)
       todisplay = <StationCard data={camera} latitude={latitude} longitude={longitude} />

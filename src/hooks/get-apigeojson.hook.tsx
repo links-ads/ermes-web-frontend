@@ -1,5 +1,10 @@
 import { useCallback, useReducer, useMemo, useContext } from 'react'
-import { CommunicationRestrictionType, CommunicationScopeType, GeoJsonApiFactory } from 'ermes-backoffice-ts-sdk'
+import {
+  CommunicationRestrictionType,
+  CommunicationScopeType,
+  EntityType,
+  GeoJsonApiFactory
+} from 'ermes-backoffice-ts-sdk'
 import { useAPIConfiguration } from './api-hooks'
 import { useSnackbars } from './use-snackbars.hook'
 import { useMemoryState } from './use-memory-state.hook'
@@ -75,8 +80,10 @@ export default function GetApiGeoJson() {
     (teamIds, transformData = (data) => {}, errorData = {}, sideEffect = (data) => {}) => {
       dispatch({ type: 'FETCH' })
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
-        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      if (
+        (filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)
+      ) {
+        ;(filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
       }
       repApiFactory
         .geoJsonGetFeatureCollection(
@@ -89,14 +96,14 @@ export default function GetApiGeoJson() {
           undefined,
           (filters?.persons as any).content[0]?.selected,
           (filters?.report as any).content[0]?.selected,
-          (filters?.report as any).content[1]?.selected,
+          undefined,
           (filters?.mission as any).content[0]?.selected,
           (filters?.mapRequests as any).content[0]?.selected,
           (filters?.mapRequests as any).content[1]?.selected,
           undefined,
           teamIds,
+          (filters?.report as any).content[1]?.selected,
           (filters?.report as any).content[2]?.selected,
-          (filters?.report as any).content[3]?.selected,
           (filters?.communication as any).content[1]?.selected,
           (filters?.communication as any).content[0]?.selected,
           (filters?.alert as any).content[0]?.selected,
@@ -111,9 +118,11 @@ export default function GetApiGeoJson() {
             type: 'RESULT',
             value: {
               type: 'FeatureCollection',
-              features: (result?.data.features || []).map((e, i) => {
-                return e as unknown as GeoJSON.Feature
-              }),
+              features: (result?.data.features || [])
+                .filter((e) => e.properties.type !== EntityType.ALERT) // remove alerts from the map
+                .map((e, i) => {
+                  return e as unknown as GeoJSON.Feature
+                }),
               downloadUrl: ''
             }
           })
@@ -137,8 +146,10 @@ export default function GetApiGeoJson() {
       sideEffect = (data) => {}
     ) => {
       const filters = (JSON.parse(storedFilters!) as unknown as FiltersDescriptorType).filters
-      if ((filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)) {
-        (filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
+      if (
+        (filters?.communication as any).content[0].selected.includes(CommunicationScopeType.PUBLIC)
+      ) {
+        ;(filters?.communication as any).content[1].selected.push(CommunicationRestrictionType.NONE)
       }
       repApiFactory
         .geoJsonDownloadFeatureCollection(
@@ -151,14 +162,14 @@ export default function GetApiGeoJson() {
           entityTypes,
           (filters?.persons as any).content[0]?.selected,
           (filters?.report as any).content[0]?.selected,
-          (filters?.report as any).content[1]?.selected,
+          undefined,
           (filters?.mission as any).content[0]?.selected,
           (filters?.mapRequests as any).content[0]?.selected,
           (filters?.mapRequests as any).content[1]?.selected,
           activityIds,
           teamIds,
+          (filters?.report as any).content[1]?.selected,
           (filters?.report as any).content[2]?.selected,
-          (filters?.report as any).content[3]?.selected,
           (filters?.communication as any).content[1]?.selected,
           (filters?.communication as any).content[0]?.selected,
           (filters?.alert as any).content[0]?.selected,

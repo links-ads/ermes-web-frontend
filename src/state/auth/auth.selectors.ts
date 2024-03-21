@@ -28,3 +28,7 @@ export function getTokenStateSelector(state: AppState): string | null {
 export function loadingUserDataSelector(state: AppState): boolean {
   return state.auth.loading
 }
+
+export function getUserPermissionsSelector(state: AppState): string[] {
+  return state.auth.profile?.permissions ?? []
+}

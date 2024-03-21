@@ -1,6 +1,6 @@
 {
   "envTag": "",
-  "gamificationUrl": "https://safersblobstoragetest.blob.core.windows.net/gamification/",
+  "gamificationUrl": "https://safersblobstoragedev.blob.core.windows.net/gamification/",
   "ui": {
     "availableThemes": ["dark", "light"],
     "defaultTheme": "dark"
@@ -58,5 +58,5 @@
   "userTagsFilter": {
     "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-dev.safers-project.cloud"
 }

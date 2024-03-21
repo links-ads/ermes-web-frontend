@@ -1,5 +1,5 @@
 import { useEffect, useContext, useCallback, useMemo } from 'react'
-import { useOAuth2Token, parseJWT, isExpired } from '../../oauth/react-oauth2-hook-mod'
+import { useOAuth2Token, parseJWT, isExpired, storagePrefix } from '../../oauth/react-oauth2-hook-mod'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 import { AuthThunkDispatch, AuthThunkAction } from './auth.types'
 import { AUTH_ACTIONS } from './auth.actions'
@@ -7,9 +7,10 @@ import {
   getUserStateSelector,
   userEqualityFn,
   getTokenStateSelector,
-  loadingUserDataSelector
+  loadingUserDataSelector,
+  getUserPermissionsSelector
 } from './auth.selectors'
-import { SCOPE } from './auth.consts'
+import { PermissionAction, PermissionEntity, PermissionGranularity, SCOPE } from './auth.consts'
 import { useTranslation } from 'react-i18next'
 import { AppConfigContext, AppConfig } from '../../config'
 import { getFusionAuthURLs } from './auth.utils'
@@ -17,6 +18,7 @@ import { Configuration, ProfileApiFactory, ProfileDto } from 'ermes-ts-sdk'
 import { Profile } from 'ermes-ts-sdk'
 import { useSnackbars } from '../../hooks/use-snackbars.hook'
 import { USER_STORAGE_KEY } from '../store.utils'
+import useStorage from 'react-storage-hook'
 
 /**
  * Async Thunk!
@@ -90,9 +92,10 @@ export function thunkLoadProfile(
 export function useOauth() {
   const appConfig = useContext<AppConfig>(AppConfigContext)
   const { displayErrorSnackbar, displayWarningSnackbar } = useSnackbars()
-  const { oauth2CallbackUrl, authorizeUrl, logoutUrl } = getFusionAuthURLs(
+  const { loginCallbackUrl, authorizeUrl, logoutUrl } = getFusionAuthURLs(
     appConfig.rootUrl,
-    appConfig.fusionAuth?.url || ''
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
   )
   const tenantId = appConfig.fusionAuth?.tenantId || ''
   const clientId = appConfig.fusionAuth?.clientId || ''
@@ -101,10 +104,11 @@ export function useOauth() {
   const [token, getToken, setToken] = useOAuth2Token({
     authorizeUrl: authorizeUrl,
     scope: SCOPE,
-    redirectUri: oauth2CallbackUrl,
+    redirectUri: loginCallbackUrl,
     clientId,
     tenantId,
-    locale
+    locale,
+    responseType: 'code'
   })
 
   const beAPIConfig = useMemo(
@@ -166,6 +170,19 @@ export function useUser() {
   }
 }
 
+export const useUserPermission = (
+  entity: PermissionEntity,
+  action: PermissionAction,
+  granularity?: PermissionGranularity | null
+): boolean => {
+  const permissions = useSelector(getUserPermissionsSelector)
+  if (permissions && permissions.length > 0) {
+    const permissionName = `${entity}.${action}` + (granularity ? `.${granularity}` : '')
+    return permissions.includes(permissionName)
+  }
+  return false
+}
+
 export function useToken() {
   const stateSelection = useSelector(getTokenStateSelector, shallowEqual)
   return stateSelection
@@ -174,18 +191,29 @@ export function useToken() {
 export function useLogout() {
   const { clientId, tenantId, logoutUrl, setToken } = useOauth()
   const dispatch = useDispatch<AuthThunkDispatch>()
+  const appConfig = useContext<AppConfig>(AppConfigContext)
+  const { logoutCallbackUrl } = getFusionAuthURLs(
+    appConfig.rootUrl,
+    appConfig.fusionAuth?.url || '',
+    appConfig.backend?.url!
+  )  
+  let [, setHasHandle] = useStorage<boolean>('logout-window-handle', {
+    placeholder: false
+  })
 
   // Logout action
   function logout(): void {
     // setUser(null)
     setToken(null)
     /* const handle = */ window.open(
-      `${logoutUrl}?client_id=${clientId}&tenantId=${tenantId}`,
+      `${logoutUrl}?client_id=${clientId}&tenantId=${tenantId}&post_logout_redirect_uri=${logoutCallbackUrl}`,
       'Logout',
       'width=360,height=400'
     )
+    
     dispatch({ type: AUTH_ACTIONS.CLEAR_ALL })
     localStorage.clear()
+    setHasHandle(true)
     // updateLogoutHandle(handle)
     // console.debug('HANDLE', handle)
   }
