@@ -1,3 +1,4 @@
+// app-bar.tsx
 import React, { memo, useContext, useEffect, useMemo } from 'react'
 // import { Header, SidebarTrigger, SidebarTriggerIcon } from '@mui-treasury/layout'
 import { BrandLogo } from './app-bar-widgets/brand-logo/brand-logo'
@@ -28,7 +29,7 @@ export const AppBar = memo(function AppBarFn(/* { headerStyles, drawerOpen }: Ap
   path.shift()
 
   const filterActive = path[0] == 'dashboard' || path[0] == 'map' ? true : false
-  const showCategoryFilters = path[0] !== 'dashboard' ? true : false
+  const showCategoryFilters = true // path[0] !== 'dashboard' ? true : false
 
   const filtersCtx = useContext(FiltersContext)
   const {

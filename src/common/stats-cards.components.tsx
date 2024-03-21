@@ -259,7 +259,7 @@ export const PieChartStats = (props) => {
           item.value
         )
       }}
-      enableSliceLabels={false}
+      // enableSliceLabels={false}
       defs={defs}
       legends={[
         {
