@@ -11,7 +11,7 @@ export function Communications({ communications }) {
     if (!communications) return []
 
     const data = communications.map((p) => ({
-      id: t(`labels:${p.id.toLowerCase()}`),
+      id: p.id.toLowerCase() == 'none' ? t('labels:public') : t(`labels:${p.id.toLowerCase()}`),
       value: p.value,
       valueColor: EmergencyColorMap.Communication
     }))
