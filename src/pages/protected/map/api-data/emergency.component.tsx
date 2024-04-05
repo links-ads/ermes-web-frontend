@@ -817,8 +817,8 @@ function StationCard({ data, latitude, longitude }) {
         </CardActions>
         <CardActions className={ccmClasses.cardAction}>
           <div className={ccmClasses.chipContainer}>
-            <CameraChip status={hasFire} label={t('maps:fire')} />
-            <CameraChip status={hasSmoke} label={t('maps:smoke')} />
+            <CameraChip status={hasFire} label={t('filters:fire')} />
+            <CameraChip status={hasSmoke} label={t('filters:smoke')} />
           </div>
           <Button variant="contained" color="primary" size="small" onClick={handleShowDetails}>
             {t('common:details')}

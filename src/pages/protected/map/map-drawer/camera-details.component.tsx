@@ -59,7 +59,7 @@ const PAGE_SIZE = 3
 function ValidationButton({ show, baseColor, onClick, metadata, type, value = null }: any) {
   const theme = useTheme()
 
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'filters'])
 
   if (!show) {
     return null
@@ -91,49 +91,49 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
     >
       {validationStatus === CameraValidationStatus.DetectedAndValidated && value && (
         <>
-          {t(`maps:${type}`)} {t('maps:confirmed')} <CheckCircle />
+          {t(`filters:${type}`)} {t('maps:confirmed')} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value === false && (
         <>
-          {t(`maps:${type}`)} {t('maps:disproved')} <Cancel />
+          {t(`filters:${type}`)} {t('maps:disproved')} <Cancel />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.UndetectedAndAdded && (
         <>
-          {t(`maps:remove`)} {t(`maps:${type}`)} <RemoveCircle />
+          {t(`maps:remove`)} {t(`filters:${type}`)} <RemoveCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Undetected && (
         <>
-          {t(`maps:add`)} {t(`maps:${type}`)} <AddCircle />
+          {t(`maps:add`)} {t(`filters:${type}`)} <AddCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Detected && value && (
         <>
-          {t(`maps:confirm`)} {t(`maps:${type}`)} <CheckCircle />
+          {t(`maps:confirm`)} {t(`filters:${type}`)} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndDiscarded && value && (
         <>
-          {t(`maps:confirm`)} {t(`maps:${type}`)} <CheckCircle />
+          {t(`maps:confirm`)} {t(`filters:${type}`)} <CheckCircle />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.Detected && value === false && (
         <>
-          {t(`maps:disprove`)} {t(`maps:${type}`)} <Cancel />
+          {t(`maps:disprove`)} {t(`filters:${type}`)} <Cancel />
         </>
       )}
 
       {validationStatus === CameraValidationStatus.DetectedAndValidated && value === false && (
         <>
-          {t(`maps:disprove`)} {t(`maps:${type}`)} <Cancel />
+          {t(`maps:disprove`)} {t(`filters:${type}`)} <Cancel />
         </>
       )}
     </Button>
@@ -143,7 +143,7 @@ function ValidationButton({ show, baseColor, onClick, metadata, type, value = nu
 const emptyArray = []
 
 export function CameraDetails({}: CameraDetailsProps) {
-  const { t } = useTranslation(['common', 'maps'])
+  const { t } = useTranslation(['common', 'maps', 'filters'])
   const elem = useSelector((state: AppState) => state.selectedCameraState)
   const hasMeasurements = elem?.sensors?.some((sensor) => sensor.measurements?.length)
   const [selectedSensorId, setSelectedSensorId] = useState<string | undefined>()
@@ -341,8 +341,8 @@ export function CameraDetails({}: CameraDetailsProps) {
                   label={
                     <div>
                       <div style={localStyles.badgeContainer}>
-                        <CameraChip status={hasFire} label={t('maps:fire')} />
-                        <CameraChip status={hasSmoke} label={t('maps:smoke')} />
+                        <CameraChip status={hasFire} label={t('filters:fire')} />
+                        <CameraChip status={hasSmoke} label={t('filters:smoke')} />
                       </div>
                       <img
                         style={{ width: 200, height: 100, objectFit: 'cover' }}

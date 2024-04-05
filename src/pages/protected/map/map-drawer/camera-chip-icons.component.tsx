@@ -17,7 +17,7 @@ export function ValidatedIcon({ type, avatar = false }) {
         backgroundColor: containerColor
       }}
     >
-      {t(`maps:${type}`)}
+      {t(`filters:${type}`)}
       <CheckCircle
         style={{ fill: iconColor, backgroundColor: 'black', borderRadius: '50%', fontSize: 14 }}
       />
@@ -39,7 +39,7 @@ export function DiscardedIcon({ type, avatar = false }) {
         backgroundColor: containerColor
       }}
     >
-      {t(`maps:${type}`)}
+      {t(`filters:${type}`)}
       <Cancel style={{ fill: iconColor, fontSize: 14 }} />
     </div>
   )
@@ -59,7 +59,7 @@ export function DetectedIcon({ type }) {
         backgroundColor: containerColor
       }}
     >
-      {t(`maps:${type}`)}
+      {t(`filters:${type}`)}
       <Cancel
         style={{
           fill: iconColor,
