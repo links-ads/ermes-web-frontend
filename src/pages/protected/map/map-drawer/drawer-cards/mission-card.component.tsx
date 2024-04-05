@@ -56,6 +56,20 @@ const MissionCard: React.FC<DrawerCardProps> = (props) => {
             color="textSecondary"
             style={{ textTransform: 'uppercase' }}
           >
+            {t('maps:associatedReports')}:&nbsp;
+          </Typography>
+          <Typography component={'span'} variant="body1">
+            {elem.reports.length}
+          </Typography>
+        </>
+        <br />
+        <>
+          <Typography
+            component={'span'}
+            variant="caption"
+            color="textSecondary"
+            style={{ textTransform: 'uppercase' }}
+          >
             {t('maps:organization')}:&nbsp;
           </Typography>
           <Typography component={'span'} variant="body1">

@@ -55,6 +55,7 @@
   "coord_org": "Coordinator",
   "mission_state": "Mission state",
   "associated_report_list": "List of associated reports",
+  "associatedReports": "Associated reports",
   "operation_create": "Create",
   "operation_update": "Update",
   "operation_delete": "Delete",
