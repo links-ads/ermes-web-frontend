@@ -28,6 +28,13 @@ function makeLayerURL(layerNames, layerTime, geoServerConfig) {
   return `${baseUrl}/${suffix}?${urlParams}`
 }
 
+export function getMediaURL(mediaConfig, mediaURI) {
+  const baseUrl = mediaURI
+  const params = { ...mediaConfig }
+  const url = `${baseUrl}?${composeParams(params)}`
+  return url
+}
+
 export function getLegendURL(geoServerConfig, w, h, layerName) {
   const baseUrl = geoServerConfig?.baseUrl
 

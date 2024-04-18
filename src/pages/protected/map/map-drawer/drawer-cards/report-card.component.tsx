@@ -8,7 +8,7 @@ import {
   useTheme
 } from '@material-ui/core'
 import { EntityType } from 'ermes-ts-sdk'
-import React from 'react'
+import React, { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { HAZARD_SOCIAL_ICONS } from '../../../../../utils/utils.common'
 import CardWithPopup from './card-with-popup.component'
@@ -18,6 +18,8 @@ import { FormatDate } from '../../../../../utils/date.utils'
 import DrawerCardProps from '../../../../../models/DrawerCardProps'
 import { EmergencyColorMap } from '../../api-data/emergency.component'
 import { Drafts, Markunread } from '@material-ui/icons'
+import { getMediaURL } from '../../../../../utils/map.utils'
+import { AppConfig, AppConfigContext } from '../../../../../config'
 
 const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const {
@@ -32,6 +34,8 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
   const { t } = useTranslation(['common', 'maps', 'social', 'labels'])
   const timestamp = FormatDate(elem.timestamp)
   const theme = useTheme()
+
+  const appConfig = useContext<AppConfig>(AppConfigContext)
 
   const onMissionChipClick = (evt) => {
     evt.stopPropagation()
@@ -57,7 +61,7 @@ const ReportCard: React.FC<DrawerCardProps> = (props) => {
         className={classes.cover}
         image={
           elem.mediaURIs && elem.mediaURIs?.length > 0 && elem.mediaURIs[0].thumbnailURI
-            ? elem.mediaURIs[0].thumbnailURI
+            ? getMediaURL(appConfig.blobStorageSasToken, elem.mediaURIs[0].thumbnailURI)
             : `https://via.placeholder.com/123x187/${EmergencyColorMap.Report.replace(
                 '#',
                 ''

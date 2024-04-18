@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -34,6 +34,8 @@ import { Drafts, HowToReg, LocationOn, Markunread } from '@material-ui/icons'
 import { EntityType } from 'ermes-backoffice-ts-sdk'
 import useCategoriesList from '../../../../../hooks/use-categories-list.hook'
 import { EmergencyColorMap } from '../emergency.component'
+import { AppConfig, AppConfigContext } from '../../../../../config'
+import { getMediaURL } from '../../../../../utils/map.utils'
 
 const KeyValueTypography = (props) => {
   const { keyStr, value, classes, t } = props
@@ -58,6 +60,7 @@ const KeyValueTypography = (props) => {
 
 const MediaCarouselWithModal = (props) => {
   const { mediaURIs, classes, openModal, setOpenModal, theme } = props
+  const appConfig = useContext<AppConfig>(AppConfigContext)
 
   function guessMediaType(mediaType) {
     const extension = mediaType.split('.').pop()
@@ -96,7 +99,7 @@ const MediaCarouselWithModal = (props) => {
             <CardMedia
               key={idx}
               className={classes.media}
-              src={media.mediaURI}
+              src={getMediaURL(appConfig.blobStorageSasToken, media.mediaURI)}
               component={guessMediaType(media.mediaURI)}
               style={{ minHeight: '250px', borderRadius: 6 }}
               controls={true}
@@ -141,7 +144,7 @@ const MediaCarouselWithModal = (props) => {
                     key={idx}
                     autoPlay={true}
                     controls={true}
-                    src={media.mediaURI}
+                    src={getMediaURL(appConfig.blobStorageSasToken, media.mediaURI)}
                     style={{ maxHeight: '750px', minHeight: '250px' }}
                     component={guessMediaType(media.mediaURI)}
                     onClick={() => {
