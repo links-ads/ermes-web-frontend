@@ -86,6 +86,17 @@ export interface GeoServerConfig {
 
 }
 
+export interface BlobStorageSasTokenConfig {
+  sv?: string
+  ss?: string
+  srt?: string
+  sp?: string
+  se?: string
+  st?: string
+  spr?: string
+  sig?: string
+}
+
 export interface AppConfig {
   // Identifies the env tag (local, test, dev...) to be displayed
   envTag?: string
@@ -119,5 +130,7 @@ export interface AppConfig {
   // url of azure resources for gamification icons in leaderboards
   gamificationUrl?: string,
   //base url of Importer module, to be used for downloading layer files
-  importerBaseUrl?: string
+  importerBaseUrl?: string,
+  // SAS token for private Blob Storage access
+  blobStorageSasToken?: BlobStorageSasTokenConfig
 }
