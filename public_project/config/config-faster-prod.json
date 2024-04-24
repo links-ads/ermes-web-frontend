@@ -55,5 +55,15 @@
   "backend": {
     "url": "https://api.faster-project.cloud"
   },
-  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-test.safers-project.cloud",
+  "blobStorageSasToken": {
+    "sv": "2022-11-02",
+    "ss": "b",
+    "srt": "o",
+    "sp": "r",
+    "se": "2029-04-20T22:20:40Z",
+    "st": "2024-04-22T14:20:40Z",
+    "spr": "https",
+    "sig": "gVNLucfa1Uf%2FmSG2PB9y1JRq8Ks9ezqiddy7jMw52tQ%3D"
+  }
 }
