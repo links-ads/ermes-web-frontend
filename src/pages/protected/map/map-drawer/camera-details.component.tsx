@@ -31,7 +31,7 @@ import {
 import { MeasureDto, StationsApiFactory } from 'ermes-backoffice-ts-sdk'
 import moment from 'moment'
 import { useSnackbar } from 'notistack'
-import React, { CSSProperties, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useDispatch, useSelector } from 'react-redux'
 import { useAPIConfiguration } from '../../../../hooks/api-hooks'
@@ -46,6 +46,8 @@ import { DetectedIcon, DiscardedIcon, ValidatedIcon } from './camera-chip-icons.
 import classes from './drawer-cards/communication-card.module.scss'
 import { getCameraState } from '../../../../utils/get-camera-state.util'
 import { CameraChip } from './drawer-cards/camera-chip.component'
+import { AppConfig, AppConfigContext } from '../../../../config'
+import { getMediaURL } from '../../../../utils/map.utils'
 
 function getCardinalDirection(angle) {
   const directions = ['↑ N', '↗ NE', '→ E', '↘ SE', '↓ S', '↙ SW', '← W', '↖ NW']
@@ -158,6 +160,7 @@ export function CameraDetails({}: CameraDetailsProps) {
   const [page, setPage] = useState(0)
   const { apiConfig: backendAPIConfig } = useAPIConfiguration('backoffice')
   const { enqueueSnackbar } = useSnackbar()
+  const appConfig = useContext<AppConfig>(AppConfigContext)
 
   async function handleClose() {
     setSelectedSensorId(undefined)
@@ -346,7 +349,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                       </div>
                       <img
                         style={{ width: 200, height: 100, objectFit: 'cover' }}
-                        src={thumbnail!}
+                        src={getMediaURL(appConfig.blobStorageSasToken, thumbnail!)}
                         alt={firstMeasurement.measure!}
                       />
                       {description && (
@@ -437,7 +440,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                 marginTop: 16,
                 marginBottom: 16
               }}
-              src={selectedSensorMeasurement?.measure}
+              src={getMediaURL(appConfig.blobStorageSasToken, selectedSensorMeasurement?.measure)}
               alt={selectedSensorMeasurement?.measure}
             />
           </div>
@@ -525,7 +528,7 @@ export function CameraDetails({}: CameraDetailsProps) {
                       </div>
                       <img
                         style={{ width: 200, height: 125, objectFit: 'cover' }}
-                        src={thumbnail}
+                        src={getMediaURL(appConfig.blobStorageSasToken, thumbnail)}
                         alt={measurement.measure!}
                       />
                       {measurement.timestamp && (
