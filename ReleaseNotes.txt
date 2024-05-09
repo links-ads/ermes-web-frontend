@@ -1,4 +1,4 @@
-Ver.
+Ver. 2.22.5 - 2024-05-09
 -----------------------
 - Feature - SAS token for private Blob Storage access (#201)
 
