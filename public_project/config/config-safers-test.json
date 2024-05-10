@@ -58,5 +58,15 @@
   "userTagsFilter": {
     "filters": ["administrator", "user", "admin"]
   },
-  "importerBaseUrl": "https://geoapi-test.safers-project.cloud"
+  "importerBaseUrl": "https://geoapi-test.safers-project.cloud",
+  "blobStorageSasToken": {
+    "sv": "2022-11-02",
+    "ss": "b",
+    "srt": "o",
+    "sp": "r",
+    "se": "2029-04-21T15:36:36Z",
+    "st": "2024-04-22T07:36:36Z",
+    "spr": "https",
+    "sig": "Xs0XtgUuGE6rY4e%2Fu%2Bq622riqUbvLlE39jGm56WPets%3D"
+  }
 }
