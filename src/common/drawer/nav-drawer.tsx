@@ -29,7 +29,7 @@ const useStyles = (props) =>
         '.EdgeHeaderOffset': {
           height: props.filterActive ? '107px!important' : 64,
           '@media screen and (min-width: 514px)': {
-            height: props.filterActive ? '245px!important' : 64
+            height: props.filterActive ? '205px!important' : 64
           },
           '@media screen and (min-width: 1075px)': {
             height: props.filterActive ? '205px!important' : 64
@@ -37,7 +37,7 @@ const useStyles = (props) =>
           '@media screen and (min-width: 1321px)': {
             height: props.filterActive ? '146px!important' : 64
           },
-          '@media screen and (min-width: 1566px)': {
+          '@media screen and (min-width: 1430px)': {
             height: props.filterActive ? '107px!important' : 64
           }
         }

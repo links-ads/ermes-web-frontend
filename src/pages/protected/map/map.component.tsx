@@ -676,7 +676,16 @@ export function Map({
                 .filter((e) => e.group !== 'Map Request Layer')
                 .map((layer, idx) => (
                   <LayersPlayer
-                    key={'layer-player-' + idx}
+                    key={
+                      'layer-player-' +
+                      layer.group +
+                      '-' +
+                      layer.subGroup +
+                      '-' +
+                      layer.dataTypeId +
+                      '-' +
+                      idx
+                    }
                     idx={idx}
                     cnt={selectedLayers.filter((e) => e.group !== 'Map Request Layer').length}
                     updateLayerSelection={updateSelectedLayers}

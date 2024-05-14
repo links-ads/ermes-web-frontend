@@ -171,6 +171,10 @@ const LayersPlayer: React.FC<{
     )
   }
 
+  useEffect(() => {
+    skipNext(playerValue)
+  }, [playerValue])
+
   async function playPause() {
     setPlaying(!playing)
   }
@@ -178,7 +182,6 @@ const LayersPlayer: React.FC<{
   const onClickNextDateHandler = (event) => {
     event.stopPropagation()
     const nextStep = selectedLayer ? selectedLayer.dateIndex + 1 : 0
-    skipNext(nextStep)
     setPlayerValue(nextStep)
   }
 
@@ -186,7 +189,6 @@ const LayersPlayer: React.FC<{
     event.stopPropagation()
     const dateIndex = selectedLayer ? selectedLayer.dateIndex : 0
     const previousStep = dateIndex - 1 > -1 ? dateIndex - 1 : 0
-    skipNext(previousStep)
     setPlayerValue(previousStep)
   }
 
@@ -197,7 +199,6 @@ const LayersPlayer: React.FC<{
           ? selectedLayer.dateIndex + 1
           : 0
         : 0
-      skipNext(nextValue)
       setPlayerValue(nextValue)
     }
   }, 3000)
@@ -231,6 +232,16 @@ const LayersPlayer: React.FC<{
       selectedLayer.subGroup,
       selectedLayer.dataTypeId,
       selectedLayer.name
+    )
+  }
+
+  const closePlayer = () => {
+    setPlaying(false)
+    updateLayerSelection(
+      selectedLayer.group,
+      selectedLayer.subGroup,
+      selectedLayer.dataTypeId,
+      false
     )
   }
 
@@ -329,17 +340,7 @@ const LayersPlayer: React.FC<{
                   <MetaIcon />
                 </IconButton>
               </Tooltip>
-              <IconButton
-                onClick={() => {
-                  updateLayerSelection(
-                    selectedLayer.group,
-                    selectedLayer.subGroup,
-                    selectedLayer.dataTypeId,
-                    false
-                  )
-                }}
-                size="small"
-              >
+              <IconButton onClick={closePlayer} size="small">
                 <CloseIcon />
               </IconButton>
             </Grid>
