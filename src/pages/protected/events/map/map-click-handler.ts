@@ -20,7 +20,7 @@ export const mapClickHandler = (evt, mapRef, leftClickState, setLeftClickState, 
             const feature = (features[0] as unknown) as GeoJSON.Feature<GeoJSON.Point>
             const properties = feature.properties
             const centroid = JSON.parse(properties?.center)
-            const coordinates = JSON.parse(properties?.polygon)
+            const coordinates = (JSON.parse(properties?.polygon))[0]
             drawPolyToMap(
               map,
               { longitude: centroid[0], latitude: centroid[1] },
