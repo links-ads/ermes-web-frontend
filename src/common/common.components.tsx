@@ -103,7 +103,15 @@ export const Main = styled(Content)`
   // height: calc(100% - 112px);
   @media (min-width: 600px) {
     top: 64px;
-    height: calc(100% - 80px);
+    height: calc(100% - 163px);
+  }
+  @media screen and (min-width: 1311px) {
+    top: 6px;
+    height: calc(100% - 120px);
+  }
+  @media screen and (min-width: 1321px) {
+    top: 104px;
+    height: calc(100% - 119px);
   }
 `
 
