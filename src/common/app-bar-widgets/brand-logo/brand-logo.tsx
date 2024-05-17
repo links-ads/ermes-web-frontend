@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { staticAssetsUrl } from '../../../config/base-path'
 import { AppConfig, AppConfigContext } from '../../../config'
 import { getRandomBackgroundAndTextColors } from '../../../utils/color.utils'
-import { useUITheme } from   '../../../state/preferences/preferences.hooks'
+import { useUITheme } from '../../../state/preferences/preferences.hooks'
 
 const rotate360 = keyframes`
   from {
@@ -18,7 +18,6 @@ const rotate360 = keyframes`
     transform: rotateY(360deg);
   }
 `
-
 
 interface BrandLogoProps {
   envTag?: string
@@ -51,6 +50,9 @@ export const BrandLogoD = styled.div<BrandLogoProps>`
     height: 64px;
     width: 226px;
   }
+  @media (max-width: 960px) {
+    display: none;
+  }
 
   &::after {
     content: '${(props) => props.envTag || ''}';
@@ -67,7 +69,7 @@ export const BrandLogoD = styled.div<BrandLogoProps>`
     text-transform: uppercase;
     border-radius: 20px 5px 20px;
     color: ${(props) => props.envTagColor || '#000'};
-    background-color: ${(props) => props.envTagBackgroundColor || '#FF0'}
+    background-color: ${(props) => props.envTagBackgroundColor || '#FF0'};
   }
 `
 
@@ -80,11 +82,9 @@ export const BrandLogo = memo(function BrandLogo() {
   const { textColor, backgroundColor } = getColors()
 
   const { theme, themeName } = useUITheme()
-var logoSrc =  new URL('icons/brand_light.png', staticAssetsUrl).href
-if(themeName == 'light')
-  logoSrc = new URL('icons/brand_light.png', staticAssetsUrl).href
-else 
-  logoSrc = new URL('icons/brand_dark.png', staticAssetsUrl).href
+  var logoSrc = new URL('icons/brand_light.png', staticAssetsUrl).href
+  if (themeName == 'light') logoSrc = new URL('icons/brand_light.png', staticAssetsUrl).href
+  else logoSrc = new URL('icons/brand_dark.png', staticAssetsUrl).href
   return (
     <Route
       render={({ location }) => {
