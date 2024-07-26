@@ -13,7 +13,7 @@
   "all": "Tutti",
   "filter_by_type": "Filtra per tipo",
   "flood": "Allagamento",
-  "fire": "Fiamme",
+  "fire": "Incendio",
   "landslide": "Slavina",
   "wind": "Vento",
   "storm": "Tempesta",
@@ -55,6 +55,7 @@
   "coord_org": "Coordinatore",
   "mission_state": "Stato missione",
   "associated_report_list": "Lista segnalazioni associate",
+  "associatedReports": "Segnalazioni associate",
   "operation_create": "Crea",
   "operation_update": "Aggiorna",
   "operation_delete": "Elimina",
@@ -174,6 +175,9 @@
   "add": "Aggiungi",
   "remove": "Rimuovi",
   "confirm": "Conferma",
+  "confirmed": "Confermate/o",
   "discard": "Scarta",
+  "disprove": "Scarta",
+  "disproved": "Scartate/o",
   "hazard": "Evento"
 }

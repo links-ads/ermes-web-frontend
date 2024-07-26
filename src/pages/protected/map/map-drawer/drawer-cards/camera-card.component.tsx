@@ -58,7 +58,7 @@ const CameraCard: React.FC<{
   selectedCard: any
   setSelectedCard: any
 }> = (props) => {
-  const { t } = useTranslation(['common', 'maps', 'labels'])
+  const { t } = useTranslation(['common', 'maps', 'labels', 'filters'])
   const { elem, map, setMapHoverState, spiderLayerIds, spiderifierRef } = props
   const dispatch = useDispatch()
 
@@ -157,8 +157,8 @@ const CameraCard: React.FC<{
         </CardActions>
         <CardActions className={classes.cardAction}>
           <div className={classes.chipContainer}>
-            <CameraChip status={hasFire} label={t('maps:fire')} />
-            <CameraChip status={hasSmoke} label={t('maps:smoke')} />
+            <CameraChip status={hasFire} label={t('filters:fire')} />
+            <CameraChip status={hasSmoke} label={t('filters:smoke')} />
           </div>
           <Button
             variant="contained"
