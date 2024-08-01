@@ -3,6 +3,10 @@ Ver.
 - Feature - Dashboard refactoring (#151)
 - Bugfix - Camera images validation fix, chips update
 - Bugfix - Filter object for new instance (#199)
+- Feature - HRT SAS token (#204)
+
+Ver. 2.22.6 - 2024-05-17
+-----------------------
 - Bugfix - Small bugs (#200)
 
 Ver. 2.22.5 - 2024-05-09
