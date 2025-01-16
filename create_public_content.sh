@@ -32,7 +32,7 @@ case $1 in
         echo "safers-test"
         cp -a public_project/safers/* build/
         cp -a public_project/config/config-safers-test.json build/config.json
-        sed -i "s/PROJECT_NAME/SAFERS/" build/index.html
+        sed -i "s/PROJECT_NAME/ERMES/" build/index.html
         ;;
 
     safers-hrt)
